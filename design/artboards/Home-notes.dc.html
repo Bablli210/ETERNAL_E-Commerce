@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F5F2EC; color: #1C1B19; font-family: 'Manrope', system-ui, sans-serif; font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+    a { color: #1C1B19; } a:hover { color: #1F4E79; }
+    * { box-sizing: border-box; }
+    h1, h2, h3, h4, p { margin: 0; }
+    button { font: inherit; cursor: pointer; }
+    .serif { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; line-height: 1.1; }
+    .ph { position: relative; background-color: #E8E3D9; background-image: repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 13px); color: #56504A; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; line-height: 1.35; padding: 12px; border: 1px solid #D4CDBF; overflow: hidden; }
+    .ph.dark { background-color: #3A3733; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 13px); color: #E8E3D9; border-color: #2A2825; }
+    .ph.blue { background-color: #C9D5E3; }
+    .ph.warm { background-color: #E3D3BD; }
+    .mk { position: absolute; z-index: 6; width: 24px; height: 24px; border-radius: 50%; color: #FFFFFF; font-weight: 700; font-size: 12px; line-height: 24px; text-align: center; box-shadow: 0 0 0 3px rgba(245,242,236,0.95); }
+    .slab { position: absolute; z-index: 5; top: 6px; right: 10px; font-size: 10px; color: #6E685E; letter-spacing: 0.02em; background: rgba(245,242,236,0.85); padding: 2px 6px; border-radius: 2px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 2px; font-weight: 600; font-size: 13px; letter-spacing: 0.03em; border: 1px solid #1C1B19; background: #1C1B19; color: #F5F2EC; text-decoration: none; white-space: nowrap; }
+    .btn:hover { color: #F5F2EC; }
+    .btn.sec { background: transparent; color: #1C1B19; }
+    .btn.sec:hover { color: #1C1B19; }
+    .btn.light { background: #F5F2EC; color: #1C1B19; border-color: #F5F2EC; }
+    .btn.light:hover { color: #1C1B19; }
+    .btn.sm { height: 40px; padding: 0 16px; font-size: 12px; }
+    .lnk { text-decoration: underline; text-underline-offset: 4px; font-weight: 600; font-size: 13px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border: 1px solid #C9C1B2; border-radius: 999px; font-size: 12px; font-weight: 500; color: #1C1B19; background: #FBF9F5; white-space: nowrap; }
+    .chip.on { background: #1C1B19; color: #F5F2EC; border-color: #1C1B19; }
+    .muted { color: #6E685E; }
+    .small { font-size: 12px; }
+    .tiny { font-size: 11px; }
+    .rule { height: 1px; background: #D9D2C5; }
+    .field { height: 46px; border: 1px solid #C9C1B2; background: #FBF9F5; display: flex; align-items: center; padding: 0 14px; color: #6E685E; font-size: 13px; gap: 8px; }
+    .card { background: #FBF9F5; border: 1px solid #D9D2C5; }
+    .meter { height: 6px; background: #E1DBD0; border-radius: 3px; overflow: hidden; }
+    .meter > div { height: 100%; background: #1C1B19; }
+    .sizeopt { display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 16px; border: 1px solid #C9C1B2; background: #FBF9F5; font-size: 13px; }
+    .sizeopt.on { border: 2px solid #1C1B19; }
+    .acc { display: flex; align-items: center; justify-content: space-between; height: 56px; border-top: 1px solid #D9D2C5; font-size: 14px; font-weight: 500; }
+    .navlink { font-size: 13px; font-weight: 500; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 4px; }
+    .ann { background: #1C1B19; color: #F5F2EC; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 24px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #C9C1B2; }
+    .dot.on { background: #1C1B19; }
+    .stepdot { width: 28px; height: 4px; background: #D9D2C5; }
+    .stepdot.on { background: #1C1B19; }
+    .tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 2px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #FFFFFF; }
+    .tag.c { background: #1F4E79; } .tag.s { background: #2F6B4F; } .tag.m { background: #5B3E8C; }
+    .note { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid #D9D2C5; }
+    .note .n { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #1F4E79; color: #fff; font-weight: 700; font-size: 12px; line-height: 24px; text-align: center; }
+    .note h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+    .note p { font-size: 12px; line-height: 1.5; color: #3E3A35; }
+
+    body { background: #FBF9F5; }
+  </style>
+</helmet>
+<div style="width: 620px; height: 1940px; display: flex; flex-direction: column; gap: 0px; background: #FBF9F5; overflow: hidden; position: relative;" data-board="Home — notes">
+<div style="display:flex;flex-direction:column;gap:8px;align-items:stretch;justify-content:flex-start;padding:40px 36px;"><h2 class="serif" style="font-size:34px;">Home — notes</h2><p style="font-size:13px;color:#6E685E;">Thirteen sections, each earning its place</p><div style="display:flex;flex-direction:row;gap:16px;align-items:stretch;justify-content:flex-start;padding:6px 0 12px;"><span class="tiny" style="display:flex;gap:6px;align-items:center"><span class="tag c">Conversion</span>why it sells</span><span class="tiny" style="display:flex;gap:6px;align-items:center"><span class="tag s">Shopify</span>how to build it</span><span class="tiny" style="display:flex;gap:6px;align-items:center"><span class="tag m">Motion</span>hook for phase 2</span></div><div class="note"><span class="n" style="background:{{accent}}">1</span><div style="flex:1"><h4>Hero: film, tagline, two CTAs<span class="tag c">Conversion</span><span class="tag m">Motion</span></h4><p>Six-second loop (bottle on wet stone, Mediterranean light), poster still as fallback, headline "Some things are never meant to fade." Two CTAs: Shop the collection (primary) and Find your scent (secondary) — decided and undecided visitors each get their path in the first screen. Motion: text reveals on load, film is muted, no autoplay sound.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">2</span><div style="flex:1"><h4>Proof strip<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Four facts right under the fold: [n] scents · free samples with every order · delivery across Egypt in [n] days · [rating] from [n] reviews. Shopify: text blocks in theme settings; review count pulled from the Judge.me metafield.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">3</span><div style="flex:1"><h4>Three lines as tiles<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>eterna (her), eterno (him), eternal (unisex) as three image tiles — the first question every visitor has ("is this for me?") answered in one glance. Shopify: collection-list section with three automated collections (tag line:*).</p></div></div><div class="note"><span class="n" style="background:{{accent}}">4</span><div style="flex:1"><h4>Bestsellers carousel<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Eight cards from the bestsellers collection; each card shows inspired-by and three notes so it sells without a click. Two actions per card: quick add 55 ml and Add sample. Shopify: featured-collection section sorted by bestselling; quick-add uses the product form in the card.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">5</span><div style="flex:1"><h4>Scent finder entry<span class="tag c">Conversion</span></h4><p>A mid-page interrupt for the undecided: "Five questions. Three matches. Samples of all three." This is the site's answer to "I can't smell it through a screen."</p></div></div><div class="note"><span class="n" style="background:{{accent}}">6</span><div style="flex:1"><h4>Featured tale<span class="tag c">Conversion</span><span class="tag s">Shopify</span><span class="tag m">Motion</span></h4><p>The story sells the bottle: Shadow of the Sea gets a full-width editorial band — still, first paragraph, signature line, shoppable card. Shopify: product metafields story (rich text) and signature_line; the section points at one chosen product. Motion: slow parallax on the still, paragraph fades in on scroll.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">7</span><div style="flex:1"><h4>Shop by mood<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Six mood tiles (Sea air, Golden hour, After dark, Fresh linen, Warm skin, Wild garden) — moods are how non-experts choose. Shopify: six automated collections by tag mood:*; collection-list section with custom images.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">8</span><div style="flex:1"><h4>Discovery set + mystery box<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Two risk-reducers sold as products: the discovery set (samples; the price is credited back on a full bottle with a code in the parcel) and the mystery box (its hero video already exists). Shopify: two products; credit-back as an automatic discount code.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">9</span><div style="flex:1"><h4>Reviews + customer photos<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Verified reviews that name the scent, plus Instagram and customer photos — specific proof beats a star average. Shopify: Judge.me carousel widget filtered to reviews with text; Instafeed or a UGC app for the grid.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">10</span><div style="flex:1"><h4>The house film<span class="tag c">Conversion</span><span class="tag m">Motion</span></h4><p>The brand explainer (1:30, already produced) behind a play button — trust for a brand people have not heard of. Motion: poster frame with a slow drift; click plays inline, no modal.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">11</span><div style="flex:1"><h4>Tales teaser<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Three latest tales linking to their articles; each article links back to its product. Shopify: blog "tales"; article metafield product (reference).</p></div></div><div class="note"><span class="n" style="background:{{accent}}">12</span><div style="flex:1"><h4>Join the house<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Email and WhatsApp opt-in with the sample offer as the hook; the last ask before the footer. Shopify: Shopify Email or Klaviyo; WhatsApp opt-in through the messaging app with consent stored on the customer.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">13</span><div style="flex:1"><h4>Mobile sticky bottom bar<span class="tag c">Conversion</span><span class="tag m">Motion</span></h4><p>On mobile the two hero CTAs collapse into a sticky bar (Shop / Find your scent) once the hero scrolls out; on product pages it is replaced by the add-to-bag bar. Motion: slides up once, 200 ms, never bounces.</p></div></div></div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#1F4E79","options":["#1F4E79","#B9401A","#2F6B4F","#5B3E8C"]},"$preview":{"width":620,"height":1940}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#1F4E79' };
+  }
+}
+</script>
+</body>
+</html>

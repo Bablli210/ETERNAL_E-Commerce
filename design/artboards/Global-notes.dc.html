@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F5F2EC; color: #1C1B19; font-family: 'Manrope', system-ui, sans-serif; font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+    a { color: #1C1B19; } a:hover { color: #1F4E79; }
+    * { box-sizing: border-box; }
+    h1, h2, h3, h4, p { margin: 0; }
+    button { font: inherit; cursor: pointer; }
+    .serif { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; line-height: 1.1; }
+    .ph { position: relative; background-color: #E8E3D9; background-image: repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 13px); color: #56504A; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; line-height: 1.35; padding: 12px; border: 1px solid #D4CDBF; overflow: hidden; }
+    .ph.dark { background-color: #3A3733; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 13px); color: #E8E3D9; border-color: #2A2825; }
+    .ph.blue { background-color: #C9D5E3; }
+    .ph.warm { background-color: #E3D3BD; }
+    .mk { position: absolute; z-index: 6; width: 24px; height: 24px; border-radius: 50%; color: #FFFFFF; font-weight: 700; font-size: 12px; line-height: 24px; text-align: center; box-shadow: 0 0 0 3px rgba(245,242,236,0.95); }
+    .slab { position: absolute; z-index: 5; top: 6px; right: 10px; font-size: 10px; color: #6E685E; letter-spacing: 0.02em; background: rgba(245,242,236,0.85); padding: 2px 6px; border-radius: 2px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 2px; font-weight: 600; font-size: 13px; letter-spacing: 0.03em; border: 1px solid #1C1B19; background: #1C1B19; color: #F5F2EC; text-decoration: none; white-space: nowrap; }
+    .btn:hover { color: #F5F2EC; }
+    .btn.sec { background: transparent; color: #1C1B19; }
+    .btn.sec:hover { color: #1C1B19; }
+    .btn.light { background: #F5F2EC; color: #1C1B19; border-color: #F5F2EC; }
+    .btn.light:hover { color: #1C1B19; }
+    .btn.sm { height: 40px; padding: 0 16px; font-size: 12px; }
+    .lnk { text-decoration: underline; text-underline-offset: 4px; font-weight: 600; font-size: 13px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border: 1px solid #C9C1B2; border-radius: 999px; font-size: 12px; font-weight: 500; color: #1C1B19; background: #FBF9F5; white-space: nowrap; }
+    .chip.on { background: #1C1B19; color: #F5F2EC; border-color: #1C1B19; }
+    .muted { color: #6E685E; }
+    .small { font-size: 12px; }
+    .tiny { font-size: 11px; }
+    .rule { height: 1px; background: #D9D2C5; }
+    .field { height: 46px; border: 1px solid #C9C1B2; background: #FBF9F5; display: flex; align-items: center; padding: 0 14px; color: #6E685E; font-size: 13px; gap: 8px; }
+    .card { background: #FBF9F5; border: 1px solid #D9D2C5; }
+    .meter { height: 6px; background: #E1DBD0; border-radius: 3px; overflow: hidden; }
+    .meter > div { height: 100%; background: #1C1B19; }
+    .sizeopt { display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 16px; border: 1px solid #C9C1B2; background: #FBF9F5; font-size: 13px; }
+    .sizeopt.on { border: 2px solid #1C1B19; }
+    .acc { display: flex; align-items: center; justify-content: space-between; height: 56px; border-top: 1px solid #D9D2C5; font-size: 14px; font-weight: 500; }
+    .navlink { font-size: 13px; font-weight: 500; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 4px; }
+    .ann { background: #1C1B19; color: #F5F2EC; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 24px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #C9C1B2; }
+    .dot.on { background: #1C1B19; }
+    .stepdot { width: 28px; height: 4px; background: #D9D2C5; }
+    .stepdot.on { background: #1C1B19; }
+    .tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 2px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #FFFFFF; }
+    .tag.c { background: #1F4E79; } .tag.s { background: #2F6B4F; } .tag.m { background: #5B3E8C; }
+    .note { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid #D9D2C5; }
+    .note .n { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #1F4E79; color: #fff; font-weight: 700; font-size: 12px; line-height: 24px; text-align: center; }
+    .note h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+    .note p { font-size: 12px; line-height: 1.5; color: #3E3A35; }
+
+    body { background: #FBF9F5; }
+  </style>
+</helmet>
+<div style="width: 620px; height: 1730px; display: flex; flex-direction: column; gap: 0px; background: #FBF9F5; overflow: hidden; position: relative;" data-board="Global chrome — notes">
+<div style="display:flex;flex-direction:column;gap:8px;align-items:stretch;justify-content:flex-start;padding:40px 36px;"><h2 class="serif" style="font-size:34px;">Global chrome — notes</h2><p style="font-size:13px;color:#6E685E;">Announcement bar, header, mega menu, search, footer, mobile menu</p><div style="display:flex;flex-direction:row;gap:16px;align-items:stretch;justify-content:flex-start;padding:6px 0 12px;"><span class="tiny" style="display:flex;gap:6px;align-items:center"><span class="tag c">Conversion</span>why it sells</span><span class="tiny" style="display:flex;gap:6px;align-items:center"><span class="tag s">Shopify</span>how to build it</span><span class="tiny" style="display:flex;gap:6px;align-items:center"><span class="tag m">Motion</span>hook for phase 2</span></div><div class="note"><span class="n" style="background:{{accent}}">1</span><div style="flex:1"><h4>Announcement bar: one generous message<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>One rotating message at most, and it is the risk-reducer (free samples with every order / free shipping over EGP [threshold]) — not a sale, so the first impression is generous rather than discounted. Shopify: announcement-bar section, one block, hides in the compact sticky state.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">2</span><div style="flex:1"><h4>Header: four links, Scent finder at first level<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Shop · Scent finder · Tales · The house. The finder sits in the primary nav because first-time visitors cannot smell the product — it is the path for the undecided. Transparent over the home hero, solid elsewhere, compact sticky after 120 px so the bag is always one click away. Shopify: header section, sticky on scroll-up, logo as SVG.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">3</span><div style="flex:1"><h4>Mega menu: three ways in + two featured tiles<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>By line (her / him / unisex), by family, by mood — the three ways people actually think ("something for a man", "something woody", "something for nights"). Two tiles push the bestseller and the discovery set. Shopify: mega-menu blocks; collections automated by tags line:*, family:*, mood:*.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">4</span><div style="flex:1"><h4>Bag opens a drawer, never a page<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Count badge on the icon; add-to-cart opens the drawer in place so the shopper never leaves the product page (see the Cart row). Shopify: theme setting cart type = drawer; cart-drawer section with AJAX add.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">5</span><div style="flex:1"><h4>Predictive search with inspired-by synonyms<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Most shoppers search the original they know ("Blue Talisman"), not our name. Results group into scents / tales / popular, and the inspired-by name is highlighted in each result. Shopify: Search &amp; Discovery — add each product's inspired_by metafield to a synonym group; predictive search API in the theme.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">6</span><div style="flex:1"><h4>AR / EN switch, prices fixed in EGP<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Arabic-first market: language switcher in the header and footer, currency fixed to EGP so there is no conversion surprise at checkout. Shopify: Translate &amp; Adapt for Arabic, Markets with Egypt as primary; confirm the theme supports RTL before purchase.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">7</span><div style="flex:1"><h4>Footer: newsletter + WhatsApp<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>The footer earns a second chance: email capture with the sample offer as the hook, WhatsApp click-to-chat for the many who ask before they buy, delivery and returns links. Shopify: footer blocks, Shopify Email or Klaviyo form, wa.me link or WhatsApp app widget.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">8</span><div style="flex:1"><h4>Trust + payment strip<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Payment icons (cards, Shop Pay, Fawry / Paymob / InstaPay / cash on delivery as enabled), "Delivery across Egypt in [n] days", returns line. Sets the expectation early so checkout is not the first place they meet a COD fee. Shopify: icons render from enabled gateways; copy from theme settings.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">9</span><div style="flex:1"><h4>Mobile drawer: finder first, then the lines<span class="tag c">Conversion</span></h4><p>The mobile menu leads with "Find your scent" and the three lines as image tiles, then the rest as text rows. Language switch and WhatsApp sit at the bottom. Full-height drawer, 48 px rows, 44 px targets everywhere.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">10</span><div style="flex:1"><h4>WhatsApp floating button<span class="tag c">Conversion</span><span class="tag m">Motion</span></h4><p>Bottom-right on mobile, above the sticky add-to-bag bar, hidden while the cart drawer is open. Motion: appears after 3 s, pulses once, never loops.</p></div></div></div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#1F4E79","options":["#1F4E79","#B9401A","#2F6B4F","#5B3E8C"]},"$preview":{"width":620,"height":1730}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#1F4E79' };
+  }
+}
+</script>
+</body>
+</html>

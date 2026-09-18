@@ -1,0 +1,2079 @@
+{
+  "source": "Shopify Admin API, store eternal-10199.myshopify.com",
+  "capturedAt": "2026-09-18T16:00:00Z",
+  "products": [
+    {
+      "id": "gid://shopify/Product/9554999738627",
+      "handle": "aqua-marine",
+      "title": "Aqua Marine",
+      "description": "Orange, mandarin and bergamot with ginger, ambergris base.",
+      "tags": [
+        "55ml",
+        "aquatic",
+        "citrus",
+        "for him"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T17:04:22Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/aqua-marine.png?v=1784480662",
+          "altText": "Aqua Marine eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1099.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293198917891",
+          "title": "Default Title",
+          "sku": "ETRN-AQMA-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1099.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554989154563",
+      "handle": "atlantis",
+      "title": "Atlantis",
+      "description": "Sea salt and mineral accord with fig leaf and marine notes, resting on woody amber and driftwood.",
+      "tags": [
+        "55ml",
+        "aquatic",
+        "eterno",
+        "for him",
+        "mineral"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:57:03Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/atlantis.png?v=1784480223",
+          "altText": "Atlantis eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "966.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293132628227",
+          "title": "Default Title",
+          "sku": "ETRN-ATLA-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "966.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554990072067",
+      "handle": "atomic",
+      "title": "Atomic",
+      "description": "Lemon and black pepper with lavender and olibanum, base of amber and tonka.",
+      "tags": [
+        "55ml",
+        "amber",
+        "citrus",
+        "eterno",
+        "for him"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:58:35Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/atomic.png?v=1784480315",
+          "altText": "Atomic eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "885.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293140885763",
+          "title": "Default Title",
+          "sku": "ETRN-ATOM-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "885.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9600900825347",
+      "handle": "aurora",
+      "title": "Aurora",
+      "description": "",
+      "tags": [],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-08-19T13:30:46Z",
+      "availableForSale": true,
+      "images": [],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49484102926595",
+          "title": "55 ml",
+          "sku": null,
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9600900759811",
+      "handle": "bloom",
+      "title": "Bloom",
+      "description": "",
+      "tags": [],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-08-19T13:30:44Z",
+      "availableForSale": true,
+      "images": [],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49484102861059",
+          "title": "55 ml",
+          "sku": null,
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554990858499",
+      "handle": "carbon",
+      "title": "Carbon",
+      "description": "Bergamot and pepper with sichuan pepper, lavender and geranium, base of ambroxan, cedar and labdanum.",
+      "tags": [
+        "55ml",
+        "eterno",
+        "for him",
+        "fresh",
+        "spicy"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:59:42Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/carbon.png?v=1784480382",
+          "altText": "Carbon eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293144195331",
+          "title": "Default Title",
+          "sku": "ETRN-CARB-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554997707011",
+      "handle": "caribbean-punch",
+      "title": "Caribbean Punch",
+      "description": "Mango, pineapple, coconut, white rum and bergamot over coconut milk, white flowers and marine, base of musk, sandalwood, amber and vetiver.",
+      "tags": [
+        "55ml",
+        "sweet",
+        "tropical",
+        "unisex"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T17:03:15Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/caribbean-punch.png?v=1784480595",
+          "altText": "Caribbean Punch eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "885.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293179748611",
+          "title": "Default Title",
+          "sku": "ETRN-CPUN-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "885.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9600900989187",
+      "handle": "ciel",
+      "title": "Ciel",
+      "description": "",
+      "tags": [],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-08-19T13:30:49Z",
+      "availableForSale": true,
+      "images": [],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1199.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49484103090435",
+          "title": "55 ml",
+          "sku": null,
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1199.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554990956803",
+      "handle": "cipher",
+      "title": "Cipher",
+      "description": "Pineapple, bergamot and grapefruit with jasmine and cedar, base of oakmoss and dry woods.",
+      "tags": [
+        "55ml",
+        "eterno",
+        "for him",
+        "fruity",
+        "woody"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:59:59Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/cipher.png?v=1784480399",
+          "altText": "Cipher eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1100.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293144555779",
+          "title": "Default Title",
+          "sku": "ETRN-CIPH-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1100.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554997149955",
+      "handle": "citron",
+      "title": "Citron",
+      "description": "Bergamot, lemon, neroli and marigold with violet and jasmine, base of vetiver, cedar, musk and amber.",
+      "tags": [
+        "55ml",
+        "citrus",
+        "for him"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T17:02:58Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/citron.png?v=1784480578",
+          "altText": "Citron eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1050.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293178241283",
+          "title": "Default Title",
+          "sku": "ETRN-CITR-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1050.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554987811075",
+      "handle": "destiny",
+      "title": "Destiny",
+      "description": "Orange blossom and bergamot with tuberose and jasmine, base of vanilla, white musk and cedar.",
+      "tags": [
+        "55ml",
+        "eterna",
+        "floral",
+        "for her"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:54:30Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/destiny.png?v=1784480070",
+          "altText": "Destiny eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293120241923",
+          "title": "Default Title",
+          "sku": "ETRN-DEST-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9599803818243",
+      "handle": "divina",
+      "title": "Divina",
+      "description": "A luminous floral: bergamot and pink pepper opening onto gardenia, orris and jasmine, resting on white musk, sandalwood and amber. Eau de parfum, 55 ml.",
+      "tags": [
+        "eterna",
+        "floral",
+        "for her",
+        "powdery"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-08-18T20:27:45Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/divina.png?v=1787084866",
+          "altText": "Divina eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49481765814531",
+          "title": "55 ml",
+          "sku": "DIVINA-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554995380483",
+      "handle": "eden",
+      "title": "Eden",
+      "description": "Green notes, mint and ginger with coconut, fig and salt, base of tonka and sandalwood.",
+      "tags": [
+        "55ml",
+        "eterno",
+        "for him",
+        "fresh",
+        "tropical"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T17:01:55Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/eden.png?v=1784480515",
+          "altText": "Eden eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293169885443",
+          "title": "Default Title",
+          "sku": "ETRN-EDEN-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554996691203",
+      "handle": "element",
+      "title": "Element",
+      "description": "Saffron and jasmine with amberwood and ambergris, base of fir resin and cedar.",
+      "tags": [
+        "55ml",
+        "amber",
+        "unisex"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T17:02:40Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/element.png?v=1784480561",
+          "altText": "Element eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "885.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293176209667",
+          "title": "Default Title",
+          "sku": "ETRN-ELEM-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "885.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554990235907",
+      "handle": "enzo-1898",
+      "title": "Enzo 1898",
+      "description": "Citrus, mandarin and grapefruit over cedarwood, base of white musk, amber, patchouli and sandalwood.",
+      "tags": [
+        "55ml",
+        "citrus",
+        "eterno",
+        "for him",
+        "woody"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:58:51Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/enzo-1898.png?v=1784480331",
+          "altText": "Enzo 1898 eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1099.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293141672195",
+          "title": "Default Title",
+          "sku": "ETRN-ENZ1-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1099.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9555000721667",
+      "handle": "fiji",
+      "title": "Fiji",
+      "description": "A sparkling citrus medley over an aquatic floral heart, base of musk and ambergris.",
+      "tags": [
+        "55ml",
+        "aquatic",
+        "citrus",
+        "unisex"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T17:04:55Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/fiji.png?v=1784480695",
+          "altText": "Fiji eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1150.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293202489603",
+          "title": "Default Title",
+          "sku": "ETRN-FIJI-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1150.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554988105987",
+      "handle": "forbidden-apple",
+      "title": "Forbidden Apple",
+      "description": "Apple blossom and marine bergamot with green rhubarb and mojito accord, over sandalwood and driftwood.",
+      "tags": [
+        "55ml",
+        "eterna",
+        "for him",
+        "fresh",
+        "fruity"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:54:50Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/forbidden-apple.png?v=1784480091",
+          "altText": "Forbidden Apple eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1499.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293124993283",
+          "title": "Default Title",
+          "sku": "ETRN-FAPP-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1499.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554989875459",
+      "handle": "golden-hour",
+      "title": "Golden Hour",
+      "description": "Melon, bergamot, lemon and sea salt with iris and waterlily, base of musk, ambergris and woods.",
+      "tags": [
+        "55ml",
+        "aquatic",
+        "eterno",
+        "for him",
+        "fresh"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:58:17Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/golden-hour.png?v=1784480297",
+          "altText": "Golden Hour eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1199.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293140099331",
+          "title": "Default Title",
+          "sku": "ETRN-GHOU-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1199.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554998558979",
+      "handle": "harmony",
+      "title": "Harmony",
+      "description": "Bergamot and magnolia with orange blossom and ambrette, white musk base.",
+      "tags": [
+        "55ml",
+        "floral",
+        "musky",
+        "unisex"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T17:03:48Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/harmony.png?v=1784480628",
+          "altText": "Harmony eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1099.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293186826499",
+          "title": "Default Title",
+          "sku": "ETRN-HARM-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1099.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554987647235",
+      "handle": "hera",
+      "title": "Hera",
+      "description": "Strawberry, raspberry and blackcurrant open into jasmine and violet, over musk, amber and dry woods.",
+      "tags": [
+        "55ml",
+        "eterna",
+        "for her",
+        "fruity",
+        "musky"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:54:06Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/hera.png?v=1784480047",
+          "altText": "Hera eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293119160579",
+          "title": "Default Title",
+          "sku": "ETRN-HERA-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554986893571",
+      "handle": "hundred-whispers",
+      "title": "Hundred Whispers",
+      "description": "A soft floral duet — peach and coconut lift into tuberose, jasmine sambac and orris, settling on vanilla, sandalwood and musk.",
+      "tags": [
+        "55ml",
+        "eterna",
+        "floral",
+        "for her",
+        "sweet"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:52:31Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/hundred-whispers.png?v=1784479951",
+          "altText": "Hundred Whispers eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1560.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293107527939",
+          "title": "Default Title",
+          "sku": "ETRN-HWHISP-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1560.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554988564739",
+      "handle": "icon",
+      "title": "Icon",
+      "description": "Pineapple, bergamot, blackcurrant and apple over birch, patchouli and rose, resting on oakmoss, musk, ambergris and vanilla.",
+      "tags": [
+        "55ml",
+        "eterno",
+        "for him",
+        "fruity",
+        "woody"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:55:42Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/icon.png?v=1784480142",
+          "altText": "Icon eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1199.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293127844099",
+          "title": "Default Title",
+          "sku": "ETRN-ICON-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1199.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554989515011",
+      "handle": "linen",
+      "title": "Linen",
+      "description": "Neroli and black pepper over iris, geranium and maté, base of amber, cedar and patchouli.",
+      "tags": [
+        "55ml",
+        "eterno",
+        "for him",
+        "powdery",
+        "woody"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:57:44Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/linen.png?v=1784480264",
+          "altText": "Linen eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1099.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293136560387",
+          "title": "Default Title",
+          "sku": "ETRN-LINE-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1099.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9600901185795",
+      "handle": "mango-eclipse",
+      "title": "Mango Eclipse",
+      "description": "",
+      "tags": [],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-08-19T13:30:54Z",
+      "availableForSale": true,
+      "images": [],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1099.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49484103287043",
+          "title": "55 ml",
+          "sku": null,
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1099.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554988728579",
+      "handle": "mercury",
+      "title": "Mercury",
+      "description": "Grapefruit and a luminous fruit accord, resting on amberwood and musk.",
+      "tags": [
+        "55ml",
+        "amber",
+        "citrus",
+        "eterno",
+        "for him"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:56:04Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mercury.png?v=1784480164",
+          "altText": "Mercury eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1199.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293128990979",
+          "title": "Default Title",
+          "sku": "ETRN-MERC-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1199.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9600901251331",
+      "handle": "mystery-box",
+      "title": "Mystery Box",
+      "description": "Three random 5 ml eternal samples.",
+      "tags": [],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-08-19T13:30:56Z",
+      "availableForSale": true,
+      "images": [],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "250.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49484103385347",
+          "title": "3 x 5 ml",
+          "sku": null,
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "250.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "3 x 5 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554987254019",
+      "handle": "mystique",
+      "title": "Mystique",
+      "description": "Pistachio and almond fold into heliotrope and jasmine, resolving to salted caramel, vanilla and sandalwood.",
+      "tags": [
+        "55ml",
+        "eterna",
+        "for her",
+        "gourmand",
+        "sweet"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:53:14Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mystique.png?v=1784479994",
+          "altText": "Mystique eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293114999043",
+          "title": "Default Title",
+          "sku": "ETRN-MYST-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9555001278723",
+      "handle": "neroli-code",
+      "title": "Neroli Code",
+      "description": "Neroli and petitgrain with smoky black tea, white musk base.",
+      "tags": [
+        "55ml",
+        "floral",
+        "smoky",
+        "unisex"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T17:05:10Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/neroli-code.png?v=1784480711",
+          "altText": "Neroli Code eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1250.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293203603715",
+          "title": "Default Title",
+          "sku": "ETRN-NCOD-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1250.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554998165763",
+      "handle": "oasis",
+      "title": "Oasis",
+      "description": "Citron, bergamot and orange with black tea and ginger, ambroxan base.",
+      "tags": [
+        "55ml",
+        "citrus",
+        "for him"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T17:03:32Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/oasis.png?v=1784480612",
+          "altText": "Oasis eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1099.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293182894339",
+          "title": "Default Title",
+          "sku": "ETRN-OASI-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1099.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9600900923651",
+      "handle": "paradox",
+      "title": "Paradox",
+      "description": "",
+      "tags": [],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-08-19T13:30:48Z",
+      "availableForSale": true,
+      "images": [],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49484103024899",
+          "title": "55 ml",
+          "sku": null,
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554988859651",
+      "handle": "poseidon",
+      "title": "Poseidon",
+      "description": "Sea breeze and citrus, white florals and sea salt, resting on ambergris, light woods and musk.",
+      "tags": [
+        "55ml",
+        "aquatic",
+        "eterno",
+        "for him"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:56:26Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/poseidon.png?v=1784480186",
+          "altText": "Poseidon eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "966.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293130203395",
+          "title": "Default Title",
+          "sku": "ETRN-POSE-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "966.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554989613315",
+      "handle": "raw-seduction",
+      "title": "Raw Seduction",
+      "description": "Wild apple and bergamot with cardamom and cypress, base of cedar, vetiver and tonka.",
+      "tags": [
+        "55ml",
+        "eterno",
+        "for him",
+        "fruity",
+        "woody"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:58:01Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/raw-seduction.png?v=1784480281",
+          "altText": "Raw Seduction eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "970.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293137674499",
+          "title": "Default Title",
+          "sku": "ETRN-RSED-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "970.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554988368131",
+      "handle": "sapphire",
+      "title": "Sapphire",
+      "description": "Pear, ginger and mint open onto orange blossom, closing with ambroxan and white musk.",
+      "tags": [
+        "55ml",
+        "eterno",
+        "for him",
+        "fresh"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:55:27Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/sapphire.png?v=1784480127",
+          "altText": "Sapphire eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1099.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293125812483",
+          "title": "Default Title",
+          "sku": "ETRN-SAPP-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1099.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554987057411",
+      "handle": "secret-no-7",
+      "title": "Secret No. 7",
+      "description": "Sweet, elusive. Pear and bergamot melt into vanilla orchid, resting on vetiver, ambroxan and vanilla.",
+      "tags": [
+        "55ml",
+        "eterna",
+        "for her",
+        "fruity",
+        "sweet"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:52:51Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/secret-no-7.png?v=1784479972",
+          "altText": "Secret No. 7 eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293112017155",
+          "title": "Default Title",
+          "sku": "ETRN-SEC7-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554988237059",
+      "handle": "shadow-of-the-sea",
+      "title": "Shadow of the Sea",
+      "description": "Marine notes and bergamot open into rosemary, clary sage and geranium, base of patchouli, incense and ambery woods.",
+      "tags": [
+        "55ml",
+        "aquatic",
+        "eterno",
+        "for him",
+        "woody"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:55:09Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/shadow-of-the-sea.png?v=1784480109",
+          "altText": "Shadow of the Sea eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1050.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293125484803",
+          "title": "Default Title",
+          "sku": "ETRN-SSEA-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1050.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554999116035",
+      "handle": "shore-club",
+      "title": "Shore Club",
+      "description": "Lemon, orange and blackcurrant with mint, coriander and apricot, base of ambrette and musk.",
+      "tags": [
+        "55ml",
+        "citrus",
+        "for him",
+        "fresh"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T17:04:05Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/shore-club.png?v=1784480645",
+          "altText": "Shore Club eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1099.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293193806083",
+          "title": "Default Title",
+          "sku": "ETRN-SCLB-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1099.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9600901054723",
+      "handle": "smoked-aura",
+      "title": "Smoked Aura",
+      "description": "",
+      "tags": [],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-08-19T13:30:51Z",
+      "availableForSale": true,
+      "images": [],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1199.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49484103155971",
+          "title": "55 ml",
+          "sku": null,
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1199.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554989318403",
+      "handle": "tonic-club",
+      "title": "Tonic Club",
+      "description": "Juniper and coriander with nutmeg and aromatic spices, base of musk, ambery woods and vanilla.",
+      "tags": [
+        "55ml",
+        "eterno",
+        "for him",
+        "fresh",
+        "spicy"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:57:27Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/tonic-club.png?v=1784480247",
+          "altText": "Tonic Club eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1250.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293134823683",
+          "title": "Default Title",
+          "sku": "ETRN-TCLB-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1250.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9600901120259",
+      "handle": "ultra-smoke",
+      "title": "Ultra Smoke",
+      "description": "",
+      "tags": [],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-08-19T13:30:53Z",
+      "availableForSale": true,
+      "images": [],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1380.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49484103221507",
+          "title": "55 ml",
+          "sku": null,
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1380.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554987516163",
+      "handle": "vanilla-blanche",
+      "title": "Vanilla Blanche",
+      "description": "Brown sugar and jasmine over vanilla orchid and tonka, resting on amber, musk and patchouli.",
+      "tags": [
+        "55ml",
+        "amber",
+        "eterna",
+        "for her",
+        "sweet"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:53:49Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/vanilla-blanche.png?v=1784480029",
+          "altText": "Vanilla Blanche eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293117718787",
+          "title": "Default Title",
+          "sku": "ETRN-VBLA-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554987450627",
+      "handle": "vintage-vanilla",
+      "title": "Vintage Vanilla",
+      "description": "Vanilla pods, powdery orris, white musk, sandalwood and tonka. A whisper-warm, powdery vanilla.",
+      "tags": [
+        "55ml",
+        "eterna",
+        "for her",
+        "powdery",
+        "sweet"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:53:30Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/vintage-vanilla.png?v=1784480011",
+          "altText": "Vintage Vanilla eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1099.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293117128963",
+          "title": "Default Title",
+          "sku": "ETRN-VVAN-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1099.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554986270979",
+      "handle": "wayne",
+      "title": "Wayne",
+      "description": "Fresh & woody. A sharp, aromatic signature — bergamot, pineapple and pink pepper open into lavender, cedar and incense, resting on ambroxan, patchouli and birch.",
+      "tags": [
+        "55ml",
+        "eterno",
+        "for him",
+        "fresh",
+        "woody"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:51:39Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/wayne.png?v=1784479899",
+          "altText": "Wayne eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1560.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293100384515",
+          "title": "Default Title",
+          "sku": "ETRN-WAYNE-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1560.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
+      "id": "gid://shopify/Product/9554988990723",
+      "handle": "zesty-ginger",
+      "title": "Zesty Ginger",
+      "description": "Ginger, grapefruit and bergamot with a water accord and labdanum, ambroxan base.",
+      "tags": [
+        "55ml",
+        "citrus",
+        "eterno",
+        "for him",
+        "spicy"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-07-19T16:56:45Z",
+      "availableForSale": true,
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/zesty-ginger.png?v=1784480205",
+          "altText": "Zesty Ginger eau de parfum",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "1250.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/49293131317507",
+          "title": "Default Title",
+          "sku": "ETRN-ZGIN-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "1250.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    }
+  ]
+}

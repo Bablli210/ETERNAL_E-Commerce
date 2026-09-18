@@ -1,0 +1,371 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Applied-desktop.dc.html": {
+      "h": 4216,
+      "title": "Direction applied — home, desktop",
+      "w": 1440,
+      "x": 1520,
+      "y": 29290
+    },
+    "Applied-mobile.dc.html": {
+      "h": 3044,
+      "title": "Direction applied — home, mobile",
+      "w": 390,
+      "x": 3040,
+      "y": 29290
+    },
+    "Cart-desktop.dc.html": {
+      "h": 900,
+      "is_interactive": true,
+      "title": "Cart drawer — desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 27568
+    },
+    "Cart-mobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Cart drawer — mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 27568
+    },
+    "Cart-notes.dc.html": {
+      "h": 1242,
+      "title": "Cart — annotations",
+      "w": 620,
+      "x": 1990,
+      "y": 27568
+    },
+    "Components.dc.html": {
+      "h": 2090,
+      "title": "Components — in the direction",
+      "w": 1440,
+      "x": 0,
+      "y": 33986
+    },
+    "Content-plan.dc.html": {
+      "h": 3034,
+      "title": "Content plan — what to add",
+      "w": 1440,
+      "x": 1520,
+      "y": 33986
+    },
+    "Direction-notes.dc.html": {
+      "h": 3140,
+      "title": "Design direction — annotations",
+      "w": 620,
+      "x": 3510,
+      "y": 29290
+    },
+    "Direction.dc.html": {
+      "h": 4000,
+      "title": "Design direction — sheet",
+      "w": 1440,
+      "x": 0,
+      "y": 29290
+    },
+    "Finder-desktop.dc.html": {
+      "h": 1860,
+      "is_interactive": true,
+      "title": "Scent finder — desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 22440
+    },
+    "Finder-mobile.dc.html": {
+      "h": 1908,
+      "is_interactive": true,
+      "title": "Scent finder — mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 22440
+    },
+    "Finder-notes.dc.html": {
+      "h": 1030,
+      "title": "Finder — annotations",
+      "w": 620,
+      "x": 1990,
+      "y": 22440
+    },
+    "Global-desktop.dc.html": {
+      "h": 2024,
+      "is_interactive": true,
+      "title": "Global chrome — desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 2380
+    },
+    "Global-mobile.dc.html": {
+      "h": 2148,
+      "is_interactive": true,
+      "title": "Global chrome — mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 2380
+    },
+    "Global-notes.dc.html": {
+      "h": 1730,
+      "title": "Global — annotations",
+      "w": 620,
+      "x": 1990,
+      "y": 2380
+    },
+    "Home-desktop.dc.html": {
+      "h": 6792,
+      "is_interactive": true,
+      "title": "Home — desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 5008
+    },
+    "Home-mobile.dc.html": {
+      "h": 5630,
+      "is_interactive": true,
+      "title": "Home — mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 5008
+    },
+    "Home-notes.dc.html": {
+      "h": 1940,
+      "title": "Home — annotations",
+      "w": 620,
+      "x": 1990,
+      "y": 5008
+    },
+    "House-desktop.dc.html": {
+      "h": 2160,
+      "is_interactive": true,
+      "title": "The house — desktop",
+      "w": 1440,
+      "x": 1520,
+      "y": 24828
+    },
+    "Kit-notes.dc.html": {
+      "h": 1544,
+      "title": "Components — annotations",
+      "w": 620,
+      "x": 3040,
+      "y": 33986
+    },
+    "Main.dc.html": {
+      "h": 1900,
+      "title": "Cover — how to read this canvas",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Motion-map.dc.html": {
+      "h": 1440,
+      "title": "Motion map — across the site",
+      "w": 1440,
+      "x": 0,
+      "y": 37500
+    },
+    "Motion-spec.dc.html": {
+      "h": 3994,
+      "title": "Motion spec — every animation",
+      "w": 1440,
+      "x": 1520,
+      "y": 37500
+    },
+    "PDP-desktop.dc.html": {
+      "h": 6080,
+      "is_interactive": true,
+      "title": "Product page — desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 15880
+    },
+    "PDP-mobile.dc.html": {
+      "h": 4844,
+      "is_interactive": true,
+      "title": "Product page — mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 15880
+    },
+    "PDP-notes.dc.html": {
+      "h": 2078,
+      "title": "PDP — annotations",
+      "w": 620,
+      "x": 1990,
+      "y": 15880
+    },
+    "PLP-desktop.dc.html": {
+      "h": 3120,
+      "is_interactive": true,
+      "title": "Collection — desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 12280
+    },
+    "PLP-mobile.dc.html": {
+      "h": 2558,
+      "is_interactive": true,
+      "title": "Collection — mobile",
+      "w": 390,
+      "x": 1520,
+      "y": 12280
+    },
+    "PLP-notes.dc.html": {
+      "h": 1480,
+      "title": "PLP — annotations",
+      "w": 620,
+      "x": 1990,
+      "y": 12280
+    },
+    "Tale-desktop.dc.html": {
+      "h": 2260,
+      "is_interactive": true,
+      "title": "Tale page — desktop",
+      "w": 1440,
+      "x": 0,
+      "y": 24828
+    },
+    "Tale-mobile.dc.html": {
+      "h": 2084,
+      "is_interactive": true,
+      "title": "Tale page — mobile",
+      "w": 390,
+      "x": 3040,
+      "y": 24828
+    },
+    "Tale-notes.dc.html": {
+      "h": 908,
+      "title": "Tale — annotations",
+      "w": 620,
+      "x": 3510,
+      "y": 24828
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-09-17T06:52:43Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "title-cart": {
+      "kind": "title1",
+      "maxW": 2610,
+      "text": "Cart drawer and checkout",
+      "w": 240,
+      "x": 0,
+      "y": 27238
+    },
+    "title-content": {
+      "kind": "title1",
+      "maxW": 3660,
+      "text": "Components and content",
+      "w": 240,
+      "x": 0,
+      "y": 33656
+    },
+    "title-direction": {
+      "kind": "title1",
+      "maxW": 4130,
+      "text": "Design direction — salt, stone and golden hour",
+      "w": 240,
+      "x": 0,
+      "y": 28960
+    },
+    "title-finder": {
+      "kind": "title1",
+      "maxW": 2610,
+      "text": "Scent finder",
+      "w": 240,
+      "x": 0,
+      "y": 22110
+    },
+    "title-global": {
+      "kind": "title1",
+      "maxW": 2610,
+      "text": "Global chrome — header, search, footer",
+      "w": 240,
+      "x": 0,
+      "y": 2050
+    },
+    "title-home": {
+      "kind": "title1",
+      "maxW": 2610,
+      "text": "Home",
+      "w": 240,
+      "x": 0,
+      "y": 4678
+    },
+    "title-motion": {
+      "kind": "title1",
+      "maxW": 2960,
+      "text": "Motion — animations across the website",
+      "w": 240,
+      "x": 0,
+      "y": 37170
+    },
+    "title-pdp": {
+      "kind": "title1",
+      "maxW": 2610,
+      "text": "Product page",
+      "w": 240,
+      "x": 0,
+      "y": 15550
+    },
+    "title-plp": {
+      "kind": "title1",
+      "maxW": 2610,
+      "text": "Collection",
+      "w": 240,
+      "x": 0,
+      "y": 11950
+    },
+    "title-tales": {
+      "kind": "title1",
+      "maxW": 4130,
+      "text": "Tales and the house",
+      "w": 240,
+      "x": 0,
+      "y": 24498
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Global-desktop.dc.html",
+    "Global-mobile.dc.html",
+    "Global-notes.dc.html",
+    "Home-desktop.dc.html",
+    "Home-mobile.dc.html",
+    "Home-notes.dc.html",
+    "PLP-desktop.dc.html",
+    "PLP-mobile.dc.html",
+    "PLP-notes.dc.html",
+    "PDP-desktop.dc.html",
+    "PDP-mobile.dc.html",
+    "PDP-notes.dc.html",
+    "Finder-desktop.dc.html",
+    "Finder-mobile.dc.html",
+    "Finder-notes.dc.html",
+    "Tale-desktop.dc.html",
+    "House-desktop.dc.html",
+    "Tale-mobile.dc.html",
+    "Tale-notes.dc.html",
+    "Cart-desktop.dc.html",
+    "Cart-mobile.dc.html",
+    "Cart-notes.dc.html",
+    "Direction.dc.html",
+    "Applied-desktop.dc.html",
+    "Applied-mobile.dc.html",
+    "Direction-notes.dc.html",
+    "Components.dc.html",
+    "Content-plan.dc.html",
+    "Kit-notes.dc.html",
+    "Motion-map.dc.html",
+    "Motion-spec.dc.html"
+  ],
+  "pages": [],
+  "title": "eternal — Website wireframes (Shopify)"
+}

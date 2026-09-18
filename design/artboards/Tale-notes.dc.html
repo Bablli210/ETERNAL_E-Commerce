@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F5F2EC; color: #1C1B19; font-family: 'Manrope', system-ui, sans-serif; font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+    a { color: #1C1B19; } a:hover { color: #1F4E79; }
+    * { box-sizing: border-box; }
+    h1, h2, h3, h4, p { margin: 0; }
+    button { font: inherit; cursor: pointer; }
+    .serif { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; line-height: 1.1; }
+    .ph { position: relative; background-color: #E8E3D9; background-image: repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 13px); color: #56504A; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; line-height: 1.35; padding: 12px; border: 1px solid #D4CDBF; overflow: hidden; }
+    .ph.dark { background-color: #3A3733; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 13px); color: #E8E3D9; border-color: #2A2825; }
+    .ph.blue { background-color: #C9D5E3; }
+    .ph.warm { background-color: #E3D3BD; }
+    .mk { position: absolute; z-index: 6; width: 24px; height: 24px; border-radius: 50%; color: #FFFFFF; font-weight: 700; font-size: 12px; line-height: 24px; text-align: center; box-shadow: 0 0 0 3px rgba(245,242,236,0.95); }
+    .slab { position: absolute; z-index: 5; top: 6px; right: 10px; font-size: 10px; color: #6E685E; letter-spacing: 0.02em; background: rgba(245,242,236,0.85); padding: 2px 6px; border-radius: 2px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 2px; font-weight: 600; font-size: 13px; letter-spacing: 0.03em; border: 1px solid #1C1B19; background: #1C1B19; color: #F5F2EC; text-decoration: none; white-space: nowrap; }
+    .btn:hover { color: #F5F2EC; }
+    .btn.sec { background: transparent; color: #1C1B19; }
+    .btn.sec:hover { color: #1C1B19; }
+    .btn.light { background: #F5F2EC; color: #1C1B19; border-color: #F5F2EC; }
+    .btn.light:hover { color: #1C1B19; }
+    .btn.sm { height: 40px; padding: 0 16px; font-size: 12px; }
+    .lnk { text-decoration: underline; text-underline-offset: 4px; font-weight: 600; font-size: 13px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border: 1px solid #C9C1B2; border-radius: 999px; font-size: 12px; font-weight: 500; color: #1C1B19; background: #FBF9F5; white-space: nowrap; }
+    .chip.on { background: #1C1B19; color: #F5F2EC; border-color: #1C1B19; }
+    .muted { color: #6E685E; }
+    .small { font-size: 12px; }
+    .tiny { font-size: 11px; }
+    .rule { height: 1px; background: #D9D2C5; }
+    .field { height: 46px; border: 1px solid #C9C1B2; background: #FBF9F5; display: flex; align-items: center; padding: 0 14px; color: #6E685E; font-size: 13px; gap: 8px; }
+    .card { background: #FBF9F5; border: 1px solid #D9D2C5; }
+    .meter { height: 6px; background: #E1DBD0; border-radius: 3px; overflow: hidden; }
+    .meter > div { height: 100%; background: #1C1B19; }
+    .sizeopt { display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 16px; border: 1px solid #C9C1B2; background: #FBF9F5; font-size: 13px; }
+    .sizeopt.on { border: 2px solid #1C1B19; }
+    .acc { display: flex; align-items: center; justify-content: space-between; height: 56px; border-top: 1px solid #D9D2C5; font-size: 14px; font-weight: 500; }
+    .navlink { font-size: 13px; font-weight: 500; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 4px; }
+    .ann { background: #1C1B19; color: #F5F2EC; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 24px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #C9C1B2; }
+    .dot.on { background: #1C1B19; }
+    .stepdot { width: 28px; height: 4px; background: #D9D2C5; }
+    .stepdot.on { background: #1C1B19; }
+    .tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 2px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #FFFFFF; }
+    .tag.c { background: #1F4E79; } .tag.s { background: #2F6B4F; } .tag.m { background: #5B3E8C; }
+    .note { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid #D9D2C5; }
+    .note .n { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #1F4E79; color: #fff; font-weight: 700; font-size: 12px; line-height: 24px; text-align: center; }
+    .note h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+    .note p { font-size: 12px; line-height: 1.5; color: #3E3A35; }
+
+    body { background: #FBF9F5; }
+  </style>
+</helmet>
+<div style="width: 620px; height: 908px; display: flex; flex-direction: column; gap: 0px; background: #FBF9F5; overflow: hidden; position: relative;" data-board="Tales and the house — notes">
+<div style="display:flex;flex-direction:column;gap:8px;align-items:stretch;justify-content:flex-start;padding:40px 36px;"><h2 class="serif" style="font-size:34px;">Tales and the house — notes</h2><p style="font-size:13px;color:#6E685E;">Editorial pages that stay shoppable</p><div style="display:flex;flex-direction:row;gap:16px;align-items:stretch;justify-content:flex-start;padding:6px 0 12px;"><span class="tiny" style="display:flex;gap:6px;align-items:center"><span class="tag c">Conversion</span>why it sells</span><span class="tiny" style="display:flex;gap:6px;align-items:center"><span class="tag s">Shopify</span>how to build it</span><span class="tiny" style="display:flex;gap:6px;align-items:center"><span class="tag m">Motion</span>hook for phase 2</span></div><div class="note"><span class="n" style="background:{{accent}}">1</span><div style="flex:1"><h4>Tale: campaign still + reading column<span class="tag c">Conversion</span><span class="tag m">Motion</span></h4><p>Full-bleed still, then a 640 px reading column set in the serif at 20 px — editorial, read like a magazine. Motion: parallax on the still, drop cap fades in.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">2</span><div style="flex:1"><h4>The shoppable card stays with the reader<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>The product card is sticky beside the text on desktop and pinned to the bottom on mobile, so desire converts at any paragraph. Shopify: templates/article.tale.json; article metafield product → card with size, price and add to bag.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">3</span><div style="flex:1"><h4>Next tale + finder<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Reading ends in another tale or in the finder — never in a dead end. Shopify: blog "tales" list excluding the current article.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">4</span><div style="flex:1"><h4>The house: manifesto, film, how we compose<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>The trust page for a brand people have not heard of: manifesto, the brand film, a three-step process (choose the original → compose → test on skin), the three lines, a founder note. Shopify: page.house.json with a video metafield.</p></div></div><div class="note"><span class="n" style="background:{{accent}}">5</span><div style="flex:1"><h4>Every tale links back<span class="tag c">Conversion</span><span class="tag s">Shopify</span></h4><p>Each product page excerpt links to its tale, each tale to its product, and both to the finder — a loop, not a funnel exit. Shopify: article metafield product; product metafield tale.</p></div></div></div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#1F4E79","options":["#1F4E79","#B9401A","#2F6B4F","#5B3E8C"]},"$preview":{"width":620,"height":908}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#1F4E79' };
+  }
+}
+</script>
+</body>
+</html>

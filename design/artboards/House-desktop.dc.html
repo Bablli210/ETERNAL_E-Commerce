@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&amp;family=Manrope:wght@400;500;600;700&amp;display=swap">
+  <style>
+    body { margin: 0; background: #F5F2EC; color: #1C1B19; font-family: 'Manrope', system-ui, sans-serif; font-size: 14px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+    a { color: #1C1B19; } a:hover { color: #1F4E79; }
+    * { box-sizing: border-box; }
+    h1, h2, h3, h4, p { margin: 0; }
+    button { font: inherit; cursor: pointer; }
+    .serif { font-family: 'Cormorant Garamond', Georgia, serif; font-weight: 500; line-height: 1.1; }
+    .ph { position: relative; background-color: #E8E3D9; background-image: repeating-linear-gradient(135deg, rgba(0,0,0,0.05) 0 1px, transparent 1px 13px); color: #56504A; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 12px; line-height: 1.35; padding: 12px; border: 1px solid #D4CDBF; overflow: hidden; }
+    .ph.dark { background-color: #3A3733; background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.06) 0 1px, transparent 1px 13px); color: #E8E3D9; border-color: #2A2825; }
+    .ph.blue { background-color: #C9D5E3; }
+    .ph.warm { background-color: #E3D3BD; }
+    .mk { position: absolute; z-index: 6; width: 24px; height: 24px; border-radius: 50%; color: #FFFFFF; font-weight: 700; font-size: 12px; line-height: 24px; text-align: center; box-shadow: 0 0 0 3px rgba(245,242,236,0.95); }
+    .slab { position: absolute; z-index: 5; top: 6px; right: 10px; font-size: 10px; color: #6E685E; letter-spacing: 0.02em; background: rgba(245,242,236,0.85); padding: 2px 6px; border-radius: 2px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 24px; border-radius: 2px; font-weight: 600; font-size: 13px; letter-spacing: 0.03em; border: 1px solid #1C1B19; background: #1C1B19; color: #F5F2EC; text-decoration: none; white-space: nowrap; }
+    .btn:hover { color: #F5F2EC; }
+    .btn.sec { background: transparent; color: #1C1B19; }
+    .btn.sec:hover { color: #1C1B19; }
+    .btn.light { background: #F5F2EC; color: #1C1B19; border-color: #F5F2EC; }
+    .btn.light:hover { color: #1C1B19; }
+    .btn.sm { height: 40px; padding: 0 16px; font-size: 12px; }
+    .lnk { text-decoration: underline; text-underline-offset: 4px; font-weight: 600; font-size: 13px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border: 1px solid #C9C1B2; border-radius: 999px; font-size: 12px; font-weight: 500; color: #1C1B19; background: #FBF9F5; white-space: nowrap; }
+    .chip.on { background: #1C1B19; color: #F5F2EC; border-color: #1C1B19; }
+    .muted { color: #6E685E; }
+    .small { font-size: 12px; }
+    .tiny { font-size: 11px; }
+    .rule { height: 1px; background: #D9D2C5; }
+    .field { height: 46px; border: 1px solid #C9C1B2; background: #FBF9F5; display: flex; align-items: center; padding: 0 14px; color: #6E685E; font-size: 13px; gap: 8px; }
+    .card { background: #FBF9F5; border: 1px solid #D9D2C5; }
+    .meter { height: 6px; background: #E1DBD0; border-radius: 3px; overflow: hidden; }
+    .meter > div { height: 100%; background: #1C1B19; }
+    .sizeopt { display: flex; align-items: center; justify-content: space-between; height: 52px; padding: 0 16px; border: 1px solid #C9C1B2; background: #FBF9F5; font-size: 13px; }
+    .sizeopt.on { border: 2px solid #1C1B19; }
+    .acc { display: flex; align-items: center; justify-content: space-between; height: 56px; border-top: 1px solid #D9D2C5; font-size: 14px; font-weight: 500; }
+    .navlink { font-size: 13px; font-weight: 500; letter-spacing: 0.02em; display: inline-flex; align-items: center; gap: 4px; }
+    .ann { background: #1C1B19; color: #F5F2EC; font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 24px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: #C9C1B2; }
+    .dot.on { background: #1C1B19; }
+    .stepdot { width: 28px; height: 4px; background: #D9D2C5; }
+    .stepdot.on { background: #1C1B19; }
+    .tag { display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 2px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; color: #FFFFFF; }
+    .tag.c { background: #1F4E79; } .tag.s { background: #2F6B4F; } .tag.m { background: #5B3E8C; }
+    .note { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid #D9D2C5; }
+    .note .n { flex: none; width: 24px; height: 24px; border-radius: 50%; background: #1F4E79; color: #fff; font-weight: 700; font-size: 12px; line-height: 24px; text-align: center; }
+    .note h4 { font-size: 13px; font-weight: 700; margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+    .note p { font-size: 12px; line-height: 1.5; color: #3E3A35; }
+
+    body { background: #F5F2EC; }
+  </style>
+</helmet>
+<div style="width: 1440px; height: 2160px; display: flex; flex-direction: column; gap: 0px; background: #F5F2EC; overflow: hidden; position: relative;" data-board="The house — desktop">
+<div style="position:relative;height:100px;padding:0;overflow:hidden;"><span class="slab" style="">Global header · sections/announcement-bar + sections/header</span><div class="ann" style="height:36px;padding:0 80px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M15 6l-6 6 6 6"/></svg><span>Two free 5 ml samples with every order [confirm offer]</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M9 6l6 6-6 6"/></svg><span class="tiny" style="position:absolute;right:80px;display:flex;gap:10px;opacity:.85"><span style="font-weight:700">EN</span><span>AR</span></span></div><div style="height:64px;padding:0 80px;display:flex;align-items:center;justify-content:space-between;background:#FBF9F5;color:#1C1B19;border-bottom:1px solid #D9D2C5;position:relative;"><nav style="display:flex;gap:28px;align-items:center;width:420px;"><a class="navlink" href="PLP-desktop.dc.html" style="color:#1C1B19;">Shop<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M6 9l6 6 6-6"/></svg></a><a class="navlink" href="Finder-desktop.dc.html" style="color:#1C1B19;">Scent finder</a><a class="navlink" href="Tale-desktop.dc.html" style="color:#1C1B19;">Tales</a><a class="navlink" href="House-desktop.dc.html" style="color:#1C1B19;border-bottom:1px solid #1C1B19;">The house</a></nav><a href="Home-desktop.dc.html" aria-label="eternal home" style="display:flex;align-items:center;color:#1C1B19;"><img src="/_blob/1a8ded50d0980617b90548a6d88b77ad" alt="" style="width:auto;height:24px;object-fit:contain;display:block;"></a><div style="display:flex;gap:22px;align-items:center;justify-content:flex-end;width:420px;"><span class="navlink" style="color:#1C1B19;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg>Search</span><a href="#" aria-label="Account" style="color:#1C1B19;display:flex;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg></a><a href="Cart-desktop.dc.html" aria-label="Bag" style="position:relative;display:flex;color:#1C1B19;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M6 8h12l1 13H5L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span style="position:absolute;top:-6px;right:-10px;min-width:16px;height:16px;border-radius:8px;background:#1C1B19;color:#F5F2EC;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 4px;">2</span></a></div></div></div><div style="position:relative;height:420px;padding:0 80px;overflow:hidden;"><span class="mk" style="top:40px;left:60px;background:{{accent}}">4</span><div style="display:flex;flex-direction:column;gap:20px;align-items:stretch;justify-content:center;height:420px;"><div class="tiny muted">The house</div><h1 class="serif" style="font-size:72px;max-width:980px">Some things are never meant to fade.</h1><p style="font-size:18px;max-width:820px;line-height:1.7;color:#2A2825">eternal is a Cairo house of eaux de parfum in three lines — eterna for her, eterno for him, eternal for both. We start from the fragrances people already love, compose our own reading of each one, and test it on skin until it lasts the way a memory does.</p></div></div><div style="position:relative;height:600px;padding:0;overflow:hidden;"><span class="mk" style="top:20px;left:60px;background:{{accent}}">4</span><div style="position:relative;"><div class="ph dark" style="width:100%;height:600px;">The house film, full bleed — 1:30 brand explainer with voiceover, poster frame</div><div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:88px;height:88px;border-radius:50%;background:rgba(245,242,236,.92);display:flex;align-items:center;justify-content:center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none;"><path d="M8 5l11 7-11 7V5z"/></svg></div></div></div><div style="position:relative;height:400px;padding:0 80px;overflow:hidden;border-top:1px solid #D9D2C5;"><span class="slab" style="">sections/process · 3 blocks</span><span class="mk" style="top:40px;left:60px;background:{{accent}}">4</span><div style="display:flex;flex-direction:column;gap:28px;align-items:stretch;justify-content:flex-start;padding-top:48px;"><h2 class="serif" style="font-size:40px;">How we compose</h2><div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:48px;"><div style="display:flex;flex-direction:column;gap:10px;align-items:stretch;justify-content:flex-start;"><div class="serif" style="font-size:64px;line-height:1;color:#C9C1B2">1</div><div class="serif" style="font-size:28px">We start from what you love</div><p style="font-size:14px;line-height:1.6;color:#3E3A35">Each scent names the fragrance that inspired it. No guessing, no code names.</p></div><div style="display:flex;flex-direction:column;gap:10px;align-items:stretch;justify-content:flex-start;"><div class="serif" style="font-size:64px;line-height:1;color:#C9C1B2">2</div><div class="serif" style="font-size:28px">We compose our own reading</div><p style="font-size:14px;line-height:1.6;color:#3E3A35">Same opening you know, our own heart and drydown — closer to the skin, made for Cairo heat. [Perfumer’s note]</p></div><div style="display:flex;flex-direction:column;gap:10px;align-items:stretch;justify-content:flex-start;"><div class="serif" style="font-size:64px;line-height:1;color:#C9C1B2">3</div><div class="serif" style="font-size:28px">We test it on skin</div><p style="font-size:14px;line-height:1.6;color:#3E3A35">Every listing carries its own longevity and sillage score from wear tests, not a slogan. [Method]</p></div></div></div></div><div style="position:relative;height:420px;padding:0 80px;overflow:hidden;border-top:1px solid #D9D2C5;"><div style="display:flex;flex-direction:column;gap:24px;align-items:stretch;justify-content:flex-start;padding-top:40px;"><h2 class="serif" style="font-size:40px;">Three lines, one house</h2><div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:24px;"><div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;justify-content:flex-start;"><img src="/_blob/ab7131eb84bf489413f903e178d6235c" alt="" style="width:100%;height:260px;object-fit:cover;display:block;"><div class="serif" style="font-size:26px">eterna</div><div class="small muted">Her · [n] scents</div><a href="PLP-desktop.dc.html" class="lnk small">Shop her</a></div><div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;justify-content:flex-start;"><div class="ph warm" style="width:100%;height:260px;">eterno hero bottle</div><div class="serif" style="font-size:26px">eterno</div><div class="small muted">Him · [n] scents</div><a href="PLP-desktop.dc.html" class="lnk small">Shop him</a></div><div style="display:flex;flex-direction:column;gap:6px;align-items:stretch;justify-content:flex-start;"><img src="/_blob/68ab32d3923103dc519328eb7c0ea434" alt="" style="width:100%;height:260px;object-fit:cover;display:block;"><div class="serif" style="font-size:26px">eternal</div><div class="small muted">Unisex · [n] scents</div><a href="PLP-desktop.dc.html" class="lnk small">Shop unisex</a></div></div></div></div><div style="position:relative;height:220px;padding:0 80px;overflow:hidden;border-top:1px solid #D9D2C5;"><span class="mk" style="top:40px;right:60px;background:{{accent}}">3</span><div style="display:flex;flex-direction:row;gap:64px;align-items:center;justify-content:flex-start;padding-top:40px;"><div style="display:flex;flex-direction:column;gap:8px;align-items:stretch;justify-content:flex-start;flex:1;"><div class="tiny muted">A note from the founder</div><p style="font-size:16px;font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;line-height:1.5;font-style:italic;max-width:720px">[Two or three sentences in the founder’s voice — why the house exists, what "never meant to fade" means to you.]</p></div><a class="btn" href="Finder-desktop.dc.html" style="align-self:center;">Find your scent</a></div></div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{"accent":{"editor":"color","default":"#1F4E79","options":["#1F4E79","#B9401A","#2F6B4F","#5B3E8C"]},"$preview":{"width":1440,"height":2160}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { accent: this.props.accent ?? '#1F4E79' };
+  }
+}
+</script>
+</body>
+</html>
