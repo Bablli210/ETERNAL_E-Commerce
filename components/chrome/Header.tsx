@@ -33,6 +33,19 @@ export function Header({
   const lastY = useRef(0);
   const closeTimer = useRef<number | null>(null);
 
+  // D3: the bag icon ticks once when a line is added.
+  const [tick, setTick] = useState(false);
+  const [seenCount, setSeenCount] = useState(cart.count);
+  if (seenCount !== cart.count) {
+    setSeenCount(cart.count);
+    if (cart.count > seenCount && cart.ready) setTick(true);
+  }
+  useEffect(() => {
+    if (!tick) return;
+    const t = window.setTimeout(() => setTick(false), 400);
+    return () => window.clearTimeout(t);
+  }, [tick]);
+
   useEffect(() => {
     const onScroll = () => {
       const y = window.scrollY;
@@ -134,7 +147,7 @@ export function Header({
                 <span className="hidden sm:inline">Search</span>
               </button>
               <button type="button" className="relative inline-flex h-11 items-center gap-2 px-2 hover:opacity-70" aria-label={`Bag, ${cart.count} items`} onClick={cart.openDrawer}>
-                <Icon name="bag" />
+                <Icon name="bag" className={tick ? "bag-tick" : undefined} />
                 {cart.ready && cart.count > 0 && (
                   <span className="tnum absolute -right-0.5 top-1 flex h-[18px] min-w-[18px] items-center justify-center bg-gold px-1 text-[10px] font-bold text-linen">{cart.count}</span>
                 )}

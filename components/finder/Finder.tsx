@@ -1,16 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { finderQuestions } from "@/content/finder";
 import { site } from "@/content/site";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { rankMatches, summariseAnswers, type Answers } from "@/lib/finder";
+import { motionAllowed } from "@/lib/motion";
 import { useCart } from "@/components/cart/CartProvider";
 import { ProductCard } from "@/components/product/ProductCard";
+import { CountUp } from "@/components/motion/CountUp";
 import { ImageSlot } from "@/components/ui/Primitives";
 import { Icon } from "@/components/ui/Icon";
+import { Mark } from "@/components/ui/Wordmark";
 import { formatMoney } from "@/lib/format";
 
 const encode = (a: Answers) => btoa(encodeURIComponent(JSON.stringify(a)));
@@ -32,9 +35,21 @@ export function Finder({ index, mysteryBox }: { index: ScentIndexEntry[]; myster
   }, [searchParams]);
   const [step, setStep] = useState(shared ? total : 0);
   const [answers, setAnswers] = useState<Answers>(shared ?? {});
+  const [direction, setDirection] = useState<"fwd" | "back">("fwd");
+  const [composing, setComposing] = useState(false);
   const [copied, setCopied] = useState(false);
   const { addMany } = useCart();
   const done = step >= total;
+
+  // F3: the mark draws for 1.2 s ("composing your matches") before the results.
+  useEffect(() => {
+    if (!composing) return;
+    const t = window.setTimeout(() => {
+      setComposing(false);
+      setStep(total);
+    }, 1200);
+    return () => window.clearTimeout(t);
+  }, [composing, total]);
 
   const q = finderQuestions[Math.min(step, total - 1)];
   const chosen = answers[q.id] ?? [];
@@ -47,10 +62,22 @@ export function Finder({ index, mysteryBox }: { index: ScentIndexEntry[]; myster
       return { ...prev, [q.id]: [...cur, id] };
     });
   };
-  const next = () => setStep((s) => Math.min(total, s + 1));
-  const back = () => setStep((s) => Math.max(0, s - 1));
+  // Every screen starts at the top, so the slide reads as one motion.
+  const toTop = () => window.scrollTo({ top: 0, behavior: motionAllowed() ? "smooth" : "auto" });
+  const next = () => {
+    setDirection("fwd");
+    toTop();
+    if (step === total - 1 && motionAllowed()) setComposing(true);
+    else setStep((s) => Math.min(total, s + 1));
+  };
+  const back = () => {
+    setDirection("back");
+    toTop();
+    setStep((s) => Math.max(0, s - 1));
+  };
   const retake = () => {
     setAnswers({});
+    setDirection("back");
     setStep(0);
     window.history.replaceState(null, "", "/finder");
   };
@@ -92,9 +119,19 @@ export function Finder({ index, mysteryBox }: { index: ScentIndexEntry[]; myster
       })),
     );
 
+  if (composing) {
+    return (
+      <section className="wrap flex min-h-[60vh] flex-col items-center justify-center py-16 text-center" aria-live="polite">
+        <Mark size={128} draw className="draw-slow text-night" />
+        <p className="display-m mt-8">Composing your matches…</p>
+        <p className="mt-2 text-[13px] text-ash">Reading your answers against {index.filter((e) => e.kind === "scent").length} scents.</p>
+      </section>
+    );
+  }
+
   if (done) {
     return (
-      <section className="wrap py-10 lg:py-16">
+      <section className="wrap py-10 lg:py-16" style={{ ["--stagger" as string]: "120ms" }}>
         <p className="tnum text-[12px] text-ash">Step {total} of {total}</p>
         <h1 className="display-l mt-3">Your three matches</h1>
         <p className="body-l mt-3 max-w-[60ch] text-ash">
@@ -103,17 +140,17 @@ export function Finder({ index, mysteryBox }: { index: ScentIndexEntry[]; myster
         <div className="mt-10 grid gap-x-6 gap-y-10 md:grid-cols-3">
           {matches.map((m, i) => (
             <div key={m.entry.handle} data-reveal style={{ ["--i" as string]: i }}>
-              <ProductCard entry={m.entry} badge={`${m.percent}% match`} reason={m.reasons.slice(0, 3).join(", ") || undefined} />
+              <ProductCard entry={m.entry} badge={<CountUp value={m.percent} suffix="% match" duration={600} />} reason={m.reasons.slice(0, 3).join(", ") || undefined} />
             </div>
           ))}
         </div>
-        <div className="mt-12 flex flex-col gap-4 border-t border-dune pt-8 md:flex-row md:items-center md:justify-between">
+        <div className="mt-12 flex flex-col gap-4 border-t border-dune pt-8 md:flex-row md:items-center md:justify-between" data-reveal style={{ ["--i" as string]: 3 }}>
           {trio ? (
-            <button type="button" className="btn" onClick={addTrio}>
+            <button type="button" className="btn pulse-once" style={{ animationDelay: "1s" }} onClick={addTrio}>
               Try all three as {site.sampleSizeMl} ml samples — {formatMoney({ amount: trioPrice, currencyCode: matches[0].entry.price.currencyCode })}
             </button>
           ) : mysteryBox ? (
-            <Link href="/products/mystery-box" className="btn">
+            <Link href="/products/mystery-box" className="btn pulse-once" style={{ animationDelay: "1s" }}>
               Not ready for a bottle? The mystery box — three {site.sampleSizeMl} ml samples, {formatMoney(mysteryBox.price)}
             </Link>
           ) : null}
@@ -133,40 +170,44 @@ export function Finder({ index, mysteryBox }: { index: ScentIndexEntry[]; myster
 
   return (
     <section className="wrap py-10 lg:py-16">
-      <div className="flex items-center gap-2" aria-hidden="true">
-        {finderQuestions.map((_, i) => (
-          <span key={i} className={`h-1 w-8 ${i <= step ? "bg-night" : "bg-dune"}`} />
-        ))}
+      {/* F1: the progress bar fills. */}
+      <div className="h-px w-full bg-dune" aria-hidden="true">
+        <div className="progress-fill h-px bg-night" style={{ transform: `scaleX(${(step + 1) / total})` }} />
       </div>
-      <p className="tnum mt-4 text-[12px] text-ash">
-        Step {step + 1} of {total} · {q.eyebrow}
-      </p>
-      <h1 className="display-l mt-3">{q.title}</h1>
-      <p className="body-l mt-3 max-w-[56ch] text-ash">{q.help}</p>
+      <div key={step} className={direction === "back" ? "screen-back" : "screen-fwd"}>
+        <p className="tnum mt-4 text-[12px] text-ash">
+          Step {step + 1} of {total} · {q.eyebrow}
+        </p>
+        <h1 className="display-l mt-3">{q.title}</h1>
+        <p className="body-l mt-3 max-w-[56ch] text-ash">{q.help}</p>
 
-      <ul className={`mt-10 grid gap-4 ${q.options.length > 4 ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label={q.title}>
-        {q.options.map((o) => {
-          const on = chosen.includes(o.id);
-          return (
-            <li key={o.id}>
-              <button
-                type="button"
-                aria-pressed={on}
-                onClick={() => toggle(o.id)}
-                className={`group relative flex aspect-[4/3] w-full flex-col justify-end overflow-hidden p-4 text-left transition-transform duration-200 hover:-translate-y-1 ${on ? "ring-2 ring-night ring-offset-2 ring-offset-linen" : ""}`}
-              >
-                <ImageSlot label={o.art} className="absolute inset-0" />
-                <span className="serif relative z-10 bg-linen/90 px-2 py-1 text-[20px] leading-none lg:text-[24px]">{o.label}</span>
-                {on && (
-                  <span className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center bg-night text-linen">
-                    <Icon name="check" size={14} />
-                  </span>
-                )}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+        <ul className={`mt-10 grid gap-4 ${q.options.length > 4 ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label={q.title}>
+          {q.options.map((o) => {
+            const on = chosen.includes(o.id);
+            return (
+              <li key={o.id}>
+                {/* F2: the tile lifts 4 px with a Night border; the check draws. */}
+                <button
+                  type="button"
+                  aria-pressed={on}
+                  onClick={() => toggle(o.id)}
+                  className={`tile group relative flex aspect-[4/3] w-full flex-col justify-end overflow-hidden p-4 text-left ${on ? "shadow-[inset_0_0_0_2px_var(--color-night)]" : "shadow-[inset_0_0_0_1px_transparent] hover:shadow-[inset_0_0_0_1px_var(--color-night)]"}`}
+                >
+                  <ImageSlot label={o.art} className="absolute inset-0" />
+                  <span className="serif relative z-10 bg-linen/90 px-2 py-1 text-[20px] leading-none lg:text-[24px]">{o.label}</span>
+                  {on && (
+                    <span className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center bg-night text-linen">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="draw" aria-hidden="true">
+                        <path pathLength={1} d="m5 12 5 5L20 7" style={{ animationDuration: "200ms" }} />
+                      </svg>
+                    </span>
+                  )}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
 
       <div className="mt-10 flex items-center justify-between border-t border-dune pt-6">
         <button type="button" className="btn btn-ghost" onClick={back} disabled={step === 0}>

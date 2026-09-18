@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 import type { Money } from "@/lib/shopify/types";
 import type { World } from "@/lib/catalogue";
 import { parseJSON, readRaw, SERVER_SNAPSHOT, useStoredRaw, writeJSON } from "@/lib/client/storage";
+import { motionAllowed } from "@/lib/motion";
 
 export type CartLine = {
   variantId: string;
@@ -28,7 +29,11 @@ type CartContextValue = {
   ready: boolean;
   checkingOut: boolean;
   error: string | null;
-  add: (line: Omit<CartLine, "qty">, qty?: number, opts?: { openDrawer?: boolean }) => void;
+  /** The line added most recently, so the drawer can highlight it (G6). */
+  lastAdded: string | null;
+  toast: { id: number; title: string; label: string } | null;
+  dismissToast: () => void;
+  add: (line: Omit<CartLine, "qty">, qty?: number, opts?: { openDrawer?: boolean; toast?: boolean }) => void;
   addMany: (lines: Omit<CartLine, "qty">[]) => void;
   remove: (variantId: string) => void;
   setQty: (variantId: string, qty: number) => void;
@@ -55,6 +60,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [checkingOut, setCheckingOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastAdded, setLastAdded] = useState<string | null>(null);
+  const [toast, setToast] = useState<CartContextValue["toast"]>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -79,7 +86,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
     }
     setError(null);
-    if (opts?.openDrawer !== false) setOpen(true);
+    setLastAdded(line.variantId);
+    if (opts?.openDrawer !== false) {
+      // D3: the label reads "Added ✓" and the bag icon ticks before the drawer opens.
+      window.setTimeout(() => setOpen(true), motionAllowed() ? 450 : 0);
+    } else if (opts?.toast !== false) {
+      setToast({ id: Date.now(), title: line.title, label: line.variantLabel });
+    }
   }, []);
 
   const addMany = useCallback<CartContextValue["addMany"]>((items) => {
@@ -92,6 +105,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return next;
     });
+    setLastAdded(items[items.length - 1]?.variantId ?? null);
     setOpen(true);
   }, []);
 
@@ -131,6 +145,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       ready,
       checkingOut,
       error,
+      lastAdded,
+      toast,
+      dismissToast: () => setToast(null),
       add,
       addMany,
       remove,
@@ -139,7 +156,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       closeDrawer: () => setOpen(false),
       checkout,
     };
-  }, [lines, open, ready, checkingOut, error, add, addMany, remove, setQty, checkout]);
+  }, [lines, open, ready, checkingOut, error, lastAdded, toast, add, addMany, remove, setQty, checkout]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

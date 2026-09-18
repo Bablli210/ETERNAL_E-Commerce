@@ -57,7 +57,7 @@ export function MegaMenu({ featured, onEnter, onLeave }: { featured: FeaturedTil
           { e: featured.newIn, eyebrow: `New in ${featured.newIn?.lineLabel ?? "the house"}`, label: "New arrival" },
         ].map(({ e, eyebrow, label }, i) =>
           e ? (
-            <Link key={i} href={`/products/${e.handle}`} className="group flex gap-4">
+            <Link key={i} href={`/products/${e.handle}`} className="rise-in group flex gap-4" style={{ ["--i" as string]: i + 1 }}>
               <ProductImage src={e.image} alt={e.title} world={e.world} sizes="140px" className="h-[170px] w-[136px] shrink-0" />
               <div className="flex flex-col justify-center">
                 <Eyebrow>{eyebrow}</Eyebrow>

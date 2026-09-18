@@ -20,7 +20,7 @@ export function WhatsAppFloat() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat on WhatsApp"
-      className="fade-enter fixed bottom-24 right-4 z-[50] flex h-12 w-12 items-center justify-center bg-night text-linen hover:bg-sea lg:bottom-8 lg:right-8"
+      className="fade-enter pulse-once fixed bottom-24 right-4 z-[50] flex h-12 w-12 items-center justify-center bg-night text-linen hover:bg-sea lg:bottom-8 lg:right-8"
     >
       <Icon name="whatsapp" size={22} />
     </a>

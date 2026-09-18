@@ -11,6 +11,10 @@ import { Header } from "@/components/chrome/Header";
 import { Footer } from "@/components/chrome/Footer";
 import { WhatsAppFloat } from "@/components/chrome/WhatsAppFloat";
 import { RevealObserver } from "@/components/ui/RevealObserver";
+import { Toast } from "@/components/cart/Toast";
+import { MotionScript } from "@/components/motion/MotionScript";
+import { Loader } from "@/components/motion/Loader";
+import { PageFade } from "@/components/motion/PageFade";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -48,14 +52,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={`${cormorant.variable} ${instrument.variable}`}>
       <body>
+        <MotionScript />
+        <Loader />
         <CartProvider>
           <a href="#main" className="sr-only-focusable fixed left-4 top-4 z-[100] bg-night px-4 py-2 text-linen">
             Skip to content
           </a>
           <Header index={index} featured={featured} taleIndex={taleIndex} popular={bestsellers.map(toIndexEntry)} />
-          <main id="main">{children}</main>
+          <main id="main">
+            <PageFade>{children}</PageFade>
+          </main>
           <Footer storeDomain={storeDomain} />
           <CartDrawer index={index} />
+          <Toast />
           <WhatsAppFloat />
           <RevealObserver />
         </CartProvider>

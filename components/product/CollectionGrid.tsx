@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { families, familyOrder, moods, moodOrder, type FamilyKey, type MoodKey } from "@/content/taxonomy";
 import { searchIndex } from "@/lib/search";
+import { easing, motionAllowed } from "@/lib/motion";
 import { ProductCard } from "./ProductCard";
 import { Icon } from "@/components/ui/Icon";
 
@@ -32,6 +33,8 @@ export function CollectionGrid({
   const [sort, setSort] = useState<Sort>("bestselling");
   const [shown, setShown] = useState(pageSize);
   const [drawer, setDrawer] = useState(false);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const positions = useRef<Map<string, DOMRect> | null>(null);
 
   const filtered = useMemo(() => {
     let list = entries;
@@ -60,6 +63,43 @@ export function CollectionGrid({
   }, [entries, q, family, mood, line, sort]);
 
   const visible = filtered.slice(0, shown);
+
+  /**
+   * P1 / P3 · FLIP: cards that stay glide to their new place (320 ms); cards
+   * that arrive fade up with a 40 ms stagger. The first layout is left alone
+   * so the LCP image never animates.
+   */
+  useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const cards = Array.from(grid.querySelectorAll<HTMLElement>("[data-card]"));
+    const next = new Map<string, DOMRect>();
+    cards.forEach((c) => next.set(c.dataset.card!, c.getBoundingClientRect()));
+    const prev = positions.current;
+    positions.current = next;
+    if (!prev || !motionAllowed()) return;
+    let arrivals = 0;
+    cards.forEach((c) => {
+      const key = c.dataset.card!;
+      const was = prev.get(key);
+      const now = next.get(key)!;
+      if (was) {
+        const dx = was.left - now.left;
+        const dy = was.top - now.top;
+        if (dx || dy) c.animate([{ transform: `translate(${dx}px, ${dy}px)` }, { transform: "none" }], { duration: 320, easing: easing.standard });
+      } else {
+        c.animate([{ opacity: 0, transform: "translateY(16px)" }, { opacity: 1, transform: "none" }], { duration: 400, delay: Math.min(arrivals++ * 40, 480), easing: easing.standard, fill: "backwards" });
+      }
+    });
+  }, [visible]);
+
+  useEffect(() => {
+    if (!drawer) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setDrawer(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [drawer]);
+
   const activeCount = [family, mood, line].filter(Boolean).length;
   const clear = () => {
     setFamily(null);
@@ -89,7 +129,7 @@ export function CollectionGrid({
               <Icon name="search" size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ash" />
               <input value={q} onChange={(e) => setQ(e.target.value)} type="search" placeholder="Search by the original you love" className="field !h-11 !pl-9 w-[280px] text-[13px]" />
             </label>
-            <button type="button" className="chip" aria-expanded={drawer} onClick={() => setDrawer((d) => !d)}>
+            <button type="button" className="chip" aria-expanded={drawer} onClick={() => setDrawer(true)}>
               Filters{activeCount ? ` · ${activeCount}` : ""}
               <Icon name="chevron-down" size={14} />
             </button>
@@ -107,38 +147,68 @@ export function CollectionGrid({
         </div>
       </div>
 
+      {/* P2 · filter drawer: slides from the left on desktop, up as a sheet on mobile. */}
       {drawer && (
-        <div className="drop-enter mt-4 grid gap-6 border border-dune bg-paper p-5 md:grid-cols-2">
-          <div>
-            <p className="eyebrow mb-3 text-ash">Mood</p>
-            <div className="flex flex-wrap gap-2">
-              {moodOrder.map((k) => (
-                <button key={k} type="button" className="chip" aria-pressed={mood === k} onClick={() => setMood(mood === k ? null : k)}>
-                  {moods[k].label}
-                </button>
-              ))}
-            </div>
-          </div>
-          {showLineFilter && (
-            <div>
-              <p className="eyebrow mb-3 text-ash">Line</p>
-              <div className="flex flex-wrap gap-2">
-                {[
-                  ["eterna", "Her — eterna"],
-                  ["eterno", "Him — eterno"],
-                  ["eternal", "Unisex — eternal"],
-                ].map(([k, label]) => (
-                  <button key={k} type="button" className="chip" aria-pressed={line === k} onClick={() => setLine(line === k ? null : k)}>
-                    {label}
-                  </button>
-                ))}
+        <div className="fixed inset-0 z-[80]" role="dialog" aria-modal="true" aria-label="Filters">
+          <button type="button" aria-label="Close filters" onClick={() => setDrawer(false)} className="fade-enter absolute inset-0 bg-night/40" />
+          <aside className="sheet-enter absolute inset-x-0 bottom-0 flex max-h-[85dvh] flex-col bg-paper text-night lg:drawer-left lg:inset-y-0 lg:right-auto lg:max-h-none lg:w-[380px]">
+            <header className="flex h-[72px] shrink-0 items-center justify-between border-b border-dune px-6">
+              <h2 className="display-m">Filters</h2>
+              <button type="button" onClick={() => setDrawer(false)} aria-label="Close" className="flex h-11 w-11 items-center justify-center hover:text-sea">
+                <Icon name="close" />
+              </button>
+            </header>
+            <div className="flex min-h-0 flex-1 flex-col gap-8 overflow-y-auto px-6 py-6">
+              <label className="lg:hidden">
+                <span className="eyebrow mb-3 block text-ash">Search</span>
+                <input value={q} onChange={(e) => setQ(e.target.value)} type="search" placeholder="Search by the original you love" className="field text-[13px]" />
+              </label>
+              <div>
+                <p className="eyebrow mb-3 text-ash">Mood</p>
+                <div className="flex flex-wrap gap-2">
+                  {moodOrder.map((k) => (
+                    <button key={k} type="button" className="chip" aria-pressed={mood === k} onClick={() => setMood(mood === k ? null : k)}>
+                      {moods[k].label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {showLineFilter && (
+                <div>
+                  <p className="eyebrow mb-3 text-ash">Line</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      ["eterna", "Her — eterna"],
+                      ["eterno", "Him — eterno"],
+                      ["eternal", "Unisex — eternal"],
+                    ].map(([k, label]) => (
+                      <button key={k} type="button" className="chip" aria-pressed={line === k} onClick={() => setLine(line === k ? null : k)}>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div>
+                <p className="eyebrow mb-3 text-ash">Family</p>
+                <div className="flex flex-wrap gap-2">
+                  {familyOrder.map((k) => (
+                    <button key={k} type="button" className="chip" aria-pressed={family === k} onClick={() => setFamily(family === k ? null : k)}>
+                      {families[k].label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
-          )}
-          <label className="md:hidden">
-            <span className="eyebrow mb-3 block text-ash">Search</span>
-            <input value={q} onChange={(e) => setQ(e.target.value)} type="search" placeholder="Search by the original you love" className="field text-[13px]" />
-          </label>
+            <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-dune px-6 py-4">
+              <button type="button" className="lnk lnk-quiet text-[12px] text-ash" onClick={clear}>
+                Clear all
+              </button>
+              <button type="button" className="btn btn-sm" onClick={() => setDrawer(false)}>
+                Show {filtered.length} scents
+              </button>
+            </footer>
+          </aside>
         </div>
       )}
 
@@ -179,15 +249,12 @@ export function CollectionGrid({
           </div>
         </div>
       ) : (
-        <div className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
+        <div ref={gridRef} className="mt-8 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
           {visible.map((e, i) => (
             <Fragment key={e.handle}>
               <ProductCard entry={e} priority={i < 4} />
               {editorial && i === 7 && (
-                <Link
-                  href={editorial.href}
-                  className={`group col-span-2 flex flex-col justify-between p-8 ${editorial.dark ? "grain bg-sea text-linen" : "bg-sand text-night"}`}
-                >
+                <Link href={editorial.href} data-reveal className={`group col-span-2 flex flex-col justify-between p-8 ${editorial.dark ? "grain bg-sea text-linen" : "bg-sand text-night"}`}>
                   <span className={`eyebrow ${editorial.dark ? "text-dune" : "text-ash"}`}>{editorial.eyebrow}</span>
                   <p className="serif mt-6 text-[28px] leading-[1.15] md:text-[34px]">{editorial.quote}</p>
                   <span className="lnk mt-8 self-start">

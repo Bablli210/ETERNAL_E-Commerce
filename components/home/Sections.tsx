@@ -8,13 +8,15 @@ import { lines, moodOrder, moods, type LineKey } from "@/content/taxonomy";
 import { tales } from "@/content/tales";
 import type { Scent, ScentIndexEntry } from "@/lib/catalogue";
 import { joinNotes } from "@/lib/format";
+import { Parallax, ParallaxSection } from "@/components/motion/Parallax";
+import { CountUp } from "@/components/motion/CountUp";
 
 export function Hero({ featured }: { featured: Scent | null }) {
   const words = site.tagline.split(" ");
   const bg = featured?.world.dark ? featured.world.bg : "#163a4e";
   return (
-    <section id="hero" className="grain relative flex min-h-[100svh] flex-col justify-end overflow-hidden text-linen" style={{ backgroundColor: bg }}>
-      <div className="absolute inset-0">
+    <ParallaxSection id="hero" className="grain relative flex min-h-[100svh] flex-col justify-end overflow-hidden text-linen" style={{ backgroundColor: bg }}>
+      <div className="hero-film absolute inset-0">
         <ImageSlot label="Hero film — bottle on wet stone, Mediterranean light, 6-second loop; poster still as fallback" dark className="slot-corner h-full w-full !border-0 opacity-60" style={{ backgroundColor: bg }} />
         <div className="absolute inset-0 bg-gradient-to-t from-night/70 via-night/10 to-night/30" />
       </div>
@@ -26,7 +28,7 @@ export function Hero({ featured }: { featured: Scent | null }) {
         </div>
       )}
       <div className="wrap relative pb-16 pt-40 lg:pb-24">
-        <div className="max-w-[820px]">
+        <div className="hero-drift max-w-[820px]">
           {featured && (
             <Eyebrow className="!text-dune">
               Featured · {featured.lineLabel} · {featured.title}
@@ -59,16 +61,16 @@ export function Hero({ featured }: { featured: Scent | null }) {
           Scroll <Icon name="chevron-down" size={14} />
         </a>
       </div>
-    </section>
+    </ParallaxSection>
   );
 }
 
 export function ProofStrip() {
   const facts = [
-    { big: "EdP", label: "Eau de parfum strength", sub: site.longevityClaim },
-    { big: `${site.sampleSizeMl} ml`, label: "Try before you commit", sub: "samples and the discovery set" },
-    { big: "COD", label: "Cash on delivery", sub: "pay when it arrives, anywhere in Egypt" },
-    { big: site.returnsWindow, label: site.returnsPolicy, sub: "unopened bottles" },
+    { big: <>EdP</>, label: "Eau de parfum strength", sub: site.longevityClaim },
+    { big: <CountUp value={site.sampleSizeMl} suffix=" ml" />, label: "Try before you commit", sub: "samples and the discovery set" },
+    { big: <>COD</>, label: "Cash on delivery", sub: "pay when it arrives, anywhere in Egypt" },
+    { big: <>{site.returnsWindow}</>, label: site.returnsPolicy, sub: "unopened bottles" },
   ];
   return (
     <section id="proof" className="border-b border-dune">
@@ -101,7 +103,7 @@ export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; 
                   <p className="mt-2 text-[13px] opacity-80">
                     {l.audience} · {counts[k]} scents · {l.blurb}
                   </p>
-                  <span className="lnk mt-5 inline-flex">
+                  <span className="lnk slide-x mt-5 inline-flex">
                     Shop {l.audience.toLowerCase()} <Icon name="arrow-right" size={16} />
                   </span>
                 </div>
@@ -157,16 +159,36 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
   if (!scent) return null;
   const tale = scent.taleSlug ? tales.find((t) => t.slug === scent.taleSlug) : null;
   const first = scent.story?.[0] ?? tale?.paragraphs[0];
+  const excerpt = first ? (first.length > 420 ? first.slice(0, 420).trimEnd() + "…" : first) : null;
+  // H5: the paragraph's lines fade in one after another, the signature line last.
+  const sentences = excerpt ? excerpt.match(/[^.!?…]+[.!?…]+["’”]?\s*|[^.!?…]+$/g) ?? [excerpt] : [];
   const bg = scent.world.dark ? scent.world.bg : "#163a4e";
   return (
     <section className="grain watermark relative overflow-hidden text-linen" style={{ backgroundColor: bg }}>
       <div className="wrap section relative grid gap-12 lg:grid-cols-2 lg:items-center">
-        <ImageSlot label="Campaign still — fog on the harbour, fishing boat, morning light" dark className="aspect-[4/5] w-full" style={{ backgroundColor: bg }} data-reveal />
-        <div data-reveal>
-          <Eyebrow className="!text-dune">A tale from {scent.lineLabel}</Eyebrow>
-          <h2 className="display-l mt-4">{tale?.title ?? scent.signature}</h2>
-          {first && <p className="body-l mt-6 max-w-[56ch] text-dune">{first.length > 420 ? first.slice(0, 420).trimEnd() + "…" : first}</p>}
-          <dl className="mt-8 grid grid-cols-3 gap-4 border-t border-linen/20 pt-6 text-[13px]">
+        <Parallax factor={0.15} className="overflow-hidden" data-reveal>
+          <div className="parallax-y -my-[8%]">
+            <ImageSlot label="Campaign still — fog on the harbour, fishing boat, morning light" dark className="aspect-[4/5] w-full" style={{ backgroundColor: bg }} />
+          </div>
+        </Parallax>
+        <div style={{ ["--stagger" as string]: "80ms" }}>
+          <Eyebrow className="!text-dune block" data-reveal>A tale from {scent.lineLabel}</Eyebrow>
+          <h2 className="display-l mt-4" data-reveal style={{ ["--i" as string]: 1 }}>{tale?.title ?? scent.signature}</h2>
+          {sentences.length > 0 && (
+            <p className="body-l mt-6 max-w-[56ch] text-dune">
+              {sentences.map((line, i) => (
+                <span key={i} className="inline" data-reveal style={{ ["--i" as string]: i + 2 }}>
+                  {line}
+                </span>
+              ))}
+            </p>
+          )}
+          {scent.signature && (
+            <p className="signature mt-6 text-linen" data-reveal style={{ ["--i" as string]: sentences.length + 2 }}>
+              “{scent.signature}”
+            </p>
+          )}
+          <dl className="mt-8 grid grid-cols-3 gap-4 border-t border-linen/20 pt-6 text-[13px]" data-reveal style={{ ["--i" as string]: sentences.length + 3 }}>
             <div>
               <dt className="eyebrow text-dune">The scent</dt>
               <dd className="mt-1">{scent.title}</dd>
@@ -182,7 +204,7 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
               </div>
             )}
           </dl>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row" data-reveal style={{ ["--i" as string]: sentences.length + 4 }}>
             {scent.taleSlug && (
               <Link href={`/tales/${scent.taleSlug}`} className="btn btn-light">
                 Read the tale
@@ -210,8 +232,9 @@ export function MoodTiles() {
             return (
               <li key={k} data-reveal style={{ ["--i" as string]: i }}>
                 <Link href={`/shop/${k}`} className={`group relative flex aspect-[4/3] flex-col justify-end overflow-hidden p-5 lg:p-7 ${dark ? "text-linen" : "text-night"}`} style={{ backgroundColor: m.wash }}>
-                  <ImageSlot label={m.art} dark={dark} className="slot-corner hover-lift absolute inset-0 !border-0 opacity-80" style={{ backgroundColor: m.wash }} />
-                  <span className="serif relative text-[28px] leading-none lg:text-[34px]">{m.label}</span>
+                  <ImageSlot label={m.art} dark={dark} className="slot-corner absolute inset-0 !border-0 opacity-80" style={{ backgroundColor: m.wash }} />
+                  <span className="wash absolute inset-0" style={{ backgroundColor: dark ? "#F3EFE7" : m.wash === "#E9E4D3" ? "#9E9382" : m.wash }} aria-hidden="true" />
+                  <span className="u-draw serif relative self-start text-[28px] leading-none lg:text-[34px]">{m.label}</span>
                 </Link>
               </li>
             );
@@ -270,8 +293,8 @@ export function HouseFilm() {
     <section className="grain bg-night text-linen">
       <div className="wrap section grid gap-12 lg:grid-cols-[1.3fr_1fr] lg:items-center">
         <Link href="/house" className="group relative block aspect-video w-full overflow-hidden" data-reveal aria-label="Watch the house film">
-          <ImageSlot label="The house film — brand explainer, 1:30, poster frame [video to add]" dark className="slot-corner absolute inset-0 !border-0" />
-          <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-linen/70 text-linen transition-transform duration-200 group-hover:scale-105">
+          <ImageSlot label="The house film — brand explainer, 1:30, poster frame [video to add]" dark className="kenburns slot-corner absolute inset-0 !border-0" />
+          <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-linen/70 text-linen transition-transform duration-200 group-hover:scale-[1.06]">
             <Icon name="play" size={24} />
           </span>
         </Link>
@@ -298,7 +321,7 @@ export function TalesTeaser() {
           {picks.map((t, i) => (
             <li key={t.slug} data-reveal style={{ ["--i" as string]: i }}>
               <Link href={`/tales/${t.slug}`} className="group flex flex-col">
-                <ImageSlot label={t.heroArt} className="aspect-[4/3] w-full" />
+                <ImageSlot label={t.heroArt} className="t3-img aspect-[4/3] w-full" />
                 <Eyebrow className="mt-5">
                   {t.line} · {t.handle.replace(/-/g, " ")}
                 </Eyebrow>

@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./motion.css";
 
 @theme {
   --color-linen: #f3efe7;
@@ -96,19 +97,19 @@ h1, h2, h3, .serif { font-family: var(--font-serif); font-weight: 500; line-heig
 .btn-xs { height: 36px; padding: 0 14px; font-size: 12px; }
 .btn-block { width: 100%; }
 
-/* Text links: underline draws left to right. */
+/* Text links: a faint rest underline; the solid one draws left to right on hover. */
 .lnk {
   position: relative; display: inline-flex; align-items: center; gap: 6px;
   font-size: 13px; font-weight: 600; letter-spacing: 0.02em; color: inherit; text-decoration: none;
+  box-shadow: inset 0 -1px 0 var(--color-dune);
 }
 .lnk::after {
-  content: ""; position: absolute; left: 0; bottom: -4px; height: 1px; width: 100%;
-  background: currentColor; transform-origin: left; transform: scaleX(1);
+  content: ""; position: absolute; left: 0; bottom: 0; height: 1px; width: 100%;
+  background: currentColor; transform: scaleX(0); transform-origin: left;
   transition: transform 240ms var(--ease-standard);
 }
-.lnk:hover::after { transform: scaleX(0); transform-origin: right; }
-.lnk-quiet::after { transform: scaleX(0); transform-origin: left; }
-.lnk-quiet:hover::after { transform: scaleX(1); transform-origin: left; }
+.lnk:hover::after { transform: scaleX(1); }
+.lnk-quiet { box-shadow: none; }
 
 /* Chips — the one rounded element on the site. */
 .chip {
@@ -163,7 +164,7 @@ h1, h2, h3, .serif { font-family: var(--font-serif); font-weight: 500; line-heig
 
 /* Meters — Golden hour fill on a Dune track; fills when revealed. */
 .meter { height: 6px; background: var(--color-dune); border-radius: 3px; overflow: hidden; }
-.meter > i { display: block; height: 100%; background: var(--color-gold); width: 0; transition: width 600ms var(--ease-standard); }
+.meter > i { display: block; height: 100%; background: var(--color-gold); width: 0; }
 .is-in .meter > i, .meter.is-in > i { width: var(--v); }
 
 /* Accordion — native details, chevron rotates. */
@@ -179,31 +180,6 @@ h1, h2, h3, .serif { font-family: var(--font-serif); font-weight: 500; line-heig
 .badge { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-linen); background: var(--color-sea); }
 .badge-gold { background: var(--color-gold); }
 .badge-night { background: var(--color-night); }
-
-/* Scroll reveals — rise 16 px and fade, once, 20 % in view. */
-@media (prefers-reduced-motion: no-preference) {
-  [data-reveal] { opacity: 0; transform: translateY(16px); transition: opacity 500ms var(--ease-standard), transform 500ms var(--ease-standard); transition-delay: calc(var(--i, 0) * 60ms); }
-  [data-reveal].is-in { opacity: 1; transform: none; }
-  .hero-word { display: inline-block; opacity: 0; transform: translateY(24px); animation: rise 600ms var(--ease-emphasized) forwards; animation-delay: calc(var(--i, 0) * 80ms + 120ms); }
-  @keyframes rise { to { opacity: 1; transform: none; } }
-  .drawer-enter { animation: slide-in 320ms var(--ease-emphasized); }
-  @keyframes slide-in { from { transform: translateX(100%); } to { transform: none; } }
-  .sheet-enter { animation: sheet-in 320ms var(--ease-emphasized); }
-  @keyframes sheet-in { from { transform: translateY(100%); } to { transform: none; } }
-  .fade-enter { animation: fade-in 200ms var(--ease-standard); }
-  @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-  .drop-enter { animation: drop-in 200ms var(--ease-standard); }
-  @keyframes drop-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
-  .bar-enter { animation: bar-in 240ms var(--ease-standard); }
-  @keyframes bar-in { from { transform: translateY(100%); } to { transform: none; } }
-  .zoom-slow { animation: zoom 8s var(--ease-standard) forwards; }
-  @keyframes zoom { to { transform: scale(1.02); } }
-  .hover-lift { transition: transform 600ms var(--ease-standard); }
-  .group:hover .hover-lift { transform: scale(1.03); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-word { opacity: 1; }
-}
 
 /* Native scroll-snap carousels. */
 .snap-row { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }

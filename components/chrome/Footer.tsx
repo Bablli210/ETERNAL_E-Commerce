@@ -2,6 +2,7 @@ import Link from "next/link";
 import { footerColumns, site } from "@/content/site";
 import { Icon } from "@/components/ui/Icon";
 import { Wordmark } from "@/components/ui/Wordmark";
+import { MotionToggle } from "@/components/motion/MotionToggle";
 
 /** Shopify's customer form: posts the email as a newsletter subscriber, no token needed. */
 function JoinForm({ storeDomain, dark = true }: { storeDomain: string; dark?: boolean }) {
@@ -95,6 +96,7 @@ export function Footer({ storeDomain }: { storeDomain: string }) {
             <Link href="/help#terms" className="hover:text-night">
               Terms
             </Link>
+            <MotionToggle />
             <span>© eternal 2026</span>
           </div>
         </div>

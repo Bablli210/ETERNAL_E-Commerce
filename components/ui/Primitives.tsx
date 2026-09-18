@@ -4,8 +4,12 @@ import { formatMoney } from "@/lib/format";
 import type { Money } from "@/lib/shopify/types";
 import { Icon } from "./Icon";
 
-export function Eyebrow({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <span className={`eyebrow text-ash ${className}`}>{children}</span>;
+export function Eyebrow({ children, className = "", ...rest }: { children: ReactNode; className?: string } & React.HTMLAttributes<HTMLSpanElement>) {
+  return (
+    <span className={`eyebrow text-ash ${className}`} {...rest}>
+      {children}
+    </span>
+  );
 }
 
 export function Price({ money, className = "" }: { money: Money; className?: string }) {
@@ -46,9 +50,9 @@ export function SectionHead({
 }
 
 /** A hatched image or video slot, labelled with its art direction. */
-export function ImageSlot({ label, className = "", dark = false, style }: { label: string; className?: string; dark?: boolean; style?: React.CSSProperties }) {
+export function ImageSlot({ label, className = "", dark = false, style, ...rest }: { label: string; className?: string; dark?: boolean; style?: React.CSSProperties } & React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={`slot ${dark ? "slot-dark" : ""} ${className}`} style={style} role="img" aria-label={label}>
+    <div className={`slot ${dark ? "slot-dark" : ""} ${className}`} style={style} role="img" aria-label={label} {...rest}>
       <span>{label}</span>
     </div>
   );

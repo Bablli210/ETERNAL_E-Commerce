@@ -30,7 +30,7 @@ export function MobileMenu({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[90] lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
       <button type="button" aria-label="Close menu" onClick={onClose} className="fade-enter absolute inset-0 bg-night/40" />
-      <aside className="absolute inset-y-0 left-0 flex w-[88%] max-w-[400px] flex-col overflow-y-auto bg-linen text-night" style={{ animation: "slide-in 320ms var(--ease-emphasized) reverse" }}>
+      <aside className="drawer-left absolute inset-y-0 left-0 flex w-[88%] max-w-[400px] flex-col overflow-y-auto bg-linen text-night">
         <header className="flex h-[var(--header-h)] items-center justify-between border-b border-dune px-5">
           <Wordmark href="/" />
           <button ref={first} type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 items-center justify-center">

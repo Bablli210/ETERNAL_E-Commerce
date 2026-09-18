@@ -368,6 +368,7 @@ export type ScentIndexEntry = {
   families: FamilyKey[];
   price: Money;
   image: string | null;
+  hoverImage: string | null;
   world: World;
   kind: Scent["kind"];
   isBestseller: boolean;
@@ -387,6 +388,7 @@ export const toIndexEntry = (s: Scent): ScentIndexEntry => ({
   families: s.families,
   price: s.price,
   image: s.image?.url ?? null,
+  hoverImage: s.images[1]?.url ?? null,
   world: s.world,
   kind: s.kind,
   isBestseller: s.isBestseller,

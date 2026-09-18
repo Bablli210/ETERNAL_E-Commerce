@@ -1,0 +1,179 @@
+/*
+ * Motion — every animation on the site, from the motion spec board.
+ * Tokens: durations xs 120 · s 200 · m 320 · l 600 · xl 1200 ms; rise 16 px,
+ * nudge 4 px, slide 8 px; stagger 40 / 60 / 80 / 120 ms. Only transform and
+ * opacity animate (the two height changes the spec names, remove-collapse and
+ * the accordion, are the exceptions). Everything is visible by default and
+ * animates only under prefers-reduced-motion: no-preference and while the
+ * visitor has not switched motion off (html[data-motion="off"]).
+ */
+@layer components {
+  :root {
+    --dur-xs: 120ms;
+    --dur-s: 200ms;
+    --dur-m: 320ms;
+    --dur-l: 600ms;
+    --dur-xl: 1200ms;
+    --rise: 16px;
+    --nudge: 4px;
+    --slide: 8px;
+    --stagger: 60ms;
+  }
+
+  @keyframes m-rise { from { opacity: 0; transform: translateY(var(--rise)); } to { opacity: 1; transform: none; } }
+  @keyframes m-fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes m-drop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  @keyframes m-from-right { from { transform: translateX(100%); } to { transform: none; } }
+  @keyframes m-from-left { from { transform: translateX(-100%); } to { transform: none; } }
+  @keyframes m-sheet { from { transform: translateY(100%); } to { transform: none; } }
+  @keyframes m-zoom { to { transform: scale(1.02); } }
+  @keyframes m-kenburns { from { transform: scale(1); } to { transform: scale(1.06); } }
+  @keyframes m-pulse { 0% { transform: scale(1); } 35% { transform: scale(1.04); } 100% { transform: scale(1); } }
+  @keyframes m-tick { 0% { transform: none; } 30% { transform: translateY(-3px) rotate(-8deg); } 65% { transform: translateY(0) rotate(6deg); } 100% { transform: none; } }
+  @keyframes m-tick-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @keyframes m-screen-fwd { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+  @keyframes m-screen-back { from { opacity: 0; transform: translateX(-24px); } to { opacity: 1; transform: none; } }
+  @keyframes m-draw { to { stroke-dashoffset: 0; } }
+  @keyframes m-curtain { to { transform: translateY(-100%); } }
+  @keyframes m-dots { 0%, 80%, 100% { opacity: 0.25; } 40% { opacity: 1; } }
+  @keyframes m-highlight { from { background-color: var(--color-sand); } to { background-color: transparent; } }
+
+  /* Layout that motion builds on, present whether or not motion runs. */
+  .loader { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; background: var(--color-linen); color: var(--color-night); }
+  .line-row { display: grid; grid-template-rows: 1fr; }
+  .line-row > * { min-height: 0; }
+  .parallax-y { will-change: transform; }
+  .read-progress { transform: scaleX(var(--rp, 0)); transform-origin: left; }
+  .progress-fill { transform-origin: left; }
+  .dots i { font-style: normal; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    html:not([data-motion="off"]) {
+      /* G1 · first visit: the mark draws, the Linen curtain lifts. */
+      &[data-loading="1"] .loader { display: flex; animation: m-curtain 400ms var(--ease-emphasized) 600ms forwards; }
+      .draw path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: m-draw 600ms var(--ease-emphasized) forwards; }
+      .draw-slow path { animation-duration: var(--dur-xl); }
+      @media (max-width: 1023px) {
+        &[data-loading="1"] .loader { animation-delay: 300ms; animation-duration: 200ms; }
+        .loader .draw path { animation-duration: 300ms; }
+      }
+
+      /* G2 · page cross-fade; the header stays put. */
+      .page-enter { animation: m-fade var(--dur-s) var(--ease-standard); }
+
+      /* G4 · mega menu drops 8 px; featured tiles stagger 40 ms. Mobile drawer slides from the left. */
+      .drop-enter { animation: m-drop var(--dur-s) var(--ease-standard); }
+      .rise-in { animation: m-rise var(--dur-s) var(--ease-standard) both; animation-delay: calc(var(--i, 0) * 40ms); }
+      .drawer-left { animation: m-from-left var(--dur-m) var(--ease-emphasized); }
+
+      /* G6 · cart: drawer from the right (bottom sheet on mobile), overlay fades, new line highlights, meter fills. */
+      .cart-panel { animation: m-sheet var(--dur-m) var(--ease-emphasized); }
+      @media (min-width: 1024px) { .cart-panel { animation-name: m-from-right; } }
+      .fade-enter { animation: m-fade var(--dur-s) var(--ease-standard); }
+      .line-new > * { animation: m-tick-in var(--dur-m) var(--ease-emphasized), m-highlight 900ms var(--ease-standard); }
+      .meter > i { transition: width var(--dur-l) var(--ease-standard); }
+
+      /* G7 · images fade in from their colour world. */
+      .img-fade { opacity: 0; transition: opacity 400ms var(--ease-standard); }
+      .img-fade.is-loaded { opacity: 1; }
+
+      /* G8 · scroll reveals: rise 16 px and fade, siblings stagger. */
+      [data-reveal] { opacity: 0; transform: translateY(var(--rise)); transition: opacity 500ms var(--ease-standard), transform 500ms var(--ease-standard); transition-delay: calc(var(--i, 0) * var(--stagger)); }
+      [data-reveal].is-in { opacity: 1; transform: none; }
+
+      /* G9 · WhatsApp float: fades in, one pulse. */
+      .pulse-once { animation: m-pulse 800ms var(--ease-standard) 1; }
+
+      /* G10 · toast slides up 16 px, slides out. */
+      .toast-enter { animation: m-rise 240ms var(--ease-standard); }
+      .toast-exit { animation: m-rise 200ms var(--ease-exit) reverse forwards; }
+
+      /* H1 · hero: words stagger up 80 ms; on scroll the film scales to 1.04 and the text drifts at 0.2×. */
+      .hero-word { --rise: 24px; display: inline-block; opacity: 0; transform: translateY(24px); animation: m-rise 600ms var(--ease-emphasized) forwards; animation-delay: calc(var(--i, 0) * 80ms + 120ms); }
+      .hero-film { transform: scale(calc(1 + var(--pp, 0) * 0.04)); transform-origin: center; will-change: transform; }
+      .hero-drift { transform: translate3d(0, calc(var(--sy, 0px) * 0.2), 0); will-change: transform; }
+      .parallax-y { transform: translate3d(0, var(--py, 0px), 0); }
+
+      /* H3 · line tiles: image scales 1.03, label slides 8 px. */
+      .hover-lift { transition: transform var(--dur-l) var(--ease-standard); }
+      .group:hover .hover-lift { transform: scale(1.03); }
+      .slide-x { transition: transform var(--dur-l) var(--ease-standard); }
+      .group:hover .slide-x { transform: translateX(var(--slide)); }
+
+      /* H4 · cards: hover crossfades to the second frame; quick-add rises from the bottom (desktop). */
+      .img-hover { opacity: 0; transition: opacity 300ms var(--ease-standard); }
+      .group:hover .img-hover { opacity: 1; }
+      @media (min-width: 1024px) {
+        .card-actions { opacity: 0; transform: translateY(var(--slide)); transition: opacity var(--dur-s) var(--ease-standard), transform var(--dur-s) var(--ease-standard); }
+        .group:hover .card-actions, .group:focus-within .card-actions { opacity: 1; transform: none; }
+      }
+
+      /* H6 · mood tiles: a 30 % wash rises over the image; the name underlines. */
+      .wash { opacity: 0; transform: translateY(100%); transition: opacity 300ms var(--ease-standard), transform 300ms var(--ease-standard); }
+      .group:hover .wash { opacity: 0.3; transform: none; }
+      .u-draw { position: relative; }
+      .u-draw::after { content: ""; position: absolute; left: 0; bottom: -4px; height: 1px; width: 100%; background: currentColor; transform: scaleX(0); transform-origin: left; transition: transform 300ms var(--ease-standard); }
+      .group:hover .u-draw::after { transform: scaleX(1); }
+
+      /* H8 · house film poster drifts (Ken Burns 1.0 → 1.06 over 20 s). */
+      .kenburns { animation: m-kenburns 20s linear forwards; transform-origin: center; }
+
+      /* H9 / D4 · sticky bars slide in. */
+      .bar-enter { animation: m-sheet 240ms var(--ease-standard); }
+
+      /* D1 · first gallery frame zooms slowly. */
+      .zoom-slow { animation: m-zoom 8s var(--ease-standard) forwards; }
+
+      /* D2 · size selector: border thickens, price crossfades. */
+      .size-opt { transition: box-shadow var(--dur-xs) var(--ease-standard); }
+      .price-swap { animation: m-fade 160ms var(--ease-standard); }
+
+      /* D3 · bag icon ticks once. */
+      .bag-tick { animation: m-tick 400ms var(--ease-standard); }
+
+      /* D7 · accordion height eases open (progressive: browsers with interpolate-size). */
+      .acc { interpolate-size: allow-keywords; }
+      .acc::details-content { block-size: 0; overflow: hidden; transition: block-size 240ms var(--ease-standard), content-visibility 240ms allow-discrete; }
+      .acc[open]::details-content { block-size: auto; }
+
+      /* F1 · finder screens slide; the progress bar fills. */
+      .screen-fwd { animation: m-screen-fwd var(--dur-m) var(--ease-emphasized); }
+      .screen-back { animation: m-screen-back var(--dur-m) var(--ease-emphasized); }
+      .progress-fill { transition: transform var(--dur-m) var(--ease-emphasized); }
+
+      /* F2 · option tiles lift 4 px; the check draws. */
+      .tile { transition: transform var(--dur-s) var(--ease-standard), box-shadow var(--dur-s) var(--ease-standard); }
+      @media (hover: hover) { .tile:hover { transform: translateY(calc(var(--nudge) * -1)); } }
+      .tile:active { transform: scale(0.98); }
+
+      /* T1 · reading progress tracks the scroll. */
+      .read-progress { transition: transform 80ms linear; }
+
+      /* T2 · the shoppable card slides in beside the text at 40 % read; on mobile it rises from the bottom. */
+      .t2 { opacity: 0; transform: translateX(24px); transition: opacity var(--dur-m) var(--ease-emphasized), transform var(--dur-m) var(--ease-emphasized); }
+      .t2.is-in { opacity: 1; transform: none; }
+      .t2-bar { transform: translateY(100%); transition: transform var(--dur-m) var(--ease-emphasized); }
+      .t2-bar.is-in { transform: none; }
+
+      /* T3 · next tale: the image reveals behind the title. */
+      @media (hover: hover) {
+        .t3-img { opacity: 0.4; transition: opacity 300ms var(--ease-standard); }
+        .group:hover .t3-img { opacity: 1; }
+      }
+
+      /* C1 · prices tick to the new value. */
+      .tick-in { animation: m-tick-in var(--dur-xs) var(--ease-standard); }
+
+      /* C2 · a removed line collapses and the list closes the gap. */
+      .line-row { transition: grid-template-rows 240ms var(--ease-standard), opacity 240ms var(--ease-exit); }
+      .line-row.removing { grid-template-rows: 0fr; opacity: 0; }
+
+      /* C4 · checkout loading: three dots, same-size button. */
+      .dots i { animation: m-dots 1.2s infinite; }
+      .dots i:nth-child(2) { animation-delay: 0.2s; }
+      .dots i:nth-child(3) { animation-delay: 0.4s; }
+
+      .sheet-enter { animation: m-sheet var(--dur-m) var(--ease-emphasized); }
+    }
+  }
+}

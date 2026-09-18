@@ -10,10 +10,12 @@ export function NotesPyramid({ scent }: { scent: Scent }) {
       <div className="wrap">
         <SectionHead index="01" title="How it smells" sub="Notes as they arrive on skin." />
         {scent.notes ? (
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
+          <div className="snap-row -mx-5 mt-12 px-5 md:mx-0 md:grid md:grid-cols-3 md:gap-8 md:px-0">
             {scent.notes.map((n, i) => (
-              <div key={n.stage} data-reveal style={{ ["--i" as string]: i }}>
-                <ImageSlot label={n.art} className="aspect-square w-full" />
+              <div key={n.stage} className="group w-[78vw] md:w-auto" data-reveal style={{ ["--i" as string]: i * 2 }}>
+                <div className="overflow-hidden">
+                  <ImageSlot label={n.art} className="hover-lift aspect-square w-full" />
+                </div>
                 <p className="tnum mt-5 text-[12px] text-gold-text">
                   0{i + 1} · {n.stage}
                 </p>

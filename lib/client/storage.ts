@@ -28,6 +28,17 @@ export function parseJSON<T>(raw: string | null, fallback: T): T {
   }
 }
 
+/** Writes a plain string (read by the inline motion script before hydration). */
+export function writeRaw(key: string, value: string | null) {
+  try {
+    if (value === null) window.localStorage.removeItem(key);
+    else window.localStorage.setItem(key, value);
+  } catch {
+    /* blocked storage */
+  }
+  window.dispatchEvent(new Event(EVENT));
+}
+
 export function writeJSON(key: string, value: unknown) {
   try {
     window.localStorage.setItem(key, JSON.stringify(value));

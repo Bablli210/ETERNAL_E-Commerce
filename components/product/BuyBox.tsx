@@ -56,7 +56,7 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
               const v = k === "bottle" ? entry.bottle! : entry.sample!;
               const on = size === k;
               return (
-                <label key={k} className={`flex h-[60px] cursor-pointer items-center justify-between bg-paper px-4 text-[13px] ${on ? "border-2 border-night" : "border border-dune"}`}>
+                <label key={k} className={`size-opt flex h-[60px] cursor-pointer items-center justify-between bg-paper px-4 text-[13px] ${on ? "shadow-[inset_0_0_0_2px_var(--color-night)]" : "shadow-[inset_0_0_0_1px_var(--color-dune)]"}`}>
                   <input type="radio" name="size" value={k} checked={on} onChange={() => setSize(k)} className="sr-only" />
                   <span className="font-semibold">{v.label}</span>
                   <span className="tnum text-ash">
@@ -97,7 +97,9 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
               Added <Icon name="check" size={16} />
             </>
           ) : (
-            `Add to bag · ${formatMoney({ amount: parseFloat(variant.price.amount) * qty, currencyCode: variant.price.currencyCode })}`
+            <span key={`${size}-${qty}`} className="price-swap">
+              Add to bag · {formatMoney({ amount: parseFloat(variant.price.amount) * qty, currencyCode: variant.price.currencyCode })}
+            </span>
           )}
         </button>
       </div>

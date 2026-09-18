@@ -10,13 +10,12 @@ export function Wordmark({ className = "", href = "/", inverted = false }: { cla
 }
 
 /** The e∞ mark — used inverted on Night for loaders and empty states. */
-export function Mark({ size = 48, className = "" }: { size?: number; className?: string }) {
+export function Mark({ size = 48, className = "", draw = false }: { size?: number; className?: string; draw?: boolean }) {
   return (
-    <svg width={size} height={size / 2} viewBox="0 0 96 48" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" aria-hidden="true" className={className}>
-      <path d="M30 24c0 8-5.4 14-13 14S4 32 4 24s5.4-14 13-14c5 0 8.5 2.6 11 7" />
-      <path d="M8 22h20" />
-      <path d="M48 24c-6-8-10-11-16-11" opacity="0" />
-      <path d="M92 24c0 7-4.5 12-10 12-9 0-13-24-22-24-5.5 0-10 5-10 12s4.5 12 10 12c9 0 13-24 22-24 5.5 0 10 5 10 12Z" />
+    <svg width={size} height={size / 2} viewBox="0 0 96 48" fill="none" stroke="currentColor" strokeWidth={3} strokeLinecap="round" aria-hidden="true" className={`${draw ? "draw" : ""} ${className}`}>
+      <path pathLength={1} d="M30 24c0 8-5.4 14-13 14S4 32 4 24s5.4-14 13-14c5 0 8.5 2.6 11 7" />
+      <path pathLength={1} d="M8 22h20" />
+      <path pathLength={1} d="M92 24c0 7-4.5 12-10 12-9 0-13-24-22-24-5.5 0-10 5-10 12s4.5 12 10 12c9 0 13-24 22-24 5.5 0 10 5 10 12Z" />
     </svg>
   );
 }
