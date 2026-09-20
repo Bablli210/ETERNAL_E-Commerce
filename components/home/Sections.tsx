@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Eyebrow, ImageSlot, SectionHead } from "@/components/ui/Primitives";
+import { Eyebrow, SectionHead } from "@/components/ui/Primitives";
+import { Figure } from "@/components/ui/Figure";
 import { Icon } from "@/components/ui/Icon";
 import { ProductCard } from "@/components/product/ProductCard";
 import { site } from "@/content/site";
@@ -17,7 +18,26 @@ export function Hero({ featured }: { featured: Scent | null }) {
   return (
     <ParallaxSection id="hero" className="grain relative flex min-h-[100svh] flex-col justify-end overflow-hidden text-linen" style={{ backgroundColor: bg }}>
       <div className="hero-film absolute inset-0">
-        <ImageSlot label="Hero film — bottle on wet stone, Mediterranean light, 6-second loop; poster still as fallback" dark className="slot-corner h-full w-full !border-0 opacity-60" style={{ backgroundColor: bg }} />
+        <Figure
+          name="home-hero"
+          label="Hero film — bottle on wet stone, Mediterranean light, 6-second loop; poster still as fallback"
+          dark
+          priority
+          sizes="100vw"
+          className="hidden h-full w-full lg:block"
+          placeholderClassName="slot-corner !border-0 opacity-60"
+          style={{ backgroundColor: bg }}
+        />
+        <Figure
+          name={["home-hero-mobile", "home-hero"]}
+          label="Hero film — mobile crop, 4:5"
+          dark
+          priority
+          sizes="100vw"
+          className="h-full w-full lg:hidden"
+          placeholderClassName="slot-corner !border-0 opacity-60"
+          style={{ backgroundColor: bg }}
+        />
         <div className="absolute inset-0 bg-gradient-to-t from-night/70 via-night/10 to-night/30" />
       </div>
       {featured?.image && (
@@ -97,7 +117,15 @@ export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; 
             const l = lines[k];
             return (
               <Link key={k} href={`/shop/${l.slug}`} className={`group relative flex aspect-[4/5] flex-col justify-end overflow-hidden p-7 ${l.toneDark ? "text-linen" : "text-night"}`} style={{ backgroundColor: l.tone, ["--i" as string]: i }} data-reveal>
-                <ImageSlot label={`${l.label} — person in a landscape, back to camera, 4:5`} dark={l.toneDark} className="slot-corner hover-lift absolute inset-0 !border-0 opacity-70" style={{ backgroundColor: l.tone }} />
+                <Figure
+                  name={`line-${l.key}`}
+                  label={`${l.label} — person in a landscape, back to camera, 4:5`}
+                  dark={l.toneDark}
+                  sizes="(min-width: 768px) 33vw, 100vw"
+                  className="hover-lift absolute inset-0"
+                  placeholderClassName="slot-corner !border-0 opacity-70"
+                  style={{ backgroundColor: l.tone }}
+                />
                 <div className="relative">
                   <span className="serif text-[40px] font-semibold leading-none">{l.label}</span>
                   <p className="mt-2 text-[13px] opacity-80">
@@ -149,7 +177,7 @@ export function FinderEntry() {
             <span className="text-[12px] text-ash">Takes about 2 minutes</span>
           </div>
         </div>
-        <ImageSlot label="Nine bottles drifting out of focus on frosted glass — the one under the cursor sharpens" className="aspect-[4/3] w-full" />
+        <Figure name="finder-band" label="Nine bottles drifting out of focus on frosted glass — the one under the cursor sharpens" sizes="(min-width: 1024px) 40vw, 100vw" className="aspect-[4/3] w-full" />
       </div>
     </section>
   );
@@ -168,7 +196,14 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
       <div className="wrap section relative grid gap-12 lg:grid-cols-2 lg:items-center">
         <Parallax factor={0.15} className="overflow-hidden" data-reveal>
           <div className="parallax-y -my-[8%]">
-            <ImageSlot label="Campaign still — fog on the harbour, fishing boat, morning light" dark className="aspect-[4/5] w-full" style={{ backgroundColor: bg }} />
+            <Figure
+              name={["tale-featured", scent.taleSlug ? `tale-${scent.taleSlug}` : "tale-featured"]}
+              label="Campaign still — fog on the harbour, fishing boat, morning light"
+              dark
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="aspect-[4/5] w-full"
+              style={{ backgroundColor: bg }}
+            />
           </div>
         </Parallax>
         <div style={{ ["--stagger" as string]: "80ms" }}>
@@ -232,7 +267,15 @@ export function MoodTiles() {
             return (
               <li key={k} data-reveal style={{ ["--i" as string]: i }}>
                 <Link href={`/shop/${k}`} className={`group relative flex aspect-[4/3] flex-col justify-end overflow-hidden p-5 lg:p-7 ${dark ? "text-linen" : "text-night"}`} style={{ backgroundColor: m.wash }}>
-                  <ImageSlot label={m.art} dark={dark} className="slot-corner absolute inset-0 !border-0 opacity-80" style={{ backgroundColor: m.wash }} />
+                  <Figure
+                    name={`mood-${k}`}
+                    label={m.art}
+                    dark={dark}
+                    sizes="(min-width: 1024px) 33vw, 50vw"
+                    className="hover-lift absolute inset-0"
+                    placeholderClassName="slot-corner !border-0 opacity-80"
+                    style={{ backgroundColor: m.wash }}
+                  />
                   <span className="wash absolute inset-0" style={{ backgroundColor: dark ? "#F3EFE7" : m.wash === "#E9E4D3" ? "#9E9382" : m.wash }} aria-hidden="true" />
                   <span className="u-draw serif relative self-start text-[28px] leading-none lg:text-[34px]">{m.label}</span>
                 </Link>
@@ -252,7 +295,7 @@ export function RiskReducers({ mysteryBox }: { mysteryBox: ScentIndexEntry | nul
         <SectionHead index="04" title="Try before you commit" />
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           <article className="flex flex-col bg-paper" data-reveal>
-            <ImageSlot label="Six 5 ml vials in the matte black tray" className="aspect-[16/10] w-full" />
+            <Figure name="discovery-set" label="Six 5 ml vials in the matte black tray" sizes="(min-width: 1024px) 50vw, 100vw" className="aspect-[16/10] w-full" />
             <div className="flex flex-1 flex-col p-7">
               <h3 className="display-m">The discovery set</h3>
               <p className="mt-3 text-[15px] leading-relaxed text-ash">Choose any [n] scents as {site.sampleSizeMl} ml samples. The full price of the set comes back as credit toward your first {site.bottleSizeMl} ml bottle. [confirm mechanic]</p>
@@ -270,7 +313,7 @@ export function RiskReducers({ mysteryBox }: { mysteryBox: ScentIndexEntry | nul
                 <Image src={mysteryBox.image} alt={mysteryBox.title} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
               </div>
             ) : (
-              <ImageSlot label="Mystery box film still — matte black box, e∞ monogram" dark className="aspect-[16/10] w-full" />
+              <Figure name="mystery-box" label="Mystery box film still — matte black box, e∞ monogram" dark sizes="(min-width: 1024px) 50vw, 100vw" className="aspect-[16/10] w-full" />
             )}
             <div className="flex flex-1 flex-col p-7">
               <h3 className="display-m">The mystery box</h3>
@@ -293,7 +336,14 @@ export function HouseFilm() {
     <section className="grain bg-night text-linen">
       <div className="wrap section grid gap-12 lg:grid-cols-[1.3fr_1fr] lg:items-center">
         <Link href="/house" className="group relative block aspect-video w-full overflow-hidden" data-reveal aria-label="Watch the house film">
-          <ImageSlot label="The house film — brand explainer, 1:30, poster frame [video to add]" dark className="kenburns slot-corner absolute inset-0 !border-0" />
+          <Figure
+            name="house-film-poster"
+            label="The house film — brand explainer, 1:30, poster frame [video to add]"
+            dark
+            sizes="(min-width: 1024px) 60vw, 100vw"
+            className="kenburns absolute inset-0"
+            placeholderClassName="slot-corner !border-0"
+          />
           <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-linen/70 text-linen transition-transform duration-200 group-hover:scale-[1.06]">
             <Icon name="play" size={24} />
           </span>
@@ -321,7 +371,7 @@ export function TalesTeaser() {
           {picks.map((t, i) => (
             <li key={t.slug} data-reveal style={{ ["--i" as string]: i }}>
               <Link href={`/tales/${t.slug}`} className="group flex flex-col">
-                <ImageSlot label={t.heroArt} className="t3-img aspect-[4/3] w-full" />
+                <Figure name={`tale-${t.slug}`} label={t.heroArt} sizes="(min-width: 768px) 33vw, 100vw" className="t3-img aspect-[4/3] w-full" />
                 <Eyebrow className="mt-5">
                   {t.line} · {t.handle.replace(/-/g, " ")}
                 </Eyebrow>

@@ -7,7 +7,8 @@ import { AddToBagButton } from "@/components/cart/AddToBagButton";
 import { ProductImage } from "@/components/product/ProductImage";
 import { Parallax } from "@/components/motion/Parallax";
 import { ReadingProgress } from "@/components/motion/ReadingProgress";
-import { Eyebrow, ImageSlot, Price } from "@/components/ui/Primitives";
+import { Eyebrow, Price } from "@/components/ui/Primitives";
+import { Figure } from "@/components/ui/Figure";
 import { Icon } from "@/components/ui/Icon";
 import { joinNotes } from "@/lib/format";
 
@@ -40,7 +41,7 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
       <ReadingProgress targetId="tale-body" />
       <Parallax factor={0.2} className="relative h-[56vh] min-h-[360px] w-full overflow-hidden">
         <div className="parallax-y absolute -inset-y-[12%] inset-x-0">
-          <ImageSlot label={tale.heroArt} dark className="h-full w-full" />
+          <Figure name={`tale-${tale.slug}`} label={tale.heroArt} dark priority sizes="100vw" className="h-full w-full" />
         </div>
       </Parallax>
       <article className="wrap grid gap-12 py-12 lg:grid-cols-[1fr_360px] lg:gap-20 lg:py-20">
@@ -119,7 +120,7 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
                 <li key={t.slug} data-reveal style={{ ["--i" as string]: i }}>
                   {/* T3: the image reveals behind the title on hover. */}
                   <Link href={`/tales/${t.slug}`} className="group relative flex aspect-[16/10] flex-col justify-end overflow-hidden bg-sand p-6">
-                    <ImageSlot label={t.heroArt} className="t3-img absolute inset-0 !border-0" />
+                    <Figure name={`tale-${t.slug}`} label={t.heroArt} sizes="(min-width: 768px) 33vw, 100vw" className="t3-img absolute inset-0" placeholderClassName="!border-0" />
                     <p className="relative text-[12px] text-ash">
                       {t.handle.replace(/-/g, " ")} · {t.line}
                     </p>

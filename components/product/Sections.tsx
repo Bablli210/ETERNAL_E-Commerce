@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Accordion, Eyebrow, ImageSlot, Meter, SectionHead } from "@/components/ui/Primitives";
+import { Accordion, Eyebrow, Meter, SectionHead } from "@/components/ui/Primitives";
+import { Figure } from "@/components/ui/Figure";
 import { Icon } from "@/components/ui/Icon";
 import type { Scent } from "@/lib/catalogue";
 import { faq } from "@/content/faq";
@@ -14,7 +15,7 @@ export function NotesPyramid({ scent }: { scent: Scent }) {
             {scent.notes.map((n, i) => (
               <div key={n.stage} className="group w-[78vw] md:w-auto" data-reveal style={{ ["--i" as string]: i * 2 }}>
                 <div className="overflow-hidden">
-                  <ImageSlot label={n.art} className="hover-lift aspect-square w-full" />
+                  <Figure name={`products/${scent.handle}-note-${i + 1}`} label={n.art} sizes="(min-width: 768px) 33vw, 78vw" className="hover-lift aspect-square w-full" />
                 </div>
                 <p className="tnum mt-5 text-[12px] text-gold-text">
                   0{i + 1} · {n.stage}
@@ -26,7 +27,7 @@ export function NotesPyramid({ scent }: { scent: Scent }) {
           </div>
         ) : (
           <div className="mt-12 grid gap-8 md:grid-cols-[1fr_1.2fr]" data-reveal>
-            <ImageSlot label={`Notes still — ${scent.notesShort.join(", ") || scent.title}`} className="aspect-[4/3] w-full" />
+            <Figure name={`products/${scent.handle}-3`} label={`Notes still — ${scent.notesShort.join(", ") || scent.title}`} sizes="(min-width: 768px) 45vw, 100vw" className="aspect-[4/3] w-full" />
             <div>
               <p className="body-l max-w-[52ch]">{scent.description || "[Notes copy to write — one sensory line per note, no jargon.]"}</p>
               {scent.notesShort.length > 0 && (
@@ -78,7 +79,14 @@ export function TaleExcerpt({ scent }: { scent: Scent }) {
             </Link>
           )}
         </div>
-        <ImageSlot label="Campaign still — fishing boat coming out of the fog" dark className="aspect-[4/5] w-full lg:sticky lg:top-28" data-reveal />
+        <Figure
+          name={scent.taleSlug ? `tale-${scent.taleSlug}` : "tale-featured"}
+          label="Campaign still — fishing boat coming out of the fog"
+          dark
+          sizes="(min-width: 1024px) 45vw, 100vw"
+          className="aspect-[4/5] w-full lg:sticky lg:top-28"
+          data-reveal
+        />
       </div>
     </section>
   );

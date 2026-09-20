@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { tales } from "@/content/tales";
-import { Eyebrow, ImageSlot } from "@/components/ui/Primitives";
+import { Eyebrow } from "@/components/ui/Primitives";
+import { Figure } from "@/components/ui/Figure";
 import { Icon } from "@/components/ui/Icon";
 
 export const metadata: Metadata = { title: "Tales", description: "One tale per scent. Read the story, then smell it.", alternates: { canonical: "/tales" } };
@@ -17,7 +18,7 @@ export default function TalesPage() {
       </section>
       <section className="wrap py-12">
         <Link href={`/tales/${lead.slug}`} className="group grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-end" data-reveal>
-          <ImageSlot label={lead.heroArt} dark className="aspect-[16/9] w-full" />
+          <Figure name={`tale-${lead.slug}`} label={lead.heroArt} dark sizes="(min-width: 1024px) 60vw, 100vw" className="aspect-[16/9] w-full" />
           <div>
             <Eyebrow>
               A tale from {lead.line} · {lead.readTime}
@@ -33,7 +34,7 @@ export default function TalesPage() {
           {rest.map((t, i) => (
             <li key={t.slug} data-reveal style={{ ["--i" as string]: i }}>
               <Link href={`/tales/${t.slug}`} className="group flex flex-col">
-                <ImageSlot label={t.heroArt} className="aspect-[4/5] w-full" />
+                <Figure name={`tale-${t.slug}`} label={t.heroArt} sizes="(min-width: 1024px) 25vw, 50vw" className="aspect-[4/5] w-full" />
                 <Eyebrow className="mt-5">
                   {t.line} · {t.handle.replace(/-/g, " ")}
                 </Eyebrow>

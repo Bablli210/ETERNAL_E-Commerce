@@ -5,6 +5,7 @@ import { site } from "@/content/site";
 import { tales } from "@/content/tales";
 import { getBestsellers, getNewArrivals, getScentIndex, toIndexEntry } from "@/lib/catalogue";
 import { storeDomain } from "@/lib/shopify/client";
+import { siteImage } from "@/lib/site-images";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Header } from "@/components/chrome/Header";
@@ -31,11 +32,18 @@ const instrument = Instrument_Sans({
   display: "swap",
 });
 
+const ogImage = siteImage("og-image");
+
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: `${site.name} — ${site.tagline}`, template: `%s — ${site.name}` },
   description: site.description,
-  openGraph: { siteName: site.name, type: "website", locale: "en_EG" },
+  openGraph: {
+    siteName: site.name,
+    type: "website",
+    locale: "en_EG",
+    images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: site.tagline }] : undefined,
+  },
   robots: { index: true, follow: true },
 };
 

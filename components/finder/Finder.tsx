@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { finderQuestions } from "@/content/finder";
@@ -25,7 +26,7 @@ const decode = (s: string): Answers | null => {
   }
 };
 
-export function Finder({ index, mysteryBox }: { index: ScentIndexEntry[]; mysteryBox: ScentIndexEntry | null }) {
+export function Finder({ index, mysteryBox, tiles = {} }: { index: ScentIndexEntry[]; mysteryBox: ScentIndexEntry | null; tiles?: Record<string, string | null> }) {
   const total = finderQuestions.length;
   // A shared link restores the answers and opens on the results.
   const searchParams = useSearchParams();
@@ -193,7 +194,11 @@ export function Finder({ index, mysteryBox }: { index: ScentIndexEntry[]; myster
                   onClick={() => toggle(o.id)}
                   className={`tile group relative flex aspect-[4/3] w-full flex-col justify-end overflow-hidden p-4 text-left ${on ? "shadow-[inset_0_0_0_2px_var(--color-night)]" : "shadow-[inset_0_0_0_1px_transparent] hover:shadow-[inset_0_0_0_1px_var(--color-night)]"}`}
                 >
-                  <ImageSlot label={o.art} className="absolute inset-0" />
+                  {tiles[`${q.id}-${o.id}`] ? (
+                    <Image src={tiles[`${q.id}-${o.id}`]!} alt="" fill sizes="(min-width: 1024px) 33vw, 50vw" className="absolute inset-0 object-cover" />
+                  ) : (
+                    <ImageSlot label={o.art} className="absolute inset-0" />
+                  )}
                   <span className="serif relative z-10 bg-linen/90 px-2 py-1 text-[20px] leading-none lg:text-[24px]">{o.label}</span>
                   {on && (
                     <span className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center bg-night text-linen">

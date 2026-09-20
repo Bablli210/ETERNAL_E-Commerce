@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { CollectionGrid, type EditorialTile } from "@/components/product/CollectionGrid";
 import { FaqSection } from "@/components/product/Sections";
-import { ImageSlot } from "@/components/ui/Primitives";
+import { Figure } from "@/components/ui/Figure";
 import { site } from "@/content/site";
 import { tales } from "@/content/tales";
 import { toIndexEntry, type Scent } from "@/lib/catalogue";
@@ -40,7 +40,7 @@ export function CollectionPage({ def, scents, query }: { def: CollectionDef; sce
       </section>
       <section className="border-t border-dune bg-sand/40">
         <div className="wrap grid gap-10 py-16 lg:grid-cols-2 lg:items-center lg:py-24" data-reveal>
-          <ImageSlot label="Discovery set — six vials in the tray" className="aspect-[16/10] w-full" />
+          <Figure name="discovery-set" label="Discovery set — six vials in the tray" sizes="(min-width: 1024px) 50vw, 100vw" className="aspect-[16/10] w-full" />
           <div>
             <p className="eyebrow text-ash">The discovery set</p>
             <h2 className="display-l mt-3">Try six for the price of [price]</h2>

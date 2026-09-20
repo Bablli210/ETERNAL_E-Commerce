@@ -8,6 +8,7 @@ import { shopifyConfigured } from "./shopify/client";
 import { fetchAllProducts, fetchBestsellingHandles } from "./shopify/queries";
 import type { CatalogueSnapshot, Money, ShopifyImage, ShopifyProduct } from "./shopify/types";
 import { numericId } from "./format";
+import { siteImage } from "./site-images";
 
 export type Variant = {
   id: string;
@@ -33,6 +34,7 @@ export type Scent = {
   availableForSale: boolean;
   images: ShopifyImage[];
   image: ShopifyImage | null;
+  hoverImage: string | null;
   price: Money;
   variants: Variant[];
   bottle: Variant | null;
@@ -212,6 +214,28 @@ function enrich(p: ShopifyProduct, bestselling: string[] | null): Scent {
   const bottle = variants.find((v) => v.kind === "bottle") ?? variants.find((v) => v.kind === "set") ?? variants[0] ?? null;
   const sample = variants.find((v) => v.kind === "sample") ?? null;
 
+  /*
+   * Gallery frames, Shopify first. Any frame Shopify does not have is filled
+   * from public/images/products/<handle>{,-2,-3,-4}, so imagery can be added
+   * to the repository before it is uploaded to the store.
+   */
+  const localFrames = [
+    siteImage(`products/${p.handle}`),
+    siteImage(`products/${p.handle}-2`),
+    siteImage(`products/${p.handle}-3`),
+    siteImage(`products/${p.handle}-4`),
+  ];
+  const images: ShopifyImage[] = [];
+  for (let i = 0; i < 4; i++) {
+    const fromShopify = p.images[i];
+    if (fromShopify) {
+      images.push(fromShopify);
+      continue;
+    }
+    const local = localFrames[i];
+    if (local) images.push({ url: local, altText: `${p.title} — frame ${i + 1}`, width: null, height: null });
+  }
+
   const notesShort = metaList(p, "notes_short") ?? ed.notesShort ?? notesFromDescription(p.description);
 
   const top = metaList(p, "top_notes"), heart = metaList(p, "heart_notes"), base = metaList(p, "base_notes");
@@ -239,8 +263,9 @@ function enrich(p: ShopifyProduct, bestselling: string[] | null): Scent {
     tags,
     createdAt: p.createdAt,
     availableForSale: p.availableForSale && variants.some((v) => v.availableForSale),
-    images: p.images,
-    image: p.images[0] ?? null,
+    images,
+    image: images[0] ?? null,
+    hoverImage: siteImage(`products/${p.handle}-hover`) ?? images[1]?.url ?? null,
     price: bottle?.price ?? p.priceRange.minVariantPrice,
     variants,
     bottle,
@@ -388,7 +413,7 @@ export const toIndexEntry = (s: Scent): ScentIndexEntry => ({
   families: s.families,
   price: s.price,
   image: s.image?.url ?? null,
-  hoverImage: s.images[1]?.url ?? null,
+  hoverImage: s.hoverImage,
   world: s.world,
   kind: s.kind,
   isBestseller: s.isBestseller,
