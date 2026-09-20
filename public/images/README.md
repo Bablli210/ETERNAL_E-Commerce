@@ -69,3 +69,11 @@ Tale slugs: `shadow-of-the-sea`, `wayne`, `enzo-1898`, `forbidden-apple`, `mercu
 | File | Used for |
 | --- | --- |
 | `og-image` | The 1200x630 card shown when a link is shared |
+
+## Textures
+
+`texture-wet-stone`, `texture-sand-ridges`, `texture-linen-weave`,
+`texture-frosted-glass`, `texture-plaster`, `texture-sea-surface`.
+
+Installed and available, not referenced by any section yet. The design
+direction calls for them as section grounds at 20% opacity.

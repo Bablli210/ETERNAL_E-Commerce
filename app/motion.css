@@ -20,6 +20,15 @@
     --stagger: 60ms;
   }
 
+  /*
+   * Rest states for overlays that only reveal on hover. These must live
+   * outside the motion block: with motion off the transition is dropped, but
+   * the overlay still has to start hidden or it covers the image beneath.
+   */
+  .wash { opacity: 0; }
+  .img-hover { opacity: 0; }
+  .u-draw::after { transform: scaleX(0); }
+
   @keyframes m-rise { from { opacity: 0; transform: translateY(var(--rise)); } to { opacity: 1; transform: none; } }
   @keyframes m-fade { from { opacity: 0; } to { opacity: 1; } }
   @keyframes m-drop { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }

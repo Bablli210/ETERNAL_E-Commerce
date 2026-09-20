@@ -40,13 +40,6 @@ export function Hero({ featured }: { featured: Scent | null }) {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-night/70 via-night/10 to-night/30" />
       </div>
-      {featured?.image && (
-        <div className="pointer-events-none absolute bottom-[18%] right-[6%] hidden w-[26vw] max-w-[380px] lg:block" aria-hidden="true">
-          <div className="relative aspect-[4/5]" style={{ backgroundColor: featured.world.bg }}>
-            <Image src={featured.image.url} alt="" fill priority sizes="380px" className="object-cover" />
-          </div>
-        </div>
-      )}
       <div className="wrap relative pb-16 pt-40 lg:pb-24">
         <div className="hero-drift max-w-[820px]">
           {featured && (
@@ -125,6 +118,10 @@ export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; 
                   className="hover-lift absolute inset-0"
                   placeholderClassName="slot-corner !border-0 opacity-70"
                   style={{ backgroundColor: l.tone }}
+                />
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t ${l.toneDark ? "from-night/85 via-night/35" : "from-linen/95 via-linen/55"} to-transparent`}
                 />
                 <div className="relative">
                   <span className="serif text-[40px] font-semibold leading-none">{l.label}</span>
@@ -277,6 +274,10 @@ export function MoodTiles() {
                     style={{ backgroundColor: m.wash }}
                   />
                   <span className="wash absolute inset-0" style={{ backgroundColor: dark ? "#F3EFE7" : m.wash === "#E9E4D3" ? "#9E9382" : m.wash }} aria-hidden="true" />
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t ${dark ? "from-night/85 via-night/35" : "from-linen/95 via-linen/50"} to-transparent`}
+                  />
                   <span className="u-draw serif relative self-start text-[28px] leading-none lg:text-[34px]">{m.label}</span>
                 </Link>
               </li>
