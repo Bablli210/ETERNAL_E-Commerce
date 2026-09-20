@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Eyebrow, SectionHead } from "@/components/ui/Primitives";
 import { Figure } from "@/components/ui/Figure";
+import { Film } from "@/components/ui/Film";
 import { Icon } from "@/components/ui/Icon";
 import { ProductCard } from "@/components/product/ProductCard";
 import { site } from "@/content/site";
@@ -18,27 +19,29 @@ export function Hero({ featured }: { featured: Scent | null }) {
   return (
     <ParallaxSection id="hero" className="grain relative flex min-h-[100svh] flex-col justify-end overflow-hidden text-linen" style={{ backgroundColor: bg }}>
       <div className="hero-film absolute inset-0">
-        <Figure
+        <Film
           name="home-hero"
           label="Hero film — bottle on wet stone, Mediterranean light, 6-second loop; poster still as fallback"
           dark
           priority
           sizes="100vw"
+          media="(min-width: 1024px)"
           className="hidden h-full w-full lg:block"
           placeholderClassName="slot-corner !border-0 opacity-60"
           style={{ backgroundColor: bg }}
         />
-        <Figure
+        <Film
           name={["home-hero-mobile", "home-hero"]}
-          label="Hero film — mobile crop, 4:5"
+          label="Hero film — mobile crop"
           dark
           priority
           sizes="100vw"
+          media="(max-width: 1023.98px)"
           className="h-full w-full lg:hidden"
           placeholderClassName="slot-corner !border-0 opacity-60"
           style={{ backgroundColor: bg }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-night/70 via-night/10 to-night/30" />
+        <div className="absolute inset-0 bg-gradient-to-t from-night/90 via-night/45 to-night/30 lg:from-night/70 lg:via-night/10 lg:to-night/30" />
       </div>
       <div className="wrap relative pb-16 pt-40 lg:pb-24">
         <div className="hero-drift max-w-[820px]">

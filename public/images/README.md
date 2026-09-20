@@ -31,8 +31,8 @@ image always wins over a local file of the same name.
 
 | File | Used for |
 | --- | --- |
-| `home-hero` | Hero background, 16:9 |
-| `home-hero-mobile` | Hero background on phones, 4:5. Falls back to `home-hero` |
+| `home-hero` | Hero background, 16:9. Also the poster for `videos/home-hero` |
+| `home-hero-mobile` | Hero background on phones. Falls back to `home-hero`. Also the poster for `videos/home-hero-mobile` |
 | `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles |
 | `finder-band` | Scent finder band |
 | `tale-featured` | Featured tale still. Falls back to that scent's `tale-<slug>` |

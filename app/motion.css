@@ -28,6 +28,10 @@
   .wash { opacity: 0; }
   .img-hover { opacity: 0; }
   .u-draw::after { transform: scaleX(0); }
+  /* A background film starts invisible and fades up once it is really playing,
+     so a stalled or refused autoplay simply leaves the poster on screen. */
+  .bg-video { opacity: 0; }
+  .bg-video.is-playing { opacity: 1; }
 
   @keyframes m-rise { from { opacity: 0; transform: translateY(var(--rise)); } to { opacity: 1; transform: none; } }
   @keyframes m-fade { from { opacity: 0; } to { opacity: 1; } }
@@ -100,6 +104,7 @@
       /* H1 · hero: words stagger up 80 ms; on scroll the film scales to 1.04 and the text drifts at 0.2×. */
       .hero-word { --rise: 24px; display: inline-block; opacity: 0; transform: translateY(24px); animation: m-rise 600ms var(--ease-emphasized) forwards; animation-delay: calc(var(--i, 0) * 80ms + 120ms); }
       .hero-film { transform: scale(calc(1 + var(--pp, 0) * 0.04)); transform-origin: center; will-change: transform; }
+      .bg-video { transition: opacity var(--dur-xl) var(--ease-standard); }
       .hero-drift { transform: translate3d(0, calc(var(--sy, 0px) * 0.2), 0); will-change: transform; }
       .parallax-y { transform: translate3d(0, var(--py, 0px), 0); }
 
