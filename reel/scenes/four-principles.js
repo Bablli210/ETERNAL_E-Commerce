@@ -3,7 +3,7 @@
  *
  * An editorial spread on Linen in the site's 5/7 asymmetry. The left column
  * (x 120–700) never moves: an eyebrow, a Dune hairline, and one principle at a
- * time in the same three slots (index numeral, name, two-line description).
+ * time in the same three slots (index numeral, name, description).
  * The right panel (x 800–1920, full height, bleeding off three edges) holds
  * four stacked layers; each arrives over the last on a soft edge of light
  * travelling left→right; the old principle leaves while the edge is low on the
@@ -44,10 +44,13 @@
 
   /* ---- the four layers of the panel ---- */
   const REVEAL_DUR = 1.2;
-  // Reveal starts. The words need the time, not the photographs: each principle gets
-  // ≈ 3.5 s of settled text (P4, the longest at 13 words, ≈ 3.8 s before scene 04's wipe
-  // reaches the left column at ≈ 19.65 s).
-  const R2 = 4.9, R3 = 9.6, R4 = 14.3;
+  // Reveal starts. The words need the time, not the photographs. P1 keeps only its first
+  // sentence, "Nothing shouts." (the storyboard allows whole sentences to go), so its four
+  // words settle at 1.6 and read for 2.6 s; the time that frees goes to the long ones.
+  // P2, P3 and P4 (11, 11 and 13 words) each get 3.93 s of settled text: P(n) settles at
+  // R + 1.52 and leaves at R(n+1) + 0.3; P4 reads until scene 04's wipe reaches the left
+  // column at ≈ 19.65 s.
+  const R2 = 3.9, R3 = 9.05, R4 = 14.2;
   const LAYERS = [
     // Each photo pushes from its first light until the next layer has covered it.
     { src: "img/mood-wild-garden.jpg", position: "50% 50%", reveal: null, push: [0, R2 + REVEAL_DUR] },
@@ -57,8 +60,10 @@
     { field: WAYNE, reveal: R4, band: true },
   ];
   // One band of warm light over P3, like the sun moving across the wall, and one slower,
-  // softer pass across the Wayne field, gone (opacity 0) at 19.2 s, before scene 04's wipe
+  // softer pass across the Wayne field, gone (opacity 0) at 19.1 s, before scene 04's wipe
   // starts at 19.4 s, so the chip and watermark are pixel-identical to scene 04 under it.
+  // The field's band is dithered (see ditheredBand): on a flat dark field an 8-bit ramp
+  // shows its steps.
   const BANDS = [
     null,
     null,
@@ -85,14 +90,15 @@
     {
       num: "01", at: 0.8, exit: R2 + EXIT_AT,
       name: [{ text: "Quiet luxury", y: 444, dx: -4 }],
-      desc: [{ text: "Nothing shouts. Fewer elements,", y: 566, dx: -1 }, { text: "larger, with room to breathe.", y: 611, dx: -1 }],
+      // The board's first sentence alone: the principle, said as quietly as it asks.
+      desc: [{ text: "Nothing shouts.", y: 566, dx: -1 }],
       tName: 0.85, tDesc: 1.0,
     },
     {
       num: "02", at: R2 + NUM_AT, exit: R3 + EXIT_AT,
       name: [{ text: "Matière", y: 444, dx: -1 }],
       // Broken at the sentence, not inside the list (see deviations): the five materials
-      // stay together, the rule stands alone, and the rag runs long→short like P1, P3, P4.
+      // stay together, the rule stands alone, and the rag runs long→short like P3 and P4.
       desc: [{ text: "Stone, sand, linen, wet glass, film grain.", y: 566, dx: -1 }, { text: "Texture replaces decoration.", y: 611, dx: -1 }],
       tName: R2 + NAME_AT, tDesc: R2 + DESC_AT,
     },
@@ -185,10 +191,97 @@
       background: `linear-gradient(105deg, transparent ${(50 - half).toFixed(3)}%, ${warm} 50%, transparent ${(50 + half).toFixed(3)}%)`,
     } }, parent);
   }
+  /*
+   * The same band over the flat Wayne field, dithered. On a photograph the picture's
+   * own grain hides the 8-bit steps of a soft ramp; on flat #2B2A28 nothing does. The
+   * light lifts the field by only ≈ 9 levels of red, 6 of green and 2 of blue over
+   * 370 px, so the CSS gradient painted 20–40 px steps, each channel stepping at a
+   * different x: diagonal stripes of olive and orange crawling across the field.
+   * Noise in the gradient's own 8-bit values cannot fix that: at 0.22 opacity one level
+   * of the band's alpha moves the result by 0.05 of a level. So the dither is designed
+   * in the result. For each pixel the band's alpha and colour are solved (soft-light,
+   * over the field) so that the field rises by the plain band's smooth ramp plus seeded
+   * triangular noise, independently per channel, added before the compositor's one
+   * rounding: that is what dither is. Where the noise asks for less than the field, the
+   * colour drops below 0.5 and soft-light shades. Without the noise the solve returns
+   * the plain band exactly (alpha 0.9 × ramp, colour 255/214/160), and over the chip,
+   * legend and mark the colours stay within a level or two of the plain band's.
+   * The noise has to survive the encoder too (tools/render.mjs: x264, CRF 16, tune film,
+   * aq-mode 3). Measured on 1 s of this band through those settings: ±1 level of
+   * single-pixel noise is flattened and the steps come back as 8 px blocks; ±1 level at
+   * DITHER_REF = 0.075 (±2.9, σ ≈ 1 level at the band's 0.22 peak) in 2 × 2 px clumps
+   * comes through, and the decoded ramp stays smooth. That is far below the film's
+   * own grain and cannot be seen at 1:1. Drawn once, into a canvas just wider than the
+   * shaft (its edges transparent), and moved in whole pixels, so the noise is never
+   * resampled and the encoder can follow it.
+   */
+  const DITHER_REF = 0.075; // the band's opacity at which the noise spans ±1 level; it scales with the opacity
+  const DITHER_CLUMP = 2; // px
+  const DITHER_W = 1100; // the shaft reaches ±515 px from its centre line at the panel's top and bottom
+  function mulberry32(a) { // runtime.js's generator: the same noise on every build
+    return () => {
+      a |= 0; a = (a + 0x6d2b79f5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function ditheredBand(parent, field) {
+    const W = DITHER_W, H = PANEL.h;
+    const canvas = R.el("canvas", { attrs: { width: String(W), height: String(H) }, style: {
+      position: "absolute", left: "0", top: "0", width: `${W}px`, height: `${H}px`, pointerEvents: "none",
+      mixBlendMode: "soft-light", opacity: "0",
+    } }, parent);
+    canvas.bandWidth = W;
+    canvas.wholePixels = true;
+    const g = canvas.getContext("2d");
+    const image = g.createImageData(W, H);
+    const px = image.data;
+    const ang = (105 * Math.PI) / 180, ux = Math.sin(ang), uy = -Math.cos(ang); // the gradient line
+    const reach = 370 * Math.sin(ang); // peak to nothing, measured along that line (370 px horizontally)
+    const warm = [255, 214, 160], PEAK = 0.9;
+    const cb = [1, 3, 5].map((k) => parseInt(field.slice(k, k + 2), 16) / 255);
+    const D = (b) => (b <= 0.25 ? ((16 * b - 12) * b + 4) * b : Math.sqrt(b)); // soft-light, W3C
+    const up = cb.map((b) => D(b) - b); // soft-light's most light over the field (source 1), per channel
+    const down = cb.map((b) => b * (1 - b)); // and its most shade (source 0)
+    const plain = warm.map((w, c) => (2 * (w / 255) - 1) * up[c]); // the plain band's lift per unit alpha
+    // Triangular noise (−1…1), one value per 2 × 2 clump and channel.
+    const rnd = mulberry32(0x2b2a28);
+    const nw = Math.ceil(W / DITHER_CLUMP), nh = Math.ceil(H / DITHER_CLUMP);
+    const noise = [0, 1, 2].map(() => Float32Array.from({ length: nw * nh }, () => rnd() - rnd()));
+    const amp = 1 / 255 / DITHER_REF;
+    const T = [0, 0, 0];
+    for (let y = 0; y < H; y++) {
+      for (let x = 0; x < W; x++) {
+        const i = (y * W + x) * 4, k = Math.floor(y / DITHER_CLUMP) * nw + Math.floor(x / DITHER_CLUMP);
+        const d = Math.abs((x + 0.5 - W / 2) * ux + (y + 0.5 - H / 2) * uy);
+        const win = R.clamp((reach + 40 - d) / 40); // full noise wherever there is light, gone 40 px past it
+        if (win <= 0) { px[i + 3] = 0; continue; }
+        const a0 = PEAK * Math.max(0, 1 - d / reach);
+        let need = a0;
+        for (let c = 0; c < 3; c++) {
+          T[c] = a0 * plain[c] + win * noise[c][k] * amp;
+          need = Math.max(need, T[c] >= 0 ? T[c] / up[c] : -T[c] / down[c]);
+        }
+        const a8 = Math.min(255, Math.ceil(need * 255 - 1e-9));
+        if (a8 <= 0) { px[i + 3] = 0; continue; }
+        const alpha = a8 / 255;
+        for (let c = 0; c < 3; c++) {
+          const v = T[c] / alpha; // the lift this pixel's colour must give
+          const s = 0.5 + v / (2 * (v >= 0 ? up[c] : down[c]));
+          px[i + c] = Math.round(R.clamp(s) * 255);
+        }
+        px[i + 3] = a8;
+      }
+    }
+    g.putImageData(image, 0, 0);
+    return canvas;
+  }
   function sweepBand(band, p, intensity) {
     band.style.opacity = p <= 0 || p >= 1 ? "0" : String(intensity * Math.sin(Math.PI * p));
     const cx = R.lerp(-0.16, 1.16, R.clamp(p)) * PANEL.w; // centre of the shaft at mid-height
-    band.style.transform = `translateX(${(cx - (PANEL.w * BAND_TILE) / 2).toFixed(2)}px)`;
+    const x = cx - (band.bandWidth ?? PANEL.w * BAND_TILE) / 2;
+    band.style.transform = `translateX(${band.wholePixels ? Math.round(x) : x.toFixed(2)}px)`;
   }
 
   function build(root) {
@@ -204,7 +297,7 @@
         mark.svg.style.opacity = String(MARK_OPACITY);
         const legend = R.text(layer, LEGEND.text, { role: "eyebrow", right: LEGEND.right, y: LEGEND.y, size: 18, color: C.dune, align: "right", style: nowrap });
         // Over the chip, mark and legend: the light falls on the whole surface.
-        const band = L.band ? warmBand(layer) : null;
+        const band = L.band ? ditheredBand(layer, L.field) : null;
         return { def: L, layer, mark, legend, band };
       }
       const { wrap, img } = R.image(panel, L.src, FULL, { position: L.position });
@@ -246,7 +339,7 @@
       layer.style.visibility = reveals[i] > 0 && !covered ? "visible" : "hidden";
       if (img) push(img, R.tween(t, def.push[0], def.push[1], E.inOut));
       // The sun moving across the surface: the shaft travels at an even pace while the
-      // sweep's sin(πp) envelope eases its light in and out — on P3 visible ≈ 11.6–13.6 s at
+      // sweep's sin(πp) envelope eases its light in and out — on P3 visible ≈ 11.0–13.1 s at
       // ≈ 560 px/s. (Measured: standard, R.tween's default, lights it fully in 0.2 s
       // and whips it across in 0.4 s; inOut squeezes the pass into 1.6 s at 1100 px/s.)
       if (band) { const B = BANDS[i]; sweepBand(band, R.tween(t, B.at, B.dur, E.linear), B.intensity); }
