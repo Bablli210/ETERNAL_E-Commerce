@@ -9,13 +9,16 @@
  * travelling left→right; the old principle leaves while the edge is low on the
  * panel and the next one rises as the light crosses it, so the column is never
  * empty. P1–P3 are photographs from the same hour, each on a slow 4 % push;
- * P3 (a dry-stone wall in low sun) also carries one band of warm light. P4 is
- * the hero bottle's own colour world, Wayne: flat field, Golden hour chip with
- * its legend, and the e∞ watermark, the chip and watermark placed exactly where
- * scene 04 has them so they hold still under its light-wipe. One slow band of
- * low sun crosses the field and is gone before that wipe. The runtime
- * crossfades us in; we hold the final state to the end and scene 04's wipe
- * carries us off.
+ * P3 (a dry-stone wall in low sun) also carries one band of warm light. P4 says
+ * its own sentence in two steps: the light edge lays down the hero bottle's
+ * colour world (the Wayne field, with its Golden hour chip and legend), and once
+ * the words have settled its tale comes up out of that colour, as every image
+ * on the site does (G7): the Wayne room, matted in the field like a plate. The
+ * field, chip, legend and plate are exactly where scene 04 has them, and the
+ * plate's push runs on one clock across both scenes, so under scene 04's
+ * light-wipe the whole right side holds pixel-still and only the left column
+ * changes. The runtime crossfades us in; we hold the final state to the end
+ * and scene 04's wipe carries us off.
  *
  * Pure function of t: every animated property is written on every call.
  */
@@ -29,47 +32,58 @@
   const PANEL = { x: 800, y: 0, w: 1120, h: 1080 }; // 7 columns, bleeding right/top/bottom
   const FULL = { x: 0, y: 0, w: PANEL.w, h: PANEL.h }; // a layer, panel-local
   const PUSH_TO = 1.04; // around the panel centre; scale only, so no edge can show
-  // P4, panel-local. Stage: chip (1744, 120); watermark (1100, 640), 780 wide — scene 04's exact spots.
-  // At 780 the whole e∞ is in frame (ink ≈ stage x 1124–1856, y 713–957): at 1000 the ∞'s right
-  // loop ran off the frame at x 1920 and what was left read as "e ∝".
-  const CHIP = { x: 1744 - PANEL.x, y: 120, w: 56, h: 56 };
-  const MARK = { x: 1100 - PANEL.x, y: 640, width: 780, color: C.linen, stroke: 2 };
-  const MARK_OPACITY = 0.07;
-  // The legend beside the chip, so the panel reads as Wayne's colour world and not as a
-  // missing picture: eyebrow type, Dune on the dark field, its ink ending 24 px left of
-  // the chip (x 1720) and its caps centred on the chip's middle (y 148). The box's right
-  // edge sits 4 px right of that: CSS tracking trails the last letter by 0.14em (2.5 px)
-  // and the D carries ≈ 1.5 px of side bearing (measured: ink x 1331–1720, caps y 141–155).
-  const LEGEND = { text: "eterno · Wayne — colour world", right: PANEL.x + PANEL.w - 1720 - 4, y: 139 };
+  // P4, panel-local; every stage value below is scene 04's too (change both files or neither).
+  // The key sits on the spread's one head row: the legend is set exactly like the left column's
+  // eyebrow ("Four principles": 18 px caps, box y 150, caps filling pixel rows 153–165), Dune on
+  // the dark field, its ink ending 24 px left of the chip (x 1720), and the 56 px chip stands on
+  // that same line (stage 1744, rows 110–165), its right edge the plate's. So one baseline runs
+  // across the spread at y 166, and 30 px under it both halves start: the hairline on the left,
+  // the plate on the right (y 196). The legend box's right edge sits 4 px right of its ink: CSS
+  // tracking trails the last letter by 0.14em (2.5 px) and the D carries ≈ 1.5 px of side bearing.
+  const CHIP = { x: 1744 - PANEL.x, y: 110, w: 56, h: 56 };
+  const LEGEND = { text: "eterno · Wayne — colour world", right: PANEL.x + PANEL.w - 1720 - 4, y: 150 };
+  // The tale's plate, matted in its world: stage x 920–1800, y 196–960. 120 px of field left and
+  // right of it and below it (the margin), and a deeper mat on top that holds the key; its top
+  // edge is the left column's hairline (y 196), its right edge the chip's. The 2560×1429 source
+  // covers 880×764 at 0.535: source x 457–2103 at full height, clear of the black pillar bars
+  // (x < 306, > 2256) and the rounded corners, with the chair, the table and the lamp in it.
+  // No watermark in P4: the plate fills the field, and the e∞ never goes on a photograph and is
+  // never cropped. Scene 04 sets it on the field it opens up on the left.
+  const PLATE = { x: 920 - PANEL.x, y: 196, w: 880, h: 764, src: "img/tale-wayne.jpg", position: "50% 50%" };
 
   /* ---- the four layers of the panel ---- */
   const REVEAL_DUR = 1.2;
   // Reveal starts. The words need the time, not the photographs. P1 keeps only its first
   // sentence, "Nothing shouts." (the storyboard allows whole sentences to go), so its four
-  // words settle at 1.6 and read for 2.6 s; the time that frees goes to the long ones.
-  // P2, P3 and P4 (11, 11 and 13 words) each get 3.93 s of settled text: P(n) settles at
-  // R + 1.52 and leaves at R(n+1) + 0.3; P4 reads until scene 04's wipe reaches the left
-  // column at ≈ 19.65 s.
-  const R2 = 3.9, R3 = 9.05, R4 = 14.2;
+  // words settle at 1.6 and read for 2.45 s; the time that frees goes to the long ones.
+  // P2 and P3 (11 words each) get 3.93 s of settled text: P(n) settles at R + 1.52 and leaves
+  // at R(n+1) + 0.3. P4 (13 words) settles at 15.57 and reads until scene 04's wipe first
+  // touches its ink (≈ 19.67 s, 34.07 on the timeline): ≈ 4.1 s.
+  const R2 = 3.75, R3 = 8.9, R4 = 14.05;
   const LAYERS = [
     // Each photo pushes from its first light until the next layer has covered it.
     { src: "img/mood-wild-garden.jpg", position: "50% 50%", reveal: null, push: [0, R2 + REVEAL_DUR] },
     { src: "img/mood-sea-air.jpg", position: "62% 50%", reveal: R2, push: [R2, R3 + REVEAL_DUR - R2] },
     // A dry-stone wall raked by low sun: the principle itself, one warm source and long hard shadows.
     { src: "img/finder-who-him.jpg", position: "50% 50%", reveal: R3, push: [R3, R4 + REVEAL_DUR - R3], band: true },
-    { field: WAYNE, reveal: R4, band: true },
+    // The colour world first; its tale comes up into it (PLATE_IN).
+    { field: WAYNE, reveal: R4 },
   ];
-  // One band of warm light over P3, like the sun moving across the wall, and one slower,
-  // softer pass across the Wayne field, gone (opacity 0) at 19.1 s, before scene 04's wipe
-  // starts at 19.4 s, so the chip and watermark are pixel-identical to scene 04 under it.
-  // The field's band is dithered (see ditheredBand): on a flat dark field an 8-bit ramp
-  // shows its steps.
-  const BANDS = [
-    null,
-    null,
-    { at: R3 + 1.8, dur: 2.4, intensity: 0.35 },
-    { at: R4 + 1.5, dur: 3.4, intensity: 0.22 },
-  ];
+  // One band of warm light over P3, like the sun moving across the wall. The Wayne field has
+  // none now: its life is the tale, and a ramp that faint on a flat dark field shows 8-bit steps.
+  const BANDS = [null, null, { at: R3 + 1.8, dur: 2.4, intensity: 0.35 }, null];
+  // The plate comes up out of the field once P4's words are at rest: one thing at a time, and in
+  // the order the sentence says it, "a colour world and a tale". The site's image arrival (G7,
+  // from the scent's colour) at the film's pace: 1.6 s, inOut (29.75 → 31.35 s global). At R4 + 1.3
+  // the last line ("and a tale.") is 97 % risen (0.5 px to go) and the plate at 0; it reaches 5 %
+  // only at R4 + 1.57, once the words are at rest (R4 + 1.52).
+  const PLATE_IN = { at: R4 + 1.3, dur: 1.6 };
+  // One slow push toward the lamp for the whole life of the room, in THIS scene's clock: from
+  // its first light (29.75 s on the timeline) until scene 04 has faded it back into the field and
+  // the boat has covered the frame (its t = 7.0, our 26.4; scene 04 starts at our 19.4). Scene 04
+  // runs the same numbers, so the plate is the same picture on both sides of the wipe. 5 % over
+  // 11.05 s, inOut: ≈ 1.35 % by the wipe.
+  const PLATE_PUSH = { at: R4 + 1.3, dur: 11.05, to: 1.05, origin: "74% 20%" }; // the lamp: plate x 652, y 155
 
   /* ---- the left column ---- */
   const X = 120;
@@ -117,7 +131,6 @@
       tName: R4 + NAME_AT, tDesc: R4 + DESC_AT,
     },
   ];
-  const LEGEND_AT = R4 + 0.95; // once the light edge has fully uncovered its corner (≈ R4 + 0.87)
   const NUM_Y = 392;
   const WORD_GAP = 0.08; // name words, across lines in reading order
   const LINE_GAP = 0.12; // description line 2 after line 1
@@ -191,97 +204,19 @@
       background: `linear-gradient(105deg, transparent ${(50 - half).toFixed(3)}%, ${warm} 50%, transparent ${(50 + half).toFixed(3)}%)`,
     } }, parent);
   }
-  /*
-   * The same band over the flat Wayne field, dithered. On a photograph the picture's
-   * own grain hides the 8-bit steps of a soft ramp; on flat #2B2A28 nothing does. The
-   * light lifts the field by only ≈ 9 levels of red, 6 of green and 2 of blue over
-   * 370 px, so the CSS gradient painted 20–40 px steps, each channel stepping at a
-   * different x: diagonal stripes of olive and orange crawling across the field.
-   * Noise in the gradient's own 8-bit values cannot fix that: at 0.22 opacity one level
-   * of the band's alpha moves the result by 0.05 of a level. So the dither is designed
-   * in the result. For each pixel the band's alpha and colour are solved (soft-light,
-   * over the field) so that the field rises by the plain band's smooth ramp plus seeded
-   * triangular noise, independently per channel, added before the compositor's one
-   * rounding: that is what dither is. Where the noise asks for less than the field, the
-   * colour drops below 0.5 and soft-light shades. Without the noise the solve returns
-   * the plain band exactly (alpha 0.9 × ramp, colour 255/214/160), and over the chip,
-   * legend and mark the colours stay within a level or two of the plain band's.
-   * The noise has to survive the encoder too (tools/render.mjs: x264, CRF 16, tune film,
-   * aq-mode 3). Measured on 1 s of this band through those settings: ±1 level of
-   * single-pixel noise is flattened and the steps come back as 8 px blocks; ±1 level at
-   * DITHER_REF = 0.075 (±2.9, σ ≈ 1 level at the band's 0.22 peak) in 2 × 2 px clumps
-   * comes through, and the decoded ramp stays smooth. That is far below the film's
-   * own grain and cannot be seen at 1:1. Drawn once, into a canvas just wider than the
-   * shaft (its edges transparent), and moved in whole pixels, so the noise is never
-   * resampled and the encoder can follow it.
-   */
-  const DITHER_REF = 0.075; // the band's opacity at which the noise spans ±1 level; it scales with the opacity
-  const DITHER_CLUMP = 2; // px
-  const DITHER_W = 1100; // the shaft reaches ±515 px from its centre line at the panel's top and bottom
-  function mulberry32(a) { // runtime.js's generator: the same noise on every build
-    return () => {
-      a |= 0; a = (a + 0x6d2b79f5) | 0;
-      let t = Math.imul(a ^ (a >>> 15), 1 | a);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-  function ditheredBand(parent, field) {
-    const W = DITHER_W, H = PANEL.h;
-    const canvas = R.el("canvas", { attrs: { width: String(W), height: String(H) }, style: {
-      position: "absolute", left: "0", top: "0", width: `${W}px`, height: `${H}px`, pointerEvents: "none",
-      mixBlendMode: "soft-light", opacity: "0",
-    } }, parent);
-    canvas.bandWidth = W;
-    canvas.wholePixels = true;
-    const g = canvas.getContext("2d");
-    const image = g.createImageData(W, H);
-    const px = image.data;
-    const ang = (105 * Math.PI) / 180, ux = Math.sin(ang), uy = -Math.cos(ang); // the gradient line
-    const reach = 370 * Math.sin(ang); // peak to nothing, measured along that line (370 px horizontally)
-    const warm = [255, 214, 160], PEAK = 0.9;
-    const cb = [1, 3, 5].map((k) => parseInt(field.slice(k, k + 2), 16) / 255);
-    const D = (b) => (b <= 0.25 ? ((16 * b - 12) * b + 4) * b : Math.sqrt(b)); // soft-light, W3C
-    const up = cb.map((b) => D(b) - b); // soft-light's most light over the field (source 1), per channel
-    const down = cb.map((b) => b * (1 - b)); // and its most shade (source 0)
-    const plain = warm.map((w, c) => (2 * (w / 255) - 1) * up[c]); // the plain band's lift per unit alpha
-    // Triangular noise (−1…1), one value per 2 × 2 clump and channel.
-    const rnd = mulberry32(0x2b2a28);
-    const nw = Math.ceil(W / DITHER_CLUMP), nh = Math.ceil(H / DITHER_CLUMP);
-    const noise = [0, 1, 2].map(() => Float32Array.from({ length: nw * nh }, () => rnd() - rnd()));
-    const amp = 1 / 255 / DITHER_REF;
-    const T = [0, 0, 0];
-    for (let y = 0; y < H; y++) {
-      for (let x = 0; x < W; x++) {
-        const i = (y * W + x) * 4, k = Math.floor(y / DITHER_CLUMP) * nw + Math.floor(x / DITHER_CLUMP);
-        const d = Math.abs((x + 0.5 - W / 2) * ux + (y + 0.5 - H / 2) * uy);
-        const win = R.clamp((reach + 40 - d) / 40); // full noise wherever there is light, gone 40 px past it
-        if (win <= 0) { px[i + 3] = 0; continue; }
-        const a0 = PEAK * Math.max(0, 1 - d / reach);
-        let need = a0;
-        for (let c = 0; c < 3; c++) {
-          T[c] = a0 * plain[c] + win * noise[c][k] * amp;
-          need = Math.max(need, T[c] >= 0 ? T[c] / up[c] : -T[c] / down[c]);
-        }
-        const a8 = Math.min(255, Math.ceil(need * 255 - 1e-9));
-        if (a8 <= 0) { px[i + 3] = 0; continue; }
-        const alpha = a8 / 255;
-        for (let c = 0; c < 3; c++) {
-          const v = T[c] / alpha; // the lift this pixel's colour must give
-          const s = 0.5 + v / (2 * (v >= 0 ? up[c] : down[c]));
-          px[i + c] = Math.round(R.clamp(s) * 255);
-        }
-        px[i + 3] = a8;
-      }
-    }
-    g.putImageData(image, 0, 0);
-    return canvas;
-  }
   function sweepBand(band, p, intensity) {
     band.style.opacity = p <= 0 || p >= 1 ? "0" : String(intensity * Math.sin(Math.PI * p));
     const cx = R.lerp(-0.16, 1.16, R.clamp(p)) * PANEL.w; // centre of the shaft at mid-height
-    const x = cx - (band.bandWidth ?? PANEL.w * BAND_TILE) / 2;
-    band.style.transform = `translateX(${band.wholePixels ? Math.round(x) : x.toFixed(2)}px)`;
+    band.style.transform = `translateX(${(cx - (PANEL.w * BAND_TILE) / 2).toFixed(2)}px)`;
+  }
+  /*
+   * The plate's push: a 2D scale about the lamp, written exactly as scene 04 writes it (same
+   * string, same origin, same box), so the room is the same pixels on both sides of the wipe.
+   * 2D for the reason given at push(); scale only and never below 1, so no edge can show.
+   */
+  function pushPlate(img, t) {
+    const p = R.tween(t, PLATE_PUSH.at, PLATE_PUSH.dur, E.inOut);
+    img.style.transform = `scale(${R.lerp(1, PLATE_PUSH.to, p).toFixed(5)})`;
   }
 
   function build(root) {
@@ -291,14 +226,14 @@
     const panel = R.box(root, PANEL, { overflow: "hidden", background: C.linen });
     const layers = LAYERS.map((L) => {
       if (L.field) {
+        // The colour world and its key arrive together on the light edge (the legend is part
+        // of the surface: no rise of its own while P4's words rise); the plate comes up later.
         const layer = R.box(panel, FULL, { background: L.field });
         R.box(layer, CHIP, { background: C.gold });
-        const mark = R.mark(layer, MARK);
-        mark.svg.style.opacity = String(MARK_OPACITY);
         const legend = R.text(layer, LEGEND.text, { role: "eyebrow", right: LEGEND.right, y: LEGEND.y, size: 18, color: C.dune, align: "right", style: nowrap });
-        // Over the chip, mark and legend: the light falls on the whole surface.
-        const band = L.band ? ditheredBand(layer, L.field) : null;
-        return { def: L, layer, mark, legend, band };
+        const plate = R.image(layer, PLATE.src, PLATE, { position: PLATE.position, origin: PLATE_PUSH.origin, background: L.field });
+        unpin(plate.img);
+        return { def: L, layer, legend, plate };
       }
       const { wrap, img } = R.image(panel, L.src, FULL, { position: L.position });
       unpin(img);
@@ -332,7 +267,7 @@
     /* The panel. Each layer arrives on a soft light edge; photos push slowly. */
     const reveals = layers.map(({ def }) => (def.reveal == null ? 1 : R.tween(t, def.reveal, REVEAL_DUR, E.inOut)));
     layers.forEach((L, i) => {
-      const { def, layer, img, band, mark, legend } = L;
+      const { def, layer, img, band, legend, plate } = L;
       if (def.reveal != null) R.softReveal(layer, reveals[i], 100, 26);
       // A layer is only painted while it shows: from its first light until the next layer covers it.
       const covered = reveals.slice(i + 1).some((p) => p >= 1);
@@ -343,8 +278,16 @@
       // ≈ 560 px/s. (Measured: standard, R.tween's default, lights it fully in 0.2 s
       // and whips it across in 0.4 s; inOut squeezes the pass into 1.6 s at 1100 px/s.)
       if (band) { const B = BANDS[i]; sweepBand(band, R.tween(t, B.at, B.dur, E.linear), B.intensity); }
-      if (mark) R.drawMark(mark, 1); // fully drawn, still, as in scene 04
-      if (legend) riseFree(legend, R.tween(t, LEGEND_AT, R.dur.l, E.standard), 16);
+      // The legend at rest, with riseFree's held turn. Without it Chrome paints this line with
+      // grayscale anti-aliasing while an ancestor is masked or fading, and with LCD sub-pixel
+      // anti-aliasing otherwise: it snapped heavier, with colour fringes, in the one frame the
+      // light edge's mask came off (R4 + 1.2) and back in the first frame of scene 04's exit.
+      // Turned, it is always its own layer and always grayscale, as scene 04 holds it.
+      if (legend) riseFree(legend, 1, 16);
+      if (plate) {
+        R.fade(plate.wrap, R.tween(t, PLATE_IN.at, PLATE_IN.dur, E.inOut));
+        pushPlate(plate.img, t);
+      }
     });
 
     /* The left column's frame. */
