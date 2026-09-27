@@ -53,7 +53,7 @@ const manifest = {};
 for (const sub of ["img", "site"]) {
   const d = path.join(A, sub);
   if (!fs.existsSync(d)) continue;
-  for (const f of fs.readdirSync(d).filter((x) => x.endsWith(".jpg"))) {
+  for (const f of fs.readdirSync(d).filter((x) => x.endsWith(".jpg") || x.endsWith(".webp"))) {
     const m = await sharp(path.join(d, f), { limitInputPixels: false }).metadata();
     manifest[`${sub}/${f}`] = { w: m.width, h: m.height };
   }

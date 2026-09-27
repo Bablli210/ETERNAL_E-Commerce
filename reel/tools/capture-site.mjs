@@ -58,6 +58,8 @@ for (const s of shots.filter((x) => !ONLY || ONLY.includes(x.name))) {
   });
   await page.waitForTimeout(800);
   await page.evaluate(hideBrackets);
+  // The house film is still to be made (its label reads "[video to add]"): hide its play control, keep the poster.
+  await page.evaluate(() => document.querySelectorAll("a[aria-label=\"Watch the house film\"] > span").forEach((e) => (e.style.visibility = "hidden")));
   // Product photos come from Shopify's CDN, which this environment cannot reach.
   // Hide the broken image so the card shows its colour world instead of a broken icon.
   await page.evaluate(() => document.querySelectorAll("img").forEach((i) => { if (i.complete && i.naturalWidth === 0) i.style.visibility = "hidden"; }));

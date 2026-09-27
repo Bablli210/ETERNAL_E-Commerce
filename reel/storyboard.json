@@ -1,0 +1,1194 @@
+{
+ "title": "eternal: Salt, stone and golden hour",
+ "logline": "Late light on wet stone. In just under 95 seconds the film moves from the feeling of eternal's new direction, 'Salt, stone and golden hour', through its rules, stories, colour, type and motion, shows the direction already running on the built storefront on desktop and mobile, and ends on the wordmark and the promise.",
+ "totalDuration": 94.7,
+ "rationale": "The owner has to feel that this is eternal and believe it is already built, so the film opens on what they already love: their bottle on wet stone at golden hour, signed first by the e∞ mark in one stroke and then named in the direction's own words. Seven seconds in, the same water keeps moving inside a browser window while the real homepage settles over it — the site's own scrim, header, headline and buttons over live water — beside the board's line written for a Cairo house. From there everything is seen as applied, not proposed. The four principles each get an unhurried slot in the site's own 5/7 editorial layout, each carried by a picture from the same hour; the last principle becomes the hero bottle's own colour world, Wayne, which widens into its tale without a cut on the right of the frame. A second tale goes full-bleed to give the film its emotional core. Then the house's structure (three lines, each photo arriving from its line tone), the colour system (the 70/20/6/4 ratio as the picture, then one world per scent, honestly labelled 'proposed' where they are), the two typefaces set in real brand lines, and motion named as a rule of the direction: 'One thing at a time.' while the mark draws alone, 'Light, not decoration.' while a photograph rises out of its colour. The storefront returns in depth — tales and moods in a quiet browser, then two phones — and the film closes where it began, in the golden hour, on the wordmark and 'Some things are never meant to fade.', held as the end card. Every cut is a crossfade, a soft light edge or a dip through Linen, so the film demonstrates the motion direction while presenting it.",
+ "audioNote": "Designed silent; every idea reads without sound. If a bed is added: one continuous, beatless ambient piece around 60 BPM — sparse felt piano over a warm low pad, with a faint distant sea wash only under scenes 01, 02 and 11. No percussion, risers, whooshes or hits; nothing synced to cuts. Mix low (about −22 LUFS integrated) so it sits under conversation in the meeting, and fade it over the last 2 s while the end card holds.",
+ "scenes": [
+  {
+   "id": "01",
+   "slug": "first-light",
+   "title": "First light",
+   "start": 0,
+   "duration": 8.2,
+   "purpose": "Open strong. The e∞ mark signs the film in its first 1.4 s, a soft edge of low light reveals the one locked bottle on wet stone at golden hour, and the direction is named in one line. The client feels the brand before anything is explained.",
+   "background": "Night #171614, then the hero film full-bleed",
+   "visual": "Canvas 1920×1080. Layers, bottom to top. (1) Night #171614 fill. (2) The e∞ mark, R.mark(root, {x: 840, y: 480, width: 240, color: Linen #F3EFE7, stroke: 3}): a 240×120 box at x 840–1080, y 480–600, centred on (960, 540). Stroke is in viewBox units (viewBox 96×48): 3 × 240/96 = 7.5 px rendered, the site's own weight (strokeWidth 3 in components/ui/Wordmark.tsx). Round caps, no fill. (3) The film layer: a full-frame box holding TWO stacked R.film(layer, {x: 0, y: 0, w: 1920, h: 1080}) images for frame blending (see notes), film time τ = t from t = 0 at native speed; never held or slowed. The layer is fully masked until 1.8 s, then revealed by a soft light edge (see beats). Framing: calm sea across the left two-thirds, horizon near y 120; the eterno bottle (black dome cap, cream label 'eterno / wayne') stands at x 1222–1492, y 333–740 on dark wet rock that fills the lower right from x ≈ 400. Both film images push scale 1.00→1.03 from 1.8 to 8.2 s (R.ease.inOut), transform-origin 70.8% 50% (stage point 1360, 540). (4) A full-frame legibility scrim over the film: linear-gradient(90deg, rgba(23,22,20,.50) 0%, rgba(23,22,20,.28) 38%, rgba(23,22,20,0) 62%), opacity 0 until 3.0 s. (5) Text left-aligned at x 120 in the open sea, occupying x 120–892, y 452–737. The headline is two separate R.text blocks, one per line. No text ever crosses the bottle.",
+   "onScreenText": [
+    {
+     "text": "The direction",
+     "style": "eyebrow",
+     "appearAt": 3.4,
+     "holdUntil": 8.2,
+     "placement": "Top-left at (120, 452). Instrument Sans 600, 18 px, uppercase, tracking 0.14em, Dune #CDBFA5."
+    },
+    {
+     "text": "Salt, stone and golden hour.",
+     "style": "display-xl",
+     "appearAt": 3.6,
+     "holdUntil": 8.2,
+     "placement": "Two R.text blocks, white-space nowrap, no width: line 1 'Salt, stone' at (120, 492); line 2 'and golden hour.' at (120, 614). Cormorant Garamond 600, 120 px, line-height 1.02, tracking −0.01em, Linen #F3EFE7. Measured widths 477 and 772 px: line 2 ends at x 892, 330 px clear of the bottle. Block ends at y 737."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "Night field with grain 0.035; nothing moves. The film is already running (τ = t) under its fully masked layer."
+    },
+    {
+     "at": 0.2,
+     "action": "The e∞ mark draws as one continuous stroke: R.drawMark(mark, R.tween(t, 0.2, 1.2, R.ease.emphasized)) — bar, then bowl, then loop, over 1200 ms. No rotation, scaling or pulse."
+    },
+    {
+     "at": 1.4,
+     "action": "The finished mark holds still."
+    },
+    {
+     "at": 1.8,
+     "action": "Light reveals the film: R.softReveal(filmLayer, R.tween(t, 1.8, 1.2, R.ease.inOut), 100, 26) moves a soft edge left→right over 1200 ms. The mark sits beneath the film layer, so the passing light carries it away; it needs no separate fade. The bottle is fully revealed by about 2.8 s. The film push starts."
+    },
+    {
+     "at": 3,
+     "action": "The scrim fades 0→1 over 1200 ms, R.ease.standard."
+    },
+    {
+     "at": 3.4,
+     "action": "The eyebrow rises 16 px and fades in over 600 ms, standard."
+    },
+    {
+     "at": 3.6,
+     "action": "The headline enters word by word (R.splitWords on each line block, stagger continuing across lines in reading order): Salt, 3.6 / stone 3.68 / and 3.76 / golden 3.84 / hour. 3.92; each rises 24 px and fades in over 600 ms, emphasized. Complete at 4.52 s."
+    },
+    {
+     "at": 4.6,
+     "action": "Hold. Only the water and the slow push move."
+    },
+    {
+     "at": 7,
+     "action": "Scene 02's runtime light-wipe (1.2 s) begins over this frame and carries the text off with it. Grain falls to 0 by 7.6 (see notes)."
+    }
+   ],
+   "assets": [
+    "reel/assets/film/001.jpg … 133.jpg (frames of public/videos/home-hero.mp4)",
+    "reel/assets/img/home-hero.jpg",
+    "components/ui/Wordmark.tsx"
+   ],
+   "transitionIn": {
+    "type": "cut",
+    "duration": 0
+   },
+   "grain": 0.035,
+   "notes": "CONVENTIONS FOR EVERY SCENE. (a) 'Rise' = opacity 0→1 while translateY goes from +24 px (display type, wordmark) or +16 px (eyebrow, body, caption, numeral, chips, devices) to 0, over 600 ms (R.rise). 'Exit' = opacity 1→0 over 320 ms with R.ease.exit, no movement. (b) holdUntil = the moment the exit starts; when it equals the scene end, the text holds and the next scene's transition carries it off. Never fade a whole scene out at its end. (c) Every specified line is its own R.text block with white-space: nowrap at the stated (x, y); never rely on box-width wrapping or <br> (R.splitWords rebuilds from textContent). Word staggers run across lines in reading order. (d) FILM FRAME BLENDING, wherever the hero film appears: build two R.film images A and B in the same rect; A shows film.at(τ), B shows film.at(τ + 1/24); B sits above A with opacity frac = τ·24 − Math.floor(τ·24 + 1e-6). Apply identical transforms to both. Deterministic, no speed change; check with preview --strip across the loop seam (τ ≈ 5.54). (e) GRAIN: the runtime draws one full-frame grain at the highest value of all active scenes, above the dip overlay. The 'grain' field is the peak; implement each scene's grain as the function in its notes via R.scene(slug, { grain: (t) => … }) — the notes are the source of truth. Scene 01: t < 7.0 ? 0.035 : max(0, 0.035 × (1 − (t − 7.0)/0.6)), i.e. 0 from 7.6 s, so scene 02's Linen stays clean. (f) R.mark's stroke is in viewBox units: rendered px = stroke × width/96. Always draw the mark with R.drawMark, never a custom path order. reel/assets/img/home-hero.jpg equals film frame 1; poster or fallback only. Scene 02 continues this film's clock with τ = 7.0 + t."
+  },
+  {
+   "id": "02",
+   "slug": "already-applied",
+   "title": "The direction, applied",
+   "start": 7,
+   "duration": 8,
+   "purpose": "Prove within ten seconds that this is not a mood board. The same water keeps moving inside a browser window while the real homepage — the site's own scrim, header, headline and buttons — settles over it and stays live, beside the board's sentence written for this house.",
+   "background": "Linen #F3EFE7",
+   "visual": "Linen ground in the 5/7 asymmetry. RIGHT (7 columns): R.browser(root, {x: 800, y: 264, w: 1000, h: 553}) — a Paper #FAF8F3 top bar of 44 px with three hairline dots, a 1 px Dune #CDBFA5 outline, radius 0, no shadow, no URL text. Its viewport is 1000×509 at stage (800, 308). Inside the viewport, bottom to top: (a) The hero film, two blended R.film(viewport, {x: −55.6, y: −25, w: 1111.1, h: 625}) images at τ = 7.0 + t, so the water continues from scene 01 without a jump. This rect reproduces the site's own hero geometry: the 16:9 film covers the 1440×900 css hero as 1600×900 css at x −80, scaled by 1000/1440 = 0.6944 and scrolled 36 css. No push. (b) The real homepage first screen with its film area transparent: R.image(viewport, 'site/home-desktop-hero-clear.webp', {x: 0, y: −25, w: 1000, h: 625}) — 2880×1800 with alpha (1440×900 css @2x), made by reel/tools/capture-hero-clear.mjs. Opacity 0 until 3.0 s. It carries the site's own hero scrim (a Night gradient, darker toward the bottom), the transparent header (Shop, Scent finder, Tales, The house, the wordmark, Search, bag), 'Some things are never meant to fade.', the body line and the two buttons (css 702–754). The −25 offset crops the dark announcement bar (css 0–36); the viewport ends at css 769, so the trust line (css 786) never shows. The film keeps running under the page to the end of the scene. LEFT (5 columns, x 120–760): an eyebrow and the board's sentence as four line blocks, spanning y 392–680 and centred on the browser's mid-line (y 540).",
+   "onScreenText": [
+    {
+     "text": "The direction, applied",
+     "style": "eyebrow",
+     "appearAt": 0.9,
+     "holdUntil": 8,
+     "placement": "(120, 392). Instrument Sans 600, 18 px, uppercase, tracking 0.14em, Ash #6D665C."
+    },
+    {
+     "text": "Quiet enough to feel expensive, warm enough to feel like Cairo in October.",
+     "style": "display-l",
+     "appearAt": 1.1,
+     "holdUntil": 8,
+     "placement": "Four R.text blocks, Cormorant Garamond 600, 60 px, line-height 1.05, tracking −0.01em, Night #171614: 'Quiet enough to feel' at (120, 428); 'expensive, warm enough' at (120, 491); 'to feel like Cairo' at (120, 554); 'in October.' at (120, 617). Widest line 560 px (ends x 680). Block ends at y 680."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "The runtime light-wipe (1.2 s, soft 26 % edge at 100°) reveals this Linen page left→right over scene 01. The film inside the viewport is already playing at τ = 7.0 + t; the capture is at opacity 0."
+    },
+    {
+     "at": 0.9,
+     "action": "The eyebrow rises 16 px and fades in over 600 ms, standard."
+    },
+    {
+     "at": 1.1,
+     "action": "The sentence enters word by word across its four lines: each word rises 24 px and fades in over 600 ms, emphasized, 80 ms apart (13 words, complete at 2.66 s)."
+    },
+    {
+     "at": 3,
+     "action": "The capture fades 0→1 over 1200 ms, standard: the site's scrim, header, headline and buttons settle over the moving water, the way the page arrives."
+    },
+    {
+     "at": 4.2,
+     "action": "Hold. Only the water moves, inside the real page. There is no light band in this scene."
+    },
+    {
+     "at": 7.4,
+     "action": "Scene 03's crossfade begins (600 ms)."
+    }
+   ],
+   "assets": [
+    "reel/assets/film/001.jpg … 133.jpg (frames of public/videos/home-hero.mp4)",
+    "reel/assets/site/home-desktop-hero-clear.webp",
+    "reel/tools/capture-hero-clear.mjs"
+   ],
+   "transitionIn": {
+    "type": "light-wipe",
+    "duration": 1.2
+   },
+   "grain": 0,
+   "notes": "Check a full-size still at t = 4.6: header, headline and buttons crisp over live water; the only bottle on screen is the film's. The capture removes only the hero video/poster and the backgrounds behind them, bracketed placeholders, and the hero eyebrow (it names Shadow of the Sea above the Wayne bottle — flagged to the site team, together with the headline crossing the bottle at 1440 px). Do not otherwise mask, retouch or scroll it. Load it with R.image (not R.capture: it is a WebP with alpha, not in the manifest); reel/tools/serve.mjs serves .webp as image/webp. The capture's headline is the site's tagline — the real site, shown small; the film saves the large tagline for its last frame. The sentence is verbatim from the direction board. Grain 0. Conventions as in scene 01."
+  },
+  {
+   "id": "03",
+   "slug": "four-principles",
+   "title": "Four principles",
+   "start": 14.4,
+   "duration": 20.6,
+   "purpose": "Give the direction its four rules inside the brand's own editorial layout, one unhurried slot each, each carried by a picture lit in the same hour. The client learns the rules by seeing them applied. The last principle becomes the hero bottle's own colour world, which the next scene widens into its tale.",
+   "background": "Linen #F3EFE7",
+   "visual": "Editorial spread on Linen in the site's text-5 / image-7 asymmetry. LEFT column, x 120–700, fixed for the whole scene: the eyebrow 'Four principles' at (120, 150) and a 1 px Dune #CDBFA5 hairline from x 120 to 700 at y 196. Each principle uses the same slots: index numeral at (120, 392); name at (120, 444) (P4: two line blocks at y 444 and 532); description as two line blocks at y 566 and 611 (P4: 656 and 701). RIGHT image panel: x 800–1920, y 0–1080 (1120×1080), bleeding off the right, top and bottom, radius 0, no border, overflow hidden. It holds four stacked layers; each is revealed over the previous by a soft light edge travelling left→right, R.softReveal(layer, R.tween(t, start, 1.2, R.ease.inOut), 100, 26). P1 (visible from t = 0, no reveal): reel/assets/img/mood-wild-garden.jpg (a plaster wall in window light, one green sprig), cover, object-position 50% 50%. P2 (reveal 5.1–6.3): mood-sea-air.jpg (salt crystals on wet dark stone), object-position 62% 50%. P3 (reveal 10.0–11.2): house-film-poster.jpg (a stone atelier; a shaft of low sun across a long table of amber lab bottles), object-position 100% 50% — the dark wall on the left, the sunlit table on the right; P3 also carries one R.lightBand(layer). P4 (reveal 14.9–16.1): a designed colour-world panel, no photo and no labels — the flat Wayne world #2B2A28 filling the panel; a 56×56 Golden hour #B97A2B chip at stage (1744, 120); and the e∞ watermark R.mark(P4layer, {x: 300, y: 640, width: 1000, color: Linen #F3EFE7, stroke: 2}) (panel-local; stage (1100, 640), 1000×500), fully drawn, opacity 0.07; stroke 2 viewBox = 20.8 px rendered; its strokes occupy stage x 1142–1920 (clipped by the panel), y 744–1036. The photo sources (2400×1792, 2560×1429) scale to height 1080 and crop to 1120 wide. Photo pushes, scale 1.00→1.04 around the panel centre (R.ease.inOut): P1 0–6.3 s, P2 5.1–11.2 s, P3 10.0–16.1 s. The P4 field does not push. The left column never moves; only its text swaps.",
+   "onScreenText": [
+    {
+     "text": "Four principles",
+     "style": "eyebrow",
+     "appearAt": 0.6,
+     "holdUntil": 20.6,
+     "placement": "(120, 150). Instrument Sans 600, 18 px, uppercase, tracking 0.14em, Ash #6D665C."
+    },
+    {
+     "text": "01",
+     "style": "numeral",
+     "appearAt": 0.8,
+     "holdUntil": 5.1,
+     "placement": "(120, 392). Cormorant Garamond 500, 40 px, tabular, Golden hour #B97A2B."
+    },
+    {
+     "text": "Quiet luxury",
+     "style": "display-l",
+     "appearAt": 0.85,
+     "holdUntil": 5.1,
+     "placement": "(120, 444), one line (412 px). Cormorant Garamond 600, 84 px, line-height 1.05, tracking −0.01em, Night #171614."
+    },
+    {
+     "text": "Nothing shouts. Fewer elements, larger, with room to breathe.",
+     "style": "body",
+     "appearAt": 1,
+     "holdUntil": 5.1,
+     "placement": "Two line blocks: 'Nothing shouts. Fewer elements,' at (120, 566); 'larger, with room to breathe.' at (120, 611). Instrument Sans 400, 30 px, line-height 1.5, Ash #6D665C. Line 2 rises 120 ms after line 1."
+    },
+    {
+     "text": "02",
+     "style": "numeral",
+     "appearAt": 5.9,
+     "holdUntil": 10,
+     "placement": "(120, 392). Same spec as 01."
+    },
+    {
+     "text": "Matière",
+     "style": "display-l",
+     "appearAt": 5.95,
+     "holdUntil": 10,
+     "placement": "(120, 444). Same spec as 'Quiet luxury'."
+    },
+    {
+     "text": "Stone, sand, linen, wet glass, film grain. Texture replaces decoration.",
+     "style": "body",
+     "appearAt": 6.1,
+     "holdUntil": 10,
+     "placement": "Two line blocks: 'Stone, sand, linen, wet glass,' at (120, 566); 'film grain. Texture replaces decoration.' at (120, 611) (530 px). Same spec as the P1 description."
+    },
+    {
+     "text": "03",
+     "style": "numeral",
+     "appearAt": 10.8,
+     "holdUntil": 14.9,
+     "placement": "(120, 392). Same spec as 01."
+    },
+    {
+     "text": "Golden hour",
+     "style": "display-l",
+     "appearAt": 10.85,
+     "holdUntil": 14.9,
+     "placement": "(120, 444), one line (413 px). Same spec as 'Quiet luxury'."
+    },
+    {
+     "text": "One light source, low and warm, long hard shadows.",
+     "style": "body",
+     "appearAt": 11,
+     "holdUntil": 14.9,
+     "placement": "Two line blocks: 'One light source, low and warm,' at (120, 566); 'long hard shadows.' at (120, 611). Same spec as the P1 description."
+    },
+    {
+     "text": "04",
+     "style": "numeral",
+     "appearAt": 15.5,
+     "holdUntil": 20.6,
+     "placement": "(120, 392). Same spec as 01."
+    },
+    {
+     "text": "One story per bottle",
+     "style": "display-l",
+     "appearAt": 15.55,
+     "holdUntil": 20.6,
+     "placement": "Two line blocks: 'One story' at (120, 444); 'per bottle' at (120, 532). Cormorant Garamond 600, 84 px, line-height 1.05, Night. Ends near y 620."
+    },
+    {
+     "text": "Each scent owns a colour world and a tale.",
+     "style": "body",
+     "appearAt": 15.8,
+     "holdUntil": 20.6,
+     "placement": "Two line blocks: 'Each scent owns a colour world' at (120, 656); 'and a tale.' at (120, 701). Same spec as the P1 description."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "Crossfade in from scene 02 (600 ms), with P1 already in the panel. P1's push starts."
+    },
+    {
+     "at": 0.6,
+     "action": "The 'Four principles' eyebrow rises 16 px over 600 ms, standard."
+    },
+    {
+     "at": 0.7,
+     "action": "The hairline draws left→right from x 120 to 700 over 600 ms, standard (R.drawLine)."
+    },
+    {
+     "at": 0.8,
+     "action": "P1 text: the numeral rises 16 px (600 ms, standard); from 0.85 s the name rises word by word (24 px, 600 ms, emphasized, 80 ms stagger; complete 1.53 s); description line 1 at 1.0 s, line 2 at 1.12 s (16 px, 600 ms, standard)."
+    },
+    {
+     "at": 1.72,
+     "action": "Hold. Only the slow push moves."
+    },
+    {
+     "at": 5.1,
+     "action": "P1 text exits (320 ms). The panel reveals P2 with the soft light edge, 5.1–6.3 s. P2's push starts."
+    },
+    {
+     "at": 5.9,
+     "action": "P2 text rises as the light edge settles over the panel's last quarter: numeral 5.9, name 5.95, description lines 6.1 / 6.22, same specs as P1."
+    },
+    {
+     "at": 10,
+     "action": "P2 text exits. The panel reveals P3, 10.0–11.2 s. P3's push starts."
+    },
+    {
+     "at": 10.8,
+     "action": "P3 text rises: numeral 10.8, name 10.85 (two words), description lines 11.0 / 11.12."
+    },
+    {
+     "at": 11.8,
+     "action": "One band of warm light crosses the P3 panel left→right: R.sweep(band, R.tween(t, 11.8, 2.4), 0.35), soft-light, like the sun moving across the table. It is the only motion."
+    },
+    {
+     "at": 14.9,
+     "action": "P3 text exits. The panel reveals P4 (the flat Wayne world with its chip and watermark), 14.9–16.1 s."
+    },
+    {
+     "at": 15.5,
+     "action": "P4 text rises: numeral 15.5; name word by word from 15.55 across its two lines (complete 16.39); description lines 15.8 / 15.92."
+    },
+    {
+     "at": 16.52,
+     "action": "Hold. Nothing moves."
+    },
+    {
+     "at": 19.4,
+     "action": "Scene 04's runtime light-wipe begins at the left edge; the left column is covered by about 19.9 s. The right of the frame (Wayne field, chip, watermark) is identical in scene 04, so only the left changes."
+    }
+   ],
+   "assets": [
+    "reel/assets/img/mood-wild-garden.jpg",
+    "reel/assets/img/mood-sea-air.jpg",
+    "reel/assets/img/house-film-poster.jpg",
+    "components/ui/Wordmark.tsx"
+   ],
+   "transitionIn": {
+    "type": "crossfade",
+    "duration": 0.6
+   },
+   "grain": 0,
+   "notes": "Descriptions are board copy, abridged only by dropping whole sentences; do not add the 'On the site' rules. P4 carries no labels: scene 04 names the world a moment later, and no hex codes appear in 03 or 04. The P4 watermark and chip must match scene 04 exactly (stage (1100, 640), width 1000, stroke 2, Linen, opacity 0.07; chip at (1744, 120)) so they hold still through the wipe. The watermark sits on the colour field only, never on a photograph. Text rises 0.8 s into each 1.2 s photo reveal (0.6 s for the flat P4 field), when the light edge has crossed about three quarters of the panel: the words arrive as the light settles. That is the only overlap in the scene, and it is deliberate. The amber lab bottles in P3 are small props in a room, never a product close-up; do not push toward them. Grain 0 (runtime grain is full-frame and must not fall on Linen). Conventions as in scene 01."
+  },
+  {
+   "id": "04",
+   "slug": "one-story-per-bottle",
+   "title": "One story per bottle",
+   "start": 33.8,
+   "duration": 13.3,
+   "purpose": "The emotional core. The hero bottle's own tale is set in its own colour world, as the direction prescribes: colour world, watermark, signature line. A second tale then goes full-bleed, so the client feels the stories, not just the system.",
+   "background": "The Wayne colour world #2B2A28 (beat A), then tale-shadow-of-the-sea.jpg full-bleed (beat B)",
+   "visual": "BEAT A (0–7.3 s): the full frame is the Wayne world #2B2A28. Photo reel/assets/img/tale-wayne.jpg (a stone room at night, a lit pendant lamp, a laid table and a rush chair) in a box at x 120–1090, y 120–960 (970×840), object-fit cover, object-position 50% 50%. The cover crop shows source x 455–2105 of the 2560-wide file at full height, clear of the black pillar bars and rounded corners on the source's edges. Never use contain; never pan sideways. The photo pushes 1.00→1.04 over 0–7.3 s (R.ease.inOut), transform-origin 70% 20% (toward the lamp). Present from t = 0 and identical to scene 03's P4 panel: a 56×56 Golden hour #B97A2B chip at (1744, 120) and the watermark R.mark(root, {x: 1100, y: 640, width: 1000, color: Linen #F3EFE7, stroke: 2}), fully drawn, opacity 0.07 (strokes at x 1142–1920, y 744–1036; never over the photo or the text). Right text column x 1162–1800: the eyebrow at y 456 and the signature line as two blocks at y 494 and 554 (ends near y 614), centred on the photo's mid-line. No hex, no chip caption, no hairline. BEAT B (from 6.1 s): a full-frame layer stacked above beat A, holding reel/assets/img/tale-shadow-of-the-sea.jpg (2560×1429) scaled to cover (1935×1080, about 7 px cropped each side): a fishing boat in amber fog (boat at about x 745–1548, y 173–670), black rock and scrub lower right, dark water lower left. It pushes 1.00→1.05 over 6.1–13.3 s (R.ease.inOut), transform-origin 60% 39% (the boat). A bottom scrim sits over it: linear-gradient(0deg, rgba(23,22,20,.60) 0%, rgba(23,22,20,0) 50%). Beat B text sits lower left over the dark water, below the boat.",
+   "onScreenText": [
+    {
+     "text": "A tale from eterno · Wayne",
+     "style": "eyebrow",
+     "appearAt": 1.2,
+     "holdUntil": 6.1,
+     "placement": "(1162, 456). Instrument Sans 600, 18 px, uppercase, tracking 0.14em, Dune #CDBFA5 (335 px). No exit of its own: the beat B crossfade (6.1–7.3) covers it."
+    },
+    {
+     "text": "Don’t be the man she notices. Be the man she asks about.",
+     "style": "signature",
+     "appearAt": 1.4,
+     "holdUntil": 6.1,
+     "placement": "Two line blocks: 'Don’t be the man she notices.' at (1162, 494) (515 px); 'Be the man she asks about.' at (1162, 554) (477 px). Cormorant Garamond 500 italic, 50 px, line-height 1.2, Linen #F3EFE7. Line 2 enters 120 ms after line 1. Covered by the beat B crossfade; no separate exit."
+    },
+    {
+     "text": "A tale from eterno",
+     "style": "eyebrow",
+     "appearAt": 7.3,
+     "holdUntil": 13.3,
+     "placement": "(120, 772). Instrument Sans 600, 18 px, uppercase, tracking 0.14em, Dune #CDBFA5."
+    },
+    {
+     "text": "You can smell the ones the sea decided to give back.",
+     "style": "signature",
+     "appearAt": 7.5,
+     "holdUntil": 13.3,
+     "placement": "Two line blocks: 'You can smell the ones the sea' at (120, 812) (677 px); 'decided to give back.' at (120, 889) (465 px). Cormorant Garamond 500 italic, 64 px, line-height 1.2, Linen #F3EFE7. Ends near y 966, over the dark water, clear of the boat."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "The runtime light-wipe (1.2 s) carries the P4 spread off left→right: the Wayne world and the photo arrive from the left while the field, chip and watermark on the right stay exactly where they were. The photo push starts."
+    },
+    {
+     "at": 1.2,
+     "action": "The eyebrow rises 16 px over 600 ms, standard."
+    },
+    {
+     "at": 1.4,
+     "action": "Signature line 1 rises 16 px and fades in over 600 ms, standard; line 2 follows at 1.52 s (120 ms line stagger, as in the site's tale band)."
+    },
+    {
+     "at": 2.12,
+     "action": "Hold. Only the slow push toward the lamp moves."
+    },
+    {
+     "at": 6.1,
+     "action": "Beat B crossfades in over beat A: its layer goes 0→1 over 1200 ms, standard. The boat push starts; grain ramps to 0 by 7.3."
+    },
+    {
+     "at": 7.3,
+     "action": "The beat B eyebrow rises 16 px over 600 ms, standard."
+    },
+    {
+     "at": 7.5,
+     "action": "The signature line enters word by word across its two lines: each word rises 24 px and fades in over 600 ms, emphasized, 80 ms apart (11 words, complete at 8.9 s)."
+    },
+    {
+     "at": 8.9,
+     "action": "Hold. Only the slow push toward the boat moves."
+    },
+    {
+     "at": 12.1,
+     "action": "Scene 05's runtime dip-to-linen begins: a Linen overlay rises over this frame for 600 ms."
+    }
+   ],
+   "assets": [
+    "reel/assets/img/tale-wayne.jpg",
+    "reel/assets/img/tale-shadow-of-the-sea.jpg",
+    "components/ui/Wordmark.tsx"
+   ],
+   "transitionIn": {
+    "type": "light-wipe",
+    "duration": 1.2
+   },
+   "grain": 0.035,
+   "notes": "Grain function: t < 0.6 ? 0 : t < 1.2 ? 0.035·(t − 0.6)/0.6 : t < 6.1 ? 0.035 : t < 7.3 ? 0.035·(1 − (t − 6.1)/1.2) : 0. That means no grain while scene 03's Linen is still on screen, none on the bright amber fog, and none on the Linen dip. The label on the hero-film bottle reads 'eterno / wayne', so this tale is that bottle's story. Hex values are deliberately absent here; scene 06 labels the worlds. Check a full-size still at t = 6.0 with beat B hidden (maximum Wayne push): no black bar or rounded corner may appear. Keep the typographic apostrophe in 'Don’t'. Never use tale-mercury.jpg, tale-featured.jpg or the tale-desktop capture. Place text only in the dark areas named, never over the boat or the lamp. Conventions as in scene 01."
+  },
+  {
+   "id": "05",
+   "slug": "three-lines",
+   "title": "Three lines, one house",
+   "start": 45.9,
+   "duration": 9.4,
+   "purpose": "Show the house's structure at a glance: three lines, each with a person seen from behind, its own tone and its audience. Each photo arrives from its line tone, just as images load on the site.",
+   "background": "Linen #F3EFE7",
+   "visual": "BEAT A (0.6–3.42 s): Linen with the title only, one line at (120, 479), vertically centred. BEAT B (from 3.5 s): a full-bleed triptych of three portrait panels, each 638×1080, separated by 3 px Linen gaps: panel 1 x 0–638, panel 2 x 641–1279, panel 3 x 1282–1920. Each panel is a flat field of its line tone: Blush clay #E3CFC4, Sea slate #1F3F50, Bone #E9E4D3. Each photo sits in the TOP 638×850 of its panel (y 0–850), object-fit cover (the 1856×2304 sources render 684.7×850, about 47 px of width cropped): panel 1 reel/assets/img/line-eterna.jpg (a woman in a linen dress walking away through a stone arch into an olive garden), object-position 42% 50%; panel 2 line-eterno.jpg (a man from behind at a sea wall under a lavender dusk sky), 50% 50%; panel 3 line-eternal.jpg (a couple from behind on a stone terrace above the sea), 60% 50%, which keeps the couple at least 25 px from the panel's right edge at full push and crops the dark sliver on the source's right edge. Every photo starts at base scale 1.04 (this trims line-eterno's thin white border) and pushes 1.04→1.07 from its fade to the scene end, around its box centre (319, 425) (R.ease.inOut). All three figures stay whole above y 850; eterna's feet sit near y 715 at full push. The bottom 230 px of each panel (y 850–1080) is the tone field itself, which acts as the band that carries the text. There is no separate band element, gradient or border. In each band, text is inset 120 px from the panel's left edge and the tone caption is right-aligned 120 px from the panel's right edge, so all text stays inside x 120–1800.",
+   "onScreenText": [
+    {
+     "text": "Three lines, one house",
+     "style": "display-xl",
+     "appearAt": 0.9,
+     "holdUntil": 3.1,
+     "placement": "(120, 479), one line (1020 px). Cormorant Garamond 600, 120 px, line-height 1.02, tracking −0.01em, Night #171614."
+    },
+    {
+     "text": "eterna",
+     "style": "display-l",
+     "appearAt": 5.8,
+     "holdUntil": 9.4,
+     "placement": "Panel 1 band at (120, 868). Cormorant Garamond 600, 72 px, line-height 1.05, Night #171614."
+    },
+    {
+     "text": "for her",
+     "style": "eyebrow",
+     "appearAt": 6.1,
+     "holdUntil": 9.4,
+     "placement": "(120, 956). Instrument Sans 600, 18 px, uppercase, tracking 0.14em, Night at 75 % opacity."
+    },
+    {
+     "text": "Blush clay · #E3CFC4",
+     "style": "caption",
+     "appearAt": 6.1,
+     "holdUntil": 9.4,
+     "placement": "Right-aligned to x 518, top y 956. Instrument Sans 500, 18 px, tabular, Night at 75 %."
+    },
+    {
+     "text": "eterno",
+     "style": "display-l",
+     "appearAt": 5.92,
+     "holdUntil": 9.4,
+     "placement": "Panel 2 band at (761, 868). Cormorant Garamond 600, 72 px, Linen #F3EFE7."
+    },
+    {
+     "text": "for him",
+     "style": "eyebrow",
+     "appearAt": 6.22,
+     "holdUntil": 9.4,
+     "placement": "(761, 956). Same spec as 'for her', in Dune #CDBFA5."
+    },
+    {
+     "text": "Sea slate · #1F3F50",
+     "style": "caption",
+     "appearAt": 6.22,
+     "holdUntil": 9.4,
+     "placement": "Right-aligned to x 1159, top y 956. Same spec, Dune #CDBFA5."
+    },
+    {
+     "text": "eternal",
+     "style": "display-l",
+     "appearAt": 6.04,
+     "holdUntil": 9.4,
+     "placement": "Panel 3 band at (1402, 868). Cormorant Garamond 600, 72 px, Night #171614."
+    },
+    {
+     "text": "for both",
+     "style": "eyebrow",
+     "appearAt": 6.34,
+     "holdUntil": 9.4,
+     "placement": "(1402, 956). Same spec as 'for her', Night at 75 %."
+    },
+    {
+     "text": "Bone · #E9E4D3",
+     "style": "caption",
+     "appearAt": 6.34,
+     "holdUntil": 9.4,
+     "placement": "Right-aligned to x 1800, top y 956. Same spec, Night at 75 %."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "Runtime dip through Linen (1.2 s): the overlay covers the outgoing tale until 0.6 s, then clears to reveal this Linen scene."
+    },
+    {
+     "at": 0.9,
+     "action": "The title enters word by word: 24 px rise, 600 ms, emphasized, 80 ms stagger (4 words, complete at 1.74 s)."
+    },
+    {
+     "at": 3.1,
+     "action": "The title exits over 320 ms (gone by 3.42 s)."
+    },
+    {
+     "at": 3.5,
+     "action": "The three flat tone fields are revealed left→right by one soft light edge crossing the whole frame: R.softReveal(triptych, R.tween(t, 3.5, 1.2, R.ease.inOut), 100, 26). Complete at 4.7 s."
+    },
+    {
+     "at": 4.8,
+     "action": "The photos fade in over the top of their tone fields (the site's G7: images arrive from their colour): opacity 0→1 over 600 ms, standard, 120 ms apart (4.8 / 4.92 / 5.04 s). Each push starts with its fade."
+    },
+    {
+     "at": 5.8,
+     "action": "The line names rise 24 px over 600 ms, emphasized: eterna 5.8, eterno 5.92, eternal 6.04."
+    },
+    {
+     "at": 6.1,
+     "action": "Each panel's audience eyebrow and tone caption rise together, 16 px over 600 ms, standard, 120 ms apart by panel (6.1 / 6.22 / 6.34 s)."
+    },
+    {
+     "at": 6.94,
+     "action": "Hold. Only the three slow pushes move."
+    },
+    {
+     "at": 8.8,
+     "action": "Scene 06's crossfade begins (600 ms)."
+    }
+   ],
+   "assets": [
+    "reel/assets/img/line-eterna.jpg",
+    "reel/assets/img/line-eterno.jpg",
+    "reel/assets/img/line-eternal.jpg"
+   ],
+   "transitionIn": {
+    "type": "dip-to-linen",
+    "duration": 1.2
+   },
+   "grain": 0,
+   "notes": "People appear only from behind, as in these three photos; do not reframe toward any profile. The tone fields are the flat line tones from the colour system (tinted neutrals, not scent colours). Do not show scent counts (the site's counts disagree with the house's 43). Line names are always lowercase. Check a full-size still at t = 9.3 (full push): eterna's feet above y 850, the couple clear of panel 3's right edge, no white border on line-eterno. Grain 0. Conventions as in scene 01."
+  },
+  {
+   "id": "06",
+   "slug": "colour",
+   "title": "Colour",
+   "start": 54.7,
+   "duration": 10,
+   "purpose": "Show the palette as a discipline, then the idea that sells. First the ratio: neutrals do the work, Linen is most of every page, and Golden hour is a sliver. Second, each scent owns one colour world, honestly labelled where it is still a proposal.",
+   "background": "Linen #F3EFE7",
+   "visual": "The eyebrow 'Colour' at (120, 112) stays through both beats. BEAT A (0–4.92 s): the title 'Neutrals do the work.' at (120, 144). RATIO BAR: one bar at x 120–1800, y 292–532 (1680×240), four flat segments with no gaps: Linen #F3EFE7 70 % (x 120–1296), Night #171614 20 % (x 1296–1632), Sand #E4D9C5 6 % (x 1632–1732.8), Golden hour #B97A2B 4 % (x 1732.8–1800). A 1 px Dune #CDBFA5 outline runs around the whole bar, so the Linen segment reads as part of it on the Linen ground; that it looks mostly empty is the point. Each segment carries its share as a numeral 16 px in from its left edge, top at y 476 (listed below). The bar, its outline and its numerals form one layer. Under the bar at (120, 552) is the board's ratio line. SWATCH ROW: labels 'Neutrals' at (120, 660) and 'Accents' at (1432, 660). Chips are 184×140 at y 696–836, with no gaps inside a group. The neutrals sit at x = 120 + 184·i (Linen, Paper, Sand, Dune, Stone, Ash, Night; group x 120–1408). After a 24 px gap come the accents: Golden hour at x 1432 and Deep sea at x 1616 (ends at 1800). A 1 px Dune outline surrounds each group, plus a 1 px Dune rule at x 304 between the Linen and Paper chips. Under each chip, at the chip's x: its name at y 852 (Cormorant Garamond 500, 28 px, Night) and its hex at y 888 (Instrument Sans 500, 18 px, tabular, Ash). BEAT B (5.0–10.0 s): the heading 'Colour worlds — one per scent' in the title slot, and a 5×2 grid of flat colour-world tiles, each 316.8×328 with 24 px gutters. Columns sit at x 120, 460.8, 801.6, 1142.4 and 1483.2; rows at y 284 and 636 (the grid ends at y 964). Each tile is a flat field of the world's first colour, with a 56×56 chip of its second colour at the top-right (x = tile x + 236.8, y = tile y + 24). At the bottom-left, 24 px in: the scent name with its top at tile y + 232 (Cormorant Garamond 500, 34 px, line-height 1.1), and directly under it the status with its top at tile y + 276 (Instrument Sans 500, 20 px, full opacity). No hex values appear on the tiles. Text is Linen on the dark worlds (Shadow of the Sea, Wayne, Sapphire, Enzo 1898) and Night on the others. The Linen-world tile gets a 1 px Dune border. No packshots or bottles are drawn. In the texts below, ' | ' separates stacked lines and is never rendered.",
+   "onScreenText": [
+    {
+     "text": "Colour",
+     "style": "eyebrow",
+     "appearAt": 0.3,
+     "holdUntil": 10,
+     "placement": "(120, 112). Instrument Sans 600, 18 px, uppercase, tracking 0.14em, Ash #6D665C. Stays through both beats."
+    },
+    {
+     "text": "Neutrals do the work.",
+     "style": "display-l",
+     "appearAt": 0.4,
+     "holdUntil": 4.6,
+     "placement": "(120, 144), one line (668 px). Cormorant Garamond 600, 80 px, line-height 1.05, Night #171614."
+    },
+    {
+     "text": "70 | 20 | 6 | 4",
+     "style": "numeral",
+     "appearAt": 0.7,
+     "holdUntil": 4.6,
+     "placement": "Inside the ratio bar, top y 476, Cormorant Garamond 500, 40 px, tabular: '70' at x 136 (Night on Linen), '20' at x 1312 (Linen on Night), '6' at x 1648 (Night on Sand), '4' at x 1748.8 (Linen on Golden hour). Part of the bar layer, revealed with it by the light edge."
+    },
+    {
+     "text": "70 linen · 20 night · 6 sand · 4 golden hour",
+     "style": "caption",
+     "appearAt": 1.5,
+     "holdUntil": 4.6,
+     "placement": "(120, 552), one line (389 px). Instrument Sans 500, 20 px, tabular, tracking 0.02em, Ash #6D665C."
+    },
+    {
+     "text": "Neutrals",
+     "style": "eyebrow",
+     "appearAt": 1.8,
+     "holdUntil": 4.6,
+     "placement": "(120, 660). Instrument Sans 600, 17 px, uppercase, tracking 0.14em, Ash."
+    },
+    {
+     "text": "Accents",
+     "style": "eyebrow",
+     "appearAt": 2.3,
+     "holdUntil": 4.6,
+     "placement": "(1432, 660). Same spec as 'Neutrals'."
+    },
+    {
+     "text": "Linen | #F3EFE7",
+     "style": "caption",
+     "appearAt": 2,
+     "holdUntil": 4.6,
+     "placement": "Chip 1 (x 120): name at (120, 852), hex at (120, 888)."
+    },
+    {
+     "text": "Paper | #FAF8F3",
+     "style": "caption",
+     "appearAt": 2.06,
+     "holdUntil": 4.6,
+     "placement": "Chip 2: (304, 852) / (304, 888)."
+    },
+    {
+     "text": "Sand | #E4D9C5",
+     "style": "caption",
+     "appearAt": 2.12,
+     "holdUntil": 4.6,
+     "placement": "Chip 3: (488, 852) / (488, 888)."
+    },
+    {
+     "text": "Dune | #CDBFA5",
+     "style": "caption",
+     "appearAt": 2.18,
+     "holdUntil": 4.6,
+     "placement": "Chip 4: (672, 852) / (672, 888)."
+    },
+    {
+     "text": "Stone | #9E9382",
+     "style": "caption",
+     "appearAt": 2.24,
+     "holdUntil": 4.6,
+     "placement": "Chip 5: (856, 852) / (856, 888)."
+    },
+    {
+     "text": "Ash | #6D665C",
+     "style": "caption",
+     "appearAt": 2.3,
+     "holdUntil": 4.6,
+     "placement": "Chip 6: (1040, 852) / (1040, 888)."
+    },
+    {
+     "text": "Night | #171614",
+     "style": "caption",
+     "appearAt": 2.36,
+     "holdUntil": 4.6,
+     "placement": "Chip 7: (1224, 852) / (1224, 888)."
+    },
+    {
+     "text": "Golden hour | #B97A2B",
+     "style": "caption",
+     "appearAt": 2.42,
+     "holdUntil": 4.6,
+     "placement": "Chip 8 (accent): (1432, 852) / (1432, 888). Name 140 px wide."
+    },
+    {
+     "text": "Deep sea | #163A4E",
+     "style": "caption",
+     "appearAt": 2.48,
+     "holdUntil": 4.6,
+     "placement": "Chip 9 (accent): (1616, 852) / (1616, 888)."
+    },
+    {
+     "text": "Colour worlds — one per scent",
+     "style": "display-l",
+     "appearAt": 5,
+     "holdUntil": 10,
+     "placement": "(120, 144), one line (952 px). Cormorant Garamond 600, 80 px, line-height 1.05, Night."
+    },
+    {
+     "text": "Destiny | from the packshot",
+     "style": "caption",
+     "appearAt": 5.2,
+     "holdUntil": 10,
+     "placement": "Tile at (120, 284). Field #A9C4E4, chip #3F6FA8, Night text."
+    },
+    {
+     "text": "Caribbean Punch | from the packshot",
+     "style": "caption",
+     "appearAt": 5.26,
+     "holdUntil": 10,
+     "placement": "Tile at (460.8, 284). Field #F0E3CC, chip #D9843A, Night text."
+    },
+    {
+     "text": "Shadow of the Sea | proposed",
+     "style": "caption",
+     "appearAt": 5.32,
+     "holdUntil": 10,
+     "placement": "Tile at (801.6, 284). Field #0F2B3C, chip #C9D8DE, Linen text."
+    },
+    {
+     "text": "Forbidden Apple | proposed",
+     "style": "caption",
+     "appearAt": 5.38,
+     "holdUntil": 10,
+     "placement": "Tile at (1142.4, 284). Field #F1D3D6, chip #4F6B3F, Night text."
+    },
+    {
+     "text": "Wayne | proposed",
+     "style": "caption",
+     "appearAt": 5.44,
+     "holdUntil": 10,
+     "placement": "Tile at (1483.2, 284). Field #2B2A28, chip #B97A2B, Linen text."
+    },
+    {
+     "text": "Mercury | proposed",
+     "style": "caption",
+     "appearAt": 5.5,
+     "holdUntil": 10,
+     "placement": "Tile at (120, 636). Field #C7C3CE, chip #6F5E8A, Night text."
+    },
+    {
+     "text": "Sapphire | proposed",
+     "style": "caption",
+     "appearAt": 5.56,
+     "holdUntil": 10,
+     "placement": "Tile at (460.8, 636). Field #1B3F8F, chip #DCE6F5, Linen text."
+    },
+    {
+     "text": "Enzo 1898 | proposed",
+     "style": "caption",
+     "appearAt": 5.62,
+     "holdUntil": 10,
+     "placement": "Tile at (801.6, 636). Field #2F5A4E, chip #6B3A2B, Linen text."
+    },
+    {
+     "text": "Tonic Club | proposed",
+     "style": "caption",
+     "appearAt": 5.68,
+     "holdUntil": 10,
+     "placement": "Tile at (1142.4, 636). Field #DDE9C8, chip #3E5A2E, Night text."
+    },
+    {
+     "text": "Linen | proposed",
+     "style": "caption",
+     "appearAt": 5.74,
+     "holdUntil": 10,
+     "placement": "Tile at (1483.2, 636). Field #F2EFE8 with a 1 px Dune #CDBFA5 border, chip #9A968D, Night text."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "Crossfade in from the triptych (600 ms)."
+    },
+    {
+     "at": 0.3,
+     "action": "The eyebrow rises 16 px over 600 ms. From 0.4 s the title rises word by word (24 px, 600 ms, emphasized, 80 ms stagger; 4 words, complete 1.24 s)."
+    },
+    {
+     "at": 0.7,
+     "action": "The ratio bar (with its outline and numerals) is revealed left→right by a soft light edge: R.softReveal(bar, R.tween(t, 0.7, 1.2, R.ease.inOut), 100, 26). Complete at 1.9 s."
+    },
+    {
+     "at": 1.5,
+     "action": "The ratio line rises 16 px over 600 ms, standard."
+    },
+    {
+     "at": 1.8,
+     "action": "The 'Neutrals' label rises. Chips fade 0→1 left→right over 600 ms, standard, starting at 1.9 + 0.06·i (i = 0…8; accents at 2.32 and 2.38). Each chip's name and hex rise 16 px 0.1 s after its chip. 'Accents' rises at 2.3. All complete by 3.08 s."
+    },
+    {
+     "at": 3.1,
+     "action": "Hold. Nothing moves."
+    },
+    {
+     "at": 4.6,
+     "action": "Beat A leaves: title, bar, ratio line, row labels, chips and chip labels fade out over 320 ms with exit easing. The 'Colour' eyebrow stays."
+    },
+    {
+     "at": 5,
+     "action": "The heading rises word by word (24 px, 600 ms, emphasized, 80 ms stagger; 6 spans including the dash, complete 6.0 s)."
+    },
+    {
+     "at": 5.2,
+     "action": "The tiles, each with its chip and text, fade in and rise 16 px over 600 ms, standard, in reading order (row 1 left→right, then row 2), 60 ms apart (last starts 5.74, complete 6.34 s)."
+    },
+    {
+     "at": 6.34,
+     "action": "Hold on the grid. Nothing moves."
+    },
+    {
+     "at": 9.4,
+     "action": "Scene 07's crossfade begins (600 ms)."
+    }
+   ],
+   "assets": [],
+   "transitionIn": {
+    "type": "crossfade",
+    "duration": 0.6
+   },
+   "grain": 0,
+   "notes": "All names, hex values and the ratio line are verbatim from the direction board. World names use the site's title case. The 'from the packshot' and 'proposed' statuses are mandatory: eight of the ten worlds are proposals for the packaging team, and the film must not present them as final. Hex pairs are deliberately off the tiles: the chip shows the second colour, and beat A carries the system's hex values. Line labels are also left off the tiles. No packshots and no product cards; do not use the shop capture (prices, badges, empty cards). Grain 0. Conventions as in scene 01."
+  },
+  {
+   "id": "07",
+   "slug": "typography",
+   "title": "Typography",
+   "start": 64.1,
+   "duration": 6.2,
+   "purpose": "Let the client hear the type's voice at size, in real brand lines: a calligraphic serif for what should be felt, and a quiet, narrow sans for everything that sells.",
+   "background": "Linen #F3EFE7",
+   "visual": "Linen. Everything is left-aligned at x 120 in three rows, separated by 1 px Dune #CDBFA5 hairlines running x 120–1800 at y 480 and y 680. Row 1 (y 256–421): role label, then the Display XL specimen (1476 px wide, x 120–1596). Row 2 (y 520–633): role label, then the Signature specimen (990 px). Row 3 (y 720–826), left: the UI role label and two real site buttons with radius 0. The primary button is a Night #171614 fill, 320×64 at (120, 762), with 'Shop the collection' centred in Linen. The secondary is transparent with a 1 px Night border, 260×64 at (464, 762), with 'Find your scent' centred in Night. Row 3, right, from x 1000: the Eyebrow role label and an eyebrow specimen. The rest is generous empty Linen.",
+   "onScreenText": [
+    {
+     "text": "Typography",
+     "style": "eyebrow",
+     "appearAt": 0.4,
+     "holdUntil": 6.2,
+     "placement": "(120, 150). Instrument Sans 600, 18 px, uppercase, tracking 0.14em, Ash #6D665C."
+    },
+    {
+     "text": "Display XL · Cormorant Garamond 600",
+     "style": "eyebrow",
+     "appearAt": 0.6,
+     "holdUntil": 6.2,
+     "placement": "(120, 256). Instrument Sans 600, 17 px, uppercase, tracking 0.14em, Ash."
+    },
+    {
+     "text": "Composed to be remembered.",
+     "style": "display-xl",
+     "appearAt": 0.7,
+     "holdUntil": 6.2,
+     "placement": "(120, 290), one line (1476 px). Cormorant Garamond 600, 128 px, line-height 1.02, tracking −0.01em, Night #171614."
+    },
+    {
+     "text": "Signature · Cormorant Garamond 500 italic",
+     "style": "eyebrow",
+     "appearAt": 1.4,
+     "holdUntil": 6.2,
+     "placement": "(120, 520). Same spec as the row 1 label."
+    },
+    {
+     "text": "He looks like money was never the problem.",
+     "style": "signature",
+     "appearAt": 1.5,
+     "holdUntil": 6.2,
+     "placement": "(120, 556), one line (990 px). Cormorant Garamond 500 italic, 64 px, line-height 1.2, Night."
+    },
+    {
+     "text": "UI · Instrument Sans 500/600",
+     "style": "eyebrow",
+     "appearAt": 2.2,
+     "holdUntil": 6.2,
+     "placement": "(120, 720). Same spec as the row 1 label."
+    },
+    {
+     "text": "Shop the collection",
+     "style": "body",
+     "appearAt": 2.4,
+     "holdUntil": 6.2,
+     "placement": "Centred in the Night button at (120, 762), 320×64. Instrument Sans 600, 18 px, tracking 0.04em, Linen #F3EFE7."
+    },
+    {
+     "text": "Find your scent",
+     "style": "body",
+     "appearAt": 2.52,
+     "holdUntil": 6.2,
+     "placement": "Centred in the outline button at (464, 762), 260×64. Instrument Sans 600, 18 px, tracking 0.04em, Night."
+    },
+    {
+     "text": "Eyebrow · Instrument Sans 600 uppercase",
+     "style": "eyebrow",
+     "appearAt": 2.2,
+     "holdUntil": 6.2,
+     "placement": "(1000, 720). Same spec as the row 1 label."
+    },
+    {
+     "text": "A tale from eterno",
+     "style": "eyebrow",
+     "appearAt": 2.64,
+     "holdUntil": 6.2,
+     "placement": "(1000, 782). Instrument Sans 600, 22 px, uppercase, tracking 0.14em, Night: the eyebrow specimen at size."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "Crossfade in from the colour-world grid (600 ms); the Linen ground carries through."
+    },
+    {
+     "at": 0.4,
+     "action": "The 'Typography' eyebrow rises 16 px over 600 ms, standard."
+    },
+    {
+     "at": 0.6,
+     "action": "The row 1 label rises 16 px. From 0.7 s the display specimen rises word by word (24 px, 600 ms, emphasized, 80 ms stagger; 4 words, complete 1.54 s)."
+    },
+    {
+     "at": 1.2,
+     "action": "Hairline 1 draws left→right from x 120 to 1800 over 600 ms, standard."
+    },
+    {
+     "at": 1.4,
+     "action": "The row 2 label rises. From 1.5 s the signature specimen rises word by word (8 words, complete 2.66 s)."
+    },
+    {
+     "at": 2,
+     "action": "Hairline 2 draws left→right over 600 ms."
+    },
+    {
+     "at": 2.2,
+     "action": "The row 3 labels rise. The buttons (box and label together) rise 16 px and fade in at 2.4 s and 2.52 s, then the eyebrow specimen at 2.64 s; each takes 600 ms, standard."
+    },
+    {
+     "at": 3.24,
+     "action": "Hold. Nothing moves."
+    },
+    {
+     "at": 5.6,
+     "action": "Scene 08's crossfade begins (600 ms)."
+    }
+   ],
+   "assets": [
+    "reel/fonts (Cormorant Garamond 500, 600, 500 italic; Instrument Sans 400, 500, 600)"
+   ],
+   "transitionIn": {
+    "type": "crossfade",
+    "duration": 0.6
+   },
+   "grain": 0,
+   "notes": "Use the real web fonts from reel/fonts via reel.css; the runtime preloads them before the first frame. The specimens are brand copy: 'Composed to be remembered.' is the house line, and 'He looks like money was never the problem.' is the Enzo 1898 tale line on the storefront. No Arabic specimen (its copy is an unreviewed placeholder) and no price sample, including in the UI row. Buttons have no hover state, no shadow and radius 0. Grain 0. Conventions as in scene 01."
+  },
+  {
+   "id": "08",
+   "slug": "motion",
+   "title": "Motion",
+   "start": 69.7,
+   "duration": 6,
+   "purpose": "Name motion as part of the direction, not just something the film does. Two of the motion board's six rules each appear beside their own demonstration: the mark drawing alone (the site's loader), then a photograph rising out of its colour world (how every image loads on the site).",
+   "background": "Linen #F3EFE7, with a #2B2A28 panel on the right",
+   "visual": "Linen ground in the 5/7 asymmetry. RIGHT panel: x 800–1920, y 0–1080 (1120×1080), bleeding off the right, top and bottom, radius 0, overflow hidden. It is a flat field of #2B2A28, the site's own After dark colour (its placeholder wash in content/taxonomy.ts). Inside it, bottom to top: (a) the e∞ mark, R.mark(panel, {x: 440, y: 480, width: 240, color: Linen #F3EFE7, stroke: 3}) — panel-local; stage x 1240–1480, y 480–600, centred on the panel's centre (1360, 540); stroke 3 renders 7.5 px, the same mark as scene 01; (b) reel/assets/img/mood-after-dark.jpg (resin and a glowing incense stick on dark stone in low warm light, a thread of smoke), object-fit cover (2400×1792 → 1446×1080), object-position 55% 50%, opacity 0 until 3.9 s, pushing 1.00→1.03 from 3.9 to 6.0 s around the panel centre (R.ease.inOut). LEFT (x 120–720): the eyebrow and the two rules, one line each, as a block spanning y 402–678 and centred on 540.",
+   "onScreenText": [
+    {
+     "text": "Motion",
+     "style": "eyebrow",
+     "appearAt": 0.5,
+     "holdUntil": 6,
+     "placement": "(120, 402). Instrument Sans 600, 18 px, uppercase, tracking 0.14em, Ash #6D665C."
+    },
+    {
+     "text": "One thing at a time.",
+     "style": "display-l",
+     "appearAt": 0.6,
+     "holdUntil": 6,
+     "placement": "(120, 442), one line (554 px). Cormorant Garamond 600, 72 px, line-height 1.05, tracking −0.01em, Night #171614."
+    },
+    {
+     "text": "Light, not decoration.",
+     "style": "display-l",
+     "appearAt": 3,
+     "holdUntil": 6,
+     "placement": "(120, 602), one line (600 px, ends x 720). Same spec as the first rule."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "Crossfade in from the type specimen (600 ms). The panel is flat #2B2A28 and the mark is undrawn."
+    },
+    {
+     "at": 0.5,
+     "action": "The eyebrow rises 16 px over 600 ms, standard."
+    },
+    {
+     "at": 0.6,
+     "action": "'One thing at a time.' rises word by word (24 px, 600 ms, emphasized, 80 ms stagger; 5 words, complete 1.52 s)."
+    },
+    {
+     "at": 1.6,
+     "action": "The e∞ mark draws in one stroke over 1200 ms: R.drawMark(mark, R.tween(t, 1.6, 1.2, R.ease.emphasized)), as the site's loader does (G1). Nothing else moves."
+    },
+    {
+     "at": 2.8,
+     "action": "The finished mark holds still."
+    },
+    {
+     "at": 3,
+     "action": "'Light, not decoration.' rises word by word (3 words, complete 3.76 s)."
+    },
+    {
+     "at": 3.9,
+     "action": "The After dark photo fades in from its colour over 1200 ms, standard, covering the mark: images arrive from their colour world (G7), like light coming up on stone. Its slow push starts."
+    },
+    {
+     "at": 5.1,
+     "action": "Hold. Only the slow push moves."
+    },
+    {
+     "at": 5.4,
+     "action": "Scene 09's crossfade begins (600 ms), the way the site's page arrives after its loader."
+    }
+   ],
+   "assets": [
+    "reel/assets/img/mood-after-dark.jpg",
+    "components/ui/Wordmark.tsx",
+    "content/taxonomy.ts"
+   ],
+   "transitionIn": {
+    "type": "crossfade",
+    "duration": 0.6
+   },
+   "grain": 0,
+   "notes": "Both lines are verbatim rule names from the motion map's 'Six rules'. Each rule finishes before its demonstration starts, so the scene obeys what it says: the rule rises, then the mark draws; the second rule rises, then the photo arrives. The mark never spins, scales or pulses. Put no spec IDs, durations or tokens on screen. The same After dark photo also appears small among the mood tiles in scene 09, which is fine. Grain 0: runtime grain is full-frame and would fall on the Linen column. Conventions as in scene 01."
+  },
+  {
+   "id": "09",
+   "slug": "storefront-desktop",
+   "title": "The storefront",
+   "start": 75.1,
+   "duration": 7.6,
+   "purpose": "Depth of proof. The client sees two more real pages in a quiet browser frame, the tales and the moods, carrying the same light and photographs they have just felt.",
+   "background": "Sand #E4D9C5",
+   "visual": "Sand ground. A browser window, R.browser(root, {x: 600, y: 212, w: 1200, h: 661}): a Paper #FAF8F3 top bar of 44 px with three hairline dots, a 1 px Dune #CDBFA5 outline, radius 0, no shadow, no URL text. Its viewport is 1200×617 at stage (600, 256). Captures are placed with R.capture(viewport, name, 1440) at scale 0.8333, showing 740 css rows. W1: tales-desktop.scroll(36), showing css 36–776: the header, 'Tales', 'One story per bottle.', its sub-line, and the featured Shadow of the Sea tale (photo, eyebrow, title, excerpt, 'Read the tale'). W2: home-desktop, drifting from css 4700 to 4870. It starts on the site's own '03 / Shop by mood' heading, 'For when you know the feeling but not the notes.' and the six mood tiles. It ends with the heading out of frame and a clean Linen margin above the six tiles (Sea air, Golden hour, After dark, Fresh linen, Warm skin, Wild garden; css 4905–5540), all fully in view; the viewport bottom is at css 5611, above 'Try before you commit' (5665). Windows change by crossfade inside the viewport only (the site's G2); the frame never moves. The left column (x 120–520) holds a fixed eyebrow and one page name per window. There are no index numerals, because the pages carry their own.",
+   "onScreenText": [
+    {
+     "text": "The storefront",
+     "style": "eyebrow",
+     "appearAt": 0.6,
+     "holdUntil": 7.6,
+     "placement": "(120, 256). Instrument Sans 600, 18 px, uppercase, tracking 0.14em, Ash #6D665C. Stays through the scene and continues identically in scene 10."
+    },
+    {
+     "text": "Tales",
+     "style": "display-l",
+     "appearAt": 0.8,
+     "holdUntil": 3.4,
+     "placement": "(120, 300). Cormorant Garamond 600, 64 px, line-height 1.05, Night #171614."
+    },
+    {
+     "text": "Shop by mood",
+     "style": "display-l",
+     "appearAt": 3.8,
+     "holdUntil": 7.6,
+     "placement": "(120, 300), one line (356 px). Same spec as 'Tales'."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "Crossfade in from the Motion scene (600 ms). The browser, already showing W1, fades in and rises 16 px from 0.2 to 0.8 s (600 ms, emphasized)."
+    },
+    {
+     "at": 0.6,
+     "action": "The eyebrow rises 16 px. At 0.8 s 'Tales' rises 24 px over 600 ms, emphasized, as one unit."
+    },
+    {
+     "at": 3.4,
+     "action": "W1→W2 crossfade inside the viewport (600 ms, standard). 'Tales' exits over 320 ms; 'Shop by mood' rises as one unit at 3.8 s."
+    },
+    {
+     "at": 4.3,
+     "action": "W2 drifts from css 4700 to 4870 (142 stage px) over 2400 ms, standard. This is the only motion on screen."
+    },
+    {
+     "at": 6.7,
+     "action": "Hold on the six mood tiles."
+    },
+    {
+     "at": 7,
+     "action": "Scene 10's crossfade begins (600 ms). The browser dissolves while the Sand ground and the eyebrow stay put."
+    }
+   ],
+   "assets": [
+    "reel/assets/site/tales-desktop.jpg",
+    "reel/assets/site/home-desktop.jpg"
+   ],
+   "transitionIn": {
+    "type": "crossfade",
+    "duration": 0.6
+   },
+   "grain": 0,
+   "notes": "Offsets are checked against the captures. Never show css < 36 (the blank announcement bar). In home-desktop stay inside css 4700–5611: the rows above hold the tale band's inspired-by metadata and the priced bestseller cards. In tales-desktop stay above css 776. The house page is not used: its step copy ends in placeholders and carries an unconfirmed claim. Product cards must not appear. Do not retouch the captures or add cursors, taps or highlights. Grain 0. Conventions as in scene 01."
+  },
+  {
+   "id": "10",
+   "slug": "storefront-mobile",
+   "title": "Mobile first",
+   "start": 82.1,
+   "duration": 7.4,
+   "purpose": "Proof on the device the direction designs for first: two real mobile pages side by side, one still on the house, one drifting through the tales.",
+   "background": "Sand #E4D9C5",
+   "visual": "Sand ground. The left column keeps scene 09's eyebrow in the same place and adds a two-line headline. Two minimal phones sit on the right: R.phone(root, {x, y: 148, h: 784, bezel: 12}), each a Night #171614 body of 375×784 with the runtime's default rounded corners and a 351×760 screen. No notch, buttons, reflections, shadow or outline. Phone A is at x 920 (920–1295); phone B at x 1425 (1425–1800). Screens show R.capture(screen, 'home-mobile', 390) at scale 0.9, with 844 css rows visible. Phone A: scroll(7565), static, showing css 7565–8409: a thin Linen strip, then the Night house band (the house film poster with its play control hidden in the capture, 'THE HOUSE', 'Composed to be remembered.', its paragraph and 'Our story'), then Linen below. It ends before the 'Tales' heading, whose glyphs start at css 8417. Phone B: scroll drifts from 8380 to 9000. It starts on 'Tales', 'All tales' and the Wayne card with its line, and ends on the Enzo 1898 and Forbidden Apple cards with their signature lines (css 9000–9844, above the Join band at 9885).",
+   "onScreenText": [
+    {
+     "text": "The storefront",
+     "style": "eyebrow",
+     "appearAt": 0,
+     "holdUntil": 7.4,
+     "placement": "(120, 256). Identical to scene 09 and present from frame 0 with no entrance, so it reads as fixed through the crossfade."
+    },
+    {
+     "text": "Mobile is the primary device.",
+     "style": "display-l",
+     "appearAt": 0.9,
+     "holdUntil": 7.4,
+     "placement": "Two line blocks: 'Mobile is the' at (120, 300) (320 px); 'primary device.' at (120, 367) (377 px). Cormorant Garamond 600, 64 px, line-height 1.05, Night #171614."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "Crossfade in from the browser (600 ms). The Sand ground and the eyebrow stay."
+    },
+    {
+     "at": 0.2,
+     "action": "Phone A fades in and rises 16 px (600 ms, emphasized). Phone B follows at 0.32 s."
+    },
+    {
+     "at": 0.9,
+     "action": "The headline rises word by word across its two lines (24 px, 600 ms, emphasized, 80 ms stagger; 5 words, complete 1.82 s)."
+    },
+    {
+     "at": 1.9,
+     "action": "Phone B scrolls from css 8380 to 9000 over 4000 ms: a 600 ms sine ease-in, then constant speed (about 174 css px/s, 157 stage px/s), then a 600 ms sine ease-out. Phone A stays still, so only one thing moves."
+    },
+    {
+     "at": 5.9,
+     "action": "Phone B rests on the tale cards."
+    },
+    {
+     "at": 6.2,
+     "action": "Scene 11's runtime light-wipe (1.2 s) begins."
+    }
+   ],
+   "assets": [
+    "reel/assets/site/home-mobile.jpg"
+   ],
+   "transitionIn": {
+    "type": "crossfade",
+    "duration": 0.6
+   },
+   "grain": 0,
+   "notes": "home-mobile was re-captured: reel/tools/capture-site.mjs now hides the house film's play control, because that film is still '[video to add]'. A pixel diff against the old capture shows no change inside the ranges used here. Never show css < 7560 on phone A (the rows above hold the discovery and mystery-box offer with prices), nor anything past css 9844 on phone B (the Join band starts at css 9885, and the footer follows). Do not use the mobile hero (its headline is clipped in the capture), pdp-mobile (blank) or finder-mobile (it shows finder-who-either.jpg). The headline is a rule from the motion map. Before the meeting, confirm with the owner the house paragraph visible on phone A ('…tested on skin for lasting power, bottled in Cairo, told through a tale. Inspired by, never imitated.'); the house page still marks the wear-test method as a placeholder. Grain 0. Conventions as in scene 01."
+  },
+  {
+   "id": "11",
+   "slug": "never-meant-to-fade",
+   "title": "Never meant to fade",
+   "start": 88.3,
+   "duration": 6.4,
+   "purpose": "Return to the light the film opened on and sign it with the wordmark and the tagline, the promise the whole direction serves. The last frame is the end card that stays on screen for the conversation.",
+   "background": "The hero film full-bleed over Night #171614",
+   "visual": "The hero film returns full-bleed with the same framing as scene 01: two blended R.film(root, {x: 0, y: 0, w: 1920, h: 1080}) images at τ = t from t = 0 (a seamless 24 fps loop at native speed). The bottle stands at x 1222–1492, y 333–740. Both images push scale 1.00→1.03 over 0–6.4 s (R.ease.inOut), transform-origin 70.8% 50%. Scene 01's left scrim fades in over it: linear-gradient(90deg, rgba(23,22,20,.50) 0%, rgba(23,22,20,.28) 38%, rgba(23,22,20,0) 62%). The wordmark, a short hairline and the tagline sit on the left in the open sea (x 120–805), around the vertical centre (block y 380–678), and never cross the bottle. The hairline is Dune #CDBFA5, 64×1 px, running x 124–188 at y 590. The film keeps breathing under the text to the very last frame. There is no fade to black: the final frame is the end card.",
+   "onScreenText": [
+    {
+     "text": "eternal",
+     "style": "wordmark",
+     "appearAt": 1.4,
+     "holdUntil": 6.4,
+     "placement": "Box top-left at (120, 380), lowercase. Cormorant Garamond 600, 168 px, line-height 1, tracking 0.02em, Linen #F3EFE7 (485 px wide)."
+    },
+    {
+     "text": "Some things are never meant to fade.",
+     "style": "signature",
+     "appearAt": 2.7,
+     "holdUntil": 6.4,
+     "placement": "(124, 616), one line (681 px, ends x 805). Cormorant Garamond 500 italic, 52 px, line-height 1.2, Linen #F3EFE7 at 92 %."
+    }
+   ],
+   "beats": [
+    {
+     "at": 0,
+     "action": "The runtime light-wipe (1.2 s) moves a soft edge left→right, carrying the phones off and revealing the hero film. The film push starts."
+    },
+    {
+     "at": 0.6,
+     "action": "The left scrim fades in over 1200 ms, standard."
+    },
+    {
+     "at": 1.4,
+     "action": "The wordmark fades in and rises 24 px over 1200 ms, emphasized, as one unit, never letter by letter."
+    },
+    {
+     "at": 2.4,
+     "action": "The hairline draws left→right over 600 ms, standard."
+    },
+    {
+     "at": 2.7,
+     "action": "The tagline rises word by word (24 px, 600 ms, emphasized, 80 ms stagger; 7 words, complete 3.78 s)."
+    },
+    {
+     "at": 3.8,
+     "action": "Hold to the end. Only the water and the slow push move."
+    },
+    {
+     "at": 6.4,
+     "action": "The film ends on this frame (94.7 s) with the wordmark and tagline fully visible."
+    }
+   ],
+   "assets": [
+    "reel/assets/film/001.jpg … 133.jpg (frames of public/videos/home-hero.mp4)",
+    "reel/assets/img/home-hero.jpg"
+   ],
+   "transitionIn": {
+    "type": "light-wipe",
+    "duration": 1.2
+   },
+   "grain": 0.035,
+   "notes": "Grain function: t < 0.9 ? 0 : min(0.035, 0.035·(t − 0.9)/0.6), so no grain lands on scene 10's Sand while the wipe passes. This is the last scene, so it must render its final state at exactly t = 6.4 (the runtime includes the last frame). The wordmark is set as type in the same face as components/ui/Wordmark.tsx: Cormorant Garamond 600, lowercase, tracking 0.02em. Do not add the e∞ mark, a URL, a call to action or any claim. This bookends scene 01 with the same film, framing and scrim; use the frame blending from scene 01's conventions. Conventions as in scene 01."
+  }
+ ]
+}
