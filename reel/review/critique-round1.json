@@ -1,0 +1,704 @@
+{
+ "strengths": "brand-type: - The opening works. The e∞ mark draws in one stroke on Night, a soft light edge reveals the bottle on wet stone, and the \"Salt, stone / and golden hour.\" break sits in open sea, well clear of the bottle (5.5 s). The end card (94.5 s) closes on the same film and scrim, so the film is bookended.\n- Colour tokens survive the encode. Linen, Night, Golden hour, Sea slate, Blush and Deep sea all sample within 3 of their hex values. Golden hour is the only warm accent outside the scent worlds. Eyebrows follow one rule: 18 px, 0.14em caps, Ash on light grounds and Dune on dark.\n- The left margin at x 120 holds all through the film, including optical corrections: the italic Y and d in 04B are hung so their ink lines up with the eyebrow. Display kerning in Cormorant is clean at 120–168 px, with the Th ligature in \"Three\", and the è in \"Matière\" is correct.\n- Photography mostly feels like one hour of light: the plaster wall, salt on wet stone, the boat in amber fog, the triptych and the after-dark resin. Pushes stay small and slow.\n- Colour (06) is the strongest system slide. The 70/20/6/4 bar works as the picture, and the scent worlds are honestly labelled \"from the packshot\" or \"proposed\". The triptych uses the three line tones as text bands with no extra boxes, which is exactly the direction's \"hairlines, not boxes\".\n- The type specimen (07) uses real brand lines. The buttons have radius 0 and no shadow. There are no badges, cursors or effects anywhere.\n\nmotion-pacing: - The opening is confident and unhurried. There are 0.25 s of Night, then the e∞ mark draws in one even stroke (0.3–1.4 s) and holds 0.5 s. A light edge then reveals the bottle (1.95–2.9 s), and the headline lands word by word at 3.6–4.5 s, over water that is already moving. Do not speed this up.\n- The hero film never stutters. The 30 fps frame blending of the 24 fps loop gives uniform frame-to-frame change (mean abs diff about 0.77 through 4–7 s and 89.5–94.7 s). The loop seams at 5.54 s and 93.84 s measure 0.85–0.88, within the film's normal frame-to-frame variation (similar peaks at 5.33 and 93.63). They are invisible. In scene 02 the water continues on scene 01's clock with no jump.\n- The 03→04 light-wipe (33.8–35.0) is the best cut in the film. The Wayne field, chip and watermark are pixel-identical in both scenes, so only the left of the frame changes as the light passes. Keep that match exactly.\n- The entrance grammar is consistent across all 11 scenes: 24 px emphasized rise for display words and 16 px standard for small type, an 80 ms word stagger, and fade-only exits. Nothing snaps. Word rises settle without sub-pixel stepping.\n- Pushes and scrolls are smooth. Per-frame diffs during the P1–P3 pushes, the boat push and both storefront drifts are even (for example 0.26–0.34 across 27.0–27.6). Phone B's scroll has a clean sine ease-in and ease-out and no judder.\n- The close bookends the opening with the same framing, scrim and push. The water keeps breathing under the wordmark to the last frame, and the last frame (94.67) is the end card. It is a beautiful end card.\n- Principles 1–3 are revealed by a soft light edge, with the words rising as the light settles. This demonstrates the direction's motion language while presenting it.\n\nfinishing-qa: Compliance is clean. No scene loads og-image, house-founder, tale-mercury, finder-time-both or finder-who-either. Every person is seen from behind: I zoomed in on the couple, the eterno man, the fisherman and the Forbidden Apple figure. The captures show no prices, no brackets, no blank announcement bar and no product cards, and there is no Arabic anywhere. Every tale line, house line and site line matches content/tales.ts, content/scents.ts and components/home/Sections.tsx exactly, and the board lines match the direction boards. All text sits inside title-safe.\n\nColour survives the encode. On every flat field I sampled, the brand hex values in the MP4 are within 1–3 code values: Linen 242/237/230, Night 22/22/19, Golden hour 184/120/42, Deep sea 20/57/76, and all ten world tiles. The 1 px Dune hairlines stay single-pixel and crisp.\n\nThe encode is clean in time. There are no one-frame glitches and no keyframe pop at the segment joins (31.57 s, 63.13 s). Hold frames are truly static (diff 0.00). The hero-film loop seam (5.54 s, 11.08 s, 93.84 s) is invisible, and the grain on Night survives with no blocking. Frame 0 is Night with grain, and the last frame (94.667 s) is the full end card: wordmark, hairline and tagline.\n\nMotion that works:\n- The mark draws cleanly.\n- No push reveals an image edge.\n- The P3 light band sweeps with no seam.\n- The P4 chip and watermark stay in register through the wipe into scene 04.\n- The Wayne photo shows no bars or rounded corners at full push, and line-eterno shows no white border.\n- The storefront scroll ranges stay inside their safe css offsets.\n\nKeep all of this while fixing.\n\nclient-eye: As the owner, a lot of this feels like my house and I want it kept.\n\n- **Opening (0–7 s).** Near-black, one stroke of light, then my Wayne bottle on wet stone at golden hour with \"Salt, stone and golden hour.\" set in the open sea. It is expensive and calm, and nothing crosses the bottle.\n- **Ending (89.5–94.7 s).** The film comes back to the same light and holds the wordmark and \"Some things are never meant to fade.\" as the end card. It is a proper bookend and a strong frame to leave up in the room.\n- **Shadow of the Sea (41–45.9 s).** The boat in amber fog, full-bleed with the italic line over the dark water, is the emotional peak. The tale lines are my real lines, typeset beautifully.\n- **Three lines triptych (51–54.7 s).** Each person is seen from behind, each photo sits on its tone band, and the names are lowercase. It is instantly clear and it is the loveliest frame after the opening.\n- **Honest colour worlds (60–64 s).** The ratio bar makes the discipline tangible, and each world is labelled \"from the packshot\" or \"proposed\". I trust an agency that does not pretend proposals are final.\n- **Real site pages.** The tales page and the mood tiles (76–82 s) and the two phones (82–89 s) are sharp and legible at full size. The film really does look like the site.\n- **Motion that practises what it preaches.** Slow pushes, word rises, soft light reveals, no gimmicks. The film loop seam is invisible.\n\nKeep:\n- the opening and closing frames\n- the fog-boat beat\n- the triptych\n- the \"proposed\" labels\n- the unhurried rhythm",
+ "findings": [
+  {
+   "scene": "already-applied",
+   "time": 12.5,
+   "severity": "major",
+   "problem": "In the 'already applied' proof, the storefront's own H1, 'Some things are never meant to fade.', runs straight across the Wayne bottle. 'meant to' covers the lower half of the label for about 4.4 s (capture fully in around 11.2 s, crossfade out at 14.4 s). Scene 01 takes care that no text crosses the bottle; here, in the first proof that the site is built, the product sits under a headline. The capture's H1 is also about 67 px on stage, larger than the film's own 60 px sentence beside it, so the screenshot outshouts the film's statement.",
+   "evidence": "Encoded frame reel/review/sheets/eternal-direction-draft1-12.50s.jpg: the headline baseline sits at about y 685 and runs x 857–1775. The bottle stands at about x 1450–1610, y 475–710. The words 'meant to' pass over the 'wayne' part of the label. The storyboard note for 02 admits the site flaw ('headline crossing the bottle at 1440 px', flagged to the site team), but the film shows it anyway.",
+   "fix": "Preferred: re-capture site/home-desktop-hero-clear.webp with reel/tools/capture-hero-clear.mjs after limiting the hero h1 to the direction's text-5 column (max-width about 620 css px), so it breaks as 'Some things are never / meant to fade.' to the left of the bottle. This is the site fix already flagged. If the site cannot change before the meeting: in scenes/already-applied.js, move both blended R.film images up inside the viewport, from {x: -55.6, y: -25} to {x: -55.6, y: -105}. The 625 px tall film still covers the 509 px viewport, and the bottle (then about y 395–630) stands above the headline instead of behind it.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "one-story-per-bottle",
+   "time": 37,
+   "severity": "major",
+   "problem": "The signature role, 'the one line from the tale', changes size every time it appears: 50 px for the Wayne line (04A), 64 px for the sea line six seconds later (04B), 64 px in the typography specimen (07) and 52 px for the end-card tagline (11). The two tale quotes back to back in the film's emotional core are visibly different sizes. At 50 px the Wayne line fills only 515 px of its 638 px column next to a 970×840 photograph, so it reads as a caption rather than the line of the tale.",
+   "evidence": "Encoded frame at 37.00 s: 'Don’t be the man she notices.' runs x 1162–1676 at 50 px italic. At 44.00 s, 'You can smell the ones the sea' is at 64 px. At 94.50 s the tagline is 52 px. The code confirms it: scenes/one-story-per-bottle.js calls signature(textA, l, 50) and signature(layerB, l, 64); never-meant-to-fade.js uses size 52; typography.js uses size 64.",
+   "fix": "Use one signature size, 60 px (line-height 1.2), for all quote moments. In 04A, set both lines to 60 px at (1162, 486) and (1162, 558); the widest ends near x 1780, inside title-safe, and the eyebrow stays at y 456, so the block still centres on the photo's midline. In 04B, set 60 px with lines at y 812 and 884 and re-measure the optical x offsets. Then apply the same size in typography.js (the signature specimen, 64 → 60) and in never-meant-to-fade.js (tagline 52 → 60; it ends near x 910, still more than 300 px clear of the bottle).",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "already-applied",
+   "time": 10.5,
+   "severity": "minor",
+   "problem": "The board's key sentence breaks against its own parallel structure: 'Quiet enough to feel / expensive, warm enough / to feel like Cairo / in October.' Each line ending splits a phrase ('to feel / expensive', 'enough / to feel'), and the rag steps down to a stub. At 60 px it is also smaller than the site headline in the browser beside it.",
+   "evidence": "Encoded frame at 12.50 s: the four lines end at about x 592, 680, 500 and 384. The rag goes long, longer, short, stub, and the break falls mid-phrase twice.",
+   "fix": "In scenes/already-applied.js, reset the text as four blocks that echo each other: 'Quiet enough to feel' / 'expensive,' / 'warm enough to feel' / 'like Cairo in October.' Use 64 px (the statement size used in 09 and 10), line-height 1.05, lines at y 424, 491, 558 and 625, with the eyebrow at (120, 388). The block then centres on y 540, and the widest line (about 545 px) ends near x 665, inside the 5-column text area.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "one-story-per-bottle",
+   "time": 44,
+   "severity": "minor",
+   "problem": "Beat B has two type faults. First, the line break 'You can smell the ones the sea / decided to give back.' splits the subject from its verb. Second, the same eyebrow role is labelled differently in consecutive beats: 04A names the scent ('A TALE FROM ETERNO · WAYNE'), but 04B is anonymous ('A TALE FROM ETERNO'), so the client is not told whose tale the boat is.",
+   "evidence": "Encoded frame at 44.00 s: line 1 ends on 'the sea' at x 795 and line 2 starts 'decided'. The eyebrow at (120, 772) reads 'A TALE FROM ETERNO', while at 37.00 s it reads 'A TALE FROM ETERNO · WAYNE'.",
+   "fix": "In scenes/one-story-per-bottle.js, set B_TEXT.lines to 'You can smell the ones' and 'the sea decided to give back.' (about 440 and 625 px at 60–64 px; both stay over the dark water, left of the rocks at x 850). Change the B eyebrow text to 'A tale from eterno · Shadow of the Sea' (about 480 px at 18 px caps, same position and colour).",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "one-story-per-bottle",
+   "time": 37,
+   "severity": "minor",
+   "problem": "A lone, unlabelled 56 px Golden hour square floats at the top right of the Wayne field for about 10 s (from 30.0 s in 03 P4 until beat B covers it around 40.5 s). Nothing explains it until scene 06, 25 s later. On a flat field it reads as a stray UI swatch or notification badge. That is decoration, against 'Texture replaces decoration', and it is the only unexplained element in the film.",
+   "evidence": "Encoded frames at 32.50 s and 37.00 s: an orange square at (1744–1800, 120–176) is the only element in the upper 700 px of the right field. There is no label, and 06 is the first place the chip's meaning (second colour of the world) is shown.",
+   "fix": "Remove R.box(groupA, CHIP, {background: C.gold}) from scenes/one-story-per-bottle.js, and remove the matching chip from the P4 layer in scenes/four-principles.js so the two still hold identically through the wipe. The world is already carried by the field, the watermark and the eyebrow '· WAYNE'. Scene 06's tiles then introduce the chip where it is explained.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "four-principles",
+   "time": 32.5,
+   "severity": "minor",
+   "problem": "The e∞ watermark is cropped by the right frame edge just past the crossing of the ∞. What remains of the infinity reads as '∝' or 'α', so the brand mark reads 'e α' for about 10 s (P4 and 04A). Cropping a mark into a different glyph is something the owner will notice.",
+   "evidence": "Encoded frames at 32.50 s and 37.00 s: the ∞'s right loop exits the frame at x 1920. The visible strokes run x 1142–1920 and y 744–1036 (sampled at about 14 levels above the field, the intended 7 %).",
+   "fix": "In the P4 layer of scenes/four-principles.js, change R.mark to {x: 300, y: 640, width: 780, stroke: 2} (panel-local; stage x 1100). Make the same change in scenes/one-story-per-bottle.js (MARK = {x: 1100, y: 640, width: 780}). The whole e∞ then sits inside stage x about 1132–1847, y about 721–949: clear of the 04A photo (which ends at x 1090) and the text (which ends near y 614), and still identical across the wipe. Keep opacity at 0.07.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "four-principles",
+   "time": 32.5,
+   "severity": "minor",
+   "problem": "In the two-line principle name 'One story / per bottle' at 84 px with 1.05 leading, the descender of 'y' in 'story' comes within about 6 px of the ascender of 'l' in 'bottle'. The two strokes nearly touch.",
+   "evidence": "Encoded frame at 32.50 s, zoomed: the tail of the y ends near (400, 535) and the top of the l starts near (400, 542).",
+   "fix": "In scenes/four-principles.js, move P4's second name line from y 532 to y 540 (leading about 1.14 for this two-line name only), and move the description lines from 656/701 to 664/709.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "four-principles",
+   "time": 28,
+   "severity": "minor",
+   "problem": "P3 'Golden hour' is the darkest image of the four principles. The object-position of 100% crops out the window, which is the light source. About 60 % of the panel is a near-black wall, the hard shadows are not visible, and the right-most amber bottle is sliced by the frame edge. With the pipettes and beakers it reads as a dim laboratory, not 'one light source, low and warm, long hard shadows'.",
+   "evidence": "Encoded frame at 28.00 s: the panel from x 800 to about 1330 is flat dark brown. The light is a patch on the wall and table at the far right, and a bottle is cut at x 1920. The source image (house-film-poster.jpg) has its window at the far left, which this crop discards.",
+   "fix": "Swap P3 to img/finder-who-him.jpg, a dry-stone wall raked by low warm sun with long hard shadows. Use cover, object-position about 50% 50%, keep the 1.00→1.04 push and the R.lightBand sweep, and update the storyboard's asset list.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "colour",
+   "time": 58.5,
+   "severity": "minor",
+   "problem": "The three multi-part chapters each use a top-left eyebrow as a running head. 03 ('FOUR PRINCIPLES') and 07 ('TYPOGRAPHY') put it at y 150, but 06 ('COLOUR') puts it at y 112, with its title jammed 32 px below. Watching 03, then 06, then 07, the running head jumps 38 px.",
+   "evidence": "Encoded frames at 18.00 s and 68.50 s: eyebrow caps at about y 160. At 58.50 s and 63.00 s: 'COLOUR' at about y 121, with the title top at 144. scenes/colour.js sets EYEBROW.y = 112.",
+   "fix": "In scenes/colour.js, move the eyebrow to (120, 150) and both titles to y 182. Beat A: bar at y 330–570, ratio caption at 590, row labels at 698, chips at 734–874, chip names at 890, hex at 926. Beat B: tiles 316.8×300 with rows at y 312 and 636 (the grid ends at 936), name at tile y + 204 and status at tile y + 258. Everything stays inside y 984.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "three-lines",
+   "time": 48,
+   "severity": "minor",
+   "problem": "'Three lines, one house' is the only chapter in the film with no eyebrow. 'The direction', 'Four principles', 'Colour', 'Typography', 'Motion' and 'The storefront' each carry one. Here a bare 120 px line sits alone on empty Linen for 2.5 s and reads like a title slide in a deck, not the editorial system the rest of the film uses.",
+   "evidence": "Encoded frame at 48.00 s: the only element is the title at (120, 479), 1020 px wide. There is no eyebrow above it.",
+   "fix": "In scenes/three-lines.js, add the eyebrow 'The house' (Instrument Sans 600, 18 px, 0.14em, Ash) at (120, 439), 40 px above the title as in scene 01. It rises 16 px over 600 ms at 0.7 s and exits with the title at 3.1 s.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "storefront-desktop",
+   "time": 79.5,
+   "severity": "minor",
+   "problem": "Once W2 arrives, two 'Shop by mood' headings sit side by side for about 2 s: the film's 64 px label on the left, and the site's own '03 / Shop by mood' heading at the top of the browser. The duplicate reads templated.",
+   "evidence": "Contact sheet frames at 79.0–80.5 s: 'Shop by mood' at (120, 300) and 'Shop by mood' at the top of the viewport at the same time. The site heading only drifts out around 81.0 s.",
+   "fix": "In scenes/storefront-desktop.js, move the rise of the left 'Shop by mood' label from 3.8 s to 6.0 s scene-local (81.1 s global), so it arrives as the site's heading leaves the viewport: a handoff, one thing at a time. The 'Tales' exit and the W2 drift are unchanged.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "storefront-mobile",
+   "time": 84,
+   "severity": "minor",
+   "problem": "The headline breaks 'Mobile is the / primary device.', so line 1 ends on the article 'the'. That is a weak break for a two-line display statement.",
+   "evidence": "Encoded frame at 86.00 s: line 1, 'Mobile is the', spans x 120–438; line 2 is 'primary device.'.",
+   "fix": "In scenes/storefront-mobile.js, break the headline as 'Mobile is' / 'the primary device.' at the same positions, (120, 300) and (120, 367), 64 px. Line 2 is about 480 px and ends near x 600, well clear of phone A at x 920. Keep the word stagger in reading order.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "storefront-mobile",
+   "time": 86,
+   "severity": "minor",
+   "problem": "Phone A shows a thin Linen crescent, about 27 px, in the rounded top of its screen above the Night house band, while about 62 px of Linen shows at the bottom. It looks like a mis-scroll rather than a framed section.",
+   "evidence": "Encoded frame at 86.00 s: Linen from y 160 to 187 inside phone A's top corners, the Night band from 187 to 858, and Linen from 858 to 920. The storyboard's scroll(7565) leaves 30 css px of the previous section showing.",
+   "fix": "In scenes/storefront-mobile.js, change phone A to scroll(7547). The spare Linen then splits evenly, about 43 stage px at the top and 44 at the bottom, so the band reads as deliberately framed. The screen ends at css 8391, still before the 'Tales' glyphs at 8417.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "typography",
+   "time": 68.5,
+   "severity": "minor",
+   "problem": "On the type-specimen board, the four role labels are set in exactly the film's eyebrow style (Instrument Sans 600 caps, Ash), the same as the 'TYPOGRAPHY' running head. The one specimen labelled 'Eyebrow' is 22 px in Night, which is not how eyebrows look anywhere else in the film. The slide misrepresents the role it documents, and the running head has the same weight as the annotations.",
+   "evidence": "Encoded frame at 68.50 s: 'EYEBROW · INSTRUMENT SANS 600 UPPERCASE' (17 px, Ash) sits above 'A TALE FROM ETERNO' (22 px, Night). Everywhere else in the film, eyebrows are 18 px Ash on light grounds or Dune on dark.",
+   "fix": "In scenes/typography.js, set the eyebrow specimen at the film's real spec (18 px, 600, 0.14em, Ash). Set the four role labels in sentence case as annotations, e.g. 'Display XL · Cormorant Garamond 600' in Instrument Sans 500, 16 px, tracking 0.02em, Ash, so they no longer copy the eyebrow role. Keep the positions.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "never-meant-to-fade",
+   "time": 94.5,
+   "severity": "minor",
+   "problem": "On the end card, the 64 px hairline sits 75 px below the wordmark's baseline but only about 39 px above the tagline's cap height. It attaches to the tagline instead of dividing the lock-up, so the final frame is slightly unbalanced.",
+   "evidence": "Encoded frame at 94.50 s: the 'eternal' baseline is at about y 516, the hairline at y 590, and the top of the tagline 'S' at about y 630.",
+   "fix": "In scenes/never-meant-to-fade.js, move the hairline to y 568, midway between the wordmark baseline and the tagline cap height. If the tagline goes to 60 px (see the signature finding), re-centre it the same way.",
+   "lens": "brand-type"
+  },
+  {
+   "scene": "engine",
+   "time": 45.93,
+   "severity": "major",
+   "problem": "Every runtime crossfade and the dip-to-linen use R.ease.standard. That curve is front-loaded (0.20, 0.40, 0.56 after frames 1–3), so a \"0.6 s crossfade\" is really a ~0.1 s jolt followed by a long ghost tail. The worst case is the dip out of the boat tale: the amber frame flashes to Linen in about 4 frames.",
+   "evidence": "Encoded-MP4 frame-difference analysis (mean abs diff, 240×135 luma) shows a one-frame spike at the first frame of every runtime transition. Values: 45.933 → 30.0 (dip), 54.733 → 21.1, 69.733 → 24.7, 75.133 → 21.4, 14.433 → 10.7, 64.133 → 9.3. Mid-transition frames sit around 2–6. Strip 45.6–47.4: at 46.00 the boat is already half-washed, and by 46.13 it is almost gone. Strip 69.4–70.6: at 69.80 the charcoal panel is already about 56 % in.",
+   "fix": "In runtime.js applyIn(), change the crossfade opacity to R.ease.inOut(p), which is the same symmetric curve the light-wipe already uses. Change the dip halves to R.ease.inOut(p*2) and 1 − R.ease.inOut((p−0.5)*2). Consider lengthening crossfades to 0.8 s in the storyboard so a dissolve reads as a dissolve. Re-check the typography→motion overlap after this change (see that finding), because the mid-mix will now last longer.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "already-applied",
+   "time": 7.72,
+   "severity": "major",
+   "problem": "A double image of the hero bottle. As the 26 % soft edge of the light-wipe crosses x 800–1800, the full-frame bottle from scene 01 is ghosted over the browser window, while the small bottle in the browser sits beside it. For about 7 frames two bottles at two scales are superimposed.",
+   "evidence": "Full-size encoded frame at 7.72 (reel/review/sheets/eternal-direction-draft1-7.72s.jpg): the large translucent bottle with its 'eterno / wayne' label sits over the browser viewport, next to and overlapping the small in-browser bottle. Strip 6.7–8.5 shows it from 7.62 to 7.85.",
+   "fix": "In already-applied.js, keep the browser frame, film and page at opacity 0 until the wipe's edge has cleared the right edge (about t 0.9). Then rise the whole browser 16 px over 600 ms, standard, from t 0.9 to 1.5, so the wipe reveals clean Linen first. Film τ stays 7.0 + t, so the water is still continuous. Move T_EYEBROW to 1.2 and T_WORDS to 1.4 so the eyebrow and sentence follow the browser rather than compete with it.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "engine",
+   "time": 89.1,
+   "severity": "major",
+   "problem": "The closing light-wipe reveals the hero bottle through a ghost of phone B. The bezel outline and tale text sit over the bottle's right side for about 8 frames, so the film's final hero moment arrives as a double exposure. The same 26 % soft edge, roughly 500 px wide, also makes the 7.6 s bottle ghost.",
+   "evidence": "Full-size encoded frame at 89.10 (reel/review/sheets/eternal-direction-draft1-89.10s.jpg): phone B's rounded bezel and the Enzo 1898 / Forbidden Apple copy are laid over the bottle and the wet rock at x 1430–1800. Strip 88.0–89.8 shows the phone ghost around the bottle from 88.92 to 89.19.",
+   "fix": "In runtime.js applyIn(), narrow the runtime light-wipe edge from R.softReveal(e.root, R.ease.inOut(p), 100, 26) to a soft width of about 10. Any object then spends about 3–4 frames in the mixed zone instead of about 8. The scene-internal reveals (scene 01's film, the P2–P4 panels) keep their own 26. The 03→04 wipe stays matched, because its right side is identical in both scenes.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "three-lines",
+   "time": 49.5,
+   "severity": "major",
+   "problem": "The scene is hurried and has holes. The title is fully visible for only 1.36 s (47.64–49.00) for 4 words, below the ~2.3 s minimum. The title then exits into about 0.35 s of completely blank Linen before anything else moves. The labelled triptych, which is the payoff, then holds only 1.86 s (52.84–54.70) before the crossfade takes it.",
+   "evidence": "Full-size encoded frame at 49.50 is pure Linen. Strip 48.8–52.2 shows the title gone by 49.30, nothing until the soft edge enters at about 49.65, fields laid 49.7–50.6, photos 50.7–51.5, names and captions complete about 52.84. The crossfade starts at 54.70 (strip 54.4–55.6). The dip also leaves Linen empty from 46.35 to 46.80 before the title.",
+   "fix": "In three-lines.js, start the title at 0.6 so it rises as the dip clears. Remove the title's separate exit. Start REVEAL at 3.3, so the soft light edge that lays down the tone fields wipes the title off, since the triptych sits above it. That gives about 2.2 s of full title and no blank beat. Then pull the cascade forward: PHOTO_AT 4.4/4.52/4.64, NAME_AT 5.2/5.32/5.44, SUB_AT 5.5/5.62/5.74. The labelled triptych then holds about 2.5 s before the crossfade at 8.8.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "four-principles",
+   "time": 19.5,
+   "severity": "major",
+   "problem": "Each principle is readable in full for far less than it needs, even though this is the film's longest scene. Every changeover also leaves the left column empty for about 0.5 s. P1 is fully visible for 3.38 s for 11 words (needs about 4.7 s). P2 and P3 get 3.18 s for 10–11 words. P4 gets about 2.9 s for 13 words (needs about 5.3 s).",
+   "evidence": "P1 settles at 16.12 and exits at 19.50. The left column is empty from 19.86 to 20.39 while the P2 photo reveals (strip 19.4–21.0). P2 is readable 21.22–24.40, P3 26.12–29.30, P4 30.92 until the wipe covers x 120–700 at about 33.9 (strips 29.2–30.9 and 33.5–35.3).",
+   "fix": "In four-principles.js, close the gap at each changeover. Exit P(n) at reveal + 0.4 instead of at the reveal start, so the 320 ms exit ends as the light edge passes a third of the panel. Start P(n+1)'s numeral at reveal + 0.5, name at + 0.55, and description at + 0.7 / + 0.82. For P2 that means exit at 5.5, numeral 5.6, name 5.65, description 5.8/5.92, and the same offsets for P3 and P4. That gives about 4.0 s of full text per principle. If that is still short, drop one sentence per description as the storyboard allows, for example P1 → 'Nothing shouts.' and P2 → 'Texture replaces decoration.'.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "four-principles",
+   "time": 32,
+   "severity": "major",
+   "problem": "Dead air right before the emotional core. From 30.5 to 33.8 the frame is completely frozen, and the right 58 % is a flat #2B2A28 field with a lone gold square and a cropped watermark. After P1–P3, which each carry a living photo and a push, this reads as an image that failed to load, not as a colour world.",
+   "evidence": "Frame-difference analysis gives 0.00 for 99 consecutive frames, 30.50–33.77. It is the longest still in the film's first half. Full-size encoded frame at 32.00 shows the empty Wayne panel beside '04 One story per bottle'.",
+   "fix": "Give the P4 field light, as P3 has. Add the same warmBand to the P4 layer and sweep it with sweepBand(band, R.tween(t, 16.6, 2.6, E.linear), 0.18), so low sun crosses the colour world and is gone before scene 04's wipe at 19.4. The chip and watermark stay put, so the 03→04 match is kept. Together with the reading-time fix, P4's words then share the frame with a surface in light rather than a placeholder.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "never-meant-to-fade",
+   "time": 92.1,
+   "severity": "major",
+   "problem": "The close lands, then stops too soon. The tagline completes at 92.08 and the film ends at 94.70, so the finished end card holds only 2.6 s. Seven words need about 3.3 s, and the storyboard's own audio note wants a 2 s music fade while the card holds. Against the opening's patient 2.5 s mark prologue, the ending feels clipped.",
+   "evidence": "Strip 90.9–94.667 shows the wordmark settled by about 90.6 and the last tagline word complete at 92.08, then an unchanged card to 94.67. Encoded frame 94.65 confirms the final card.",
+   "fix": "In never-meant-to-fade.js, tighten the build so the card holds longer. Set MARK_AT 1.4→1.0, RULE_AT 2.4→1.9 and WORDS_AT 2.7→2.1, so the tagline completes at local 3.18 (91.48) and the card holds 3.2 s. If the timeline can take it, also extend scene 11 by 1.0 s in storyboard.json for a 4 s hold.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "typography",
+   "time": 70,
+   "severity": "major",
+   "problem": "The crossfade into Motion lays the typography specimens over the incoming charcoal panel. 'be remembered.', 'the problem.' and 'A TALE FROM ETERNO' sit as black type on dark grey: a muddy double image of text caught mid-exit.",
+   "evidence": "Full-size encoded frame at 70.00: right of x 800, the Display XL and Signature specimens and the eyebrow specimen show through the half-arrived #2B2A28 panel. Strip 69.4–70.6 shows it from 69.73 to about 70.13. It will last longer once crossfades use a symmetric curve.",
+   "fix": "In typography.js, exit the three specimen rows, hairlines and labels (everything except the 'Typography' eyebrow) at local 5.2 over 320 ms with the exit ease, so they are gone by 5.52. The crossfade at 5.6 then brings the Motion panel over clean Linen. The Linen left column is identical in both scenes, so the dissolve reads as the panel arriving.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "one-story-per-bottle",
+   "time": 42.7,
+   "severity": "minor",
+   "problem": "The film's emotional line, 'You can smell the ones the sea decided to give back.', is fully visible for only 3.2 s (42.70–45.90) for 11 words, about 1.5 s short. At 45.93 the dip snatches it away.",
+   "evidence": "Strip 39.8–41.6: the Beat B eyebrow starts at 41.10 and the words at 41.30, completing at 42.70. Strip 45.6–47.4: the line is half-washed by 46.00.",
+   "fix": "In one-story-per-bottle.js, bring Beat B in earlier: A_TEXT_OUT 6.1→5.7, B_IN.at 6.1→5.8, B_EYEBROW 7.3→6.7, B_WORDS 7.5→6.9 (complete at 8.3, i.e. 42.1). Beat A's Wayne line still gets 3.6 s, and the boat line gets about 3.8 s. This also stops the Wayne text exit and the photo dissolve starting on the same frame (39.9), which currently runs two motions at once.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "three-lines",
+   "time": 50.8,
+   "severity": "minor",
+   "problem": "The arrivals read as effects, not light. The line photos pop in: the standard 600 ms fade puts most of each photo on screen in about 3 frames. The motion scene's G7 demonstration rejects exactly this in its own comments. The 26 % soft edge laying the flat tone fields also smears Sea slate into a long dark-to-white airbrushed gradient.",
+   "evidence": "Strip 48.8–52.2: at 50.80 photo 1 is essentially fully present one strip frame after its fade starts, and the same happens at 50.90 for photo 2. Full-size encoded frame at 50.00: the eterno panel is a slate→Linen gradient band about 600 px wide.",
+   "fix": "In three-lines.js, fade the photos with R.tween(t, PHOTO_AT[i], R.dur.xl, E.inOut), matching motion.js's photo arrival, and keep the 120 ms stagger. Lay the tone fields with a narrower edge, R.softReveal(triptych, reveal, 100, 10), so the fields arrive as a clean light edge rather than a gradient.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "colour",
+   "time": 58.5,
+   "severity": "minor",
+   "problem": "The time is unbalanced between the two beats. Beat A, the whole system (ratio bar, ratio line, nine named and hexed swatches), is fully built for only 1.5 s (57.78–59.30). Beat B's grid then sits completely frozen for 3.06 s (61.04–64.10).",
+   "evidence": "Strip 55.3–58.0: the last chip label settles at about 57.8. Strip 58.9–61.2: the exit starts at 59.30. Frame-difference analysis shows 0.00 for all frames from 61.0 to 64.1.",
+   "fix": "In colour.js, overlap Beat A's build with the bar reveal. Set CHIP_AT 1.9→1.3 (chips follow the light edge across the bar) and RATIO.at 1.5→1.2, so Beat A completes at about 2.5. Move A_OUT 4.6→5.0, TITLE_B.at 5.0→5.4 and TILE_AT 5.2→5.6. Beat A then holds 2.5 s and the grid still holds 2.7 s.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "motion",
+   "time": 74.8,
+   "severity": "minor",
+   "problem": "The scene's payoff, the After-dark photo arriving out of its colour, is fully up for only about 0.4 s before the crossfade to the storefront starts. The demonstration of 'Light, not decoration.' lands and is immediately dissolved.",
+   "evidence": "Strip 71.0–74.9: the photo fade runs 73.60–74.80. Strip 74.8–76.0: the crossfade starts eating it at 75.13.",
+   "fix": "In motion.js, shift the second half earlier by 0.5 s: 'Light, not decoration.' at 2.5 (the mark has finished at 2.8, so start it at 2.9 and keep the rule-before-demonstration order by moving MARK_AT 1.6→1.3), and PHOTO.at and PUSH.at 3.9→3.4. The photo is then fully up for about 1 s before the crossfade.",
+   "lens": "motion-pacing"
+  },
+  {
+   "scene": "engine",
+   "time": 45.93,
+   "severity": "major",
+   "problem": "Scene crossfades and the dip-to-linen use R.ease.standard, which starts fast. So each '0.6 s' transition is 20% done after one frame, 68% after four frames (133 ms) and 93% after nine. The dip flashes the dark amber fog to near-white Linen in about 130 ms, and the Motion panel slams dark. On screen they read as hard cuts with a flash, not the slow light the film claims to demonstrate.",
+   "evidence": "Per-frame means from the encoded MP4. Dip at 45.9: full-frame luma 104.6 at 45.900, then 131.8, 158.1, 180.3, 197.5 at 45.933–46.033 (27 levels per frame). Crossfade at 69.7: the right-panel region goes 240.9 → 200.3 → 161.4 → 126.6 → 103.7 over frames 2091–2095. The largest single-frame diffs in the film all sit on the first frames of these transitions: 30.3 at 45.9, 25.0 at 69.7, 21.9 at 54.7, 21.4 at 75.1. Matches the curve: standard(1/18) = 0.20, standard(4/18) = 0.68.",
+   "fix": "In runtime.js applyIn(), use R.ease.inOut (or a sine in-out) instead of R.ease.standard for the crossfade opacity and for both halves of the dip-to-linen/dip-to-night overlay; keep the durations. Then re-check strips at 45.8–47.2, 69.6–70.4 and 75.0–75.8: the per-frame luma step should stay under about 8 levels.",
+   "lens": "finishing-qa"
+  },
+  {
+   "scene": "already-applied",
+   "time": 7.7,
+   "severity": "major",
+   "problem": "During the 01→02 light-wipe, scene 01's full-size bottle and the small browser bottle overlap inside the soft edge. For about five frames there are two translucent grey bottles side by side, a double exposure that reads as a compositing error at the moment the film claims 'already applied'.",
+   "evidence": "Encoded frames 7.633–7.767, full size at 7.733: a large ghosted eterno/wayne bottle at x ≈1230–1490 overlaps the small browser bottle at x ≈1450–1610. Both labels are legible and the browser top bar is cut by the edge. Visible in the 7.0–8.3 strip (f230, f232).",
+   "fix": "In scene 02, do not show the browser (frame and film together) until the wipe has cleared the big bottle. The soft edge passes x 1492 at t ≈0.86 s. Hold the browser at opacity 0 until 0.9 s, then rise it 16 px and fade it in over 0.6 s (emphasized). Keep τ = 7.0 + t so the water still continues, and push the eyebrow/sentence timings later if needed. Verify with a strip at 7.4–8.2: only one bottle may be visible in any frame.",
+   "lens": "finishing-qa"
+  },
+  {
+   "scene": "already-applied",
+   "time": 12.5,
+   "severity": "major",
+   "problem": "In the 'applied' proof shot, the site's hero headline 'Some things are never meant to fade.' runs straight across the bottle and covers its 'wayne' label for about 4 s. The film's own rule, kept everywhere else, is that no text ever crosses the bottle. The client will see type slicing through their product on the one frame meant to prove the site is finished.",
+   "evidence": "Full-size frame from the MP4 at 12.5: the headline occupies y ≈632–690 across x 857–1775. The bottle sits at x ≈1450–1610, y ≈475–712, and 'meant' covers the label. Visible from the capture fade-in (≈10.6 s) to the crossfade at 14.4. The storyboard notes admit it is 'flagged to the site team'.",
+   "fix": "Fix the site hero's film framing (object-position to bottom) and re-capture. The equivalent in the film: in scene 02, set the film rect y from −25 to −116 (bottom-aligned; the 625-tall film has 91 px of slack under the 509 viewport). The bottle then spans y ≈384–621, clearing the headline ascenders at ≈632 and the header at ≈340. Check a full-size still at t = 5.5 (12.5 global).",
+   "lens": "finishing-qa"
+  },
+  {
+   "scene": "one-story-per-bottle",
+   "time": 34.37,
+   "severity": "minor",
+   "problem": "During the 03→04 light-wipe, the hard edge between scene 03's Linen column and its Wayne panel (x = 800) shows through the soft band. For about four frames a hard vertical line runs through the incoming lamp and table: washed-out bright on the left, dark on the right.",
+   "evidence": "MP4 frames 34.300–34.433, full size at 34.367: a sharp luminance edge at x = 800 cuts the pendant lamp (x 740–935) and the table in half. The left half is blended with Linen, the right half with #2B2A28.",
+   "fix": "In scene 04, let the wipe carry only the flat Wayne world at first, and bring the tale-wayne photo in from its colour afterwards. Keep the photo at opacity 0 until t = 0.75 s (the edge clears x 1090 at about 0.72 s), then fade it 0→1 over 0.6 s, standard (the site's G7). Keep the push start at 0 so the motion is unchanged. Re-strip 33.8–35.3.",
+   "lens": "finishing-qa"
+  },
+  {
+   "scene": "engine",
+   "time": 89,
+   "severity": "minor",
+   "problem": "The 26 % soft edge of the light-wipe (about 500 px) is wide enough that busy outgoing and incoming content overlap as a double exposure. In the 10→11 wipe, translucent phone outlines and page text float over and around the returning hero bottle for about seven frames.",
+   "evidence": "MP4 frames 88.967–89.167, full size at 89.0: phone A's ghost bezel, 'Composed to be remembered.' paragraph and lab photo lie across the bottle at x 1222–1492. Phone B's outline frames the bottle in f2673–2675.",
+   "fix": "Let a transition set its own soft width: add an optional soft value to the timeline's in: {type:'light-wipe', soft}, passed to R.softReveal in applyIn. Use about 12 % for 10→11 (and consider it for 01→02). Re-strip 88.3–89.6.",
+   "lens": "finishing-qa"
+  },
+  {
+   "scene": "engine",
+   "time": 43,
+   "severity": "minor",
+   "problem": "x264 flattens the low-contrast fog and dark water into blotchy patches that crawl under the slow push. Beat B's amber fog has no grain by design, and it posterises into mottled islands that are not in the source. The dark water in scenes 01 and 11 shows the same mottling.",
+   "evidence": "MP4 at 44.0: contrast-stretching the fog (x 0–1000, y 0–500) shows large blotches, while the same region of tale-shadow-of-the-sea.jpg is smooth and finely textured. Faint mottling is visible unstretched at 2× (x 1300–1900, y 0–350). The dark water at 4.6 s (x 0–600, y 700–1000) shows the same patches.",
+   "fix": "In tools/render.mjs, add -x264-params aq-mode=3:aq-strength=1.0:deblock=-1,-1 and lower the full-render CRF to 12–13. Keep yuv420p 8-bit for player compatibility. Alternatively, keep scene 04's beat B grain at 0.01 instead of 0 (it stays invisible on the fog but dithers it). Compare stretched crops at 44.0 before and after.",
+   "lens": "finishing-qa"
+  },
+  {
+   "scene": "engine",
+   "time": 49.9,
+   "severity": "minor",
+   "problem": "The soft-reveal gradients over flat, close-valued tone fields break into visible diagonal striations, 8-bit steps that the encode then emphasises. They crawl as the edge crosses the triptych.",
+   "evidence": "MP4 at 49.9 (the triptych reveal): thin diagonal streaks every 10–20 px across the Blush clay → Linen gradient in panel 1 (values 226→236) and the Sea slate → Linen gradient in panel 2. Faintly present in the browser-painted still review/preview/film-49.90s.jpg, stronger after encoding.",
+   "fix": "In lib.js R.softReveal, use an eased multi-stop mask (e.g. five stops following smoothstep instead of a single linear ramp) to spread the steps. Also, while a reveal runs over flat fields, run the runtime grain at 0.008–0.01 (in scene 05, grain: t => t > 3.5 && t < 4.8 ? 0.01 : 0) to dither the banding. Re-check a still at 49.9.",
+   "lens": "finishing-qa"
+  },
+  {
+   "scene": "colour",
+   "time": 62,
+   "severity": "minor",
+   "problem": "'Enzo 1898' on its colour-world tile is set in Cormorant's default old-style figures. The '1' becomes a small-cap 'I', so the name reads 'Enzo I898' at a glance.",
+   "evidence": "MP4 full size at 62.0, tile at (801.6, 636): the numerals in 'Enzo 1898' are old-style, with the 1 at x-height and the 9 descending.",
+   "fix": "In scenes/colour.js, set font-variant-numeric: lining-nums on the tile name blocks (or on all Cormorant names in the scene). Check the full-size still at 62.0.",
+   "lens": "finishing-qa"
+  },
+  {
+   "scene": "storefront-mobile",
+   "time": 85,
+   "severity": "minor",
+   "problem": "Phone A holds the house paragraph '— tested on skin for lasting power, bottled in Cairo…' legibly for 7 s. The storyboard excluded the house page because its wear-test method is still a placeholder and the claim is unconfirmed. The same unconfirmed claim now reaches the owner through phone A.",
+   "evidence": "MP4 full size at 83.9 and 88.2: phone A at x 920–1295 shows the whole paragraph at about 15 px cap height. The text comes from components/home/Sections.tsx:358. The storyboard note on scene 10 says to confirm it before the meeting.",
+   "fix": "Get the owner's written OK on the paragraph before the meeting. Otherwise, move phone A's static scroll off the house band to a section with no claim or price (e.g. the mobile tale band 'The sea signs the ones it gives back.', css 4447–5617). Check the full 844-row window for prices or brackets before re-rendering.",
+   "lens": "finishing-qa"
+  },
+  {
+   "scene": "engine",
+   "time": 0,
+   "severity": "minor",
+   "problem": "The MP4 is tagged with the BT.709 transfer curve, but its pixels are sRGB browser paint. QuickTime and Keynote on macOS apply the BT.709 display gamma to such files, which makes them look lifted and washed out next to Chrome and VLC. Night #171614 and the Linen fields could shift on the meeting machine even though the decoded values are correct.",
+   "evidence": "ffprobe: color_primaries/color_space = bt709, color_transfer = bt709, range tv. tools/render.mjs passes -color_trc bt709 for frames captured from Chrome (sRGB).",
+   "fix": "In tools/render.mjs, tag the transfer as sRGB (-color_trc iec61966-2-1) and keep the bt709 matrix and primaries. Then, before the meeting, play the MP4 in the exact presentation app on the presentation Mac and compare the Night field at 0.5 s and the Linen field at 12.5 s against the browser stills.",
+   "lens": "finishing-qa"
+  },
+  {
+   "scene": "already-applied",
+   "time": 11.5,
+   "severity": "blocker",
+   "problem": "This scene is the proof that the direction is already built, and the live homepage headline 'Some things are never meant to fade.' runs straight across my bottle. 'meant to fade.' is printed over the eterno/wayne label. Scene 01 has just shown that type never crosses the bottle, so I would stop the meeting and point at it.",
+   "evidence": "Encoded frame eternal-direction-draft1-11.50s.jpg. The site headline spans stage x≈855–1775 at y≈630–690, and the bottle stands at x≈1450–1610, y≈475–710. The words 'meant to' sit on the label. It is on screen from about 10.3 s (capture fade-in) to 15.0 s (end of the crossfade into 03).",
+   "fix": "Fix the site hero before the meeting. Constrain the hero h1 to the 5-column text area (max-width ≈ 620 css px at 1440) so it wraps as 'Some things are / never meant to fade.' left of the bottle. Then re-run reel/tools/capture-hero-clear.mjs to regenerate site/home-desktop-hero-clear.webp and re-check a full-size still at 11.5 s: no glyph may touch the bottle.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "engine",
+   "time": 94.5,
+   "severity": "major",
+   "problem": "The small print on my bottle's label is gibberish. The line under 'wayne' should read EAU DE PARFUM and it does not. The end card holds on this bottle for the whole conversation. If I lean in and see a label that is not mine, I start asking whether this bottle is even real.",
+   "evidence": "Crop of reel/assets/film/001.jpg (x 1260–1470, y 560–720), which matches frames 5.50 s and 94.50 s: under 'wayne' the line reads 'EALLE BASELM' and the volume line is smeared ('59 ML / 1.9 FL OZ'). The bottle is on screen 2.8–8.2 s, inside the browser 7–15 s, and 89.3–94.7 s, and the end card is left up after the film.",
+   "fix": "Camera and bottle are locked, so build one clean label plate for the small print: 'EAU DE PARFUM' and '55 ML / 1.9 FL OZ', in the label's sans, matched to the label's curvature and light. Composite it on all 133 frames in reel/assets/film and on reel/assets/img/home-hero.jpg, and do the same on public/videos/home-hero.* so the site matches. Then re-render scenes 01, 02 and 11.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "typography",
+   "time": 68,
+   "severity": "major",
+   "problem": "My customers are in Cairo, and there is not one Arabic character in 95 seconds. The direction includes an Arabic pairing, but the type scene shows only Latin. Apart from the word 'Cairo', nothing tells me this is an Egyptian house. The imagery reads as Italy or Greece.",
+   "evidence": "Frame 68.00s: the type scene shows only Cormorant Garamond and Instrument Sans. The board's Arabic pairing (Amiri 700 / IBM Plex Sans Arabic) never appears, and reel/fonts contains no Arabic face. The pictures are an olive-garden arch (53.5 s), Mediterranean sea walls (53.5 s) and a Lake Como grand tourer (phone B, 85.0 s). The only Cairo signals are the word in scene 02 and 'bottled in Cairo' at about 16 px inside phone A (85.0 s).",
+   "fix": "Add Amiri and IBM Plex Sans Arabic woff2 files (Google Fonts, OFL) to reel/fonts/fonts.css. Add a fourth row to scene 07 below the UI row, between y 870 and 960: a label 'Arabic · Amiri 700 / IBM Plex Sans Arabic', a right-to-left Amiri line at about 48 px, and one Plex Sans Arabic UI line. Extend the scene by about 1.5 s. Send the two Arabic lines to the owner for approval before the meeting. If they are not approved, caption the row 'Arabic copy to be written by a native copywriter' so nothing unreviewed is shown as final.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "storefront-desktop",
+   "time": 81,
+   "severity": "major",
+   "problem": "You tell me the direction was chosen for conversion, but I never see a product page, a price or an Add to bag in the whole film. The storefront section shows tales and moods only. As the owner of a shop, my first question will be 'where do people buy?' I also see only one of my bottles in 95 seconds.",
+   "evidence": "The storefront part of the film (75.1–89.5 s: frames 78.00s, 80.80s, 85.00s) shows the tales page, the mood tiles, the house band and tale cards. There is no price or product anywhere in the film. reel/assets/site/pdp-desktop.jpg exists and is clean at the top: breadcrumb, 'Wayne', the signature line, an EGP price, Fresh/Woody chips, 'Add to bag', 'Cash on delivery', and a gallery filled with Wayne's colour world.",
+   "fix": "Add a third window (W3) to scene 09 using the same crossfade inside the viewport: R.capture(viewport, 'pdp-desktop', 1440).scroll(36), showing css 36–776, with the left-column label 'Wayne'. Hold it for about 2.5 s. Extend the scene or trim W1's hold (76.2–78.5 s). The empty gallery reads as Wayne's colour world (the rule the film has just shown at 73.6 s), and 'Cash on delivery' plus the EGP price are the most Cairo things on the site. Confirm the price (EGP 1,560) with the owner beforehand.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "one-story-per-bottle",
+   "time": 43.5,
+   "severity": "major",
+   "problem": "The film's emotional peak is my best-selling scent and the one tale written in full, and the film never names it. The Wayne tale gets its name, but the boat tale says only 'A tale from eterno'. The tales page later shows it only by its title. So I cannot connect this moment to the bottle I sell.",
+   "evidence": "Frame 43.50s: the eyebrow reads 'A TALE FROM ETERNO'. Frame 36.50s (beat A) reads 'A TALE FROM ETERNO · WAYNE'. Frame 78.00s: the site shows 'A TALE FROM ETERNO · 3 MIN READ' and 'The sea signs the ones it gives back.' 'Shadow of the Sea' appears only as a small tile label at 60–64 s.",
+   "fix": "Change the beat B eyebrow to 'A tale from eterno · Shadow of the Sea' at (120, 772), with the same spec (Instrument Sans 600, 18 px, caps, 0.14em, Dune). It is about 520 px wide and stays clear of the boat and the signature line.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "motion",
+   "time": 72.6,
+   "severity": "major",
+   "problem": "The film opens on a symbol I have never seen, a circle with a bar next to an infinity sign, and brings it back three times. Nobody ever tells me what it is. At first glance it reads as 'G∞', and it is not the looped mark printed above 'eterno' on my bottle. I will assume you have changed my logo without asking.",
+   "evidence": "Frame 1.60s shows the mark drawn alone at centre as the film's opening. At 30–40 s (frames 31.50s, 36.50s) it is the watermark. At 71.3–72.5 s (frame 73.50s) it draws again. The bottle label at 5.50s and 94.50s carries a different small looped mark. No caption anywhere names it.",
+   "fix": "In scene 08, once the mark has finished drawing (local 2.8 s), rise a caption centred under it in the panel at y ≈ 640. Use the eyebrow 'The e∞ mark' with the board line 'Loader, favicon, cart empty state, section ornament.' underneath (Instrument Sans 18 px, Dune). Move 'Light, not decoration.' and the photo fade 0.6 s later and extend the scene by 0.6 s, so the rule 'one thing at a time' still holds.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "typography",
+   "time": 94.5,
+   "severity": "major",
+   "problem": "The end card sets my name 'eternal' in a book serif right beside my bottle, whose label carries our calligraphic looped logotype. Nothing in the film explains the relationship, so the last frame, left up for the whole discussion, invites 'which one is our logo?'",
+   "evidence": "Frame 94.50s: 'eternal' is set in Cormorant Garamond 600 at 168 px (x 120–605) while the bottle label at x≈1300–1440 shows the script 'eterno' logotype. They are side by side from 89.7 to 94.7 s. The board's own rationale ('The serif echoes the soft, calligraphic wordmark on the bottle') never appears in the film.",
+   "fix": "In scene 07, add a short wordmark row or beat. Set the site wordmark 'eternal' (Cormorant 600, 0.02em) next to a framed crop of the bottle's 'eterno' logotype, taken from reel/assets/img/home-hero.jpg, region x≈1290–1450, y≈540–615, scaled up about 2x. Caption it with the board line 'The serif echoes the soft, calligraphic wordmark on the bottle.' The end card then reads as a deliberate echo rather than a replacement.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "four-principles",
+   "time": 31.5,
+   "severity": "major",
+   "problem": "After three beautiful photographs, principle 04 gives me a flat charcoal box with a small orange square in the corner. I cannot tell that this is Wayne's colour world, and the orange square looks like a missing image or a leftover UI element. It is the weakest frame in the film and sits right before the emotional core.",
+   "evidence": "Frame 31.50s: the right panel (x 800–1920) is flat #2B2A28, with a 56 px Golden hour square at (1744, 120) and a faint cropped mark. It holds still from 30.8 to 33.8 s after the reveal from 29.3 s. The square carries on through 04 beat A (36.50s). What it means (a world's second colour) is explained only at 60–64 s.",
+   "fix": "Label the world where the square is. Rise a caption 'eterno · Wayne — colour world' (Instrument Sans 600, 18 px, caps, Dune) right-aligned to x 1720 at y 138, level with the chip, as P4's text rises. Keep it identical in scene 04 beat A so it holds through the wipe. Also consider starting scene 04's wipe about 1 s earlier so the empty hold is under 2 s.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "four-principles",
+   "time": 31.5,
+   "severity": "minor",
+   "problem": "The large watermark of the mark is cut off at the right edge of the frame, so the infinity loses its right loop and the mark reads as 'e α'.",
+   "evidence": "Frames 31.50s and 36.50s: the 1000 px watermark (strokes x 1142–1920+) is clipped at x 1920. The right half of the ∞ is missing, leaving an alpha shape.",
+   "fix": "Scale the watermark down so it sits whole inside the frame, e.g. R.mark({x: 1120, y: 640, width: 720, stroke 2.8, opacity 0.07}): strokes at about x 1150–1817, y 715–925. It stays clear of the Wayne photo (ends x 1090) and the text column (ends y 614). Apply identically in 03 P4 and 04 beat A.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "engine",
+   "time": 34.3,
+   "severity": "minor",
+   "problem": "The light-wipe into the dark Wayne scene reads as a white flash, not as low warm light. The previous slide's headline also shows through the photo for a moment.",
+   "evidence": "Strip 33.8–35.0 s and frame 34.30s: the wipe's leading edge is a near-white band sweeping across the dark room (34.2–34.5 s). The P4 text ('…tory / …tle / colour world') is double-exposed over the chair and table. The same band on the Linen scenes (7.0 s) reads fine.",
+   "fix": "In the runtime light-wipe, pick the band colour from the incoming scene. On dark scenes, draw the highlight in Golden hour #B97A2B at ≤ 25 % with soft-light blending instead of near-white. Narrow the soft zone for dark destinations (e.g. 26 → 14 %) so outgoing type is never seen over the incoming photo for more than 2–3 frames.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "never-meant-to-fade",
+   "time": 89.1,
+   "severity": "minor",
+   "problem": "As my bottle returns for the ending, a half-transparent phone sits on top of it. The car and the Forbidden Apple card show through the bottle for a moment, which muddies the bookend.",
+   "evidence": "Strip 88.5–89.6 s and frame 89.10s: phone B (x 1425–1800) is still about 50 % visible over the bottle (x 1222–1492) from 89.0 to 89.2 s. At 89.0 s phone A's edge also crosses the bottle.",
+   "fix": "Bookend scene 01's reveal. Let the runtime wipe uncover Night, and keep scene 11's film layer masked until about 0.9 s. Then reveal the film with its own R.softReveal(film, R.tween(t, 0.9, 1.0, R.ease.inOut), 100, 26). Delay the scrim and text by the same 0.3 s so no phone is ever seen over the bottle.",
+   "lens": "client-eye"
+  },
+  {
+   "scene": "storefront-mobile",
+   "time": 85,
+   "severity": "minor",
+   "problem": "'Mobile is the primary device.' sounds like a note to the developers. It is the only headline in the film that talks about hardware rather than my house or my customer, and it flattens the mood just before the ending.",
+   "evidence": "Frame 85.00s: the headline sits beside the two phones from 83.0 to 89.5 s. Every other headline is either brand copy ('Composed to be remembered.') or a principle ('One thing at a time.').",
+   "fix": "Keep the eyebrow 'The storefront' and change the headline to the customer's side of the same rule, e.g. two lines 'Designed for the / phone first.' (Cormorant 600, 64 px, same positions (120, 300)/(120, 367)). Keep the word-by-word rise.",
+   "lens": "client-eye"
+  }
+ ],
+ "fixes": [
+  {
+   "slug": "already-applied",
+   "results": [
+    {
+     "problem": "The site H1 'Some things are never meant to fade.' runs across the Wayne bottle and its label from about 10.3 s to 15.0 s. Reported by brand-type (major, 12.5), finishing-qa (major, 12.5) and client-eye (blocker, 11.5); treated as one issue.",
+     "outcome": "fixed",
+     "detail": "Verified first. In the encoded frame at 12.50 s, 'meant to' sits on the 'wayne' part of the label. From the alpha channel of the capture, the headline ink runs from css 503 (ascender top) to 597 (descender), which is stage y 632–698. From film frame 001, the bottle spans film px x 1222–1493 and y 332–738, which is stage y 475–710 at the old offset. Fix, in reel/scenes/already-applied.js only: both blended film images are now bottom-aligned in the viewport, FILM.y = VIEW_H − 900·S = −116 (was −25). x, w and h are unchanged and the page capture is not moved, masked or scrolled. The bottle now stands at stage y 384–619. That is below the header (nav ≈ 332) and above the headline's tallest ascender (632). The 625 px film still covers the 509 px viewport, so no image edge shows. I chose the full −116 over brand-type's −105 because −105 leaves only about 2 px between the glass base and the ascenders. Checked in full-size solo stills at local 3.6, 5.5 and 7.97 (global 10.6, 12.5 and 14.97) and in an enlarged crop of the bottle at 5.5. No glyph touches the bottle; the headline sits on the stone under it with the bottle's reflection behind 'meant'. Trade-off: the thin band of sky above the horizon is now above the viewport, so the top of the window shows the warm haze over the sea instead. The water still runs at τ = 7.0 + t."
+    },
+    {
+     "problem": "Double image of the bottle during the 01→02 light-wipe (about 7.62–7.85 s). Scene 01's full-frame bottle and the small bottle in the browser overlap in the soft 26 % edge. Reported by motion-pacing (major, 7.72) and finishing-qa (major, 7.70); treated as one issue.",
+     "outcome": "fixed",
+     "detail": "Verified in the encoded frame at 7.72 s: two translucent bottles at two scales, both labels legible. I computed the runtime mask (softReveal at 100°, 26 % soft edge, inOut over 1.2 s): the edge fully covers scene 01's bottle (right edge x ≈ 1500) at local t ≈ 0.85 and the browser's right edge at t ≈ 1.0. Fix: the whole browser group (frame, both film layers and the page) stays at opacity 0 until T_BROWSER = 0.9. It then rises 16 px and fades in as one group over R.dur.xl with standard easing, with transform 'none' at rest, so the wipe reveals clean Linen first. I first tried the critics' 600 ms emphasized entrance. It took the dark window from 0 to about 70 % in 3 frames on Linen and read as a pop (about 30 % of the change per frame). With 1200 ms standard, the per-frame mean change in the window is at most about 14 of 136 levels, easing out smoothly to rest by about 2.1. Film τ stays 7.0 + t, so the water is continuous. Downstream timings moved to follow the window: eyebrow 0.9 → 1.2 s, words 1.1 → 1.4 s (13 words, 80 ms apart, all in by 2.96 s), capture 3.0 → 3.2 s (settled by 4.4 s, a 3.0 s hold before scene 03's crossfade at 7.4). Checked with a full-film strip at 7.5–8.2 s every frame and 7.6–9.2 s every other frame, and full-size global stills at 7.733, 7.8, 7.933 and 8.0. At most one bottle is visible in any frame: scene 01's bottle is fully gone by 7.83, and the browser first shows at 7.93, when only rock and water from scene 01 remain beyond x 1700."
+    },
+    {
+     "problem": "The board sentence breaks against its own structure ('Quiet enough to feel / expensive, warm enough / to feel like Cairo / in October.'), the rag ends in a stub, and at 60 px it is smaller than the site H1 beside it (brand-type, minor, 10.5).",
+     "outcome": "fixed",
+     "detail": "Verified at 12.50 s: 'to feel / expensive' and 'enough / to feel' split mid-phrase, and the line ends step 592/680/500/384. I did not take the suggested 4-line set, because 'Quiet enough to feel / expensive,' keeps the very 'to feel / expensive' split the finding objects to. Reset instead as five lines broken at the sentence's joints, so the two halves echo: 'Quiet enough / to feel expensive, / warm enough / to feel like Cairo / in October.' The copy is verbatim. Set at 64 px, the film's statement size in scenes 09 and 10, with line-height 1.05, 67 px pitch, tracking −0.01em and Night. Lines are at y 400/467/534/601/668. The eyebrow is at (120, 356), 44 px above the first line as in 09 and 10. Measured ink: the block runs y 359–721, centred exactly on the window's mid-line (540). Line ends fall at x 453/531/454/524/397, an even alternating rag well inside the 5-column text area. Optical left edges: dx −3 on 'Quiet', which was 3 px right of the eyebrow, and −1 on 'to', 'to' and 'in'. The first-glyph ink now sits at x 119–121 against the eyebrow's 120. Checked in full-size solo stills at 1.5, 3.6, 5.5 and 7.97 and in the 12-frame sheet."
+    },
+    {
+     "problem": "The root cause of the headline problem is on the live site: at 1440 px the homepage hero H1 runs across the bottle. My film-side fix reframes the film under the unchanged capture, and the storyboard for scene 02 no longer matches the scene file.",
+     "outcome": "escalated",
+     "detail": "Needed outside my file: (1) Site team: limit the homepage hero h1 to the direction's 5-column text area (max-width ≈ 620 css px at 1440) so it wraps to the left of the bottle, and consider object-position: bottom on the hero film. Then re-run reel/tools/capture-hero-clear.mjs to regenerate reel/assets/site/home-desktop-hero-clear.webp. Once that capture is in, FILM.y in reel/scenes/already-applied.js can go back to the page's own −25 (the 'object-position bottom' comment there marks the spot), and a full-size still at global 11.5 and 12.5 should be re-checked. (2) Storyboard owner: update reel/storyboard.json scene 02 to match the scene. Film rect y −116 instead of −25. Browser group at opacity 0 until 0.9 s, then a 16 px rise and fade over 1200 ms, standard. Eyebrow at 1.2 s, at (120, 356). Sentence at 1.4 s as five R.text blocks at 64 px: 'Quiet enough' (120, 400), 'to feel expensive,' (120, 467), 'warm enough' (120, 534), 'to feel like Cairo' (120, 601), 'in October.' (120, 668), with dx −3/−1/0/−1/−1. Capture fade at 3.2 s. Also drop the note that the headline crossing the bottle is left in."
+    }
+   ]
+  },
+  {
+   "slug": "four-principles",
+   "results": [
+    {
+     "problem": "MAJOR (motion-pacing, t 19.5): each principle is on screen too briefly to read, and the left column sits empty for about 0.5 s at every changeover.",
+     "outcome": "fixed",
+     "detail": "Verified: the old text left at the reveal start (5.1 / 10.0 / 14.9) and the new numeral only came in 0.8 s later. Now the old text fades out from reveal +0.3 and is gone by +0.62. The new numeral rises at +0.6, the name at +0.65 and the description at +0.8 / +0.92, so the words arrive as the light edge crosses. The strip at 4.8–6.7 shows at most one faint frame between the two sets of text, and they never overlap. I also moved the reveals earlier (R2 4.9, R3 9.6, R4 14.3; globally 19.3 / 24.0 / 28.7) so P4, the longest principle, gets its share. Pushes still run until the next layer covers the photo, and P3's band still starts at reveal +1.8. Fully settled reading time is now P1 3.48 s (was 3.38), P2 3.48 (3.18), P3 3.48 (3.18) and P4 about 3.82 (about 2.9) before scene 04's wipe reaches the left column at local 19.65. The critic's 4.7 s and 5.3 s targets can't fit in a 20.6 s scene unless copy is cut or the scene is longer. I kept the storyboard copy word for word, so no sentences were dropped. If the director wants more time, the only lever is timeline.js: make scene 03 about 2 s longer and shift every later scene by the same amount. I have not requested that."
+    },
+    {
+     "problem": "MAJOR (motion-pacing, t 32): the P4 panel is frozen for 3.3 s (30.5–33.8) as a flat #2B2A28 field.",
+     "outcome": "fixed",
+     "detail": "Verified: the frame diff was 0.00 from local 16.1 to the end. The Wayne layer now has the same seam-free warmBand as P3, drawn over the chip, mark and legend. It crosses in sweepBand(band, tween(t, R4+1.5 = 15.8, 3.4, linear), 0.22), which is global 30.2–33.6. On the charcoal it reads as low sun on a surface; the band is visible at local 17.4 and at global 32.5. Its opacity is exactly 0 from local 19.2, and the measured diff is 0.000 from 19.17, so the field, chip and watermark are unchanged when scene 04's wipe starts at 19.4. The legend rises at 15.25–15.85, so the only still stretch left is about 0.2 s before the wipe."
+    },
+    {
+     "problem": "MAJOR (client-eye, t 31.5): P4 reads as an empty charcoal box with an orange square that looks like a missing image or leftover UI.",
+     "outcome": "fixed",
+     "detail": "I added the legend the owner asked for, word for word: 'eterno · Wayne — colour world'. It is set as an eyebrow (Instrument Sans 600, 18 px, caps, 0.14em) in Dune on the dark field, right-aligned. Measured ink runs x 1331–1720, which leaves the 24 px gutter before the chip at 1744. The caps run y 141–155, centred on the chip's middle at 148, and sit inside title-safe. It lives in the P4 layer, so it is uncovered by the same light edge and rises (16 px, standard) at local 15.25, once the edge has passed its corner. There are no hex codes. This departs from the storyboard note 'P4 carries no labels'. In the film as it stands, the wipe dissolves the legend under its soft edge at global 34.4–34.6 while the chip and mark stay; see the strip. Scene 04's eyebrow 'A tale from eterno · Wayne' then names the tale at 35.0. That handover is clean, so scene 04 does not need to repeat the legend. If the director wants the right side pixel-identical through the wipe, scene 04 beat A needs the same element: text 'eterno · Wayne — colour world', eyebrow role, size 18, colour Dune, right: 1920 − 1720 − 4 = 196, y 139, nowrap, align right, fading with textA at 6.1. I did not act on the suggestion to start scene 04's wipe 1 s earlier. It would cut P4's reading time back to about 2.8 s, and with the light and the legend the hold is no longer empty."
+    },
+    {
+     "problem": "MINOR (brand-type + client-eye, t 32.5 / 31.5, one issue): the 1000 px watermark is cut off at x 1920, so the ∞ reads as '∝' and the mark reads 'e α'.",
+     "outcome": "escalated",
+     "detail": "Verified on the 18.1 still: the ∞'s right loop is cut off by the frame edge. In my file it is fixed. MARK is now {x: 1100 − 800 (stage 1100), y: 640, width: 780, stroke: 2, Linen, opacity 0.07}, following brand-type's exact spec for both files. Measured ink is x 1124–1855 and y 713–956, so the whole e∞ is in frame, clear of the text and of scene 04's photo, which ends at x 1090. Escalated because the 03→04 match needs a paired change. In /home/user/ETERNAL_E-Commerce/reel/scenes/one-story-per-bottle.js, line 30, the value should be `const MARK = { x: 1100, y: 640, width: 780, stroke: 2, opacity: 0.07 };`. It still reads width 1000 as of my last check. Until that changes, the film strip at 33.6–35.2 shows two watermarks, the 780 and the 1000, overlapping under the wipe at 34.5–34.7, which breaks what the critics called the best cut in the film. If scene 04 will not change, set MARK.width in four-principles.js back to 1000 so the match holds."
+    },
+    {
+     "problem": "MINOR (brand-type, t 32.5): in 'One story / per bottle' the tail of the y in 'story' almost touches the l in 'bottle'.",
+     "outcome": "fixed",
+     "detail": "Verified by pixel scan of the 18.1 still: the y's tail ended at y 537 at about x 397–405, and the l started at y 541, directly below, a 3–4 px gap. I moved line 2 from y 532 to 540 and the description from 656/701 to 664/709, which gives the name a leading of about 1.14 for this two-line case only. The rescan at 19.3 shows the tail ending at 537 and the l starting at 549, an 11 px gap. The gap from name to description is still 124 px, as before, and nothing moves horizontally."
+    },
+    {
+     "problem": "MINOR (brand-type, t 28): P3 'Golden hour' is the darkest image, with about 60 % near-black wall, the window cropped out and an amber bottle cut at the frame edge. It reads as a dim lab.",
+     "outcome": "fixed",
+     "detail": "Verified on the 13.6 still: x 800 to about 1330 was flat dark wall and the right-most bottles were cut at 1920. I swapped P3 to img/finder-who-him.jpg, a dry-stone wall in low warm sun with a long hard shadow across the path. It is not on the banned list, has no people and no bottles. It uses cover at 50% 50% and keeps the 1.00→1.04 push and the warm band. Stills at 11.3, 12.6 and 13.5 show it matches the plaster (P1) and salt (P2) as one hour of light and states the principle directly. Escalated for the storyboard only: storyboard.json is not mine to edit. Its scene-03 entry should list reel/assets/img/finder-who-him.jpg in place of house-film-poster.jpg, and its visual/beats should be updated to match: P3 is a stone wall; reveals at 4.9 / 9.6 / 14.3; text at reveal +0.6 / +0.65 / +0.8 / +0.92 and exits at the next reveal +0.3; P4 name lines at y 444/540 and description at 664/709; the watermark at width 780; the legend 'eterno · Wayne — colour world'; the P4 band at local 15.8–19.2."
+    }
+   ]
+  },
+  {
+   "slug": "one-story-per-bottle",
+   "results": [
+    {
+     "problem": "The signature line is a different size in each place it appears: 50 px in 04A and 64 px in 04B (and 64 in 07, 52 in 11). At 50 px the Wayne line reads as a caption (major, 37 s).",
+     "outcome": "fixed",
+     "detail": "Confirmed in the code: signature(textA, l, 50) and signature(layerB, l, 64). Both beats now use one constant, SIG = 60 (line-height 1.2).\n\n04A: lines at (1162, 496) and (1162, 568). This differs from the critic's 486/558, because at 486 the caps sat only 24 px under the eyebrow, while beat B has 34 px. Measured in Chromium with grain off:\n- The eyebrow and both lines ink at x 1162.6.\n- The longest line ends at x 1775, inside 1800.\n- The block ink runs y 458–622, centred on the photo's mid-line at y 540.\n- There are 34 px from the eyebrow caps to the line caps, the same as in 04B.\n\nFull stills at global 37.0 and solo 3.0 show the line now fills the column and reads as the tale's line.\n\nESCALATE, outside my file: to finish the one-size rule, typography.js must change its signature specimen from 64 to 60, and never-meant-to-fade.js its tagline from 52 to 60."
+    },
+    {
+     "problem": "Beat B's line break splits the subject from its verb ('…the ones the sea / decided to give back.'). Its eyebrow is also anonymous ('A TALE FROM ETERNO'), while 04A's names the scent (minor, 44 s).",
+     "outcome": "fixed",
+     "detail": "Confirmed on the 44.0 s frame.\n\nThe lines are now 'You can smell the ones' / 'the sea decided to give back.'. The copy is verbatim; only the break moved.\n\nThe eyebrow is now 'A tale from eterno · Shadow of the Sea'. This is the site's own tale-page eyebrow pattern (app/tales/[slug]/page.tsx: 'A tale from {line} · {scent title} · {read time}'), with the read time left off.\n\nAt 60 px the longer second line reached the shoreline. Zoomed crops at local 8.3 and 10.2 showed the full stop of 'back.' sitting on the rock edge. So I raised the whole block 24 px: eyebrow (120, 748), lines at y 788 and 860.\n\nOptical x, measured:\n- The italic Y has 4.5 px of side bearing, so its box is at x 116 and its ink at 120.55.\n- The italic t has 3.1 px, so its box is at x 117 and its ink at 120.09.\n- The eyebrow inks at 120.65.\n\nInk runs x 120–707, y 750–930. The eyebrow ends at x 608. Crops at 42.1 and 45.85 global show the text over dark water with clear air above the rocks, and the boat is untouched."
+    },
+    {
+     "problem": "A lone, unlabelled Golden hour chip floats at the top right of the Wayne field for about 10 s (minor, 37 s).",
+     "outcome": "fixed",
+     "detail": "Confirmed on the original 32.5 and 37.0 frames. Meanwhile the scene 03 designer changed P4 (four-principles.js, working tree). They kept the chip and labelled it with a legend, 'eterno · Wayne — colour world' (18 px eyebrow, Dune, right-aligned so its ink ends at x 1720, y 139). They also cut the watermark to 780 wide. So I did not remove the chip, because that would break the pixel match through the wipe that the critics asked me to keep. Instead:\n- Scene 04 now carries the same chip and legend as P4, with the same R.text call and the same at-rest transform.\n- Once the light has passed, the chip and legend leave together with the spec's exit (320 ms, opacity only). That runs 1.2–1.52 local (35.0–35.32 global), as the tale eyebrow rises.\n- From 35.32 on, beat A has no chip. The world is carried by the field, the watermark and 'A TALE FROM ETERNO · WAYNE' (full still at 37.0).\n\nVerified by diffing the film with grain hidden against scene 03's held frame (33.7). In x ≥ 1100 the maximum difference is 0–1 code values at 33.9, 34.2, 34.4, 34.6, 34.8, 34.9, 34.95 and 35.0. The chip-and-legend region is 0–1 and the watermark region is ≤ 1 throughout.\n\nESCALATE / coordination: scene 04's CHIP, MARK (780 wide) and LEGEND constants mirror four-principles.js. If the scene 03 designer changes or removes any of them, the same change must be made in one-story-per-bottle.js. The critic's 'remove the chip from P4' is now scene 03's call; the legend already answers the 'unlabelled' complaint there."
+    },
+    {
+     "problem": "The watermark does not match scene 03 (found while verifying, not in the findings). Scene 03 now draws its watermark 780 wide, while scene 04 still drew it 1000 wide, whose ∞ runs off the frame.",
+     "outcome": "fixed",
+     "detail": "The concurrent four-principles.js edit changed MARK width from 1000 to 780 so the whole e∞ is in frame. Left alone, the watermark would have visibly resized under the 03→04 wipe. I set MARK width to 780 in scene 04. The ink is now ≈ x 1124–1856, y 713–957, clear of the photo (x ≤ 1090) and the text (y ≤ 622). The diff above confirms it is pixel-identical through the wipe, and the stills at 35.2 and 37.0 show the complete e∞."
+    },
+    {
+     "problem": "The boat line is fully visible for only 3.2 s (42.70–45.90) before the dip takes it (minor, 42.7 s).",
+     "outcome": "fixed",
+     "detail": "Confirmed from the timings: the words completed at local 8.9 (42.7 global).\n\nNew timing:\n- The Wayne text exits at 5.6 (the critic suggested 5.7).\n- Beat B crossfades in from 5.8 over 1.2 s.\n- The boat push starts at B_IN.at and runs to 13.3.\n- The B eyebrow rises at 6.7; the words start at 6.9 and are complete at 8.3 (42.1 global). That gives about 3.8 s fully read before the dip at 45.9.\n- The grain ramp follows the crossfade (5.8–7.0).\n\nI used 5.6 rather than 5.7 because a strip at 5.4–6.4 (every other frame) with 5.7 showed the slow-start exit ease leaving the Wayne line at about 60% while the boat's wheelhouse came through at 5.86–5.9. At 5.6 the words are half gone when the dissolve starts, 200 ms later: the two motions no longer start on the same frame and the ghosting is down to about two faint frames. The Wayne line still holds 3.5 s settled (2.12–5.6).\n\nThe strip at 5.5–8.5 (0.1 s steps) shows a clean handoff and an even word stagger. Full stills at 42.1 and 45.85 show the line complete and held."
+    },
+    {
+     "problem": "During the 03→04 light-wipe, scene 03's hard column edge at x 800 shows through the soft band and cuts the incoming lamp and table in half (minor, 34.37 s).",
+     "outcome": "fixed",
+     "detail": "The photo is now at opacity 0 until local 0.75. I calculated that the wipe's soft edge fully clears the photo box's bottom-right corner (1090, 960) at 0.723 s. The photo then fades up from the Wayne field over 0.6 s (standard, done at 1.35). The push still starts at 0, so its motion is unchanged.\n\nThe full still at 34.37 shows the band carrying only the Linen column off onto flat Wayne, with nothing of the photo inside it. The x = 800 edge is now only scene 03's own column edge fading out, not a line through the image. The film strip at 33.8–35.9 (0.066 s steps) reads as: Linen column carried off (to 34.53), flat Wayne world with chip, legend and watermark (34.4–34.55), photo comes up (34.55–35.15), chip and legend hand over as the eyebrow rises (35.0–35.3), then the lines at 35.2+."
+    },
+    {
+     "problem": "Client: the emotional peak is the best-selling scent, but the film never names it; beat B says only 'A tale from eterno' (major, 43.5 s).",
+     "outcome": "fixed",
+     "detail": "This is the same issue as the second half of the line-break finding. The beat B eyebrow now reads 'A TALE FROM ETERNO · SHADOW OF THE SEA' in the same spec: Instrument Sans 600, 18 px, caps, 0.14em, Dune. It sits at (120, 748), 24 px higher with the rest of the block (see the line-break finding). It is 488 px of ink (x 120–608), clear of the boat and its reflection, and visible in the full stills at 42.1 and 45.85 global."
+    }
+   ]
+  },
+  {
+   "slug": "three-lines",
+   "results": [
+    {
+     "problem": "Minor, 48.0 s: 'Three lines, one house' is the only chapter with no eyebrow. A bare 120 px line sits alone on Linen and reads like a deck title slide.",
+     "outcome": "fixed",
+     "detail": "Verified on the MP4 sheet at 48.0 s: the title is the only element. Added the eyebrow 'The house' (site copy: the nav label and the eyebrow in components/home/Sections.tsx line 356). It is role eyebrow, 18 px, Ash, at x 120, and rises 16 px over 600 ms (standard) from 0.6 s as the dip clears. It sits 40 px above the title box, as in scenes 01 and 08. One change from the critic's (120, 439): I centred the eyebrow and title together on 540, as scene 08 centres its column (eyebrow box top to title box bottom). So the eyebrow is at y 459 and the title moved from y 479 to y 499. With the eyebrow at 439 the block would have sat about 30 px high. The eyebrow leaves with the title under the light edge. Full-size still at local 2.5 s: the eyebrow's T and the title's T crossbar share the x 120 ink edge, and both are inside title-safe."
+    },
+    {
+     "problem": "Major, 49.5 s: the scene is hurried and has holes. The full title holds only 1.36 s, about 0.35 s of blank Linen follows before the fields, and the labelled triptych holds only 1.86 s before the crossfade.",
+     "outcome": "fixed",
+     "detail": "Verified: the MP4 frame at 49.5 is pure Linen. The fix:\n- The eyebrow starts at 0.6 s and the title words at 0.7 s, rising under the clearing dip. The title is complete at 1.54 s.\n- Removed the title's own exit. REVEAL now starts at 3.3 s, and the same light edge that lays the tone fields takes the title away. softCover() is the complement of R.softReveal's mask on a full-frame box, so the two edges coincide exactly and the title's comma never shows through the 3 px seam at x 638–641. Measured on stills at 3.95 s and 4.20 s: seam columns stay Linen, luminance 237–239, no ink.\n- The cascade moves forward: PHOTO_AT 4.4/4.52/4.64, NAME_AT 5.2/5.32/5.44, SUB_AT 5.5/5.62/5.74.\n\nMeasured on strips:\n- Local 3.2–4.6: the title stays whole until 3.53 s and the edge crosses it from 3.6 to 3.95 s, straight into the fields. There is no blank frame.\n- Global 46.2–47.6: the eyebrow shows at 46.60 s and the words at 46.67–47.0 s. The only empty Linen left is the dip's own opaque peak, about 0.15 s instead of 0.45 s.\n\nResult: the full title now holds about 2.06 s (47.44–49.50 global) and is readable about 2.8 s. The labelled triptych is complete at local 6.34 s (52.24 global) and holds 2.46 s to the crossfade at 54.70, up from 1.86 s. The end state is unchanged: the 9.3 s still shows eterna's feet at about y 715, the couple clear of the right edge and no white border on line-eterno."
+    },
+    {
+     "problem": "Minor, 50.8 s: arrivals read as effects, not light. The photos pop in with a 600 ms standard fade (most of each photo in about 3 frames), and the 26 % soft edge smears Sea slate into a long airbrushed gradient of about 600 px.",
+     "outcome": "fixed",
+     "detail": "Verified both before changing anything.\n- Baseline strip at local 4.7–5.3: photo 1 is half on at 4.83 s and fully on at 4.90 s. The curve puts 56 % on screen in 3 frames. The MP4 frame at 50.0 s shows a slate-to-Linen band about 600 px wide.\n- Photos now fade with R.tween(t, PHOTO_AT[i], R.dur.xl, E.inOut), scene 08's G7 arrival, keeping the 120 ms stagger. The strip at 4.4–6.4 shows each photo coming up evenly over about 1.2 s with no jump.\n- The tone fields now use R.softReveal(triptych, reveal, 100, 10), about 210 px of the 2078 px gradient line. Full-size stills at 3.85 s and 4.00 s show a narrow edge on Sea slate moving across, not a wide airbrushed band. Its speed matches the runtime's own 1.2 s inOut light-wipes. A faint low-contrast ramp on Bone lasts about 0.1 s while moving; it was wider before."
+    },
+    {
+     "problem": "Housekeeping, not a critic finding: reel/storyboard.json scene 05 no longer describes the scene as built.",
+     "outcome": "escalated",
+     "detail": "I may only edit three-lines.js, so whoever owns storyboard.json should sync it. Scene 05 needs these updates:\n- Add the eyebrow 'The house' (eyebrow, 18 px, Ash, (120, 459), appearAt 0.6).\n- Title: y 479 → 499, appearAt 0.9 → 0.7, no separate exit (it is wiped by the light edge at 3.6–3.95).\n- Reveal: at 3.5 → 3.3, soft 26 → 10.\n- Photos: at 4.8/4.92/5.04 → 4.4/4.52/4.64, fading over 1.2 s with R.ease.inOut.\n- Names: 5.8/5.92/6.04 → 5.2/5.32/5.44.\n- Eyebrows and captions: 6.1/6.22/6.34 → 5.5/5.62/5.74.\n- The hold beat: 6.94 → 6.34.\nThe film renders correctly without this change."
+    }
+   ]
+  },
+  {
+   "slug": "colour",
+   "results": [
+    {
+     "problem": "The running-head eyebrow is at y 112 in 06 but at y 150 in 03 and 07, so the chapter head jumps 38 px from 03 to 06 to 07 (58.5 s).",
+     "outcome": "fixed",
+     "detail": "Verified first. In the encoded frames the COLOUR caps sat about 38 px higher than 'FOUR PRINCIPLES' (18.0 s) and 'TYPOGRAPHY' (68.5 s).\n\nThe fix moves the whole scene down by the same 38 px:\n- Eyebrow at (120, 150). Both titles at y 182, keeping the same 32 px relation to the eyebrow.\n- Beat A: the bar is now at y 330–570. The numerals stay 192 px into the bar (NUM.y = BAR.y + 192). Ratio line at 590, row labels at 698, chips at 734–874, names at 890, hex at 926.\n- Beat B: tiles are 316.8×300, with rows at y 312 and 636, so the grid ends at 936.\n\nOne deviation from the critic's numbers: the status line is at tile y + 248, not 258. The name at +204 and the status at +248 keep the same 96 px and 52 px from the tile's foot as the original 328 px tile (232/276). At +258 the bottom inset would have dropped from 24 px to 16 px.\n\nChecked on the painted frames: the eyebrow's ink now sits on rows 153–165 at 58.5 s, identical to 03 at 18.0 s and 07 at 68.5 s. The 'p' of 'per' clears the tile row by about 42 px. Beat A spans y 150–943 and Beat B y 150–936, so both are vertically balanced and inside title-safe.\n\nThe 64.1–64.7 strip shows COLOUR handing over to TYPOGRAPHY in the same slot during the crossfade. The 54.5–55.5 crossfade in is unchanged apart from the new position."
+    },
+    {
+     "problem": "The two beats share their time unevenly: Beat A is fully built for only 1.5 s (57.78–59.30), while the Beat B grid is frozen for 3.06 s (61.04–64.10).",
+     "outcome": "fixed",
+     "detail": "Verified from the code: the last chip label completes at local 3.08 s, A_OUT was 4.6, the tiles completed at 6.34 and scene 07's crossfade starts at 9.4.\n\nI applied the critic's timing: CHIP_AT 1.9→1.3, RATIO.at 1.5→1.2, A_OUT 4.6→5.0, TITLE_B.at 5.0→5.4, TILE_AT 5.2→5.6.\n\nThe critic missed the row labels, which would otherwise land after their own chips. I moved them in step: 'Neutrals' 1.8→1.25 and 'Accents' 2.3→1.7, each just before its group's first chip, so the order stays title → bar → ratio line → row label → chips.\n\nThe brief has a 'one thing at a time' rule, so I checked the overlap before accepting it. I computed where the bar's light edge is as each chip starts: it runs about 600 px ahead of the chip row at every chip, so the swatches never lead the light. The strip of local 0.6–2.8 s confirms the bar and the row read as one left-to-right pass of light.\n\nResult: Beat A is built at 2.48 s and holds 2.52 s (57.18–59.70 global). The exit is gone at 5.32 s, the eyebrow holds alone for a moment, and the heading rises from 5.4 s. The tiles are built at 6.74 s, and the grid holds 2.66 s (61.44–64.10 global). The strip of local 4.9–6.9 s shows a clean hand-off with no overlap between the beats. Nothing fades out at the end."
+    },
+    {
+     "problem": "'Enzo 1898' is set in Cormorant's default old-style figures, so the 1 reads as a small-cap I: 'Enzo I898' (62.0 s).",
+     "outcome": "fixed",
+     "detail": "Verified on the encoded frame at 62.5 s: the 1 sits at x-height and the 9 descends.\n\nI added a LINING style (font-variant-numeric: lining-nums proportional-nums) to every Cormorant name in the scene: the tile names and, for consistency, the Beat A chip names. The ratio-bar numerals already had lining figures from .t-numeral, and the hex values and ratio line already used tabular lining figures.\n\nChecked on a 3× crop of the full-size still at 62.0 s: it now reads 'Enzo 1898' with full-height lining figures. The name's 1 px side bearing (dx -1, measured on the E) is unaffected."
+    }
+   ]
+  },
+  {
+   "slug": "typography",
+   "results": [
+    {
+     "problem": "[major, motion-pacing, 70.0 s] The crossfade into Motion lays the typography specimens over the incoming charcoal panel. 'be remembered.', 'the problem.' and the eyebrow specimen show as dark type on grey from 69.73 to about 70.13.",
+     "outcome": "fixed",
+     "detail": "Confirmed on the encoded frame at 70.00 s: dark type showed through the #2B2A28 panel to the right of x 800. The fix follows scene 06's pattern. Everything except the 'Typography' eyebrow now sits in one full-frame 'board' group: the labels, both specimens, the hairlines, the buttons and the eyebrow specimen. At local 5.2 (global 69.30) the board exits over R.dur.m (320 ms) with R.ease.exit, opacity only, and is gone at 5.52 (global 69.62), before the crossfade starts at 5.6. visibility is set to hidden once it has gone. Because the whole board fades as one group, the button labels stay knockouts of their fills during the fade. At rest the group changes nothing: a PNG diff at local 4.0 against the pre-edit render shows 0 difference in the eyebrow, display, both hairlines, signature and buttons. The rows still finish at 3.24 s, so they hold fully for 1.96 s. Checked with a film strip 69.2–70.6 every 0.066 s (the exit fades smoothly 69.33 to 69.60, and 69.66 is clean Linen with only the eyebrow). Full-size film stills at 69.45 (mid-exit, knockouts intact) and 70.00 (the panel arrives over empty Linen, and TYPOGRAPHY dissolves under Motion's Linen column). Solo stills at 5.36, 5.60 and 6.17 also checked. Scene 08's eyebrow is at y 402 and rises at its own 0.5 s, so it never overlaps ours at y 150. This will not break if the engine later changes to a symmetric crossfade curve, because our type is gone before the crossfade begins."
+    },
+    {
+     "problem": "[minor, brand-type, 68.5 s] The role labels copy the film's eyebrow style (600, caps, 0.14em, Ash), the same as the 'TYPOGRAPHY' running head. The one specimen labelled 'Eyebrow' is 22 px Night, which is not how eyebrows look anywhere in the film or on the site.",
+     "outcome": "fixed",
+     "detail": "Confirmed on the encoded frame at 68.50. The site's Eyebrow primitive (components/ui/Primitives.tsx: 'eyebrow text-ash', globals.css 600 / 0.14em / uppercase) is Ash, as are all of the film's light-ground eyebrows at 18 px. The specimen 'A tale from eterno' is now set exactly as that: eyebrow role, 18 px, Ash, at y 785. Its caps measure y 788–800, centred on the buttons' line at y 794, and its ink starts at x 972. The four role labels keep their exact storyboard text and positions. They are now annotations in the film's own caption voice, the same one scene 06 uses for its hex labels: role 'caption' (Instrument Sans 500, 0.02em), 18 px rather than the critic's 16 to match that precedent, line-height 1.2, Ash, sentence case. Each label moved up 1 px (y 255 / 519 / 719) so its measured baseline stays at 270 / 535 / 735 as before, and the first-glyph ink still lands on x 120 and x 972. The only caps on the page are now the running head and the eyebrow specimen, so the specimen demonstrates its role and the head outranks the annotations. Checked at full size in the solo still at 4.0, a 2x zoom crop of the labels and specimen, and the film still at 68.5. The row 3 entrance strip (2.1–3.3 every 0.066 s) keeps the same timing and rise."
+    },
+    {
+     "problem": "[major, client-eye, 68.0 s] There is no Arabic anywhere in the film. The critic asks for a fourth row with an Amiri 700 display line and an IBM Plex Sans Arabic UI line, the Arabic font files added to reel/fonts, and the scene extended by about 1.5 s.",
+     "outcome": "escalated",
+     "detail": "The observation is accurate, but the fix cannot be made in typography.js alone, and done partially it would do harm. (1) The storyboard rules it out: scene 07's notes say 'No Arabic specimen (its copy is an unreviewed placeholder)'. The board's own Arabic lines are marked 'Copy above is placeholder — [Arabic copy to be written and reviewed by a native copywriter]'. Showing unreviewed Arabic to a Cairo owner is the embarrassment risk, and the finishing-qa critic lists 'no Arabic anywhere' as part of the compliance pass. (2) There are no Arabic fonts: reel/fonts/fonts.css contains only Cormorant Garamond and Instrument Sans. A system fallback labelled 'Amiri' would misrepresent the pairing. (3) There is no time: the scene is fixed at 6.2 s by timeline.js, the rows finish at 3.24 and the board now exits at 5.2. I did not add a Latin-only caption for an Arabic row: with no Arabic set, it reads as an unfinished slot in front of the client. Changes needed, all outside my file: (a) director or owner decision plus native-copywriter-approved Arabic for one display line and one UI line; (b) add Amiri 700 and IBM Plex Sans Arabic 400/500 woff2 (OFL) to reel/fonts and fonts.css, and make sure the runtime preloads them; (c) timeline.js and storyboard.json: extend scene 07 from 6.2 s to 7.7 s, shift scenes 08–11 by +1.5 s (film 96.2 s), and replace the 'No Arabic specimen' note. Once that lands, I will add row 4 in y 870–960 (label 'Arabic display · Amiri 700 / Arabic body/UI · IBM Plex Sans Arabic 400/500', an RTL Amiri line of about 48 px right-aligned to x 1800, and one Plex line), move BOARD_OUT to about 6.7 and re-check title-safe."
+    },
+    {
+     "problem": "[major, client-eye, 94.5 s] The end card sets 'eternal' in the serif beside the bottle's calligraphic 'eterno' logotype, which invites 'which one is our logo?'. The critic asks scene 07 to add a wordmark beat with a 2x crop of the label from home-hero.jpg and the board line 'The serif echoes the soft, calligraphic wordmark on the bottle.'",
+     "outcome": "rejected",
+     "detail": "I rejected this for scene 07 after checking. (1) The serif 'eternal' is already the house's wordmark on the storefront: components/ui/Wordmark.tsx ('The wordmark: lowercase serif') is used in the Header and Footer and appears in the site captures in scenes 09–10. The end card does not introduce a replacement logo. (2) The script on the bottle reads 'eterno', the line name, which the film sets as a line at 51–54 s. A side-by-side of 'eternal' and a crop of 'eterno' would pair two different words and make the confusion explicit rather than resolve it. (3) The source cannot carry it. home-hero.jpg is 1920×1080, and the logotype region (x 1290–1450, y 540–615) is about 160×75 px. I cropped and upscaled it: it is soft, with JPEG ringing, a diagonal shadow stripe across the label and illegible micro-type, and it would be the only blurred element on a vector type specimen. (4) There is no time. The scene is fixed at 6.2 s and is fully set by 3.24 s, and a wordmark beat would crowd the 2 s hold that finding 2 already needed. If the director still wants the relationship explained, it is a storyboard decision: either put the board line in scene 11, or extend scene 07 by about 1.5 s (timeline.js + storyboard.json) and source a high-resolution label image (a packshot) instead of upscaling the film frame."
+    }
+   ]
+  },
+  {
+   "slug": "motion",
+   "results": [
+    {
+     "problem": "72.6 s, major (client-eye): the e∞ mark is never named. The owner reads the circle-and-bar as 'G∞', or as a new logo replacing the looped mark on the bottle.",
+     "outcome": "fixed",
+     "detail": "CONFIRMED: MP4 frame 73.50s shows the mark alone with no label anywhere in the film, and at full size the bar-and-bowl does read as a G. The mark is the site's own Mark from components/ui/Wordmark.tsx, so the fix is to name it, not to change it.\n\nWHAT CHANGED (reel/scenes/motion.js only): a name block now sits in the After dark panel, centred under the mark.\n- Eyebrow 'The e∞ mark', Instrument Sans 18 px, 0.14em caps, Dune. The 'e∞' keeps its lowercase e so it is not uppercased to 'E∞'.\n- Line below: 'Loader, favicon, cart empty state, section ornament.', caption role 19 px, Dune.\n- Both lines are brief copy, verbatim apart from capitals and the full stop. The eyebrow comes from the notes board's 'Logo and the e∞ mark'. The line comes from the direction board's 'Mark e∞ · inverted on Night — loader, favicon, cart empty state, section ornament.'\n- Measured ink: name x 1124–1595, y 643–694, centre 1359.5; mark centre 1359.5. It sits inside title-safe.\n\nTIMING: I did not use the critic's order (name after the draw, scene extended 0.6 s). Instead the name rises (16 px, standard, 600 ms) at local 1.25 s, in the pause the storyboard already leaves between 'One thing at a time.' and the mark:\n- At 1.25 s the rule's last word is 98 % settled. The name is 96 % up when the pen goes down at 1.6 s, and inOut draws only 1 % of the stroke in the next 0.1 s. So nothing moves at the same time as anything else.\n- The mark keeps the storyboard's own 1.6–2.8 s draw, unchanged.\n- The name is read before the mark draws, so the bar-then-bowl is seen as an e from the start instead of being corrected afterwards.\n- The name is legible about 2.1 s, against about 1 s if it came after the draw.\n- No timeline change is needed.\n- The name sinks into the colour with the mark (opacity × (1 − cover)) when the photo comes up.\n\nREJECTED VARIANT: I first tried the name static from frame 0. The still at global 70.10 showed a caption under an empty panel before 'Motion' had arrived, so I dropped it. The crossfade-in frame (global 70.05) is back to the storyboard's flat panel.\n\nVERIFIED:\n- Full-size stills at global 70.05, 71.05, 71.40, 72.55, 73.10, 73.45, 74.35 and 75.05.\n- Strip of local 1.1–3.1 at 0.066: rule 1 settled by 1.10, name rises 1.25–1.55, pen visible from about 1.63, mark lands 2.8, rule 2 from 2.9.\n- Zoomed crop of the name: the ∞ comes from the system fallback font, because the storefront's Instrument Sans subset has no U+221E. It renders cleanly at x-height beside the e.\n\nNOT FIXABLE IN FILM: the owner's point that the bottle label carries a different looped mark is a question about the brand direction, for the presenter to answer in the meeting, not a film fix."
+    },
+    {
+     "problem": "74.8 s, minor (motion-pacing): the After dark photo is fully up for only about 0.4 s before scene 09's crossfade (local 5.4) dissolves it.",
+     "outcome": "fixed",
+     "detail": "CONFIRMED: a global strip over 74.4–75.8 before the change showed the photo whole from about 74.7 and the crossfade eating it from 75.13.\n\nWHAT CHANGED:\n- 'Light, not decoration.' 3.0 → 2.9, which is 0.1 s after the mark lands at 2.8, so the finished mark is seen still.\n- PHOTO.at and PUSH.at 3.9 → 3.45. Rule 2's last word is 99.3 % settled at that point, so one-thing-at-a-time still holds.\n- MARK_AT stays at 1.6, because the name uses the 1.25–1.6 gap.\n- The photo is now 97 % up at local 4.5 and whole at 4.65, giving about 0.9 s of the photograph alone before 5.4. That is about 1 s visually, as the critic asked. The push is unchanged: 1.00 → 1.03, now over 3.45–6.0.\n\nVERIFIED:\n- Strip of local 3.3–5.1 at 0.066: the mark and name dissolve through After dark by about 3.9, with no mark over a readable photo.\n- Global strip 74.0–75.7: the photo is whole from about 74.2 to 75.1 and scene 09's crossfade is unchanged.\n- Full-size still at global 75.05: resin, smoke and stone, clean crop, no edge showing."
+    }
+   ]
+  },
+  {
+   "slug": "storefront-desktop",
+   "results": [
+    {
+     "problem": "79.0–80.9 s (minor, brand-type): when W2 arrives, two 'Shop by mood' headings sit side by side at the same height: the film's 64 px label at (120, 300) and the site's own '03 / Shop by mood' at the top of the viewport. It reads templated.",
+     "outcome": "fixed",
+     "detail": "Verified first. The browser-painted still at local 4.4 s (79.5 global) shows both headings at y ~300–350, and the contact sheet shows the same from 79.0 to 80.5. Fix in reel/scenes/storefront-desktop.js: MOOD.at changed from 3.8 to 5.9 scene-local (81.0 global); the header timeline comment is updated. I did not use the critic's 6.0 s. I measured instead: the site heading's ink in home-desktop.jpg spans css 4761–4817.5, and the inOut drift carries the viewport's top past its last descender at local 5.833 (css 4818.2). The label therefore rises two frames after the heading has fully left: a handoff with one heading at a time. From 3.72 to 5.9 s the page's own heading is the only page name on screen. The label rises with the page's landing drift, in the same direction, reads at full strength from about 6.06, and holds until scene 10's crossfade at 7.0. Nothing else changed: the 'Tales' exit, the W1→W2 swap, the drift range and curve, the eyebrow, and the label's position, size and rise grammar (24 px, emphasized, 600 ms). Checked: determinism: ok. Full-size stills at 3.9, 4.4, 5.8, 5.95, 6.1, 6.8 and 7.3 (only the site heading at 4.4; only descender tails at 5.8; label mid-rise at 5.95; label settled at x 120 with unchanged ink at 6.8). Strip 5.6–6.7 every 0.066 s: no label through 5.86, label from 5.93, smooth settle, no stepping. Global stills at 78.9 (swap mid-crossfade, eyebrow only on the left) and 82.3 (label dissolves with the browser under scene 10's crossfade while the eyebrow stays). Storyboard sync: scene 09's onScreenText 'Shop by mood' appearAt should now read 5.9, not 3.8, but I left storyboard.json alone as instructed."
+    },
+    {
+     "problem": "81 s (major, client-eye): the film never shows a product page, a price or 'Add to bag', and shows only one bottle. The proposed fix was a W3 window in scene 09: R.capture(viewport, 'pdp-desktop', 1440).scroll(36), css 36–776, labelled 'Wayne', held about 2.5 s, made room for by trimming W1 or extending the scene.",
+     "outcome": "escalated",
+     "detail": "Verified the observation: no scene shows a PDP, a price or a bag action. But the fix cannot be built safely in this file, for four reasons. (1) Time: the scene is 7.6 s and scene 10's crossfade takes it from 7.0. Fitting W3 would leave W1 readable for about 1.2 s and W3 for about 1.4 s, a new page every 2 s. That breaks the 'unhurried rhythm' the client and the motion critic asked to keep, and the tales and mood pages the client praised. (2) Policy: the storyboard keeps prices out of the whole film on purpose. Scene 07 says 'no price sample, including in the UI row'. Scene 09 says to stay in css 4700–5611 to avoid 'the priced bestseller cards'. Scene 10 avoids the offer 'with prices'. Scene 06 says 'do not use the shop capture (prices, badges, empty cards)'. pdp-desktop would show 'EGP 1,560' twice (price and 'Add to bag · EGP 1,560'), while the direction board's own type specimen reads 'EGP 1,450' for an eterno 55 ml. Even the critic says to confirm the price with the owner first. (3) The empty gallery: I rendered the W3 frame as a mock (scratchpad/w3_mock.jpg). The gallery is a flat #2B2A28 block, css x 80–728, y 183–900, about 541×495 stage px, the largest thing in the viewport. There is no bottle and no texture, so it reads as an image that failed to load (SCENES.md: Shopify photos can't load here; colour worlds must never be presented as packshots). It would also make the 'only one bottle' complaint more visible, not less. (4) Consistency: the PDP's 'Fresh / Woody' chips are rounded pills, a minute after scene 07 shows radius-0 buttons. Changes needed outside this file, if the producer and the owner want a buying moment: (a) storyboard.json scene 09 gains a W3 beat (pdp-desktop, scroll(36), css 36–776, left label 'Wayne'), and the no-price notes in 07/09/10 are revised for this one frame; (b) the owner confirms EGP 1,560 before the meeting; (c) timeline: scene 09 duration goes from 7.6 to 10.6 s, scenes 10 and 11 start 3.0 s later (85.1 and 91.3), and the film becomes 97.7 s, so W3 gets a 600 ms swap and about 2.4 s of hold without cutting into W1 or W2; (d) ideally a real Wayne packshot (or a clearly labelled colour-world treatment) for the gallery, so the frame doesn't show an empty image box. Once (a)–(c) land, I can build W3 in this file with the existing still() band reader and the same in-viewport crossfade."
+    }
+   ]
+  },
+  {
+   "slug": "storefront-mobile",
+   "results": [
+    {
+     "problem": "The headline breaks as 'Mobile is the / primary device.', so line 1 ends on the article 'the' (brand-type, 84 s).",
+     "outcome": "fixed",
+     "detail": "Confirmed on the encoded frame at 86.0 s and on the preview still at local 3.9 before the edit. LINES is now 'Mobile is' at (120, 300) and 'the primary device.' at (120, 367), still 64 px Cormorant 600 with line-height 1.05. The copy is verbatim; only the break moved. The new line-2 't' inked about 1.3 px right of the eyebrow, so line 2 also gets dx -1, like line 1's M. Measured on the still: eyebrow ink starts at x 120.0, the M at about 120.6 and the t at about 120.3. Nothing inks at x 119, and line 2 ends at x 586, far from phone A at 920. The strip from 0 to 2.0 s shows the five words rising in reading order (Mobile, is, the, primary, device) with the same timing: 0.9 s start, 80 ms stagger, settled at 1.82 s."
+    },
+    {
+     "problem": "Phone A showed a thin Linen crescent (27 px) above the Night house band and 60 px of Linen below it, so it looked mis-scrolled (brand-type, 86 s).",
+     "outcome": "fixed",
+     "detail": "Confirmed: before the edit, phone A's centre column read Linen at y 160–187, Night from 187 and Linen at 860–920. On the capture the Night band runs from css 7595.0 to 8342.0. A_SCROLL is now 7547, which shows css 7547–8391, still before the 'Tales' glyphs at 8417 (measured). After the edit the render shows Linen at y 160–204 and 876–920: 44 px top and 44 px bottom, an even frame. That scroll position is above the storyboard's 'never css < 7560' line, so I checked the capture before moving it. The mystery-box card and its EGP 250 price end at css 7523, and css 7528–7594 is a uniform 238/230/217 Linen (per-row min equals max). STRIP.top moved from 7560 to 7540, which is still 17 css of empty Linen below the card, so the card is never in the scene. The 20 css move is exactly 18 screen rows, so phone B's resampling grid is unchanged (measured max diff 0 against the old render). The scene notes that css 7540–7560 is empty Linen. The storyboard's '< 7560' wording could be updated to match, but that is only a wording change."
+    },
+    {
+     "problem": "Phone A holds the house paragraph '— tested on skin for lasting power, bottled in Cairo…' legibly for 7 s. The claim is unconfirmed, because the house page still marks the wear-test method as a placeholder (finishing-qa, 85 s).",
+     "outcome": "escalated",
+     "detail": "Confirmed: the paragraph is legible on phone A through the whole scene, and it is Sections.tsx:358 verbatim. The storyboard chose the house band for phone A on purpose ('one still on the house, one drifting through the tales'). Its scene 10 note already asks for the paragraph to be confirmed with the owner before the meeting. The critic's main fix, getting the owner's written OK, is an account action outside any scene file. Moving phone A myself would override the storyboard and lose the only dark/light contrast between the two phones. The suggested replacement, the mobile tale band (css 4447–5617), would put both phones on tales. It also carries the tale's inspired-by metadata, the reason scene 09 is restricted to css 4700–5611 on desktop. It would also need a second region cut from the 161 MB capture. What is needed: the account lead gets the owner's written OK on the paragraph before the meeting. If the OK does not come, the storyboard owner changes scene 10's phone A to a named section. Then in storefront-mobile.js I would (1) extend loadStrip to crop a second region, (2) set A_SCROLL to that section, and (3) re-check all 844 css rows for prices, brackets and inspired-by names. I will do that as soon as the section is named."
+    },
+    {
+     "problem": "'Mobile is the primary device.' sounds like a developer note; the critic proposes 'Designed for the / phone first.' (client-eye, 85 s).",
+     "outcome": "rejected",
+     "detail": "The critic's premise is wrong. The headline is one of the direction's six motion rules, verbatim: brief-direction-and-motion.txt line 737, 'Mobile is the primary device', under 'Six rules'. It sits alongside 'One thing at a time' and 'Light, not decoration', the rules scene 08 uses as its headlines. The storyboard also says 'The headline is a rule from the motion map.' So this is a principle, the same kind as the other system headlines, not hardware talk. The proposed 'Designed for the phone first.' does not appear in the brief or on the site (I searched both for phone first, mobile first and designed for), and the rules allow only copy that exists there. The owner's real concern is that the line felt flat. The new phrase break ('Mobile is / the primary device.', see finding 1) makes it read as a statement rather than a note, with the copy unchanged. If the owner still wants different wording, the brief's rule text has to change first."
+    }
+   ]
+  },
+  {
+   "slug": "never-meant-to-fade",
+   "results": [
+    {
+     "problem": "89.0–89.2 s (minor, client-eye): phone B and phone A's edge show half-transparent over the returning Wayne bottle inside the soft edge of the runtime light-wipe, which muddies the bookend.",
+     "outcome": "fixed",
+     "detail": "Confirmed first on a preview strip (88.4–89.6 s, 0.1 s steps): at 89.0 and 89.1 s the car and the Forbidden Apple card showed through the bottle.\n\nFix, in reel/scenes/never-meant-to-fade.js only:\n- The film layer is now masked with its own `R.softReveal(filmLayer, R.tween(t, 0.8, 1.2, R.ease.inOut), 100, 26)`. These are scene 01's exact reveal values (1.2 s, 100°, 26 %), not the critic's 0.9/1.0, so the bookend matches the opening.\n- The runtime wipe therefore carries both phones off onto Night. The frame holds Night for about 0.25 s (89.2–89.4 s, measured uniform at RGB ≈ 24/23/21, i.e. Night plus grain), the same beat as scene 01's opening Night. The light edge then reveals the film, with the bottle fully lit by about 89.9 s.\n- I simulated the two masks numerically against scene 10's phone rects (x 920 and 1425, 375 × 784 at y 148). The film's leading edge never overlaps a pixel where a phone is still visible: worst ghost is 0.000 for any reveal start from 0.4 s. The re-rendered strip (88.4–90.3 s) and a full-size still at 88.95 s confirm it.\n- The scrim now starts with the reveal (0.8 s). Its colour is Night, so it cannot be seen until the film shows.\n- Grain and the film clock (τ = t, frame blending, loop seam) are unchanged.",
+     "verified": "strip 88.4–90.3 s; full-size stills at 88.95, 89.30 and 89.75 s"
+    },
+    {
+     "problem": "92.1 s (major, motion-pacing): the tagline completes at 92.08 and the film ends at 94.70, so the finished end card holds only 2.6 s and the close feels clipped.",
+     "outcome": "fixed",
+     "detail": "Confirmed: before the change the last word settled at local 3.78 (92.08 s).\n\nChanged the timings to RULE_AT 2.4→1.9 and WORDS_AT 2.7→2.1, as the critic proposed. I kept MARK_AT at 1.4 rather than 1.0. The new film reveal lights the wordmark's patch of sea completely at local 1.40, so the wordmark lands as the light settles. At 1.0 it would rise over Night.\n\nResult:\n- The tagline settles at local 3.18 (91.48 s).\n- The finished card holds 3.22 s, up from 2.62 s.\n- The push now runs to ctx.duration instead of a hard-coded 6.4. It still ends at 1.03 on the last frame, and it will track the timeline if scene 11 is extended.\n\nA frame strip (90.1–91.6 s, every other frame) shows the rule drawing about 90.2–90.8 s, even 80 ms word stagger, and no frame where things collide or snap. Full-size stills at 90.6, 91.5 and 94.7 s are clean.\n\nThe critic's optional 4 s hold needs a change outside my file. In storyboard.json / timeline.js, scene 11's duration would go 6.4→7.4 s (film 94.7→95.7 s, 'holdUntil' 7.4). This scene needs no further edits for that: the push already follows ctx.duration. Not needed for the 3.2 s target, so I am noting it rather than escalating it."
+    },
+    {
+     "problem": "94.5 s (minor, brand-type): on the end card the 64 px hairline sits 72 px below the wordmark but only 34 px above the tagline, so it hangs on the tagline instead of dividing the lock-up.",
+     "outcome": "fixed",
+     "detail": "Confirmed on the encoded frame at 94.50 s, and the imbalance was worse than reported:\n- 'eternal' ink ends at row 517.\n- The rule is at row 590.\n- The tagline's cap S and ascenders start at row 625, and its x-height starts at row 643.\n\nMoved RULE.y 590→571, the measured ink midpoint. The critic's 568 came from their own arithmetic, and (516 + 630) / 2 is actually 573.\n\nMeasured on the new still at 94.70 s:\n- wordmark ink 394–517\n- rule on row 571\n- tagline ink 625–676\n\nThat is exactly 53 clear rows above and below the rule. The rule is still 64 × 1 px in Dune at x 124–188, so the ink block 394–678 and the title-safe area are unchanged. I did not act on the 60 px tagline the critic mentions: it is not among my findings, and the storyboard specifies 52 px."
+    }
+   ]
+  }
+ ],
+ "engine_actions": [
+  "crossfade and dip easing → R.ease.inOut (runtime.js applyIn)",
+  "light-wipe soft edge 26% → 14% default, configurable via timeline in.soft",
+  "softReveal: smoothstep across nine stops (lib.js)",
+  "grain: half-resolution tiles shown at 2x, refreshed at 15 fps",
+  "encoder: aq-mode=3, deblock -1,-1; transfer tagged sRGB (iec61966-2-1)",
+  "NOT DONE — label small print on the hero-film bottle (6 px at 1080p): compositing a clean plate across a pushing film risks a worse artefact; flagged to the client instead",
+  "NOT DONE — Arabic specimen: the only Arabic copy is an unreviewed placeholder",
+  "NOT DONE — PDP/price/add-to-bag window: prices are excluded by policy, and the PDP gallery is empty in this environment (Shopify CDN blocked)"
+ ]
+}
