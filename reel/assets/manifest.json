@@ -1,0 +1,262 @@
+{
+ "img/discovery-set.jpg": {
+  "w": 2457,
+  "h": 1536
+ },
+ "img/finder-band.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-mood-after-dark.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-mood-fresh-linen.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-mood-golden-hour.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-mood-sea-air.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-mood-warm-skin.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-mood-wild-garden.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-place-city.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-place-coast.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-place-garden.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-place-kitchen.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-strength-loud.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-strength-present.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-strength-soft.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-time-both.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-time-day.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-time-night.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-who-any.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-who-either.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-who-her.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/finder-who-him.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/home-hero-mobile.jpg": {
+  "w": 1080,
+  "h": 1880
+ },
+ "img/home-hero.jpg": {
+  "w": 1920,
+  "h": 1080
+ },
+ "img/house-film-poster.jpg": {
+  "w": 2560,
+  "h": 1429
+ },
+ "img/house-founder.jpg": {
+  "w": 1856,
+  "h": 2304
+ },
+ "img/house-step-1.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/house-step-2.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/house-step-3.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/line-eterna.jpg": {
+  "w": 1856,
+  "h": 2304
+ },
+ "img/line-eternal.jpg": {
+  "w": 1856,
+  "h": 2304
+ },
+ "img/line-eterno.jpg": {
+  "w": 1856,
+  "h": 2304
+ },
+ "img/mood-after-dark.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/mood-fresh-linen.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/mood-golden-hour.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/mood-sea-air.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/mood-warm-skin.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/mood-wild-garden.jpg": {
+  "w": 2400,
+  "h": 1792
+ },
+ "img/mystery-box.jpg": {
+  "w": 2457,
+  "h": 1536
+ },
+ "img/og-image.jpg": {
+  "w": 1200,
+  "h": 630
+ },
+ "img/tale-enzo-1898.jpg": {
+  "w": 2560,
+  "h": 1429
+ },
+ "img/tale-featured.jpg": {
+  "w": 1856,
+  "h": 2304
+ },
+ "img/tale-forbidden-apple.jpg": {
+  "w": 2560,
+  "h": 1429
+ },
+ "img/tale-mercury.jpg": {
+  "w": 2560,
+  "h": 1429
+ },
+ "img/tale-shadow-of-the-sea.jpg": {
+  "w": 2560,
+  "h": 1429
+ },
+ "img/tale-wayne.jpg": {
+  "w": 2560,
+  "h": 1429
+ },
+ "img/texture-frosted-glass.jpg": {
+  "w": 2048,
+  "h": 2048
+ },
+ "img/texture-linen-weave.jpg": {
+  "w": 2048,
+  "h": 2048
+ },
+ "img/texture-plaster.jpg": {
+  "w": 2048,
+  "h": 2048
+ },
+ "img/texture-sand-ridges.jpg": {
+  "w": 2048,
+  "h": 2048
+ },
+ "img/texture-sea-surface.jpg": {
+  "w": 2048,
+  "h": 2048
+ },
+ "img/texture-wet-stone.jpg": {
+  "w": 2048,
+  "h": 2048
+ },
+ "site/finder-desktop.jpg": {
+  "w": 2880,
+  "h": 3346
+ },
+ "site/finder-mobile.jpg": {
+  "w": 1170,
+  "h": 7281
+ },
+ "site/home-desktop.jpg": {
+  "w": 2880,
+  "h": 17892
+ },
+ "site/home-mobile.jpg": {
+  "w": 1170,
+  "h": 34470
+ },
+ "site/house-desktop.jpg": {
+  "w": 2880,
+  "h": 9242
+ },
+ "site/pdp-desktop.jpg": {
+  "w": 2880,
+  "h": 1800
+ },
+ "site/pdp-mobile.jpg": {
+  "w": 1170,
+  "h": 2532
+ },
+ "site/shop-desktop.jpg": {
+  "w": 2880,
+  "h": 9872
+ },
+ "site/tale-desktop.jpg": {
+  "w": 2880,
+  "h": 5670
+ },
+ "site/tales-desktop.jpg": {
+  "w": 2880,
+  "h": 4514
+ },
+ "film": {
+  "frames": 133,
+  "fps": 24,
+  "w": 1920,
+  "h": 1080
+ },
+ "film-mobile": {
+  "frames": 133,
+  "fps": 24,
+  "w": 1080,
+  "h": 1880
+ }
+}

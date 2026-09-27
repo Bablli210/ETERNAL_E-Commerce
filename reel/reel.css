@@ -1,0 +1,37 @@
+/* The reel's stage: 1920x1080, the storefront's tokens scaled from 1440 to 1920 (x1.333). */
+:root {
+  --linen: #F3EFE7; --paper: #FAF8F3; --sand: #E4D9C5; --dune: #CDBFA5; --stone: #9E9382;
+  --ash: #6D665C; --night: #171614; --gold: #B97A2B; --gold-text: #8F5B1B; --sea: #163A4E;
+  --blush: #E3CFC4; --slate: #1F3F50; --bone: #E9E4D3;
+  --serif: "Cormorant Garamond", "Cormorant Garamond Fallback", Georgia, serif;
+  --sans: "Instrument Sans", "Instrument Sans Fallback", Arial, sans-serif;
+  --margin: 120px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #000; overflow: hidden; }
+body { -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; font-kerning: normal; }
+#stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--night); color: var(--night); font-family: var(--sans); }
+.scene { position: absolute; inset: 0; overflow: hidden; }
+.abs { position: absolute; }
+.fill { position: absolute; inset: 0; }
+img { display: block; user-select: none; }
+
+/* Type roles, from the direction board, sized for a 1920 frame. */
+.t-display-xl { font-family: var(--serif); font-weight: 600; font-size: 128px; line-height: 1.02; letter-spacing: -0.01em; }
+.t-display-l  { font-family: var(--serif); font-weight: 600; font-size: 80px;  line-height: 1.05; letter-spacing: -0.01em; }
+.t-display-m  { font-family: var(--serif); font-weight: 500; font-size: 44px;  line-height: 1.1; }
+.t-signature  { font-family: var(--serif); font-weight: 500; font-style: italic; font-size: 40px; line-height: 1.25; }
+.t-body       { font-family: var(--sans); font-weight: 400; font-size: 26px; line-height: 1.55; }
+.t-eyebrow    { font-family: var(--sans); font-weight: 600; font-size: 17px; line-height: 1.2; letter-spacing: 0.14em; text-transform: uppercase; }
+.t-caption    { font-family: var(--sans); font-weight: 500; font-size: 19px; line-height: 1.4; letter-spacing: 0.02em; }
+.t-numeral    { font-family: var(--serif); font-weight: 600; font-size: 96px; line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
+.t-wordmark   { font-family: var(--serif); font-weight: 600; font-size: 72px; line-height: 1; letter-spacing: 0.02em; }
+.t-mono       { font-family: var(--sans); font-weight: 500; font-size: 19px; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+.word { display: inline-block; white-space: pre; will-change: transform, opacity; }
+
+/* Overlays owned by the runtime. */
+#dip   { position: absolute; inset: 0; z-index: 900; pointer-events: none; opacity: 0; }
+#grain { position: absolute; inset: 0; z-index: 950; pointer-events: none; opacity: 0; mix-blend-mode: overlay; }
+#debug { position: absolute; inset: 0; z-index: 999; pointer-events: none; font: 600 18px/1 var(--sans); color: #0f0; }
+#debug .safe { position: absolute; left: 96px; top: 54px; right: 96px; bottom: 54px; outline: 1px dashed rgba(0,255,0,.5); }
+#debug .tc { position: absolute; left: 12px; bottom: 12px; background: rgba(0,0,0,.6); padding: 6px 8px; }

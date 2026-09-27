@@ -1,0 +1,74 @@
+
+home-desktop (css width 1440):
+  36-108 header 
+  0-8084 div “Some things are never meant to fade.”
+  0-900 section#hero “Some things are never meant to fade.”
+  900-1108 section#proof 
+  1108-2008 section “Three lines, one house”
+  2008-3040 section “Most worn this month”
+  3040-3690 section “Not sure where to start?”
+  3690-4602 section “The sea signs the ones it gives back.”
+  4602-5665 section “Shop by mood”
+  5665-6662 section “Try before you commit”
+  6662-7293 section “Composed to be remembered.”
+  7293-8084 section “Tales”
+  8486-8946 footer 
+
+home-mobile (css width 390):
+  36-108 header 
+  0-9886 div “Some things are never meant to fade.”
+  0-844 section#hero “Some things are never meant to fade.”
+  844-1189 section#proof 
+  1189-2840 section “Three lines, one house”
+  2840-3772 section “Most worn this month”
+  3772-4447 section “Not sure where to start?”
+  4447-5617 section “The sea signs the ones it gives back.”
+  5617-6358 section “Shop by mood”
+  6358-7595 section “Try before you commit”
+  7595-8342 section “Composed to be remembered.”
+  8342-9886 section “Tales”
+  10370-11490 footer 
+
+shop-desktop (css width 1440):
+  36-108 header 
+  108-4074 div “All scents”
+  108-328 section “All scents”
+  328-3068 section “Caribbean Punch”
+  3068-3649 section “Try six for the price of [price]”
+  3649-4074 section “Before you choose”
+  4476-4936 footer 
+
+finder-desktop (css width 1440):
+  36-108 header 
+  108-811 div “Who will wear it?”
+  108-811 section “Who will wear it?”
+  1213-1673 footer 
+
+finder-mobile (css width 390):
+  36-108 header 
+  108-823 div “Who will wear it?”
+  108-823 section “Who will wear it?”
+  1307-2427 footer 
+
+tales-desktop (css width 1440):
+  36-108 header 
+  108-1395 div “One story per bottle.”
+  108-304 section “One story per bottle.”
+  304-1395 section “The sea signs the ones it gives back.”
+  1797-2257 footer 
+
+tale-desktop (css width 1440):
+  36-108 header 
+  108-1973 div “Don’t be the man she notices. Be the man she ask”
+  1483-1973 section 
+  2375-2835 footer 
+
+house-desktop (css width 1440):
+  36-108 header 
+  108-3759 div “Some things are never meant to fade.”
+  108-610 section “Some things are never meant to fade.”
+  610-1458 section 
+  1458-2251 section “How we compose”
+  2251-3119 section “Three lines, one house”
+  3119-3759 section 
+  4161-4621 footer 

@@ -1,0 +1,742 @@
+===== design/artboards/Direction.dc.html =====
+1
+Design direction · v1 · 17 September 2026
+Salt, stone and golden hour.
+Mediterranean minimalism with matière: warm ivory grounds, hairline architecture, one saturated colour world per bottle, photography lit at 4 pm. Quiet enough to feel expensive, warm enough to feel like Cairo in October — not a cold Scandinavian template.
+2
+Four principles
+01
+Quiet luxury
+Nothing shouts. Fewer elements, larger, with room to breathe. The product and the word carry the page.
+On the site:
+One idea per screen height; 120 px section rhythm; no badges, ribbons or countdowns.
+02
+Matière
+Stone, sand, linen, wet glass, film grain. Texture replaces decoration — the site should feel like something you could touch.
+On the site:
+Photography as texture; 3–4 % grain on dark bands; hairline rules instead of boxes.
+03
+Golden hour
+One light source, low and warm, long hard shadows. Every image on the site could have been shot in the same hour.
+On the site:
+Shot brief for all photography; amber as the only warm accent; ivory instead of white.
+04
+One story per bottle
+Each scent owns a colour world and a tale. The catalogue is a set of worlds, not a grid of bottles.
+On the site:
+Colour-world packshots, tale excerpt on every PDP, mood and family as the ways in.
+3
+Colour system
+Neutrals — 90 % of every page
+Linen
+#F3EFE7 · ground
+Paper
+#FAF8F3 · cards, inputs
+Sand
+#E4D9C5 · bands, tints
+Dune
+#CDBFA5 · rules, borders
+Stone
+#9E9382 · captions ≥ 24px
+Ash
+#6D665C · secondary text
+Night
+#171614 · ink, buttons, dark bands
+Accents — used sparingly, never on both at once
+Golden hour
+#B97A2B · accent · large type, meters
+Golden hour · text
+#8F5B1B · small text on ivory
+Deep sea
+#163A4E · secondary accent · eterno, links hover
+Line tones — tinted neutrals so the scent colours stay the loudest thing
+eterna · Blush clay
+#E3CFC4 · her
+eterno · Sea slate
+#1F3F50 · him
+eternal · Bone
+#E9E4D3 · unisex
+Ratio on a typical page
+70 linen · 20 night · 6 sand · 4 golden hour
+Contrast
+Night on Linen 15.9:1 · Ash on Linen 5.4:1 · Golden hour text on Linen 5.1:1 · Stone only at 24 px and above (3.3:1). Linen on Night 15.9:1, Dune on Night 9.8:1 for captions on dark bands.
+4
+Colour worlds — one per scent
+Every bottle is photographed on a seamless in its own colour; the same colour tints its card, its PDP gallery, its cart line and its tale. Two are set by the packshots you already have; the other eight are proposals for the packaging team to confirm. The remaining 33 SKUs follow the same rule: pick from the world’s family palette, never a second saturated hue.
+destiny
+eterna · #A9C4E4 / #3F6FA8
+from the packshot
+caribbean punch
+eternal · #F0E3CC / #D9843A
+from the packshot
+Shadow of the Sea
+eterno · #0F2B3C / #C9D8DE
+proposed
+Forbidden Apple
+eterna · #F1D3D6 / #4F6B3F
+proposed
+Wayne
+eterno · #2B2A28 / #B97A2B
+proposed
+Mercury
+eternal · #C7C3CE / #6F5E8A
+proposed
+Sapphire
+eterno · #1B3F8F / #DCE6F5
+proposed
+Enzo 1898
+eterno · #2F5A4E / #6B3A2B
+proposed
+Tonic Club
+eternal · #DDE9C8 / #3E5A2E
+proposed
+Linen
+eternal · #F2EFE8 / #9A968D
+proposed
+5
+6
+7
+Typography
+Some things are never meant to fade.
+You can smell the ones the sea decided to give back.
+Instrument Sans for everything that is not a headline: clean, slightly narrow, warm enough beside the serif. Tabular figures for prices so columns and meters align.
+Shop the collection
+Find your scent
+eterno · eau de parfum · 55 ml
+EGP 1,450
+بعض الأشياء لا تخبو أبدًا.
+عطر لكل قصة. جرّب ثلاث عينات قبل أن تختار زجاجتك — والتوصيل لكل محافظات مصر.
+تسوّق المجموعة
+اكتشف عطرك
+Arabic pairing: Amiri carries the same calligraphic warmth as the serif; IBM Plex Sans Arabic matches Instrument Sans in weight and x-height. Copy above is placeholder — [Arabic copy to be written and reviewed by a native copywriter].
+Display XL
+Cormorant Garamond 600 · hero headline, tale titles
+-0.01em · 1.02
+96 / 56 mob
+Display L
+Cormorant Garamond 600 · section titles, product names on PDP
+-0.01em · 1.05
+56 / 40
+Display M
+Cormorant Garamond 500 · card names, tile names, drawer title
+0 · 1.1
+28 / 24
+Signature
+Cormorant Garamond 500 italic · the one line from the tale
+0 · 1.2
+24 / 20
+Body
+Instrument Sans 400 · story text, descriptions
+0 · 1.6
+17 / 16
+UI
+Instrument Sans 500/600 · buttons, nav, prices (tabular)
+0.04em
+13
+Eyebrow
+Instrument Sans 600 uppercase · section labels, line tags
+0.14em
+11
+Arabic display
+Amiri 700 · headlines, tale titles (RTL, line-height 1.4)
+0
++10 %
+Arabic body/UI
+IBM Plex Sans Arabic 400/500 · body, buttons, nav
+0
++5 %
+8
+9
+10
+Materials, iconography, logo
+Wet stone — hero film and dark bands
+Stone & sea
+— hero, house film, tale heroes
+Sand ridges — section backgrounds at 20 % opacity
+Sand
+— finder, mood band, footer texture
+Linen weave — cards and packaging shots
+Linen
+— cards, discovery set, newsletter band
+Frosted glass and water — notes stills
+Glass & water
+— notes pyramid, ingredient stills
+Icons — 20 px, 1.5 px stroke, round caps. Never filled, never emoji.
+Wordmark
+on Linen — header, footer, packaging shots. Clear space = the height of the e.
+Mark e∞
+inverted on Night — loader, favicon, cart empty state, section ornament.
+Shadow of the Sea
+Watermark
+at 6–8 % on colour-world bands — never on photography.
+11
+12
+Photography brief and layout rules
+Bottle on colour world · seamless in the scent’s colour · soft top light + hard 4 pm shadow · 1:1 and 4:5
+Packshots
+— 43 × 2 crops
+Ingredient still · notes laid on stone or linen · overhead · same light
+Notes stills
+— per family (6) + per hero scent
+Campaign · a person in a landscape, back to camera, sea or grass · 16:9 and 4:5
+Editorial
+— per line (3) + per tale (8)
+Scale · bottle in hand, on skin, in a bag · natural light
+Scale & hands
+— PDP frame 2 and 3
+Abstract · blurred bottles, water, glass — section dividers and loaders
+Texture
+— dividers, empty states, 404
+Grid
+12 columns · 24 px gutter · 80 px margins at 1440, 20 px at 390 · content max 1280. Text 5 columns, image 7 — the asymmetry is the signature. Section rhythm 120 px desktop / 72 px mobile.
+Shape
+Radius 0 on everything except inputs (2 px) and pills. No drop shadows — depth comes from light in the photography and from Night bands. Borders are hairlines in Dune.
+Index numbers
+Sections, notes and process steps carry a small tabular index (01, 02, 03) in Ash — an editorial device that also helps scanning.
+Dark bands
+Night or Deep sea, with 3–4 % grain and a 6 % watermark: hero, featured tale, house film, finder results. Never two dark bands in a row.
+
+===== design/artboards/Direction-notes.dc.html =====
+Design direction — notes
+Which design elements are used, and where
+Conversion
+why it sells
+Shopify
+how to build it
+Motion
+hook for phase 2
+1
+The direction in one line
+Conversion
+“Salt, stone and golden hour” — Mediterranean minimalism with texture and warm light. It is chosen for conversion as much as taste: warm neutrals photograph product well, dark bands give the tales weight, and restraint keeps attention on the two things that sell — the bottle and the story.
+2
+Principles are rules, not adjectives
+Conversion
+Each principle carries an “on the site” rule so the visual design and the theme build can be checked against it: one idea per screen, texture over decoration, one light source, one story per bottle.
+3
+Colour system: neutrals do the work
+Conversion
+Shopify
+Linen ground, Paper cards, Night ink, Dune hairlines. Golden hour is the only warm accent (meters, index numbers, the bag badge); Deep sea is eterno’s tone and the hover colour. Shopify: theme colour schemes = Linen, Paper, Night, Deep sea, plus the three line tones.
+4
+Colour worlds per scent
+Conversion
+Shopify
+One saturated colour per bottle, from the packshot seamless to the card, gallery, cart line and tale band. Two are fixed by your existing packshots; the others are proposals for packaging to confirm. Shopify: product metafield color_world (hex) read by the card, PDP and cart snippets.
+5
+Typography: Cormorant Garamond + Instrument Sans
+Conversion
+The serif echoes the soft, calligraphic wordmark on the bottle and the editorial references; the sans is quiet and slightly narrow so prices, nav and buttons never compete with the headline. Alternatives if you want more edge: Instrument Serif (sharper, fashion) or Fraunces Soft (closer to the looped e of the wordmark).
+6
+Arabic pairing
+Conversion
+Shopify
+Amiri for display, IBM Plex Sans Arabic for UI — both on Google Fonts, both render well on mid-range Android. Arabic runs 5–10 % larger with a taller line-height. Shopify: Translate & Adapt for strings; the theme swaps the font stack on the ar locale and flips the grid to RTL.
+7
+Type scale
+Conversion
+Nine roles from Display XL to Eyebrow, with mobile sizes. Tabular numerals on every price and meter. Body at 17 px on desktop for the tales — reading comfort is a conversion lever on a story-led site.
+8
+Materials
+Conversion
+Motion
+Stone and sea for dark bands, sand for tinted sections, linen for cards, glass and water for the notes. Grain at 3–4 % on Night and Deep sea only. Motion in phase 2 treats these as light moving across surfaces, never as effects.
+9
+Iconography
+Conversion
+Shopify
+20 px, 1.5 px stroke, round caps — the same set the wireframes already use. Shopify: inline SVG snippets in the theme, one file per icon, currentColor so they inherit the band colour.
+10
+Logo and the e∞ mark
+Conversion
+Shopify
+Motion
+Wordmark on Linen for header and footer; mark inverted on Night for favicon, loader, empty states; a 6–8 % watermark on colour-world bands only. Motion: the mark is the loader and the finder’s “composing” state — a single stroke draw, never a spin.
+11
+Photography brief
+Conversion
+Five shot types with counts: packshots ×43, notes stills per family, editorial per line and per tale, scale and hands, abstract texture. All in the same hour of light so the site reads as one world. This brief is the shoot list for the campaign days.
+12
+Layout and shape
+Conversion
+Shopify
+12 columns, 80 / 20 px margins, text 5 columns and image 7, radius 0, hairlines instead of boxes, no drop shadows. Shopify: section padding and container width as theme settings; every section follows the same 120 / 72 px rhythm.
+A1
+Hero on the colour world
+Conversion
+Motion
+The featured scent’s colour world becomes the hero background, so the first screen is already a product page in spirit. In production the film loop replaces the still and the packshot is its poster frame. Both CTAs sit above the trust line.
+A2
+Proof strip in display numerals
+Conversion
+Large tabular serif numbers make the four facts read as editorial rather than as trust badges. They count up in phase 2 (H2).
+A3
+Index numbers and asymmetry
+Conversion
+Sections carry 01–04 indices, a left-aligned serif title and the link or button on the right baseline — the editorial rhythm from the BARE EARTH and Decanova references. Line tiles use the three line tones as their seamless.
+A4
+Bestseller cards
+Conversion
+Shopify
+Colour-world image, line eyebrow, serif name, tabular price, inspired-by line and the two actions. Shopify: featured-collection section; the card snippet reads color_world, inspired_by and notes_short.
+A5
+Dark tale band
+Conversion
+Shopify
+Deep sea with grain and the watermark; tale copy in Linen, the signature line in italic, two buttons. Shopify: the section takes a product reference and reads story, signature_line and color_world.
+A6
+Finder band
+Conversion
+A single sentence and one button on Linen — deliberately the quietest band on the page, right after the loudest one, so the undecided visitor gets a breath and a path.
+A7
+Mood tiles
+Conversion
+Shopify
+Six texture images with the mood name in the serif — no copy, no buttons; the picture is the argument. Shopify: collection-list section on the six mood collections.
+A8
+Join band on Night
+Conversion
+Shopify
+Email field and WhatsApp alternative in one row, the incentive in one line. Shopify Email or Klaviyo form; WhatsApp opt-in with consent text.
+A9
+Footer
+Conversion
+Shopify
+Wordmark, the tagline in italic, three link columns, payment marks as hairline chips. Shopify: footer blocks; payment icons from enabled gateways.
+A10
+Mobile sticky bar
+Conversion
+Motion
+The two hero actions travel with the reader once the hero scrolls out (H9); on product pages the same slot becomes the add-to-bag bar.
+
+===== design/artboards/Motion-spec.dc.html =====
+1
+Motion spec · tokens and rules
+Every animation, one line each.
+Durations
+xs 120 · s 200 · m 320 · l 600 · xl 1200 ms. Micro-feedback is xs/s, drawers and screens m, meters and counts l, the mark draw xl.
+Easing
+standard cubic-bezier(.2,.7,.2,1) · emphasized cubic-bezier(.16,1,.3,1) for drawers and screens · exit cubic-bezier(.4,0,1,1) · linear only for the reviews drift.
+Distances and scale
+Rise 16 px (24 on display type) · nudge 4 px · slide 8 px · hover scale 1.03 max · parallax factor ≤ 0.2 · stagger 40 / 60 / 80 / 120 ms.
+Triggers
+Scroll reveals at 20 % visibility, once; count-ups and meters at 50 %; sticky elements on the main control leaving the viewport.
+Performance budget
+Hero video ≤ 2.5 MB (mp4 + webm), poster ≤ 120 KB; GSAP only on templates that need it (home, PDP, finder), deferred; no animation on the LCP element except the poster fade.
+Implementation
+CSS custom properties for the tokens · a data-reveal utility on IntersectionObserver · GSAP + ScrollTrigger for H1, H5, D5, F3 · inline SVG stroke draw for the e∞ mark (no Lottie needed) · View Transitions API for G2 · native scroll-snap carousels · a global “Enable motion” theme setting plus prefers-reduced-motion.
+2
+ID
+Where
+Trigger
+What happens
+Timing
+Mobile
+Reduced motion
+G1
+First visit · page load
+Page ready, once per session
+The e∞ mark draws itself in a single stroke, the Linen curtain lifts to reveal the page
+600 ms draw + 400 ms lift · emphasized
+Same, 500 ms total
+Skip: page appears
+G2
+Between pages
+Navigation
+Cross-fade of the page body; the header stays put
+200 ms · standard (View Transitions API, fade fallback)
+Same
+Instant
+G3
+Header
+Scroll past 120 px
+Transparent → Linen with hairline; hides on scroll down, returns on scroll up
+200 ms background · 240 ms hide/show
+Same
+Same, no slide
+G4
+Mega menu
+Hover Shop (tap on touch)
+Panel fades and drops 8 px; featured tiles stagger in
+200 ms · 40 ms stagger
+Drawer slides from left 320 ms
+Fade only
+G5
+Buttons and links
+Hover / focus
+Primary: Night → Deep sea; arrow nudges 4 px. Text links: underline draws left to right
+160 ms · 240 ms underline
+Press: scale 0.98
+Colour only
+G6
+Cart drawer
+Add to bag
+Drawer slides from the right, overlay fades, the new line highlights, the shipping meter fills
+320 ms slide · 600 ms meter · emphasized
+Bottom sheet slides up 320 ms
+Drawer appears, meter static
+G7
+Every image
+Lazy load
+Fades in from its colour world (no grey boxes): the placeholder is the scent’s colour
+400 ms · standard
+Same
+Same (fade is fine)
+G8
+Text and cards on scroll
+Element 20 % in view, once
+Rise 16 px and fade; siblings stagger
+500 ms · 60 ms stagger · standard
+First row only; later rows appear
+Visible immediately
+G9
+WhatsApp float
+3 s after load
+Fades in, one pulse; hides while a drawer is open
+240 ms · pulse 800 ms
+Same
+No pulse
+G10
+Toast (added to bag)
+Add when the drawer is off
+Slides up 16 px, stays 3 s, slides out
+240 ms in · 200 ms out
+Same
+Fade only
+H1
+Home hero
+Load + scroll
+Poster first (LCP), film swaps in when ready; headline words stagger up; on scroll the film scales to 1.04 and the text drifts at 0.2× (desktop)
+80 ms word stagger · parallax ≤ 0.2
+No parallax; film plays if data-saver is off
+Poster only, text visible
+H2
+Proof strip
+In view, once
+Numbers count up from 0
+800 ms · ease-out
+Same
+Final numbers
+H3
+Line tiles
+Hover
+Image scales 1.03; label slides 8 px right
+600 ms · standard
+No motion (tap)
+No motion
+H4
+Bestsellers carousel
+Drag / arrows · hover
+Inertial scroll-snap; hover crossfades to the second frame; quick-add rises from the bottom
+300 ms crossfade · 200 ms button
+Buttons always visible; native swipe
+No crossfade
+H5
+Featured tale band
+Scroll
+Still moves at 0.15×; paragraph lines fade in one after another; signature line last
+80 ms line stagger
+Fade only
+Visible
+H6
+Mood tiles
+Hover
+A 30 % wash of the mood colour rises over the image; name underlines
+300 ms
+No motion
+No motion
+H7
+Reviews strip
+Always
+Slow horizontal drift, pauses on hover
+40 s linear loop
+Manual swipe
+Static grid
+H8
+House film poster
+Always · hover
+Slow drift (Ken Burns 1.0 → 1.06 over 20 s); play button scales 1.06 on hover
+20 s · 200 ms
+Drift off
+Static
+H9
+Mobile sticky bar
+Hero leaves viewport
+Slides up once; swaps to the add-to-bag bar on product pages
+200 ms · standard
+Mobile only
+Appears
+P1
+Collection filters
+Chip tap
+Chip fills; removed cards fade out, remaining cards glide to their new positions (FLIP)
+160 ms fill · 320 ms move
+Same
+Re-render
+P2
+Filter drawer
+Filters button
+Slides from the left (desktop) or up (mobile)
+320 ms · emphasized
+Bottom sheet
+Appears
+P3
+Load more
+Button
+New cards fade up with stagger; scroll position kept
+400 ms · 40 ms stagger
+Same
+Appear
+D1
+PDP gallery
+Load · swipe
+First frame slow zoom 1.02 over 8 s; mobile swipe with snap and dots
+8 s · native snap
+Swipe
+Static
+D2
+Size selector
+Select
+Border thickens; price crossfades to the new value
+120 ms · 160 ms
+Same
+Instant
+D3
+Add to bag
+Click
+Label becomes “Added ✓”, bag icon ticks once, then the drawer opens
+160 ms label · 400 ms tick
+Same
+Label only
+D4
+Sticky add-to-bag
+Main button leaves viewport
+Bar slides in from the bottom, out when the button returns
+240 ms · standard
+Same
+Appears
+D5
+Notes pyramid
+In view
+Top, heart, base columns rise one after another; note image zooms on hover
+120 ms stagger · 500 ms
+Horizontal snap scroll
+Visible
+D6
+Longevity / sillage
+In view
+Meters fill to their score
+600 ms · ease-out
+Same
+Filled
+D7
+FAQ accordion
+Tap
+Height eases open; chevron rotates
+240 ms · standard
+Same
+Instant
+D8
+Review photos
+Tap
+Lightbox fades; swipe between photos
+200 ms
+Same
+Fade
+F1
+Finder screens
+Answer / Back
+Screen slides left (or right on Back); progress bar fills
+320 ms · emphasized
+Same
+Cross-fade
+F2
+Option tiles
+Hover / select
+Tile lifts 4 px with a Night border; the check draws
+200 ms
+Press only
+Border only
+F3
+Results
+Last answer
+The e∞ mark draws for 1.2 s (“composing your matches”), then three cards fade up in turn and the match % counts up
+1.2 s + 120 ms stagger + 600 ms count
+Same
+Results appear
+F4
+Trio sample button
+Results shown
+One pulse to draw the eye to the one-tap sample offer
+800 ms · once
+Same
+No motion
+T1
+Tale hero
+Scroll
+Still moves at 0.2×; a hairline reading-progress bar tracks along the top
+Parallax ≤ 0.2
+Progress bar only
+Static
+T2
+Shoppable card
+40 % read (30 % mobile)
+Card slides in beside the text; on mobile it rises from the bottom
+320 ms · emphasized
+Bottom card
+Card visible from the top
+T3
+Next tale
+Hover
+Image reveals behind the title
+300 ms
+No motion
+No motion
+C1
+Cart quantity
+Tap ±
+Price ticks to the new value; subtotal follows
+120 ms
+Same
+Instant
+C2
+Remove line
+Tap
+Line collapses; the list closes the gap
+240 ms
+Same
+Instant
+C3
+Upsell Add
+Tap
+The suggestion slides into the list as a real line; meter updates
+320 ms
+Same
+Instant
+C4
+Checkout button
+Tap
+Loading state: three dots; button stays the same size
+Until navigation
+Same
+Same
+
+===== design/artboards/Motion-map.dc.html =====
+Motion · across the website
+Where the site moves, and where it deliberately does not.
+Each block is a section in scroll order; the tag is the animation from the spec board. Sections marked “still” have no motion on purpose — restraint is part of the direction. Purple tags on the wireframe notes boards point at the same ids.
+1
+Global
+G1
+Load: e∞ draws
+G2
+Page cross-fade
+G3
+Header states
+G4
+Mega menu
+G5
+Buttons & links
+G6
+Cart drawer
+G7
+Image fades
+G8
+Scroll reveals
+G9
+WhatsApp float
+G10
+Toast
+Home
+Announcement
+H1
+Hero film + parallax
+H2
+Proof count-up
+H3
+Line tiles hover
+H4
+Bestsellers carousel
+Finder band — still
+H5
+Tale band lines
+H6
+Mood tiles wash
+Discovery band — still
+H7
+Reviews drift
+H8
+House film drift
+Tales teaser — G8
+Join — G8
+H9
+Mobile sticky bar
+Collection
+Header — still
+P1
+Chips + FLIP grid
+P2
+Filter drawer
+Cards — H4 hover
+Editorial tile — G8
+P3
+Load more
+Discovery + FAQ — D7
+Product page
+D1
+Gallery zoom / swipe
+D2
+Size selector
+D3
+Add to bag
+D4
+Sticky bar
+D5
+Notes pyramid
+Tale excerpt — G8
+D6
+Meters
+Inspired-by — G8
+D8
+Review photos
+D7
+FAQ
+Bundle — H4 hover
+Recently viewed — G7
+Finder · Tales · Cart
+F1
+Screen slides
+F2
+Option tiles
+F3
+Results reveal
+F4
+Trio pulse
+T1
+Tale hero + progress
+T2
+Shoppable card
+T3
+Next tale
+C1
+Quantity tick
+C2
+Remove collapse
+C3
+Upsell slides in
+C4
+Checkout loading
+2
+Six rules
+Light, not decoration
+Motion behaves like light moving across stone: slow reveals, fades from the colour world, one pulse. Nothing bounces, spins or loops in the reader’s eye line.
+One thing at a time
+A screen never runs two motions at once. The hero film is the only thing moving above the fold; the rest waits for scroll.
+Earn the tap
+Every motion tied to a conversion action is confirmation, not delay: Added ✓, the meter filling, the results composing. Never more than 1.2 s in the way.
+Mobile is the primary device
+Parallax, hover states and drifts are desktop-only. On mobile: swipe, snap, slide, fade — and the sticky bars.
+Respect the switch
+prefers-reduced-motion turns every reveal into visible-by-default, pauses video on its poster and makes carousels manual. The site must read complete with motion off.
+Never move the layout
+Only transform and opacity animate. Space is reserved for everything that appears later, so nothing shifts under the thumb (CLS 0).

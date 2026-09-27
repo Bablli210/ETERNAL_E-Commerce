@@ -30,3 +30,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# reel: generated inputs and render scratch (rebuild with reel/tools/prepare.mjs and capture-site.mjs)
+/reel/assets/img/
+/reel/assets/film/
+/reel/assets/film-mobile/
+/reel/assets/site/
+/reel/out/.segments/
+/reel/review/preview/
