@@ -5,15 +5,17 @@
  * 09. The left column keeps scene 09's eyebrow exactly where it was and sets a
  * two-line rule from the motion map; on the right, two minimal phones (Night
  * bodies, no notch, buttons, reflections, shadow or outline) show the real
- * mobile homepage: phone A still on the house band, phone B drifting through
- * the tales.
+ * mobile homepage: phone A still on the featured tale, phone B drifting
+ * through the tales.
  *
- *   0.0  the runtime crossfades us in (600 ms): the browser dissolves while
- *        the Sand ground and the eyebrow, identical in both scenes, stay put.
- *   0.2  phone A fades in and rises 16 px (600 ms, emphasized); phone B
- *        follows at 0.32 s.
- *   0.9  "Mobile is / the primary device." rises word by word across its two
- *        lines (24 px, 600 ms, emphasized, 80 ms stagger; settled at 1.82 s).
+ *   0.0  the runtime crossfades us in (600 ms): the browser and "Shop by mood"
+ *        dissolve while the Sand ground and the eyebrow, identical in both
+ *        scenes, stay put. Nothing else of ours is in the dissolve.
+ *   0.65 on clean Sand, phone A fades in and rises 16 px (600 ms, emphasized);
+ *        phone B follows at 0.77 s.
+ *   1.2  "Mobile is / the primary device." rises word by word across its two
+ *        lines (24 px, 600 ms, emphasized, 80 ms stagger; within 0.2 px of rest
+ *        at 1.9, settled at 2.12 s).
  *   1.9  phone B scrolls css 8380 → 9000 over 4 s: 600 ms sine ease-in, an
  *        even 174 css px/s (157 stage px/s), 600 ms sine ease-out. It is the
  *        only thing moving.
@@ -47,7 +49,9 @@
     { text: "Mobile is", x: 120, y: 300, dx: -1 },
     { text: "the primary device.", x: 120, y: 367, dx: -1 },
   ];
-  const HEAD = { at: 0.9, gap: 0.08, dur: R.dur.l, dist: 24 };
+  // It follows the phones: the first word leaves as phone B lands (0.43 s into
+  // its 0.6 s rise, over 99 % of the way on the emphasized curve).
+  const HEAD = { at: 1.2, gap: 0.08, dur: R.dur.l, dist: 24 };
 
   /* ---- the phones ----
    * R.phone at h 784, bezel 12: a 375×784 Night body, 351×760 screen, corner
@@ -57,17 +61,34 @@
    */
   const PHONE_Y = 148, PHONE_H = 784, BEZEL = 12;
   const PHONES = {
-    a: { x: 920, at: 0.2 },
-    b: { x: 1425, at: 0.32 },
+    a: { x: 920, at: 0.65 },
+    b: { x: 1425, at: 0.77 },
   };
+  // The phones rise only once the runtime's 600 ms crossfade is over. Rising at
+  // 0.2 / 0.32 s, inside it, they met scene 09's six mood tiles mid-dissolve:
+  // phone A's copy over "Golden hour" and "Warm skin", phone B over "After
+  // dark", a pile of labels for seven frames.
   const RISE = { dur: R.dur.l, dist: 16 };
   const CSS_W = 390; // the mobile capture's page width (3 capture px per css px)
-  // Phone A, still: css 7547 → 8391, the Night house band (css 7595–8342,
-  // measured on the capture) framed by an even margin of Linen above and below
-  // (48 / 49 css, 44 stage px each on the rendered frame), so the band reads as
-  // deliberately set, not mis-scrolled. It ends before the "Tales" glyphs at
-  // css 8417.
-  const A_SCROLL = 7547;
+  /*
+   * Phone A, still: css 4470 → 5314 (844 rows), inside the homepage's
+   * featured tale, a Sea band (17/44/61) from css 4447 to 5617,
+   * measured on the capture: 44 stage px of Sea, the tale's photograph (css
+   * 4519–4900), "A tale from eterno", "The sea signs the ones it gives back.",
+   * its opening lines and the pull quote (ink ends 5256), then the section's
+   * rule (5293) 19 px above the screen's foot. The screen is all Sea, edge to
+   * edge, against phone B's Linen page.
+   * It is no longer the house band: that band's paragraph ("…tested on skin for
+   * lasting power…") is the most legible body copy of the section, and the
+   * house page still marks the wear-test method as a placeholder, so the
+   * claim is not on screen until the owner confirms it. The tale carries no
+   * claims. The window stops short of the tale's details row (its first ink,
+   * "The scent / Notes / Inspired by", starts at css 5320: the "Inspired by"
+   * names another house's fragrance) and of its two buttons.
+   * Once the owner confirms the house copy, the earlier framing comes back
+   * with A_SCROLL = 7547 and STRIPS.a = { top: 7540, bottom: 8400 }.
+   */
+  const A_SCROLL = 4470;
   // Phone B, drifting: css 8380 ("Tales", "All tales", the Wayne card) → 9000
   // (Enzo 1898 and Forbidden Apple with their lines, bottom edge at css 9844,
   // above the Join band at 9885).
@@ -82,16 +103,23 @@
    * and Chrome refuses a decode past its image budget ("The source image
    * cannot be decoded"): next to scene 09's home-desktop.jpg (206 MB) the
    * capture, or even a 32 MB strip of it as an <img>, made one of them fail
-   * and the film would not load. So the phones hold no <img>. build() decodes
-   * the capture once, keeps css 7540–9850 (1170×6930 capture px), resamples it
-   * to the screens' 351 px and lets the decode go. It also makes the notes'
-   * limits physical: nothing above css 7540 or below 9850 (the Join band
-   * starts at 9885) exists in the scene. The mystery-box offer card and its
-   * price end at css 7523; css 7524–7594 is the section's plain Linen padding
-   * (a uniform 238/230/217 in the capture from 7528): the strip starts 17 css
-   * rows below the card's edge, on that empty ground, so the card is never in
-   * the scene. The top moves by 20 css (60 capture px = 18 screen px, whole),
-   * so phone B samples the page on exactly the same grid as before.
+   * and the film would not load. So the phones hold no <img>. build() fetches
+   * the capture once and decodes one band per phone from it, one after the
+   * other, resamples each to the screens' 351 px and lets the decode go. It
+   * also makes the limits physical: nothing outside the two bands exists in
+   * the scene.
+   *  A  css 4450–5320 (1170×2610 capture px): the tale band from its first
+   *     clean row (4447 is the anti-aliased edge against the Linen above) to
+   *     the last row before the details row's first ink (5320).
+   *  B  css 8350–9850 (1170×4500): from the section padding below the house
+   *     band (which ends at 8342, so neither its paragraph nor anything above
+   *     it is in the scene) to above the Join band (9885).
+   * Both bands are whole multiples of 10 css (30 capture px = 9 screen px), so
+   * each resizes exactly 10 : 3 and every scroll position that is a multiple
+   * of 10 css lands on a whole screen pixel. B's top is 810 css (729 px, whole)
+   * below its earlier 7540, so phone B samples the page on exactly the same
+   * grid as before; the truncated Lanczos taps at a band's ends reach 3 px in,
+   * never on screen (A's screen starts 18 px into its band, B's 27 px).
    *
    * Why phases: a bitmap at the screen's own resolution, moved by fractional
    * pixels, is re-sampled bilinearly by the browser, so a scrolling page goes
@@ -104,16 +132,25 @@
    * render() still only sets styles. Chrome gives each visible canvas its own
    * layer, which only ever moves by whole pixels, so nothing is re-sampled.
    */
-  const STRIP = { name: "site/home-mobile.jpg", top: 7540, bottom: 9850 };
+  const CAPTURE = "site/home-mobile.jpg";
+  const STRIPS = {
+    a: { top: 4450, bottom: 5320 },
+    b: { top: 8350, bottom: 9850 },
+  };
   const PHASES = 8;
 
-  async function loadStrip() {
-    const meta = R.manifest[STRIP.name];
+  async function fetchCapture() {
+    const res = await fetch(R.asset(CAPTURE));
+    if (!res.ok) throw new Error(`could not load ${CAPTURE}`);
+    return res.blob();
+  }
+
+  // One band of the capture (css rows top → bottom) as ImageData.
+  async function loadStrip(blob, { top, bottom }) {
+    const meta = R.manifest[CAPTURE];
     const k = meta.w / CSS_W;
-    const res = await fetch(R.asset(STRIP.name));
-    if (!res.ok) throw new Error(`could not load ${STRIP.name}`);
-    const sy = Math.round(STRIP.top * k), sh = Math.round((STRIP.bottom - STRIP.top) * k);
-    const bmp = await createImageBitmap(await res.blob(), 0, sy, meta.w, sh);
+    const sy = Math.round(top * k), sh = Math.round((bottom - top) * k);
+    const bmp = await createImageBitmap(blob, 0, sy, meta.w, sh);
     const c = document.createElement("canvas");
     c.width = bmp.width;
     c.height = bmp.height;
@@ -224,12 +261,19 @@
     el.style.transform = `translate(0px, ${((1 - p) * dist).toFixed(3)}px) rotate(0.001deg)`;
   }
 
-  function makePhone(root, x, phases) {
+  // The band at the screens' resolution (351 px wide), in eight phases.
+  function pagePhases(src, sw) {
+    const dh = Math.round((src.height * sw) / src.width);
+    const across = resampleX(src, sw);
+    return Array.from({ length: PHASES }, (_, k) => resampleY(across, dh, k / PHASES));
+  }
+
+  function makePhone(root, x, strip, phases) {
     const phone = R.phone(root, { x, y: PHONE_Y, h: PHONE_H, bezel: BEZEL });
     // The screen's own ground is the bezel's Night, not Linen: the rounded clip
     // anti-aliases the ground and the page separately, and a Linen ground bled
     // a pale seam along the corner curves wherever the page is dark (phone A's
-    // house band). The page covers the screen entirely, so the ground only
+    // Sea band). The page covers the screen entirely, so the ground only
     // shows in those edge pixels, where it now matches the bezel.
     phone.screen.style.background = C.night;
     const pages = phases.map((img) => {
@@ -239,13 +283,13 @@
       c.getContext("2d", { alpha: false, willReadFrequently: true }).putImageData(img, 0, 0);
       return c;
     });
-    return { ...phone, pages, scale: phone.sw / CSS_W };
+    return { ...phone, pages, top: strip.top, scale: phone.sw / CSS_W };
   }
 
   /*
    * One phone for this frame: the body rises by `rise` (0 → 1), and the page
    * shows page-y `yCss` (site css px) at the top of the screen. The page's
-   * exact offset inside the rising body, rise + (7560 − yCss)·0.9, is split
+   * exact offset inside the rising body, rise + (band top − yCss)·0.9, is split
    * into whole pixels and the nearest of the eight phases; the chosen canvas
    * cancels the body's fractional rise, so it always lands on whole pixels.
    */
@@ -253,7 +297,7 @@
     const ty = rise >= 1 ? 0 : +((1 - rise) * RISE.dist).toFixed(3);
     ph.frame.style.opacity = String(rise);
     ph.frame.style.transform = ty === 0 ? "none" : `translate(0px, ${ty}px)`;
-    const total = ty - (yCss - STRIP.top) * ph.scale;
+    const total = ty - (yCss - ph.top) * ph.scale;
     let whole = Math.floor(total);
     let k = Math.round((total - whole) * PHASES);
     if (k === PHASES) { k = 0; whole += 1; }
@@ -274,15 +318,12 @@
       role: "display-l", x: l.x + l.dx, y: l.y, size: 64, weight: 600, lineHeight: 1.05, color: C.night, style: nowrap,
     })).map(unpin));
 
-    // The page strip at the screens' resolution (351 × 2079), in eight phases.
+    // Each phone's band at the screens' resolution (A 351 × 783, B 351 × 1350),
+    // in eight phases, decoded one after the other from the one download.
     const sw = Math.round(((PHONE_H - 2 * BEZEL) * CSS_W) / 844); // R.phone's screen width
-    const src = await loadStrip();
-    const dh = Math.round((src.height * sw) / src.width);
-    const across = resampleX(src, sw);
-    const phases = Array.from({ length: PHASES }, (_, k) => resampleY(across, dh, k / PHASES));
-
-    const a = makePhone(root, PHONES.a.x, phases);
-    const b = makePhone(root, PHONES.b.x, phases);
+    const blob = await fetchCapture();
+    const a = makePhone(root, PHONES.a.x, STRIPS.a, pagePhases(await loadStrip(blob, STRIPS.a), sw));
+    const b = makePhone(root, PHONES.b.x, STRIPS.b, pagePhases(await loadStrip(blob, STRIPS.b), sw));
     if (a.sw !== sw) throw new Error(`storefront-mobile: screen is ${a.sw} px, strip is ${sw} px`);
 
     els = { eyebrow, words, a, b };
@@ -299,8 +340,8 @@
     eyebrow.style.opacity = "1";
     eyebrow.style.transform = EYEBROW_REST;
 
-    // The phones arrive, A then B. Phone A holds on the house; phone B drifts
-    // through the tales.
+    // The phones arrive, A then B. Phone A holds on the featured tale; phone B
+    // drifts through the tales.
     placePhone(a, R.tween(t, PHONES.a.at, RISE.dur, E.emphasized), A_SCROLL);
     placePhone(b, R.tween(t, PHONES.b.at, RISE.dur, E.emphasized), B_SCROLL.from + scrollTravel(t));
 

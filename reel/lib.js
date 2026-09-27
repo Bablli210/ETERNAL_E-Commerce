@@ -243,22 +243,18 @@
   R.drawLine = (el, p, axis = "x") => { el.style.transform = axis === "x" ? `scaleX(${R.clamp(p)})` : `scaleY(${R.clamp(p)})`; };
 
   /**
-   * The e∞ mark, from the storefront's components/ui/Wordmark.tsx.
+   * The e∞ mark, the same drawing as the storefront's components/ui/Wordmark.tsx.
    * Returns { svg, paths }. Draw it with R.drawMark(mark, p): one stroke,
-   * never a spin — the three paths draw in sequence, weighted by length.
+   * never a spin.
    */
   R.mark = (parent, { x = 0, y = 0, width = 192, color = R.color.night, stroke = 3 } = {}) => {
     const svg = R.svgEl("svg", { viewBox: "0 0 96 48", width, height: width / 2, fill: "none", stroke: color, "stroke-width": stroke, "stroke-linecap": "round", "stroke-linejoin": "round" });
     Object.assign(svg.style, { position: "absolute", left: px(x), top: px(y), overflow: "visible" });
     parent.append(svg);
-    const d = [
-      "M30 24c0 8-5.4 14-13 14S4 32 4 24s5.4-14 13-14c5 0 8.5 2.6 11 7",
-      "M8 22h20",
-      "M92 24c0 7-4.5 12-10 12-9 0-13-24-22-24-5.5 0-10 5-10 12s4.5 12 10 12c9 0 13-24 22-24 5.5 0 10 5 10 12Z",
-    ];
-    // The bar of the e is drawn first, then the bowl, then the loop: one continuous gesture.
-    const order = [1, 0, 2];
-    const paths = order.map((i) => R.svgEl("path", { d: d[i] }, svg));
+    // One stroke, as printed on the eterno label: an e whose bar slants up to
+    // close its eye, its tail running on through an S into the same e turned
+    // 180°. Point-symmetric about the centre of the 96×48 box.
+    const paths = [R.svgEl("path", { d: "M22.65 23.6L39.9 13.4C39.4 11 36.2 10.1 31.65 10.1C24.6 10.1 18.9 16.15 18.9 23.6C18.9 31.2 25.6 37.4 33.9 37.4C43.4 37.4 45.99 28.02 48 24C50.01 19.98 52.6 10.6 62.1 10.6C70.4 10.6 77.1 16.8 77.1 24.4C77.1 31.85 71.4 37.9 64.35 37.9C59.8 37.9 56.6 37 56.1 34.6L73.35 24.4" }, svg)];
     return { svg, paths };
   };
   R.drawMark = (mark, p) => {

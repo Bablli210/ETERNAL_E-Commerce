@@ -43,7 +43,8 @@
       root.style.background = C.night;
 
       // (2) The e∞ mark, centred on (960, 540): 240×120 box, stroke 3 viewBox
-      // units = 7.5 px rendered — the site's own weight.
+      // units = 7.5 px rendered — the site's own weight. Ink x 883–1036,
+      // y 502–578.
       const mark = R.mark(root, { x: 840, y: 480, width: 240, color: C.linen, stroke: 3 });
 
       // (3) The film layer: two stacked frames of the hero film for frame
@@ -108,6 +109,11 @@
     },
 
     // 0.035 until 7.0 s, then down to 0 by 7.6 s so scene 02's Linen stays clean.
-    grain: (t) => (t < 7.0 ? 0.035 : Math.max(0, 0.035 * (1 - (t - 7.0) / 0.6))),
+    // Full grain on the Night field; lighter once the film is up, because over the
+    // bright golden sky the direction's grain (for dark fields) reads as noise.
+    grain: (t) => {
+      const settled = R.lerp(0.035, 0.018, R.tween(t, REVEAL_AT, REVEAL_DUR, R.ease.inOut));
+      return t < 7.0 ? settled : Math.max(0, settled * (1 - (t - 7.0) / 0.6));
+    },
   });
 })();

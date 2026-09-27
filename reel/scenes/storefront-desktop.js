@@ -7,18 +7,17 @@
  * at 0.8333 (740 css rows). The left column (x 120–520) holds a fixed eyebrow
  * and one page name per window.
  *
- *   0.0  the runtime crossfades us in from Motion (600 ms): Sand, empty.
- *   0.2  the browser, already on the Tales page (W1), rises 16 px.
- *   0.6  "The storefront" rises; 0.8 "Tales" rises as one unit.
+ *   0.0  the runtime crossfades us in from Motion (600 ms) onto flat Sand: only
+ *        Motion's column and its photograph dissolve, nothing of ours is in it.
+ *   0.6  "The storefront" rises, on clean Sand.
+ *   0.65 the browser, already on the Tales page (W1), rises 16 px.
+ *   1.1  "Tales" rises as one unit.
  *   3.4  W1 → W2 crossfade inside the viewport only (the site's G2); "Tales"
- *        leaves over 320 ms. The page names itself: its own '03 / Shop by
- *        mood' heading is the only page name on screen.
- *   4.3  W2, the homepage's Shop by mood, drifts 133 px over 2.4 s on the
- *        spec's long-move curve, from its '03 / Shop by mood' heading to the
- *        six tiles alone in Linen.
- *   5.9  the site's heading has just left the viewport (5.83); "Shop by mood"
- *        rises in the left column: a handoff, never two of the same heading.
- *   6.7  hold. Scene 10's crossfade takes the frame from 7.0; nothing fades,
+ *        leaves over 320 ms. W2 is the homepage's Shop by mood at rest: the six
+ *        tiles alone in Linen, the site's own heading out of frame.
+ *   3.72 as "Tales" leaves, "Shop by mood" rises with the page it names: each
+ *        page name is on screen for as long as its page.
+ *   4.3  hold. Scene 10's crossfade takes the frame from 7.0; nothing fades,
  *        and the Sand and the eyebrow carry straight on into scene 10.
  *
  * Pure function of t: every animated property is written on every call.
@@ -36,23 +35,26 @@
   const VP = { w: BROWSER.w, h: BROWSER.h - 44 }; // the viewport, 1200×617 (740.4 css rows)
 
   /*
-   * The two windows, as the css page-y at the viewport's top. Rest positions sit
-   * on whole stage pixels (css × 0.8333), so the captures are crisp where they hold.
+   * The two windows, as the css page-y at the viewport's top. Both hold still, on
+   * whole stage pixels (css × 0.8333), so the captures are crisp.
    *  W1 tales-desktop at css 36 (the blank bar cropped): the header, 'One story
    *     per bottle.' and the featured Shadow of the Sea tale down to 'Read the
    *     tale'; bottom css 776.4.
-   *  W2 home-desktop drifts from css 4700.4 (stage 3917: '03', 'Shop by mood',
-   *     its line, the first row of tiles) to css 4860 (stage 4050): the six tiles
-   *     alone in Linen, 37 px of Linen above them and 47 below, a touch above
-   *     centre. The board's 4870 left 29 px above and 55 below, the tiles pressed
-   *     up under the window's bar. The section's line (ink ends css 4853) is out
-   *     of frame, and the bottom (css 5600) stays above 'Try before you commit'
-   *     (5665).
-   * `crop` is the band of the capture each window ever reads (css px); both
-   * bands start and end on whole stage pixels.
+   *  W2 home-desktop at css 4860 (stage 4050): the six tiles alone in Linen,
+   *     37 px of Linen above them and 47 below, a touch above centre. The board's
+   *     4870 left 29 px above and 55 below, the tiles pressed up under the
+   *     window's bar. The site's '03 / Shop by mood' heading (ink css 4761–4818)
+   *     and its line (ink ends css 4853) are out of frame, so the left column's
+   *     "Shop by mood" is the only copy of that name on screen; the bottom
+   *     (css 5600) stays above 'Try before you commit' (5665). It used to drift
+   *     here from the heading, which kept the label waiting 2.2 s for the site's
+   *     heading to leave and left the column empty meanwhile.
+   * `crop` is the band of the capture each window reads (css px); both bands
+   * start and end on whole stage pixels, and are 744 css rows (620 px) long, so
+   * each resizes 2.4 : 1 exactly.
    */
   const W1 = { name: "tales-desktop", at: 36, crop: [36, 780] };
-  const W2 = { name: "home-desktop", from: 3917 / S, to: 4050 / S, crop: [4692, 5616] };
+  const W2 = { name: "home-desktop", at: 4860, crop: [4860, 5604] };
 
   /* ---- type ----
    * Optical margins, measured on the rendered frame with the site's fonts: the
@@ -65,25 +67,22 @@
   const X = 120;
   const EYEBROW = { text: "The storefront", x: X, y: 256, at: 0.6 };
   const TITLE_Y = 300;
-  const TALES = { text: "Tales", dx: -2, at: 0.8, out: 3.4 };
+  const TALES = { text: "Tales", dx: -2, at: 1.1, out: 3.4 };
   /*
-   * "Shop by mood" waits for the site's own heading to leave. At 3.8 it rose
-   * beside the page's '03 / Shop by mood' (css ink 4761–4817.5), two copies of
-   * one heading side by side for 2 s. The drift carries the viewport's top past
-   * that heading's last descender at 5.83 (css 4818.2), so the label rises two
-   * frames later, as the name leaves the page. It moves up with the page's
-   * landing drift, reads at full strength from about 6.1 and holds until
-   * scene 10's crossfade at 7.0.
+   * "Shop by mood" rises as "Tales" finishes leaving (3.4 + 320 ms), with W2
+   * 95 % in: "Tales" is at 10 % on the frame at 3.70 and gone on the next, where
+   * "Shop by mood" starts, so no frame holds both names, and the label names
+   * its page from the moment the page is there.
    */
-  const MOOD = { text: "Shop by mood", dx: -4, at: 5.9 };
+  const MOOD = { text: "Shop by mood", dx: -4, at: TALES.out + R.dur.m };
 
   /* ---- timing (scene-local seconds) ---- */
-  const BROWSER_IN = { at: 0.2, dur: R.dur.l };
+  // After the runtime's 600 ms crossfade from Motion: while it runs, the frame
+  // holds only Motion dissolving into flat Sand. Rising inside it, the browser
+  // met Motion's two lines and resin photo mid-dissolve (three headlines, and
+  // Motion's panel edge through the page).
+  const BROWSER_IN = { at: 0.65, dur: R.dur.l };
   const SWAP = { at: 3.4, dur: R.dur.l };
-  // The board says standard; over 2.4 s that curve leaves rest at 3.5× the
-  // mean speed (7 px in the first frame), a jolt, not a drift. inOut is the
-  // spec's curve for long slow moves: it leaves and lands at rest.
-  const DRIFT = { at: 4.3, dur: 2.4, ease: E.inOut };
 
   let els = null;
 
@@ -123,7 +122,7 @@
     position: "absolute", left: "0", top: "0", width: `${VP.w}px`, height: `${VP.h}px`,
   } }, viewport);
 
-  /* W1 holds still: its band at display size, drawn once. */
+  /* A window holds still: its band at display size, drawn once. */
   async function still(viewport, W) {
     const bitmap = await band(W, 1);
     const canvas = canvasIn(viewport);
@@ -132,52 +131,12 @@
     return { canvas };
   }
 
-  /*
-   * W2 moves. Its band is display width and four times display height; each
-   * frame averages groups of four of its rows at the scroll offset rounded to a
-   * quarter pixel. Every frame is filtered by the same kernel, so the page is
-   * exactly as sharp moving as at rest (measured: 0.2 % variation). A sub-pixel
-   * draw of a display-size bitmap goes 15 % soft between whole pixels, so the
-   * page would blur as it starts and visibly pull focus as it lands; half-pixel
-   * steps left the odd still frame in the slow tails. Quarter-pixel steps move
-   * on every frame of the drift.
-   */
-  const SUB = 4; // band rows per display row
-  async function drift(viewport, W) {
-    const bitmap = await band(W, SUB);
-    const scratch = R.el("canvas", { attrs: { width: bitmap.width, height: bitmap.height } });
-    const sg = scratch.getContext("2d", { willReadFrequently: true });
-    sg.drawImage(bitmap, 0, 0);
-    const src = sg.getImageData(0, 0, bitmap.width, bitmap.height).data;
-    bitmap.close();
-    const canvas = canvasIn(viewport);
-    const g = canvas.getContext("2d");
-    const out = g.createImageData(VP.w, VP.h);
-    const o = out.data, SW = VP.w * 4;
-    const show = (yCss) => {
-      const q = Math.round((yCss - W.crop[0]) * S * SUB); // the viewport's top, in the band's rows
-      for (let r = 0; r < VP.h; r++) {
-        let a = (q + SUB * r) * SW, d = r * SW;
-        for (let c = 0; c < VP.w; c++, a += 4, d += 4) {
-          let R0 = 0, G0 = 0, B0 = 0;
-          for (let j = 0, i = a; j < SUB; j++, i += SW) { R0 += src[i]; G0 += src[i + 1]; B0 += src[i + 2]; }
-          o[d] = (R0 + SUB / 2) / SUB | 0;
-          o[d + 1] = (G0 + SUB / 2) / SUB | 0;
-          o[d + 2] = (B0 + SUB / 2) / SUB | 0;
-          o[d + 3] = 255;
-        }
-      }
-      g.putImageData(out, 0, 0);
-    };
-    return { canvas, show };
-  }
-
   async function build(root) {
     R.box(root, { x: 0, y: 0, w: R.W, h: R.H }, { background: C.sand });
 
     const { frame, viewport } = R.browser(root, BROWSER);
     const w1 = await still(viewport, W1);
-    const w2 = await drift(viewport, W2);
+    const w2 = await still(viewport, W2);
 
     const eyebrow = R.text(root, EYEBROW.text, { role: "eyebrow", x: EYEBROW.x, y: EYEBROW.y, size: 18, color: C.ash, style: nowrap });
     const title = (L) => R.text(root, L.text, {
@@ -197,12 +156,11 @@
     frame.style.opacity = String(b);
     frame.style.transform = b >= 1 ? "none" : `translate(0, ${((1 - b) * 16).toFixed(3)}px)`;
 
-    /* W1 → W2 inside the viewport; then W2 drifts. */
+    /* W1 → W2 inside the viewport. */
     const swap = R.tween(t, SWAP.at, SWAP.dur, E.standard);
     w1.canvas.style.visibility = swap >= 1 ? "hidden" : "visible";
     w2.canvas.style.opacity = String(swap);
     w2.canvas.style.visibility = swap > 0 ? "visible" : "hidden";
-    w2.show(R.lerp(W2.from, W2.to, R.tween(t, DRIFT.at, DRIFT.dur, DRIFT.ease)));
 
     /* Left column: the eyebrow stays; one page name per window, each as one unit. */
     riseFree(eyebrow, R.tween(t, EYEBROW.at, R.dur.l, E.standard), 16);

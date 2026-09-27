@@ -138,6 +138,8 @@
 
     // No grain while the wipe passes over scene 10's Sand; it comes up from
     // 0.9 s and reaches 0.035 at 1.5 s, then holds under the end card.
-    grain: (t) => (t < 0.9 ? 0 : Math.min(0.035, (0.035 * (t - 0.9)) / 0.6)),
+    // Up on the Night field under the wipe, then lighter as the film is revealed:
+    // the end card holds on the bright sky, where full grain reads as noise.
+    grain: (t) => (t < 0.9 ? 0 : Math.min(0.035, (0.035 * (t - 0.9)) / 0.6) - 0.017 * R.tween(t, REVEAL_AT, REVEAL_DUR, R.ease.inOut)),
   });
 })();

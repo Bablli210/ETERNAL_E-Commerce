@@ -6,7 +6,7 @@
  * with the real homepage's first screen (film area transparent) settling over
  * it. Left: the eyebrow and the board's sentence, five line blocks, word by
  * word. The runtime draws the light-wipe in; scene 03's crossfade takes us out
- * at 7.4 s, so everything holds to the end.
+ * at 7.4 s. The sentence holds to the end; the window clears just before.
  *
  *   0.0  the light-wipe reveals clean Linen. The window is not there yet: its
  *        film and scene 01's full-frame film would otherwise overlap in the
@@ -17,6 +17,9 @@
  *   1.2  the eyebrow rises; 1.4 the sentence, word by word (done at 2.96).
  *   3.2  the capture settles over the moving water (1200 ms, standard).
  *   4.4  hold. Only the water moves.
+ *   7.0  the window leaves (320 ms, exit, opacity only), gone at 7.32, so scene
+ *        03's crossfade (7.4) brings P1's lily over clean Linen, not through
+ *        the bottle. The sentence stays and dissolves in the crossfade.
  */
 (() => {
   const C = R.color;
@@ -61,6 +64,12 @@
   const T_EYEBROW = 1.2;
   const T_WORDS = 1.4, WORD_GAP = 0.08;
   const T_PAGE = 3.2;
+  // The window leaves before scene 03's crossfade (7.4): 320 ms, exit ease, opacity
+  // only, as scenes 06 and 07 clear their boards; gone at 7.32. Held through the
+  // crossfade, the bottle and page dissolved into P1's lily and wall, the bud on
+  // the label for ~7 frames. Now the sentence alone dissolves over empty Linen
+  // (P1's left column is empty at its t = 0) and the photograph arrives on Linen.
+  const T_BROWSER_OUT = 7.0;
 
   let els = null;
 
@@ -106,7 +115,8 @@
     // The window arrives once the wipe has passed: one group, 16 px rise, at rest untransformed.
     // 1200 ms standard, as the page arrives: a dark window on Linen settles, it does not pop.
     const b = R.tween(t, T_BROWSER, R.dur.xl, R.ease.standard);
-    frame.style.opacity = String(b);
+    const out = R.tween(t, T_BROWSER_OUT, R.dur.m, R.ease.exit);
+    frame.style.opacity = String(b * (1 - out));
     frame.style.transform = b >= 1 ? "none" : `translate(0, ${((1 - b) * 16).toFixed(3)}px)`;
 
     // The real page settles over the moving water.
