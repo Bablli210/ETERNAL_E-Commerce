@@ -52,9 +52,16 @@ try {
   for (const t of times) frames.push({ t, png: await shot(t) });
 
   if (flag("check")) {
-    // Paint the frames again in reverse order: a pure scene gives identical pixels.
+    // Paint the frames again in a shuffled order: a pure scene gives identical pixels.
     let bad = 0;
-    for (const f of [...frames].reverse()) {
+    const order = [...frames];
+    let seed = 20260927;
+    for (let i = order.length - 1; i > 0; i--) {
+      seed = (seed * 1103515245 + 12345) % 2147483648;
+      const j = seed % (i + 1);
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    for (const f of order) {
       const again = await shot(f.t);
       const a = await sharp(f.png).raw().toBuffer();
       const b = await sharp(again).raw().toBuffer();

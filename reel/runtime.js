@@ -84,8 +84,11 @@
     }
 
     // Everything decoded before the first frame: every <img> the scenes built.
-    const imgs = [...stage.querySelectorAll("img")];
-    await Promise.all(imgs.map((img) => img.decode().catch(() => { throw new Error(`image failed to load: ${img.getAttribute("src")}`); })));
+    // One at a time: decoding every image at once can exhaust the decoder on the
+    // tall page captures, and one refusal would stop the whole film.
+    for (const img of stage.querySelectorAll("img")) {
+      try { await img.decode(); } catch { throw new Error(`image failed to load: ${img.getAttribute("src")}`); }
+    }
     await document.fonts.ready;
     // Force the three families to load even if no text has been laid out yet.
     await Promise.all(["600 40px 'Cormorant Garamond'", "italic 500 40px 'Cormorant Garamond'", "500 20px 'Instrument Sans'", "600 20px 'Instrument Sans'"].map((f) => document.fonts.load(f)));
@@ -141,13 +144,14 @@
       await raf();
     }
 
+    // Paint frame 0 before announcing readiness, so no tool seek can race it.
+    await seek(0);
     window.__reel = {
       fps: R.FPS,
       duration,
       seek,
       scenes: entries.map((e) => ({ slug: e.s.slug, start: e.s.start, duration: e.s.duration })),
     };
-    await seek(0);
     return window.__reel;
   }
 

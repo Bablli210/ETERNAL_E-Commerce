@@ -27,7 +27,7 @@ img { display: block; user-select: none; }
 .t-numeral    { font-family: var(--serif); font-weight: 600; font-size: 96px; line-height: 1; font-variant-numeric: tabular-nums lining-nums; }
 .t-wordmark   { font-family: var(--serif); font-weight: 600; font-size: 72px; line-height: 1; letter-spacing: 0.02em; }
 .t-mono       { font-family: var(--sans); font-weight: 500; font-size: 19px; letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
-.word { display: inline-block; white-space: pre; will-change: transform, opacity; }
+.word { display: inline-block; white-space: pre; }
 
 /* Overlays owned by the runtime. */
 #dip   { position: absolute; inset: 0; z-index: 900; pointer-events: none; opacity: 0; }

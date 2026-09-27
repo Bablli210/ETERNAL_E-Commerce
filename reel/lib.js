@@ -105,7 +105,7 @@
     const wrap = R.box(parent, rect, { overflow: "hidden", background: opts.background ?? "transparent" });
     const img = R.el("img", { attrs: { src: src.startsWith("assets/") ? src : R.asset(src), alt: "" }, style: {
       position: "absolute", inset: "0", width: "100%", height: "100%", objectFit: opts.fit ?? "cover",
-      objectPosition: opts.position ?? "50% 50%", transformOrigin: opts.origin ?? "50% 50%", willChange: "transform",
+      objectPosition: opts.position ?? "50% 50%", transformOrigin: opts.origin ?? "50% 50%",
     } }, wrap);
     return { wrap, img };
   };
@@ -114,7 +114,10 @@
     const s = R.lerp(from.scale ?? 1, to.scale ?? 1, p);
     const x = R.lerp(from.x ?? 0, to.x ?? 0, p);
     const y = R.lerp(from.y ?? 0, to.y ?? 0, p);
-    el.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${s})`;
+    // 2D on purpose: a 3D transform promotes the image to its own layer, whose
+    // raster scale Chrome only re-picks when it sees fit, so a frame's pixels
+    // would depend on the frames painted before it.
+    el.style.transform = `translate(${x.toFixed(3)}px, ${y.toFixed(3)}px) scale(${s.toFixed(5)})`;
   };
 
   /* ---------- type ---------- */
@@ -162,8 +165,13 @@
   };
   /** The spec's rise: fade in while travelling up `dist` px (16 by default, 24 for the hero). */
   R.rise = (el, p, dist = 16) => {
-    el.style.opacity = p;
-    el.style.transform = p >= 1 ? "none" : `translate3d(0, ${(1 - p) * dist}px, 0)`;
+    el.style.opacity = String(p);
+    // The 0.001° turn is held through the rise and at rest. A non-axis-aligned
+    // transform is rastered once in its own space and placed at the true
+    // sub-pixel offset: the settle follows the ease exactly instead of stepping
+    // whole pixels, and the frame is the same whatever was painted before it.
+    // At rest it moves a 500 px line by under 0.01 px.
+    el.style.transform = `translate3d(0, ${((1 - p) * dist).toFixed(3)}px, 0) rotate(0.001deg)`;
   };
   R.fade = (el, p) => { el.style.opacity = p; };
 
@@ -192,13 +200,26 @@
    * A band of warm light passing across an element (child overlay). Create it
    * once with R.lightBand(parent), then call R.sweep(band, p) each frame.
    */
-  R.lightBand = (parent, opts = {}) =>
-    R.el("div", { class: "fill", style: { pointerEvents: "none", mixBlendMode: opts.blend ?? "soft-light", opacity: 0,
-      background: `linear-gradient(${opts.angle ?? 105}deg, transparent 0%, ${opts.color ?? "rgba(255,214,160,0.9)"} 50%, transparent 100%)`,
-      backgroundSize: "40% 100%", backgroundRepeat: "no-repeat" } }, parent);
+  R.lightBand = (parent, opts = {}) => {
+    // A strip three times the parent's width carries one soft shaft in its middle,
+    // so the gradient never meets a tile edge (a tiled band shows hard seams).
+    const w = parent.offsetWidth || parseFloat(parent.style.width) || R.W;
+    const h = parent.offsetHeight || parseFloat(parent.style.height) || R.H;
+    const angle = opts.angle ?? 105;
+    const a = (angle * Math.PI) / 180;
+    const ramp = 3 * w * Math.abs(Math.sin(a)) + h * Math.abs(Math.cos(a));
+    const half = (((opts.width ?? 370) * Math.abs(Math.sin(a))) / ramp) * 100;
+    const band = R.el("div", { style: { position: "absolute", left: "0", top: "0", width: `${3 * w}px`, height: `${h}px`,
+      pointerEvents: "none", mixBlendMode: opts.blend ?? "soft-light", opacity: "0",
+      background: `linear-gradient(${angle}deg, transparent ${(50 - half).toFixed(3)}%, ${opts.color ?? "rgba(255,214,160,0.9)"} 50%, transparent ${(50 + half).toFixed(3)}%)` } }, parent);
+    band._w = w;
+    return band;
+  };
+  /** Move a light band across its parent: p 0 → 1, brightest mid-way. */
   R.sweep = (band, p, intensity = 0.6) => {
-    band.style.opacity = p <= 0 || p >= 1 ? 0 : intensity * Math.sin(Math.PI * p);
-    band.style.backgroundPosition = `${R.lerp(-60, 160, p)}% 0`;
+    band.style.opacity = p <= 0 || p >= 1 ? "0" : String(intensity * Math.sin(Math.PI * p));
+    const cx = R.lerp(-0.16, 1.16, R.clamp(p)) * band._w;
+    band.style.transform = `translateX(${(cx - 1.5 * band._w).toFixed(2)}px)`;
   };
 
   /* ---------- SVG: hairlines and the mark ---------- */
@@ -287,7 +308,7 @@
     const src = R.asset(`site/${name}.jpg`);
     const meta = R.manifest[`site/${name}.jpg`];
     const scale = vw / cssWidth;
-    const img = R.el("img", { attrs: { src, alt: "" }, style: { position: "absolute", left: "0", top: "0", width: `${vw}px`, height: meta ? `${(meta.h * vw) / meta.w}px` : "auto", transformOrigin: "0 0", willChange: "transform" } }, viewport);
+    const img = R.el("img", { attrs: { src, alt: "" }, style: { position: "absolute", left: "0", top: "0", width: `${vw}px`, height: meta ? `${(meta.h * vw) / meta.w}px` : "auto", transformOrigin: "0 0" } }, viewport);
     const cssHeight = meta ? (meta.h * cssWidth) / meta.w : 0;
     return { img, scale, cssHeight, scroll: (yCss) => { img.style.transform = `translate3d(0, ${-yCss * scale}px, 0)`; } };
   };
