@@ -8,16 +8,23 @@
  *
  *   0.0  the runtime crossfades us in: Linen, the flat panel, nothing drawn.
  *   0.5  "Motion" rises; from 0.6 "One thing at a time." rises word by word.
- *   1.6  the e∞ mark draws alone in one stroke, as the site's loader does.
- *   2.8  it holds still.
- *   3.0  "Light, not decoration." rises word by word.
- *   3.9  the After dark photograph comes up out of its colour — how every
- *        image loads on the site — as the mark sinks back into that colour;
- *        its slow 3 % push starts.
- *   5.1  hold; only the push moves. Scene 09's crossfade takes us from 5.4.
+ *   1.25 the mark's name rises in the panel, under the empty place where the
+ *        mark will be drawn: "The e∞ mark · Loader, favicon, cart empty state,
+ *        section ornament." Read first, so the circle-and-bar is seen as an e.
+ *   1.6  the e∞ mark draws alone in one stroke above it, as the site's loader
+ *        does.
+ *   2.8  it lands and holds still.
+ *   2.9  "Light, not decoration." rises word by word.
+ *   3.45 the After dark photograph comes up out of its colour — how every
+ *        image loads on the site — as the mark and its name sink back into
+ *        that colour; its slow 3 % push starts.
+ *   4.65 hold, the photograph whole for about a second; only the push moves.
+ *        Scene 09's crossfade takes us from 5.4.
  *
- * Each rule finishes before its demonstration starts. Nothing fades out at the
- * end. Pure function of t: every animated property is written on every call.
+ * Each beat starts when the one before it has settled (each rule finishes
+ * before its demonstration starts), so the scene obeys what it says. Nothing
+ * fades out at the end. Pure function of t: every animated property is written
+ * on every call.
  */
 (() => {
   const C = R.color;
@@ -36,6 +43,28 @@
   // the e) in three frames and then creeps for 0.8 s; inOut sets the pen down,
   // travels at an even hand's pace and lands at 2.8 s.
   const MARK_AT = 1.6, MARK_DUR = R.dur.xl;
+
+  // The mark's name, set under it in the panel and centred on it (stage
+  // x 1360), so nobody reads the circle-and-bar as a G or as a new logo: the
+  // eyebrow from the notes board's "Logo and the e∞ mark", the line from the
+  // direction board's "Mark e∞ · inverted on Night — loader, favicon, cart
+  // empty state, section ornament.". Dune on the dark field, as every caption on
+  // a dark band in the film. The e∞ keeps its lowercase e inside the caps
+  // eyebrow: it is the mark's name, and "E∞" would undo the point of naming it.
+  // The block sits about 65 px below the mark's ink (y 579): caps at y 644, the
+  // line's baseline near y 690.
+  //
+  // It rises (16 px, standard, small type) in the pause the storyboard already
+  // left between the first rule and the mark: the rule's last word is 98 %
+  // settled at 1.25 s, and the name is 96 % up when the pen goes down at 1.6 s
+  // (inOut draws 1 % of the stroke in the next 0.1 s). Named first, then drawn,
+  // as each rule in this scene comes before its demonstration. It sinks into
+  // the colour with the mark when the photo comes up.
+  const NAME = {
+    eyebrow: "The <span style=\"text-transform:none\">e∞</span> mark",
+    line: "Loader, favicon, cart empty state, section ornament.",
+    y: 640, lineDy: 32, h: 72, at: 1.25,
+  };
 
   // The photo: 2400×1792 covers 1120×1080 at 1446×1080; 55 % keeps source
   // x 297–2155, so the resin lands where the mark was drawn and the smoke rises
@@ -58,8 +87,12 @@
   // Landing at 0.99 keeps the same arithmetic from the fade's first frame to
   // the scene's last, so the picture settles without a step (0.99 is 252/255:
   // the colour world stays under the photo at 1 %, never visible as such).
-  const PHOTO = { src: "img/mood-after-dark.jpg", position: "55% 50%", at: 3.9, cover: R.dur.l, dur: R.dur.xl, full: 0.99 };
-  const PUSH = { at: 3.9, end: 6.0, to: 1.03 }; // around the panel centre, scale only
+  //
+  // It starts at 3.45 s, once the second rule has settled (its last word is at
+  // 99.3 %), is 97 % up by 4.5 s and whole at 4.65 s: about a second of the
+  // photograph alone before scene 09's crossfade at 5.4 s (it had 0.4 s).
+  const PHOTO = { src: "img/mood-after-dark.jpg", position: "55% 50%", at: 3.45, cover: R.dur.l, dur: R.dur.xl, full: 0.99 };
+  const PUSH = { at: 3.45, end: 6.0, to: 1.03 }; // around the panel centre, scale only
 
   /* ---- the left column: x 120–720, block y 402–678, centred on 540 ---- */
   const X = 120;
@@ -72,7 +105,8 @@
   // and nothing inks left of the 120 title-safe line.
   const RULES = [
     { text: "One thing at a time.", y: 442, at: 0.6, dx: -3 },
-    { text: "Light, not decoration.", y: 602, at: 3.0, dx: -1 },
+    // 0.1 s after the mark lands, so the finished mark is seen still, alone.
+    { text: "Light, not decoration.", y: 602, at: 2.9, dx: -1 },
   ];
   const WORD_GAP = 0.08;
 
@@ -108,6 +142,12 @@
     /* Right: the After dark panel; the mark, then the photo above it. */
     const panel = R.box(root, PANEL, { overflow: "hidden", background: AFTER_DARK });
     const mark = R.mark(panel, MARK);
+    // The name: one block under the mark (panel-local, full width, centred),
+    // rising as one. text-indent matches the eyebrow's trailing 0.14em so the
+    // caps centre optically on the mark.
+    const name = R.box(panel, { x: 0, y: NAME.y, w: PANEL.w, h: NAME.h });
+    R.text(name, "", { role: "eyebrow", x: 0, y: 0, w: PANEL.w, size: 18, color: C.dune, align: "center", style: { ...nowrap, textIndent: "0.14em" } }).innerHTML = NAME.eyebrow;
+    R.text(name, NAME.line, { role: "caption", x: 0, y: NAME.lineDy, w: PANEL.w, size: 19, color: C.dune, align: "center", style: nowrap });
     const photo = R.image(panel, PHOTO.src, FULL, { position: PHOTO.position });
     unpin(photo.img);
 
@@ -117,11 +157,11 @@
       role: "display-l", x: X + L.dx, y: L.y, size: 72, weight: 600, lineHeight: 1.05, tracking: "-0.01em", color: C.night, style: nowrap,
     })).map(unpin));
 
-    els = { mark, photo, eyebrow, rules };
+    els = { mark, name, photo, eyebrow, rules };
   }
 
   function render(t) {
-    const { mark, photo, eyebrow, rules } = els;
+    const { mark, name, photo, eyebrow, rules } = els;
 
     /* Left column. */
     riseFree(eyebrow, R.tween(t, EYEBROW.at, R.dur.l, E.standard), 16);
@@ -136,6 +176,9 @@
     const cover = R.tween(t, PHOTO.at, PHOTO.cover, E.inOut);
     const light = R.tween(t, PHOTO.at, PHOTO.dur, E.inOut);
     mark.svg.style.opacity = String(1 - cover);
+    const named = R.tween(t, NAME.at, R.dur.l, E.standard);
+    riseFree(name, named, 16);
+    name.style.opacity = String(named * (1 - cover)); // it goes with its mark
     photo.img.style.opacity = String(PHOTO.full * light);
     photo.wrap.style.visibility = light > 0 ? "visible" : "hidden";
     push(photo.img, R.tween(t, PUSH.at, PUSH.end - PUSH.at, E.inOut));

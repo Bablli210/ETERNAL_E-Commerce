@@ -6,42 +6,65 @@
  * time in the same three slots (index numeral, name, two-line description).
  * The right panel (x 800–1920, full height, bleeding off three edges) holds
  * four stacked layers; each arrives over the last on a soft edge of light
- * travelling left→right, and each principle's words rise as that light
- * settles. P1–P3 are photographs from the same hour, each on a slow 4 % push;
- * P3 also carries one band of warm light crossing the table. P4 is the hero
- * bottle's own colour world, Wayne: flat field, Golden hour chip and the e∞
- * watermark, placed exactly where scene 04 has them so they hold still under
- * its light-wipe. The runtime crossfades us in; we hold the final state to the
- * end and scene 04's wipe carries us off.
+ * travelling left→right; the old principle leaves while the edge is low on the
+ * panel and the next one rises as the light crosses it, so the column is never
+ * empty. P1–P3 are photographs from the same hour, each on a slow 4 % push;
+ * P3 (a dry-stone wall in low sun) also carries one band of warm light. P4 is
+ * the hero bottle's own colour world, Wayne: flat field, Golden hour chip with
+ * its legend, and the e∞ watermark, the chip and watermark placed exactly where
+ * scene 04 has them so they hold still under its light-wipe. One slow band of
+ * low sun crosses the field and is gone before that wipe. The runtime
+ * crossfades us in; we hold the final state to the end and scene 04's wipe
+ * carries us off.
  *
  * Pure function of t: every animated property is written on every call.
  */
 (() => {
   const C = R.color;
   const E = R.ease;
-  const WAYNE = "#2B2A28"; // the Wayne colour world (named in scene 04, labelled in scene 06)
+  const WAYNE = "#2B2A28"; // the Wayne colour world (named here and in scene 04; "proposed" in scene 06)
   const nowrap = { whiteSpace: "nowrap" };
 
   /* ---- geometry (stage px) ---- */
   const PANEL = { x: 800, y: 0, w: 1120, h: 1080 }; // 7 columns, bleeding right/top/bottom
   const FULL = { x: 0, y: 0, w: PANEL.w, h: PANEL.h }; // a layer, panel-local
   const PUSH_TO = 1.04; // around the panel centre; scale only, so no edge can show
-  // P4, panel-local. Stage: chip (1744, 120); watermark (1100, 640), 1000 wide — scene 04's exact spots.
+  // P4, panel-local. Stage: chip (1744, 120); watermark (1100, 640), 780 wide — scene 04's exact spots.
+  // At 780 the whole e∞ is in frame (ink ≈ stage x 1124–1856, y 713–957): at 1000 the ∞'s right
+  // loop ran off the frame at x 1920 and what was left read as "e ∝".
   const CHIP = { x: 1744 - PANEL.x, y: 120, w: 56, h: 56 };
-  const MARK = { x: 1100 - PANEL.x, y: 640, width: 1000, color: C.linen, stroke: 2 };
+  const MARK = { x: 1100 - PANEL.x, y: 640, width: 780, color: C.linen, stroke: 2 };
   const MARK_OPACITY = 0.07;
+  // The legend beside the chip, so the panel reads as Wayne's colour world and not as a
+  // missing picture: eyebrow type, Dune on the dark field, its ink ending 24 px left of
+  // the chip (x 1720) and its caps centred on the chip's middle (y 148). The box's right
+  // edge sits 4 px right of that: CSS tracking trails the last letter by 0.14em (2.5 px)
+  // and the D carries ≈ 1.5 px of side bearing (measured: ink x 1331–1720, caps y 141–155).
+  const LEGEND = { text: "eterno · Wayne — colour world", right: PANEL.x + PANEL.w - 1720 - 4, y: 139 };
 
   /* ---- the four layers of the panel ---- */
   const REVEAL_DUR = 1.2;
-  const PUSH_DUR = 6.1; // P2 and P3; P1 runs 0 → 6.3
+  // Reveal starts. The words need the time, not the photographs: each principle gets
+  // ≈ 3.5 s of settled text (P4, the longest at 13 words, ≈ 3.8 s before scene 04's wipe
+  // reaches the left column at ≈ 19.65 s).
+  const R2 = 4.9, R3 = 9.6, R4 = 14.3;
   const LAYERS = [
-    { src: "img/mood-wild-garden.jpg", position: "50% 50%", reveal: null, push: [0, 6.3] },
-    { src: "img/mood-sea-air.jpg", position: "62% 50%", reveal: 5.1, push: [5.1, PUSH_DUR] },
-    { src: "img/house-film-poster.jpg", position: "100% 50%", reveal: 10.0, push: [10.0, PUSH_DUR], band: true },
-    { field: WAYNE, reveal: 14.9 },
+    // Each photo pushes from its first light until the next layer has covered it.
+    { src: "img/mood-wild-garden.jpg", position: "50% 50%", reveal: null, push: [0, R2 + REVEAL_DUR] },
+    { src: "img/mood-sea-air.jpg", position: "62% 50%", reveal: R2, push: [R2, R3 + REVEAL_DUR - R2] },
+    // A dry-stone wall raked by low sun: the principle itself, one warm source and long hard shadows.
+    { src: "img/finder-who-him.jpg", position: "50% 50%", reveal: R3, push: [R3, R4 + REVEAL_DUR - R3], band: true },
+    { field: WAYNE, reveal: R4, band: true },
   ];
-  // One band of warm light over P3, like the sun moving across the table.
-  const BAND = { at: 11.8, dur: 2.4, intensity: 0.35 };
+  // One band of warm light over P3, like the sun moving across the wall, and one slower,
+  // softer pass across the Wayne field, gone (opacity 0) at 19.2 s, before scene 04's wipe
+  // starts at 19.4 s, so the chip and watermark are pixel-identical to scene 04 under it.
+  const BANDS = [
+    null,
+    null,
+    { at: R3 + 1.8, dur: 2.4, intensity: 0.35 },
+    { at: R4 + 1.5, dur: 3.4, intensity: 0.22 },
+  ];
 
   /* ---- the left column ---- */
   const X = 120;
@@ -53,34 +76,42 @@
   // of the eyebrow, numerals, names and descriptions share one ink edge at x 121 and
   // the rounds overshoot it by 1 px, as a typesetter would. The p of "per bottle" has an
   // entry serif left of its stem, so that line moves right 1 px: nothing inks left of 120.
+  // The changeover, relative to the next layer's reveal start R: the old words leave
+  // (320 ms, exit) from R + 0.3 while the light edge is still low on the panel, and are
+  // gone at R + 0.62, just as the new numeral starts to rise at R + 0.6 — so the slot is
+  // never empty for more than a frame or two and two sets of words never share it.
+  const EXIT_AT = 0.3, NUM_AT = 0.6, NAME_AT = 0.65, DESC_AT = 0.8;
   const PRINCIPLES = [
     {
-      num: "01", at: 0.8, exit: 5.1,
+      num: "01", at: 0.8, exit: R2 + EXIT_AT,
       name: [{ text: "Quiet luxury", y: 444, dx: -4 }],
       desc: [{ text: "Nothing shouts. Fewer elements,", y: 566, dx: -1 }, { text: "larger, with room to breathe.", y: 611, dx: -1 }],
       tName: 0.85, tDesc: 1.0,
     },
     {
-      num: "02", at: 5.9, exit: 10.0,
+      num: "02", at: R2 + NUM_AT, exit: R3 + EXIT_AT,
       name: [{ text: "Matière", y: 444, dx: -1 }],
       // Broken at the sentence, not inside the list (see deviations): the five materials
       // stay together, the rule stands alone, and the rag runs long→short like P1, P3, P4.
       desc: [{ text: "Stone, sand, linen, wet glass, film grain.", y: 566, dx: -1 }, { text: "Texture replaces decoration.", y: 611, dx: -1 }],
-      tName: 5.95, tDesc: 6.1,
+      tName: R2 + NAME_AT, tDesc: R2 + DESC_AT,
     },
     {
-      num: "03", at: 10.8, exit: 14.9,
+      num: "03", at: R3 + NUM_AT, exit: R4 + EXIT_AT,
       name: [{ text: "Golden hour", y: 444, dx: -4 }],
       desc: [{ text: "One light source, low and warm,", y: 566, dx: -1 }, { text: "long hard shadows.", y: 611, dx: -1 }],
-      tName: 10.85, tDesc: 11.0,
+      tName: R3 + NAME_AT, tDesc: R3 + DESC_AT,
     },
     {
-      num: "04", at: 15.5, exit: null, // holds to the end; scene 04's wipe carries it off
-      name: [{ text: "One story", y: 444, dx: -4 }, { text: "per bottle", y: 532, dx: 1 }],
-      desc: [{ text: "Each scent owns a colour world", y: 656, dx: -1 }, { text: "and a tale.", y: 701, dx: -1 }],
-      tName: 15.55, tDesc: 15.8,
+      num: "04", at: R4 + NUM_AT, exit: null, // holds to the end; scene 04's wipe carries it off
+      // Line 2 at 540, not 532 (leading ≈ 1.14 for this two-line name only): at 1.05 the tail
+      // of the y in "story" ended 4 px above the l of "bottle", directly over it.
+      name: [{ text: "One story", y: 444, dx: -4 }, { text: "per bottle", y: 540, dx: 1 }],
+      desc: [{ text: "Each scent owns a colour world", y: 664, dx: -1 }, { text: "and a tale.", y: 709, dx: -1 }],
+      tName: R4 + NAME_AT, tDesc: R4 + DESC_AT,
     },
   ];
+  const LEGEND_AT = R4 + 0.95; // once the light edge has fully uncovered its corner (≈ R4 + 0.87)
   const NUM_Y = 392;
   const WORD_GAP = 0.08; // name words, across lines in reading order
   const LINE_GAP = 0.12; // description line 2 after line 1
@@ -171,7 +202,10 @@
         R.box(layer, CHIP, { background: C.gold });
         const mark = R.mark(layer, MARK);
         mark.svg.style.opacity = String(MARK_OPACITY);
-        return { def: L, layer, mark };
+        const legend = R.text(layer, LEGEND.text, { role: "eyebrow", right: LEGEND.right, y: LEGEND.y, size: 18, color: C.dune, align: "right", style: nowrap });
+        // Over the chip, mark and legend: the light falls on the whole surface.
+        const band = L.band ? warmBand(layer) : null;
+        return { def: L, layer, mark, legend, band };
       }
       const { wrap, img } = R.image(panel, L.src, FULL, { position: L.position });
       unpin(img);
@@ -205,18 +239,19 @@
     /* The panel. Each layer arrives on a soft light edge; photos push slowly. */
     const reveals = layers.map(({ def }) => (def.reveal == null ? 1 : R.tween(t, def.reveal, REVEAL_DUR, E.inOut)));
     layers.forEach((L, i) => {
-      const { def, layer, img, band, mark } = L;
+      const { def, layer, img, band, mark, legend } = L;
       if (def.reveal != null) R.softReveal(layer, reveals[i], 100, 26);
       // A layer is only painted while it shows: from its first light until the next layer covers it.
       const covered = reveals.slice(i + 1).some((p) => p >= 1);
       layer.style.visibility = reveals[i] > 0 && !covered ? "visible" : "hidden";
       if (img) push(img, R.tween(t, def.push[0], def.push[1], E.inOut));
-      // The sun moving across the table: the shaft travels at an even pace while the
-      // sweep's sin(πp) envelope eases its light in and out — visible ≈ 12.0–14.0 s at
+      // The sun moving across the surface: the shaft travels at an even pace while the
+      // sweep's sin(πp) envelope eases its light in and out — on P3 visible ≈ 11.6–13.6 s at
       // ≈ 560 px/s. (Measured: standard, R.tween's default, lights it fully in 0.2 s
       // and whips it across in 0.4 s; inOut squeezes the pass into 1.6 s at 1100 px/s.)
-      if (band) sweepBand(band, R.tween(t, BAND.at, BAND.dur, E.linear), BAND.intensity);
+      if (band) { const B = BANDS[i]; sweepBand(band, R.tween(t, B.at, B.dur, E.linear), B.intensity); }
       if (mark) R.drawMark(mark, 1); // fully drawn, still, as in scene 04
+      if (legend) riseFree(legend, R.tween(t, LEGEND_AT, R.dur.l, E.standard), 16);
     });
 
     /* The left column's frame. */

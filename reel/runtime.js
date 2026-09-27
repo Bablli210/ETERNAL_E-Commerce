@@ -31,7 +31,10 @@
       return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
     };
   }
-  function grainTiles(n = 6, size = 256) {
+  // Grain is drawn at half resolution and shown at twice the size (soft clumps, like
+  // film rather than sensor noise) and changes 15 times a second rather than 30:
+  // it reads the same and costs a fraction of the bitrate once encoded.
+  function grainTiles(n = 6, size = 128) {
     const tiles = [];
     for (let k = 0; k < n; k++) {
       const c = document.createElement("canvas");
@@ -104,11 +107,14 @@
       st.visibility = "visible";
       st.maskImage = st.webkitMaskImage = "none";
       if (p >= 1 || tin.type === "cut") return null;
-      if (tin.type === "crossfade") st.opacity = String(R.ease.standard(p));
-      else if (tin.type === "light-wipe") R.softReveal(e.root, R.ease.inOut(p), 100, 26);
+      // Symmetric curves for whole-frame changes: the standard curve is front-loaded,
+      // which turns a 600 ms dissolve into a one-frame jolt and a long ghost.
+      if (tin.type === "crossfade") st.opacity = String(R.ease.inOut(p));
+      // A narrow soft edge keeps two framings of the same subject from overlapping as a double exposure.
+      else if (tin.type === "light-wipe") R.softReveal(e.root, R.ease.inOut(p), 100, tin.soft ?? 14);
       else if (tin.type === "dip-to-night" || tin.type === "dip-to-linen") {
         if (p < 0.5) st.visibility = "hidden";
-        return { color: tin.type === "dip-to-night" ? R.color.night : R.color.linen, o: p < 0.5 ? R.ease.standard(p * 2) : 1 - R.ease.standard((p - 0.5) * 2) };
+        return { color: tin.type === "dip-to-night" ? R.color.night : R.color.linen, o: p < 0.5 ? R.ease.inOut(p * 2) : 1 - R.ease.inOut((p - 0.5) * 2) };
       }
       return null;
     }
@@ -132,9 +138,11 @@
       dip.style.opacity = dipState ? String(dipState.o) : "0";
       if (dipState) dip.style.background = dipState.color;
       const frame = Math.round(time * R.FPS);
+      const gf = Math.floor(frame / 2);
       grain.style.opacity = String(R.clamp(g * 6, 0, 0.5));
-      grain.style.backgroundImage = `url(${tiles[frame % tiles.length]})`;
-      grain.style.backgroundPosition = `${(frame * 73) % 256}px ${(frame * 151) % 256}px`;
+      grain.style.backgroundImage = `url(${tiles[gf % tiles.length]})`;
+      grain.style.backgroundSize = "256px 256px";
+      grain.style.backgroundPosition = `${(gf * 73) % 256}px ${(gf * 151) % 256}px`;
       if (dbg) {
         const active = entries.filter((e) => e.root.style.display === "block").map((e) => `${e.s.slug} ${(time - e.s.start).toFixed(2)}s`).join(" · ");
         dbg.tc.textContent = `${time.toFixed(3)}s  f${frame}  ${active}`;

@@ -89,7 +89,7 @@ try {
       const svg = `<svg width="${W}" height="${L}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#111"/><text x="6" y="18" font-family="DejaVu Sans" font-size="15" fill="#ddd">${tag} t=${f.t.toFixed(2)}s</text></svg>`;
       comps.push({ input: Buffer.from(svg), left: x, top: y + H });
     }
-    const p = path.join(OUT, `${tag}-sheet.jpg`);
+    const p = path.join(OUT, opt("strip") ? `${tag}-strip-${opt("strip").split(",").slice(0, 2).join("-")}.jpg` : `${tag}-sheet.jpg`);
     await sharp({ create: { width: cols * (W + 6), height: rows * (H + L + 6), channels: 3, background: "#000" } }).composite(comps).jpeg({ quality: 85 }).toFile(p);
     console.log(p);
   }

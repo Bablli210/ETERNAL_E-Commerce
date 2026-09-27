@@ -4,20 +4,25 @@
  * The palette as a discipline, then the idea that sells. On Linen, under an
  * eyebrow that stays for the whole scene:
  *
- * BEAT A (0–4.92 s) — the ratio. "Neutrals do the work." rises word by word
+ * The eyebrow is the chapter's running head, at (120, 150) like 03's "Four
+ * principles" and 07's "Typography", so it does not jump between chapters; the
+ * title slot sits 32 px under it, at y 182.
+ *
+ * BEAT A (0–5.32 s) — the ratio. "Neutrals do the work." rises word by word
  * while one soft edge of light lays down a single 1680 px bar split 70/20/6/4:
  * Linen (so it reads as mostly empty — that is the point), Night, Sand and a
  * sliver of Golden hour, each with its share set small in its corner. The
- * board's ratio line settles under it; then the nine swatches fill in left to
- * right, seven neutrals and two accents, each chip bringing its own part of the
- * hairline frame so the row grows as one gesture, its name and hex rising just
- * behind it. A hold, and everything but the eyebrow leaves in 320 ms.
+ * board's ratio line settles under it and the nine swatches follow the light
+ * edge across, left to right, seven neutrals and two accents, each chip
+ * bringing its own part of the hairline frame so the row grows as one gesture,
+ * its name and hex rising just behind it. Built by 2.48 s; a 2.5 s hold, and
+ * everything but the eyebrow leaves in 320 ms.
  *
- * BEAT B (5.0–10 s) — one world per scent. The heading rises word by word and
+ * BEAT B (5.4–10 s) — one world per scent. The heading rises word by word and
  * the ten colour-world tiles arrive in reading order, 60 ms apart: a flat field,
  * a chip of its second colour, the scent's name and — always — its status,
- * "from the packshot" or "proposed". Then the grid holds, still, until scene
- * 07's crossfade takes it (from 9.4 s). Nothing fades out at the end.
+ * "from the packshot" or "proposed". Built by 6.74 s, the grid holds, still,
+ * until scene 07's crossfade takes it (from 9.4 s). Nothing fades out at the end.
  *
  * Pure function of t: every animated property is written on every call.
  */
@@ -26,6 +31,9 @@
   const E = R.ease;
   const nowrap = { whiteSpace: "nowrap" };
   const TABULAR = { fontVariantNumeric: "tabular-nums lining-nums" };
+  // Cormorant defaults to old-style figures, which turn the 1 of "Enzo 1898"
+  // into a small-cap I ("Enzo I898"). Every serif name here sets lining figures.
+  const LINING = { fontVariantNumeric: "lining-nums proportional-nums" };
 
   /* ---- type: optical margins ----
    * Every box sits on its storyboard x, then moves left by its first glyph's
@@ -37,9 +45,9 @@
    */
 
   /* ---- the frame: eyebrow and the title slot (shared by both beats) ---- */
-  const EYEBROW = { text: "Colour", x: 120, y: 112, at: 0.3 };
-  const TITLE_A = { text: "Neutrals do the work.", x: 120 - 2, y: 144, at: 0.4 }; // N's serif: 2 px bearing
-  const TITLE_B = { text: "Colour worlds — one per scent", x: 120 - 4, y: 144, at: 5.0 }; // round C: 4 px bearing
+  const EYEBROW = { text: "Colour", x: 120, y: 150, at: 0.3 }; // same running-head slot as 03 and 07
+  const TITLE_A = { text: "Neutrals do the work.", x: 120 - 2, y: 182, at: 0.4 }; // N's serif: 2 px bearing
+  const TITLE_B = { text: "Colour worlds — one per scent", x: 120 - 4, y: 182, at: 5.4 }; // round C: 4 px bearing
   const WORD_GAP = 0.08; // 80 ms between words, across the line in reading order
 
   /* ---- BEAT A: the ratio bar ---- */
@@ -47,7 +55,7 @@
   // The 1 px Dune outline sits just outside the 1680×240 bar (as the toolkit's
   // browser frame does), so Night and Golden hour keep clean edges and the
   // outline only shows where it is needed: around the Linen that is most of it.
-  const BAR = { x: 120, y: 292, w: 1680, h: 240, at: 0.7, dur: R.dur.xl };
+  const BAR = { x: 120, y: 330, w: 1680, h: 240, at: 0.7, dur: R.dur.xl };
   const SEGMENTS = [
     { x: 120, w: 1176, fill: C.linen, num: "70", ink: C.night }, // 70 %
     { x: 1296, w: 336, fill: C.night, num: "20", ink: C.linen }, // 20 %
@@ -56,19 +64,22 @@
   ];
   // Each share sits in its segment's bottom-left corner, 16 px in from both
   // edges: ink from x + 16 (the figures carry 2 px of bearing) and baseline at
-  // y 516, 16 px above the bar's foot. The storyboard's "top y 476" assumed a
-  // figure as tall as its 40 px size; Cormorant's lining figures are 26 px, which
-  // left them floating 24 px up. So the 40 px line box starts at y 484.
-  const NUM = { dx: 16 - 2, y: 484, size: 40 };
+  // y 554, 16 px above the bar's foot. The storyboard's "top y 476" (on its
+  // bar at y 292) assumed a figure as tall as its 40 px size; Cormorant's lining
+  // figures are 26 px, which left them floating 24 px up. So the 40 px line box
+  // starts 192 px into the bar, at y 522.
+  const NUM = { dx: 16 - 2, y: BAR.y + 192, size: 40 };
 
-  const RATIO = { text: "70 linen · 20 night · 6 sand · 4 golden hour", x: 120 - 1, y: 552, at: 1.5 };
+  // The ratio line settles under the bar while the light is still crossing it.
+  const RATIO = { text: "70 linen · 20 night · 6 sand · 4 golden hour", x: 120 - 1, y: 590, at: 1.2 };
 
   /* ---- BEAT A: the swatch row ---- */
+  // Each row label rises just before its group's first chip (see CHIP_AT).
   const LABELS = [
-    { text: "Neutrals", x: 120 - 1, y: 660, at: 1.8 },
-    { text: "Accents", x: 1432, y: 660, at: 2.3 },
+    { text: "Neutrals", x: 120 - 1, y: 698, at: 1.25 },
+    { text: "Accents", x: 1432, y: 698, at: 1.7 },
   ];
-  const CHIP = { y: 696, w: 184, h: 140, nameY: 852, hexY: 888 };
+  const CHIP = { y: 734, w: 184, h: 140, nameY: 890, hexY: 926 };
   const CHIPS = [
     { name: "Linen", hex: "#F3EFE7", fill: C.linen, x: 120, dx: -1, first: true },
     { name: "Paper", hex: "#FAF8F3", fill: C.paper, x: 304, dx: -1 },
@@ -81,13 +92,17 @@
     { name: "Deep sea", hex: "#163A4E", fill: C.sea, x: 1616, dx: -1, last: true },
   ];
   const RULE_X = 304; // the 1 px rule between the Linen and Paper chips
-  const CHIP_AT = 1.9, CHIP_GAP = 0.06, CHIP_LABEL_LAG = 0.1; // last label complete 3.08 s
-  const A_OUT = 4.6; // everything but the eyebrow exits, 320 ms, gone at 4.92 s
+  // The chips follow the bar's light edge, about 600 px behind it, so the row
+  // never runs ahead of the light: 1.30–1.78 s, last label complete 2.48 s.
+  const CHIP_AT = 1.3, CHIP_GAP = 0.06, CHIP_LABEL_LAG = 0.1;
+  const A_OUT = 5.0; // a 2.5 s hold, then everything but the eyebrow exits, 320 ms, gone at 5.32 s
 
   /* ---- BEAT B: the colour worlds ---- */
-  const TILE = { w: 316.8, h: 328, inset: 24, chip: 56, nameY: 232, statusY: 276 };
+  // 316.8 × 300 under the lowered title: rows at y 312 and 636, the grid ends
+  // at y 936. Name and status keep their 96 / 52 px from the tile's foot.
+  const TILE = { w: 316.8, h: 300, inset: 24, chip: 56, nameY: 204, statusY: 248 };
   const COLS = [120, 460.8, 801.6, 1142.4, 1483.2];
-  const ROWS = [284, 636];
+  const ROWS = [312, 636];
   // Verbatim from the direction board: first colour = field, second = chip.
   // dx / sdx: the name's and the status's side bearing at 34 / 20 px.
   const WORLDS = [
@@ -102,7 +117,7 @@
     { name: "Tonic Club", status: "proposed", field: "#DDE9C8", chip: "#3E5A2E", dx: 0, sdx: -1 },
     { name: "Linen", status: "proposed", field: "#F2EFE8", chip: "#9A968D", border: true, dx: -1, sdx: -1 },
   ];
-  const TILE_AT = 5.2, TILE_GAP = 0.06; // last starts 5.74, complete 6.34 s
+  const TILE_AT = 5.6, TILE_GAP = 0.06; // last starts 6.14, complete 6.74 s; the grid holds 2.66 s
 
   let els = null;
 
@@ -140,7 +155,7 @@
     const titleA = words(groupA, TITLE_A);
 
     // The bar layer is 1 px larger all round so the mask carries the outline too;
-    // children are placed in its padding box, whose origin is the bar's (120, 292).
+    // children are placed in its padding box, whose origin is the bar's (120, 330).
     const bar = R.box(groupA, { x: BAR.x - 1, y: BAR.y - 1, w: BAR.w + 2, h: BAR.h + 2 }, { border: `1px solid ${C.dune}` });
     for (const S of SEGMENTS) {
       R.box(bar, { x: S.x - BAR.x, y: 0, w: S.w, h: BAR.h }, { background: ground(S.fill) });
@@ -170,7 +185,7 @@
       return { fill: chipFills[i], edges };
     });
     CHIPS.forEach((K, i) => {
-      chips[i].name = R.text(groupA, K.name, { role: "display-m", x: K.x + K.dx, y: CHIP.nameY, size: 28, lineHeight: 1.1, color: C.night, style: nowrap });
+      chips[i].name = R.text(groupA, K.name, { role: "display-m", x: K.x + K.dx, y: CHIP.nameY, size: 28, lineHeight: 1.1, color: C.night, style: { ...nowrap, ...LINING } });
       chips[i].hex = R.text(groupA, K.hex, { role: "caption", x: K.x, y: CHIP.hexY, size: 18, lineHeight: 1.2, color: C.ash, style: { ...nowrap, ...TABULAR } });
     });
 
@@ -186,7 +201,7 @@
       const o = W.border ? -1 : 0; // children are placed in the padding box
       const ink = W.dark ? C.linen : C.night;
       R.box(tile, { x: TILE.w - TILE.inset - TILE.chip + o, y: TILE.inset + o, w: TILE.chip, h: TILE.chip }, { background: W.chip });
-      R.text(tile, W.name, { role: "display-m", x: TILE.inset + W.dx + o, y: TILE.nameY + o, size: 34, lineHeight: 1.1, color: ink, style: nowrap });
+      R.text(tile, W.name, { role: "display-m", x: TILE.inset + W.dx + o, y: TILE.nameY + o, size: 34, lineHeight: 1.1, color: ink, style: { ...nowrap, ...LINING } });
       R.text(tile, W.status, { role: "caption", x: TILE.inset + W.sdx + o, y: TILE.statusY + o, size: 20, color: ink, style: nowrap });
       return tile;
     });

@@ -193,8 +193,14 @@
   R.softReveal = (el, p, angle = 100, soft = 24) => {
     if (p >= 1) { el.style.maskImage = el.style.webkitMaskImage = "none"; return; }
     const pos = R.lerp(-soft, 100, R.clamp(p));
-    const g = `linear-gradient(${angle}deg, #000 ${pos}%, transparent ${pos + soft}%)`;
-    el.style.maskImage = el.style.webkitMaskImage = g;
+    // The edge follows a smoothstep rather than a straight ramp: no hard start or
+    // end to the light, and the 8-bit steps are spread instead of banding.
+    const stops = [];
+    for (let i = 0; i <= 8; i++) {
+      const u = i / 8, a = 1 - u * u * (3 - 2 * u);
+      stops.push(`rgba(0,0,0,${a.toFixed(4)}) ${(pos + soft * u).toFixed(3)}%`);
+    }
+    el.style.maskImage = el.style.webkitMaskImage = `linear-gradient(${angle}deg, ${stops.join(", ")})`;
   };
   /**
    * A band of warm light passing across an element (child overlay). Create it

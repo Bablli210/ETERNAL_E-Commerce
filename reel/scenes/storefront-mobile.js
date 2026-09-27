@@ -12,7 +12,7 @@
  *        the Sand ground and the eyebrow, identical in both scenes, stay put.
  *   0.2  phone A fades in and rises 16 px (600 ms, emphasized); phone B
  *        follows at 0.32 s.
- *   0.9  "Mobile is the / primary device." rises word by word across its two
+ *   0.9  "Mobile is / the primary device." rises word by word across its two
  *        lines (24 px, 600 ms, emphasized, 80 ms stagger; settled at 1.82 s).
  *   1.9  phone B scrolls css 8380 → 9000 over 4 s: 600 ms sine ease-in, an
  *        even 174 css px/s (157 stage px/s), 600 ms sine ease-out. It is the
@@ -35,13 +35,17 @@
   const EYEBROW_REST = "translate3d(0, 0.000px, 0) rotate(0.001deg)";
   // 64 px Cormorant Garamond 600, line-height 1.05 (67.2 px): scene 09's page
   // names sit on the same (120, 300) box, so the headline takes their place.
-  // Optical margin, measured on the rendered frame: the eyebrow's T and the
-  // p's serif ink from x 120, but the M's foot serif carries 1 px more side
-  // bearing, so line 1 moves left by 1 px and both lines hang on the
-  // eyebrow's edge. Nothing inks left of the 120 title-safe line.
+  // Optical margin, measured on the rendered frame: the eyebrow's T inks from
+  // x 120, but the M's foot serif and the t's crossbar each carry about 1 px
+  // more side bearing, so both lines move left by 1 px and hang on the
+  // eyebrow's edge (ink from x 120.6 and 120.3). Nothing inks left of the 120
+  // title-safe line.
+  // The break follows the phrase, subject / predicate, so no line ends on the
+  // article: "Mobile is" / "the primary device." (line 2 inks to x 586, far
+  // from phone A at 920).
   const LINES = [
-    { text: "Mobile is the", x: 120, y: 300, dx: -1 },
-    { text: "primary device.", x: 120, y: 367, dx: 0 },
+    { text: "Mobile is", x: 120, y: 300, dx: -1 },
+    { text: "the primary device.", x: 120, y: 367, dx: -1 },
   ];
   const HEAD = { at: 0.9, gap: 0.08, dur: R.dur.l, dist: 24 };
 
@@ -58,9 +62,12 @@
   };
   const RISE = { dur: R.dur.l, dist: 16 };
   const CSS_W = 390; // the mobile capture's page width (3 capture px per css px)
-  // Phone A, still: css 7565 → 8409 (a thin Linen strip, the Night house band,
-  // Linen; it ends before the "Tales" glyphs at css 8417).
-  const A_SCROLL = 7565;
+  // Phone A, still: css 7547 → 8391, the Night house band (css 7595–8342,
+  // measured on the capture) framed by an even margin of Linen above and below
+  // (48 / 49 css, 44 stage px each on the rendered frame), so the band reads as
+  // deliberately set, not mis-scrolled. It ends before the "Tales" glyphs at
+  // css 8417.
+  const A_SCROLL = 7547;
   // Phone B, drifting: css 8380 ("Tales", "All tales", the Wayne card) → 9000
   // (Enzo 1898 and Forbidden Apple with their lines, bottom edge at css 9844,
   // above the Join band at 9885).
@@ -76,10 +83,15 @@
    * cannot be decoded"): next to scene 09's home-desktop.jpg (206 MB) the
    * capture, or even a 32 MB strip of it as an <img>, made one of them fail
    * and the film would not load. So the phones hold no <img>. build() decodes
-   * the capture once, keeps css 7560–9850 (1170×6870 capture px), resamples it
+   * the capture once, keeps css 7540–9850 (1170×6930 capture px), resamples it
    * to the screens' 351 px and lets the decode go. It also makes the notes'
-   * limits physical: nothing above css 7560 (the offer band and its prices)
-   * or below 9850 (the Join band starts at 9885) exists in the scene.
+   * limits physical: nothing above css 7540 or below 9850 (the Join band
+   * starts at 9885) exists in the scene. The mystery-box offer card and its
+   * price end at css 7523; css 7524–7594 is the section's plain Linen padding
+   * (a uniform 238/230/217 in the capture from 7528): the strip starts 17 css
+   * rows below the card's edge, on that empty ground, so the card is never in
+   * the scene. The top moves by 20 css (60 capture px = 18 screen px, whole),
+   * so phone B samples the page on exactly the same grid as before.
    *
    * Why phases: a bitmap at the screen's own resolution, moved by fractional
    * pixels, is re-sampled bilinearly by the browser, so a scrolling page goes
@@ -92,7 +104,7 @@
    * render() still only sets styles. Chrome gives each visible canvas its own
    * layer, which only ever moves by whole pixels, so nothing is re-sampled.
    */
-  const STRIP = { name: "site/home-mobile.jpg", top: 7560, bottom: 9850 };
+  const STRIP = { name: "site/home-mobile.jpg", top: 7540, bottom: 9850 };
   const PHASES = 8;
 
   async function loadStrip() {
@@ -262,7 +274,7 @@
       role: "display-l", x: l.x + l.dx, y: l.y, size: 64, weight: 600, lineHeight: 1.05, color: C.night, style: nowrap,
     })).map(unpin));
 
-    // The page strip at the screens' resolution (351 × 2061), in eight phases.
+    // The page strip at the screens' resolution (351 × 2079), in eight phases.
     const sw = Math.round(((PHONE_H - 2 * BEZEL) * CSS_W) / 844); // R.phone's screen width
     const src = await loadStrip();
     const dh = Math.round((src.height * sw) / src.width);

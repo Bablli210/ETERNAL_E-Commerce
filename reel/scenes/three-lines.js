@@ -2,14 +2,16 @@
  * Scene 05 · "Three lines, one house" (three-lines) — 9.4 s, from 45.9 s.
  *
  * The house's structure at a glance. The runtime dips through Linen out of the
- * boat tale; the title, alone on Linen, rises word by word and leaves. Then one
- * soft edge of light crosses the frame left→right and lays down three flat tone
- * fields, full bleed, 638 px wide with 3 px Linen seams: Blush clay (eterna),
- * Sea slate (eterno), Bone (eternal). Each line's photograph (a person seen
- * from behind) arrives out of its own tone, as images load on the site, in the
- * top 850 px of its panel and starts a slow 1.04 → 1.07 push. The bottom 230 px
- * stay tone: the line name rises there, then its audience and its tone. We hold
- * on the three pushes until scene 06's crossfade takes the frame.
+ * boat tale; as it clears, the chapter's eyebrow and the title rise on Linen.
+ * Then one edge of light crosses the frame left→right: where it passes, the
+ * title is gone and three flat tone fields lie in its place, full bleed, 638 px
+ * wide with 3 px Linen seams: Blush clay (eterna), Sea slate (eterno), Bone
+ * (eternal). There is no empty beat between the title and the fields. Each
+ * line's photograph (a person seen from behind) comes up out of its own tone,
+ * as images load on the site, in the top 850 px of its panel and starts a slow
+ * 1.04 → 1.07 push. The bottom 230 px stay tone: the line name rises there,
+ * then its audience and its tone. We hold on the three pushes (about 2.5 s,
+ * labelled) until scene 06's crossfade takes the frame.
  *
  * Pure function of t: every animated property is written on every call.
  */
@@ -47,26 +49,57 @@
    * the crossbar on the 120 margin. In the bands, each eyebrow's stem inks at
    * inset + 1; the names' round e inked at inset + 2, a hair right of the stem,
    * so the names move 2 px left and the round overshoots the stem by 1 px, as a
-   * typesetter would hang it. Line boxes: the title's 122 px box is centred on
-   * y 540 (caps 496–577, a touch above centre, where the eye puts it).
+   * typesetter would hang it. The chapter eyebrow's T inks at 120.5 from a box
+   * at 120 (as in scene 01), on the title's crossbar. Line boxes: the eyebrow
+   * sits 40 px above the title box, as in scenes 01 and 08, and the block (the
+   * eyebrow's box top 459 to the title's box bottom 621) is centred on y 540,
+   * as scene 08 centres its column.
    */
   const TITLE_DX = -4;
   const NAME_DX = -2;
 
   /* ---- timing (scene-local seconds) ---- */
-  const TITLE = { text: "Three lines, one house", x: 120 + TITLE_DX, y: 479, at: 0.9, gap: 0.08, out: 3.1 };
-  const REVEAL = { at: 3.5, dur: R.dur.xl }; // one soft light edge across the whole frame
-  const PHOTO_AT = [4.8, 4.92, 5.04]; // fade 600 ms, standard; each push starts with its fade
-  const NAME_AT = [5.8, 5.92, 6.04]; // 24 px rise, 600 ms, emphasized
-  const SUB_AT = [6.1, 6.22, 6.34]; // eyebrow + tone caption together, 16 px, 600 ms, standard
+  // Beat A starts as the dip clears (it is opaque at 0.6 and gone at 1.2): the
+  // eyebrow first, then the title's words. The title is complete at 1.54 and
+  // untouched until the light edge reaches its T at about 3.6 s.
+  const EYEBROW = { text: "The house", x: 120, y: 459, at: 0.6 }; // 16 px rise, 600 ms, standard
+  const TITLE = { text: "Three lines, one house", x: 120 + TITLE_DX, y: 499, at: 0.7, gap: 0.08 };
+  // One edge of light across the whole frame. It lays the tone fields over
+  // beat A and takes beat A with it, so the title has no exit of its own. The
+  // edge is 10 % of the 2078 px gradient line (about 210 px): a clean light
+  // edge, not a long slate→Linen airbrush across the eterno panel.
+  const REVEAL = { at: 3.3, dur: R.dur.xl, angle: 100, soft: 10 };
+  // Photos come up over 1200 ms on the light curve (inOut), as in scene 08's
+  // G7 arrival. The 600 ms standard fade put over half of each photo on
+  // screen in three frames. Each push starts with its fade.
+  const PHOTO_AT = [4.4, 4.52, 4.64];
+  const NAME_AT = [5.2, 5.32, 5.44]; // 24 px rise, 600 ms, emphasized
+  const SUB_AT = [5.5, 5.62, 5.74]; // eyebrow + tone caption together, 16 px, 600 ms, standard; labelled at 6.34
 
   let els = null;
+
+  /*
+   * The complement of R.softReveal's mask, on the same edge: whatever the light
+   * has passed is gone. With the two masks on two full-frame boxes the edges
+   * coincide, so the title never shows through the triptych's 3 px seams. It is
+   * written on every frame of beat A, never "none", so the type is composited
+   * the same way before and while the edge crosses it.
+   */
+  function softCover(el, p, angle, soft) {
+    const pos = R.lerp(-soft, 100, R.clamp(p));
+    const g = `linear-gradient(${angle}deg, transparent ${pos}%, #000 ${pos + soft}%)`;
+    el.style.maskImage = el.style.webkitMaskImage = g;
+  }
 
   function build(root) {
     root.style.background = C.linen;
 
-    /* BEAT A: the title alone on Linen, one line, vertically centred on 540. */
-    const title = R.text(root, TITLE.text, {
+    /* BEAT A: eyebrow and title on Linen, one block centred on 540. */
+    const beatA = R.box(root, FRAME);
+    const eyebrow = R.text(beatA, EYEBROW.text, {
+      role: "eyebrow", x: EYEBROW.x, y: EYEBROW.y, size: 18, color: C.ash, style: nowrap,
+    });
+    const title = R.text(beatA, TITLE.text, {
       role: "display-xl", x: TITLE.x, y: TITLE.y, size: 120, lineHeight: 1.02, color: C.night, style: nowrap,
     });
     const titleWords = R.splitWords(title);
@@ -91,28 +124,28 @@
       return { panel, photo, name, audience, label };
     });
 
-    els = { title, titleWords, triptych, panels };
+    els = { beatA, eyebrow, titleWords, triptych, panels };
   }
 
   function render(t, ctx) {
-    const { title, titleWords, triptych, panels } = els;
+    const { beatA, eyebrow, titleWords, triptych, panels } = els;
     const end = ctx.duration;
 
-    /* BEAT A — the title rises word by word under the clearing dip, then exits. */
+    /* BEAT A — eyebrow, then the title word by word, as the dip clears. */
+    R.rise(eyebrow, R.tween(t, EYEBROW.at, R.dur.l, E.standard), 16);
     R.stagger(t, TITLE.at, titleWords.length, TITLE.gap, R.dur.l, E.emphasized)
       .forEach((p, i) => R.rise(titleWords[i], p, 24));
-    const titleOut = R.tween(t, TITLE.out, R.dur.m, E.exit);
-    R.fade(title, 1 - titleOut);
-    title.style.visibility = titleOut < 1 ? "visible" : "hidden";
 
-    /* BEAT B — light lays down the three tone fields. */
+    /* BEAT B — one edge of light lays down the three tone fields over beat A. */
     const reveal = R.tween(t, REVEAL.at, REVEAL.dur, E.inOut);
-    R.softReveal(triptych, reveal, 100, 26);
+    R.softReveal(triptych, reveal, REVEAL.angle, REVEAL.soft);
     triptych.style.visibility = reveal > 0 ? "visible" : "hidden";
+    softCover(beatA, reveal, REVEAL.angle, REVEAL.soft);
+    beatA.style.visibility = reveal < 1 ? "visible" : "hidden";
 
     panels.forEach((P, i) => {
-      // The photo arrives out of its tone and pushes from that moment to the end.
-      R.fade(P.photo.img, R.tween(t, PHOTO_AT[i], R.dur.l, E.standard));
+      // The photo comes up out of its tone and pushes from that moment to the end.
+      R.fade(P.photo.img, R.tween(t, PHOTO_AT[i], R.dur.xl, E.inOut));
       R.push(P.photo.img, R.tween(t, PHOTO_AT[i], end - PHOTO_AT[i], E.inOut), { scale: PUSH.from }, { scale: PUSH.to });
       R.rise(P.name, R.tween(t, NAME_AT[i], R.dur.l, E.emphasized), 24);
       const sub = R.tween(t, SUB_AT[i], R.dur.l, E.standard);

@@ -1,22 +1,28 @@
 /*
  * Scene 11 — Never meant to fade (88.3 → 94.7 s, light-wipe in, 1.2 s).
  *
- * The film closes where it opened. The hero film returns full-bleed with
- * scene 01's framing, frame blending, push and scrim, and the house signs it:
- * the wordmark "eternal", a short Dune hairline and the tagline, set in the
- * open sea on the left and never crossing the bottle. From 3.8 s only the
- * water and the slow push move; the frame at exactly t = 6.4 s is the end
- * card that stays on screen for the conversation. No fade to black.
+ * The film closes where it opened. As in scene 01, Night comes first and a
+ * soft edge of light reveals the hero film, with scene 01's framing, frame
+ * blending, push and scrim. Then the house signs it: the wordmark "eternal",
+ * a short Dune hairline and the tagline, set in the open sea on the left and
+ * never crossing the bottle. From 3.2 s only the water and the slow push
+ * move; the frame at exactly t = 6.4 s is the end card that stays on screen
+ * for the conversation. No fade to black.
  *
- *   0.0  the runtime's light-wipe (1.2 s) carries scene 10's phones off and
- *        reveals the film; the 3 % push starts (0 → 6.4 s, inOut).
- *   0.6  the left scrim fades in over 1200 ms, standard.
- *   1.4  the wordmark fades in and rises 24 px as one unit, 1200 ms,
- *        emphasized.
- *   2.4  the hairline draws left→right, 600 ms, standard.
- *   2.7  the tagline rises word by word (24 px, 600 ms, emphasized, 80 ms
- *        stagger; 7 words, settled at 3.78 s).
- *   3.8  hold to the end.
+ *   0.0  the runtime's light-wipe (1.2 s) carries scene 10's phones off onto
+ *        Night. The film stays masked, so no phone is ever seen over the
+ *        bottle. The 3 % push starts (0 → end, inOut).
+ *   0.8  scene 01's reveal: a soft edge (100°, 26 %) uncovers the film
+ *        left→right over 1200 ms, inOut. Its leading edge always trails the
+ *        runtime's, so the two never overlap. The left scrim fades in with it
+ *        over 1200 ms, standard. It is Night on Night until the film shows.
+ *   1.4  the light has settled on the open sea; the wordmark fades in and
+ *        rises 24 px as one unit, 1200 ms, emphasized. The bottle is lit
+ *        from 1.45 and fully by 1.6.
+ *   1.9  the hairline draws left→right, 600 ms, standard.
+ *   2.1  the tagline rises word by word (24 px, 600 ms, emphasized, 80 ms
+ *        stagger; 7 words, settled at 3.18 s).
+ *   3.2  hold to the end: 3.2 s of finished end card.
  *
  * Pure function of t: every animated property is written on every call.
  */
@@ -30,11 +36,12 @@
   const SCRIM = "linear-gradient(90deg, rgba(23,22,20,.50) 0%, rgba(23,22,20,.28) 38%, rgba(23,22,20,0) 62%)";
 
   // Beats (scene-local seconds).
-  const PUSH_AT = 0, PUSH_END = 6.4, PUSH_TO = 1.03;
-  const SCRIM_AT = 0.6, SCRIM_DUR = R.dur.xl;
+  const PUSH_AT = 0, PUSH_TO = 1.03; // ends on the last frame (ctx.duration)
+  const REVEAL_AT = 0.8, REVEAL_DUR = R.dur.xl, REVEAL_ANGLE = 100, REVEAL_SOFT = 26; // scene 01's reveal
+  const SCRIM_AT = REVEAL_AT, SCRIM_DUR = R.dur.xl;
   const MARK_AT = 1.4, MARK_DUR = R.dur.xl, MARK_RISE = 24;
-  const RULE_AT = 2.4, RULE_DUR = R.dur.l;
-  const WORDS_AT = 2.7, WORD_GAP = 0.08, WORD_DUR = R.dur.l, WORD_RISE = 24;
+  const RULE_AT = 1.9, RULE_DUR = R.dur.l;
+  const WORDS_AT = 2.1, WORD_GAP = 0.08, WORD_DUR = R.dur.l, WORD_RISE = 24;
 
   const nowrap = { whiteSpace: "nowrap" };
 
@@ -49,19 +56,24 @@
    *   - the tagline, 52 px 500 italic: the S starts 1.6 px inside its box.
    *     Box at 122 puts it at 123.6, the same overshoot.
    * Vertically the block is the storyboard's: wordmark box 380–548 (baseline
-   * 517.5, ascender top 394), hairline at 590, tagline box 616–678 (baseline
-   * 663.75, descender 678.4). Ink 394–678 centres on y 536, just above the
-   * frame's centre, where the eye puts it. Tagline ink ends at x 800; the
-   * bottle starts at 1222.
+   * 517.5, ascender top 394), tagline box 616–678 (baseline 663.75,
+   * descender 678.4). Ink 394–678 centres on y 536, just above the frame's
+   * centre, where the eye puts it. Tagline ink ends at x 800; the bottle
+   * starts at 1222.
+   * The hairline divides the lock-up rather than hanging on the tagline: the
+   * wordmark's ink ends at row 517 and the tagline's cap S and ascenders
+   * start at row 625 (measured on the render), so the rule sits on row 571
+   * with 53 px clear above and below.
    */
   const WORDMARK = { text: "eternal", x: 118, y: 380 };
-  const RULE = { x: 124, y: 590, w: 64, h: 1 };
+  const RULE = { x: 124, y: 571, w: 64, h: 1 };
   const TAGLINE = { text: "Some things are never meant to fade.", x: 122, y: 616 };
   const LINEN_92 = "rgba(243, 239, 231, 0.92)";
 
   R.scene("never-meant-to-fade", {
     build(root, ctx) {
-      // Night underneath, as the storyboard's background; the film covers it.
+      // Night underneath, as the storyboard's background. The runtime's wipe
+      // uncovers Night first; the film is revealed over it after.
       root.style.background = C.night;
 
       // The film: two stacked frames for blending (A = frame at τ, B = the
@@ -90,11 +102,11 @@
       });
       const words = R.splitWords(tagline);
 
-      ctx.parts = { films: [filmA, filmB], scrim, wordmark, rule, words };
+      ctx.parts = { filmLayer, films: [filmA, filmB], scrim, wordmark, rule, words };
     },
 
     render(t, ctx) {
-      const { films, scrim, wordmark, rule, words } = ctx.parts;
+      const { filmLayer, films, scrim, wordmark, rule, words } = ctx.parts;
       const [filmA, filmB] = films;
 
       // Film: always running at native speed (τ = t), frame-blended.
@@ -109,8 +121,11 @@
       filmB.wrap.style.opacity = String(frac);
 
       // Slow push, identical on both frames, from the first frame to the last.
-      const push = R.tween(t, PUSH_AT, PUSH_END - PUSH_AT, R.ease.inOut);
+      const push = R.tween(t, PUSH_AT, ctx.duration - PUSH_AT, R.ease.inOut);
       for (const film of films) R.push(film.img, push, { scale: 1 }, { scale: PUSH_TO });
+
+      // Light reveals the film left→right over Night, as in scene 01.
+      R.softReveal(filmLayer, R.tween(t, REVEAL_AT, REVEAL_DUR, R.ease.inOut), REVEAL_ANGLE, REVEAL_SOFT);
 
       // Scrim, wordmark (one unit), hairline, tagline word by word.
       R.fade(scrim, R.tween(t, SCRIM_AT, SCRIM_DUR, R.ease.standard));

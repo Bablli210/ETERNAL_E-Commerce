@@ -11,10 +11,13 @@
  *   0.2  the browser, already on the Tales page (W1), rises 16 px.
  *   0.6  "The storefront" rises; 0.8 "Tales" rises as one unit.
  *   3.4  W1 → W2 crossfade inside the viewport only (the site's G2); "Tales"
- *        leaves over 320 ms; 3.8 "Shop by mood" rises.
+ *        leaves over 320 ms. The page names itself: its own '03 / Shop by
+ *        mood' heading is the only page name on screen.
  *   4.3  W2, the homepage's Shop by mood, drifts 133 px over 2.4 s on the
  *        spec's long-move curve, from its '03 / Shop by mood' heading to the
- *        six tiles alone in Linen. The only motion on screen.
+ *        six tiles alone in Linen.
+ *   5.9  the site's heading has just left the viewport (5.83); "Shop by mood"
+ *        rises in the left column: a handoff, never two of the same heading.
  *   6.7  hold. Scene 10's crossfade takes the frame from 7.0; nothing fades,
  *        and the Sand and the eyebrow carry straight on into scene 10.
  *
@@ -63,7 +66,16 @@
   const EYEBROW = { text: "The storefront", x: X, y: 256, at: 0.6 };
   const TITLE_Y = 300;
   const TALES = { text: "Tales", dx: -2, at: 0.8, out: 3.4 };
-  const MOOD = { text: "Shop by mood", dx: -4, at: 3.8 };
+  /*
+   * "Shop by mood" waits for the site's own heading to leave. At 3.8 it rose
+   * beside the page's '03 / Shop by mood' (css ink 4761–4817.5), two copies of
+   * one heading side by side for 2 s. The drift carries the viewport's top past
+   * that heading's last descender at 5.83 (css 4818.2), so the label rises two
+   * frames later, as the name leaves the page. It moves up with the page's
+   * landing drift, reads at full strength from about 6.1 and holds until
+   * scene 10's crossfade at 7.0.
+   */
+  const MOOD = { text: "Shop by mood", dx: -4, at: 5.9 };
 
   /* ---- timing (scene-local seconds) ---- */
   const BROWSER_IN = { at: 0.2, dur: R.dur.l };

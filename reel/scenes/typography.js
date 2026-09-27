@@ -9,14 +9,23 @@
  *   Row 2 — Signature: the Enzo 1898 tale line at 64 px, Cormorant 500 italic,
  *           rising word by word.
  *   Row 3 — UI: the site's two buttons (radius 0, no shadow), and on the right
- *           the Eyebrow specimen at 22 px.
+ *           the Eyebrow specimen, set exactly as every eyebrow in the film and
+ *           on the site: Instrument Sans 600, 18 px, caps, 0.14em, Ash.
+ *
+ * The role labels are annotations, not eyebrows: sentence case in the film's
+ * caption voice (Instrument Sans 500, 18 px, 0.02em, Ash), as the hex labels in
+ * scene 06. So the only caps on the page are the two real eyebrows, the running
+ * head "Typography" and the specimen, and the specimen looks like its role.
  *
  * Each row's role label rises first, then its specimen; each hairline draws
  * left→right just ahead of the row below it, so the page is set top to bottom
- * like a specimen sheet. Everything is still from 3.24 s and holds, unfaded,
- * until scene 08's crossfade takes the frame. The runtime crossfades us in from
- * the colour-world grid (0.6 s); nothing of ours shows before 0.4 s, so the
- * grid dissolves into clean Linen and the eyebrow rises out of it.
+ * like a specimen sheet. Everything is still from 3.24 s and holds 2 s. At 5.2 s
+ * the board (everything but the eyebrow) leaves with the spec's exit, 320 ms,
+ * opacity only, as scene 06 does: gone at 5.52, so scene 08's crossfade (5.6)
+ * brings its charcoal panel over clean Linen, never over type caught mid-exit.
+ * The runtime crossfades us in from the colour-world grid (0.6 s); nothing of
+ * ours shows before 0.4 s, so the grid dissolves into clean Linen and the
+ * eyebrow rises out of it.
  *
  * Pure function of t: every animated property is written on every call.
  */
@@ -29,9 +38,9 @@
    * Every box sits on its storyboard x, then moves by its first glyph's side
    * bearing, measured on the rendered frame with the site's fonts, so the ink,
    * not the box, lands on the edge: x 120 for the column, x 972 for row 3's
-   * right group. The Display C carries 6 px of bearing at 128 px; the eyebrow
-   * D, U and E stems 1 px; the italic H, the round S and the T ink on the box
-   * edge already. The C is set flush on 120, not hung past it: nothing inks
+   * right group. The Display C carries 6 px of bearing at 128 px; the labels'
+   * D, U and E stems 1 px; the italic H, the round S, the T and the specimen's
+   * A ink on the box edge already. The C is set flush on 120, not hung past it: nothing inks
    * left of the title-safe line.
    */
   const X = 120;
@@ -43,13 +52,17 @@
   /* ---- the rows ----
    * Measured rhythm, identical in rows 1 and 2: label baseline → specimen
    * ascenders 31 px; specimen descenders → hairline 50 px; hairline → next
-   * label's caps 42 px.
+   * label's caps 41 px.
+   * Labels: caption voice, 18 px, line-height 1.2, sentence case, Ash. Their
+   * baselines (270, 535, 735) are the ones the caps labels had, so the rhythm
+   * above and below holds; measured on the frame.
    */
+  const LABEL = { size: 18, lineHeight: 1.2 };
   const LABELS = [
-    { text: "Display XL · Cormorant Garamond 600", x: X - 1, y: 256, at: 0.6 },
-    { text: "Signature · Cormorant Garamond 500 italic", x: X, y: 520, at: 1.4 },
-    { text: "UI · Instrument Sans 500/600", x: X - 1, y: 720, at: 2.2 },
-    { text: "Eyebrow · Instrument Sans 600 uppercase", x: RIGHT - 1, y: 720, at: 2.2 },
+    { text: "Display XL · Cormorant Garamond 600", x: X - 1, y: 255, at: 0.6 },
+    { text: "Signature · Cormorant Garamond 500 italic", x: X, y: 519, at: 1.4 },
+    { text: "UI · Instrument Sans 500/600", x: X - 1, y: 719, at: 2.2 },
+    { text: "Eyebrow · Instrument Sans 600 uppercase", x: RIGHT - 1, y: 719, at: 2.2 },
   ];
   // 128 px, line-height 1.02: box y 290–421, baseline 395, ink x 120–1585.
   const DISPLAY = { text: "Composed to be remembered.", x: X - 6, y: 290, at: 0.7 };
@@ -76,15 +89,19 @@
    * 600, 18 px, tracking 0.04em, centred on their ink: the trailing tracking is
    * cancelled (padding-left = tracking) and the line drops 1 px so the capitals
    * (y 787–800) sit exactly on the button's centre line, y 794.
-   * The eyebrow specimen at (972, 782), 22 px: its capitals (786–801) centre on
-   * the same line, so the whole row reads along y 794.
+   * The eyebrow specimen at x 972, 18 px Ash like the film's eyebrows: its
+   * capitals centre on the same line, so the whole row reads along y 794.
    */
   const BUTTONS = [
     { text: "Shop the collection", x: X, y: 762, w: 320, h: 64, at: 2.4, primary: true },
     { text: "Find your scent", x: 464, y: 762, w: 260, h: 64, at: 2.52 },
   ];
   const LABEL_DROP = 1;
-  const SPECIMEN = { text: "A tale from eterno", x: RIGHT, y: 782, at: 2.64 };
+  // Capitals y 788–800: centred on 794 with the buttons.
+  const SPECIMEN = { text: "A tale from eterno", x: RIGHT, y: 785, size: 18, at: 2.64 };
+
+  /* ---- the exit: the board clears before scene 08's crossfade (5.6) ---- */
+  const BOARD_OUT = 5.2; // + R.dur.m (320 ms), R.ease.exit: gone at 5.52
 
   let els = null;
 
@@ -112,25 +129,33 @@
     root.style.background = C.linen;
 
     const eyebrow = eyebrowText(root, EYEBROW, 18, C.ash);
-    const labels = LABELS.map((L) => eyebrowText(root, L, 17, C.ash));
+
+    // The board: everything but the eyebrow, one group so the exit is a single
+    // fade (the button labels stay knockouts of their fills while it runs).
+    // At rest its opacity is 1 and it lays out exactly as the root.
+    const board = R.box(root, { x: 0, y: 0, w: R.W, h: R.H });
+
+    const labels = LABELS.map((L) => R.text(board, L.text, {
+      role: "caption", x: L.x, y: L.y, size: LABEL.size, lineHeight: LABEL.lineHeight, color: C.ash, style: nowrap,
+    }));
 
     // One R.text block per line, split into words for the stagger.
-    const display = R.text(root, DISPLAY.text, {
+    const display = R.text(board, DISPLAY.text, {
       role: "display-xl", x: DISPLAY.x, y: DISPLAY.y, size: 128, lineHeight: 1.02, color: C.night, style: nowrap,
     });
     const displayWords = R.splitWords(display).map(unpin);
-    const signature = R.text(root, SIGNATURE.text, {
+    const signature = R.text(board, SIGNATURE.text, {
       role: "signature", x: SIGNATURE.x, y: SIGNATURE.y, size: 64, lineHeight: 1.2, color: C.night, style: nowrap,
     });
     const signatureWords = R.splitWords(signature).map(unpin);
 
-    const hairlines = HAIRLINES.map((H) => R.hairline(root, { x: X, y: H.y, w: 1800 - X, h: 1 }, C.dune, "left"));
+    const hairlines = HAIRLINES.map((H) => R.hairline(board, { x: X, y: H.y, w: 1800 - X, h: 1 }, C.dune, "left"));
 
     // Each button is one group, so box and label fade as one (the Linen label is
     // a knockout of the Night fill, never a grey ghost over it). Inside, the box
     // and the label share the rise but not the transform (see render).
     const buttons = BUTTONS.map((B) => {
-      const group = R.box(root, { x: B.x, y: B.y, w: B.w, h: B.h }, { overflow: "visible" });
+      const group = R.box(board, { x: B.x, y: B.y, w: B.w, h: B.h }, { overflow: "visible" });
       const box = R.box(group, { x: 0, y: 0, w: B.w, h: B.h },
         B.primary ? { background: C.night } : { background: "transparent", border: `1px solid ${C.night}` });
       const label = R.text(group, B.text, {
@@ -140,15 +165,22 @@
       return { group, box, label };
     });
 
-    const specimen = eyebrowText(root, SPECIMEN, 22, C.night);
+    const specimen = eyebrowText(board, SPECIMEN, SPECIMEN.size, C.ash);
 
-    els = { eyebrow, labels, displayWords, signatureWords, hairlines, buttons, specimen };
+    els = { eyebrow, board, labels, displayWords, signatureWords, hairlines, buttons, specimen };
   }
 
   function render(t) {
-    const { eyebrow, labels, displayWords, signatureWords, hairlines, buttons, specimen } = els;
+    const { eyebrow, board, labels, displayWords, signatureWords, hairlines, buttons, specimen } = els;
 
+    // The eyebrow rises once and stays until scene 08's crossfade takes it.
     riseFree(eyebrow, R.tween(t, EYEBROW.at, R.dur.l), 16);
+
+    // The board's exit: opacity only, 320 ms, exit ease, from 5.2 s; gone at 5.52.
+    const out = R.tween(t, BOARD_OUT, R.dur.m, E.exit);
+    board.style.opacity = String(1 - out);
+    board.style.visibility = out < 1 ? "visible" : "hidden";
+
     labels.forEach((el, i) => riseFree(el, R.tween(t, LABELS[i].at, R.dur.l), 16));
 
     // Display type rises 24 px, emphasized, 80 ms apart: 4 words, complete 1.54 s;

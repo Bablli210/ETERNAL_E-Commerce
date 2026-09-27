@@ -63,8 +63,11 @@ try {
       "-v", "error", "-y", "-f", "image2pipe", "-framerate", String(fps), "-c:v", "png", "-i", "-",
       "-vf", `${half ? "scale=960:540:flags=lanczos," : ""}scale=out_color_matrix=bt709:out_range=tv,format=yuv420p`,
       "-c:v", "libx264", "-preset", half ? "veryfast" : "slow", "-crf", CRF, "-profile:v", "high", "-tune", "film",
+      // aq-mode 3 spends bits on dark, flat areas (the fog, the night water), where x264 would otherwise posterise.
+      "-x264-params", "aq-mode=3:aq-strength=0.9:deblock=-1,-1",
       "-g", String(fps * 2), "-bf", "2",
-      "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv",
+      // The pixels are sRGB browser paint: tag the transfer as sRGB so QuickTime/Keynote do not lift the blacks.
+      "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "iec61966-2-1", "-color_range", "tv",
       "-r", String(fps), seg,
     ], { stdio: ["pipe", "inherit", "inherit"] });
     const closed = new Promise((ok, fail) => ff.on("close", (c) => (c === 0 ? ok() : fail(new Error(`ffmpeg exited ${c}`)))));
