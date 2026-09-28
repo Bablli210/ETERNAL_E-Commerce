@@ -5,8 +5,10 @@ stone and golden hour.* — to the client. It is built from the storefront's
 own material (fonts, colour and motion tokens, photographs, the hero film and
 captures of the built pages) and rendered frame by frame to MP4.
 
-**The film:** `out/eternal-direction.mp4` (1080p, 30 fps, silent, ~57 MB) and
-`out/eternal-direction-poster.jpg` (the end card, for decks and thumbnails).
+**The film:** `out/eternal-direction.mp4` (1080p, 30 fps, silent, 57 MB — for
+the meeting), `out/eternal-direction-share.mp4` (the same at 26 MB, under
+chat and email attachment limits) and `out/eternal-direction-poster.jpg` (the
+end card, for decks and thumbnails).
 
 ## Scenes
 
@@ -42,6 +44,7 @@ node reel/tools/prepare.mjs                     # photos, film frames, manifest
 node reel/tools/timeline.mjs                    # timeline.js from storyboard.json (checks the arithmetic)
 node reel/tools/render.mjs --crf 15 --out reel/out/eternal-direction-master.mp4
 node reel/tools/deliver.mjs reel/out/eternal-direction-master.mp4   # → eternal-direction.mp4 + poster
+node reel/tools/deliver.mjs reel/out/eternal-direction-master.mp4 --mbps 2.3 --name eternal-direction-share
 ```
 
 Checking a scene while you work on it: see `SCENES.md` (the contract every

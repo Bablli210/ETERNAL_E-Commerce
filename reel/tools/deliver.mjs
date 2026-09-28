@@ -1,5 +1,6 @@
 // Makes the files that go to the client from a master render.
-//   node reel/tools/deliver.mjs reel/out/eternal-direction-master.mp4 [--mbps 5]
+//   node reel/tools/deliver.mjs reel/out/eternal-direction-master.mp4 [--mbps 5] [--name eternal-direction]
+//   --mbps 2.3 --name eternal-direction-share   # under 30 MB, for chat and email limits
 // Writes, next to the master:
 //   eternal-direction.mp4        1080p H.264 High, two-pass at the target bitrate, fast start
 //   eternal-direction-poster.jpg the end card, for thumbnails and slide decks
@@ -14,7 +15,8 @@ const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(`--${k}`); return i >= 0 ? args[i + 1] : d; };
 const master = path.resolve(args[0]);
 const dir = path.dirname(master);
-const out = path.join(dir, "eternal-direction.mp4");
+const name = opt("name", "eternal-direction");
+const out = path.join(dir, `${name}.mp4`);
 const kbps = Math.round(Number(opt("mbps", 5)) * 1000);
 const passlog = path.join(os.tmpdir(), `eternal-2pass-${process.pid}`);
 const common = [
@@ -30,7 +32,7 @@ execFileSync("ffmpeg", ["-v", "error", "-y", "-i", master, ...common, "-pass", "
 for (const f of fs.readdirSync(os.tmpdir())) if (f.startsWith(path.basename(passlog))) fs.unlinkSync(path.join(os.tmpdir(), f));
 
 const dur = Number(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", out]).toString());
-const poster = path.join(dir, "eternal-direction-poster.jpg");
+const poster = path.join(dir, "eternal-direction-poster.jpg"); // one poster, whatever the bitrate
 execFileSync("ffmpeg", ["-v", "error", "-y", "-ss", String(Math.max(0, dur - 0.05)), "-i", master, "-frames:v", "1",
   "-vf", "scale=in_color_matrix=bt709:in_range=tv", "-q:v", "2", poster]);
 const mb = (f) => (fs.statSync(f).size / 1048576).toFixed(1);
