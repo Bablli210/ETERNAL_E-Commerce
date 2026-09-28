@@ -1,7 +1,7 @@
 /*
- * Scene 04 · "One story per bottle" (one-story-per-bottle) — 13.3 s, from 33.8 s.
+ * Scene 04 · "One story per bottle" (one-story-per-bottle) — 14.9 s, from 33.8 s.
  *
- * The emotional core. BEAT A (0–5.5 s) continues scene 03's P4 spread. The
+ * The emotional core. BEAT A (0–6.0 s) continues scene 03's P4 spread. The
  * runtime's light-wipe carries off only its left column: the Linen and P4's words
  * go, and the hero bottle's colour world, Wayne #2B2A28, takes the whole frame.
  * Everything P4 set on the right (the Golden hour chip and its legend, and Wayne's
@@ -11,8 +11,8 @@
  * it opens up, lower left. Then the tale speaks where the principle stood: its
  * eyebrow and signature line rise in P4's slots, and the key, whose job was P4's,
  * hands over to that eyebrow.
- * BEAT B (from 5.5 s): the words and the watermark leave, and the room goes back
- * into its colour, as it came (one gesture, gone at 6.1 s). Out of that flat field
+ * BEAT B (from 6.0 s): the words and the watermark leave, and the room goes back
+ * into its colour, as it came (one gesture, gone at 6.6 s). Out of that flat field
  * rises a second tale, Shadow of the Sea, full-bleed (a fishing boat in amber fog),
  * which pushes toward the boat while its line arrives word by word over the dark
  * water, lower left. Everything then holds until scene 05's dip through Linen takes
@@ -35,12 +35,12 @@
   // The key on P4's head row: legend caps on pixel rows 153–165 (ink ends at x 1720), the chip
   // standing on the same baseline (rows 110–165).
   const CHIP = { x: 1744, y: 110, w: 56, h: 56 };
-  const LEGEND = { text: "eterno · Wayne — colour world", right: 196, y: 150 };
+  const LEGEND = { text: "eterno · Wayne — colour world, proposed", right: 196, y: 150 };
   // The tale's plate: x 920–1800, y 196–960, source x 457–2103 at full height (clear of the
   // source's black pillar bars and rounded corners). One push toward the lamp from its first
   // light in scene 03 (its 15.35, our −4.05) to our 7.0: 5 % over 11.05 s, inOut.
   const PLATE = { x: 920, y: 196, w: 880, h: 764, src: "img/tale-wayne.jpg", position: "50% 50%" };
-  const PLATE_PUSH = { at: 15.35 - S03, dur: 11.05, to: 1.05, origin: "74% 20%" };
+  const PLATE_PUSH = { at: 15.35 - S03, dur: 11.65, to: 1.05, origin: "74% 20%" };
 
   /* ---- beat A's own ---- */
   // The e∞ watermark (the direction: 6–8 % on colour-world bands, never on photography) on the
@@ -62,32 +62,37 @@
   };
 
   /* ---- timing (scene-local seconds) ---- */
-  // The wipe (0–1.2) is the only thing that moves at first. Then the eyebrow, then the two
-  // lines (120 ms line stagger, as in the site's tale band): settled at 2.12 s.
-  const A_EYEBROW = 1.2;
-  const A_LINES = [1.4, 1.52];
+  // The wipe (0–1.2) is the only thing that moves at first; its edge has crossed P4's Linen
+  // column by 0.67 s (the rest of its pass is over the same pixels on both sides). Then the
+  // eyebrow, then the two lines (120 ms line stagger, as in the site's tale band): settled at
+  // 1.67 s.
+  const A_EYEBROW = 0.8;
+  const A_LINES = [0.95, 1.07];
   // The chip and its legend were P4's key to the colour world; once the tale names the scent
   // they have done their job. They hand over to its eyebrow: the spec's exit (320 ms, opacity
-  // only) from 1.2 s, as the light has passed and the eyebrow starts to rise; gone at 1.52 s.
-  // Only then does anything on the right move, so the wipe's match with scene 03 is untouched.
-  const A_KEY_OUT = A_EYEBROW;
+  // only) from 1.2 s, as the light has passed and the eyebrow lands; gone at 1.52 s. Only then
+  // does anything on the right move (the soft edge still crosses the chip until ≈ 1.0 s), so
+  // the wipe's match with scene 03 is untouched.
+  const A_KEY_OUT = 1.2;
   // The words and the watermark leave with the spec's exit (320 ms, opacity only): gone at
-  // 5.82 s. The line reads 3.4 s settled. With them the room goes back into its colour, the
-  // reverse of the way it came up in scene 03 (0.6 s, inOut, gone at 6.1 s): one gesture that
+  // 6.32 s. The line reads 4.3 s settled. With them the room goes back into its colour, the
+  // reverse of the way it came up in scene 03 (0.6 s, inOut, gone at 6.6 s): one gesture that
   // returns the frame to the flat Wayne field before the boat rises out of it. So nothing of
   // the room, the words or the mark ever lies over the boat, and the plate's hard edges never
-  // show in the fog (at 5.95 s the room is at 12 % and the boat at 3 %; at 6.05 s, 1 % and 8 %).
-  const A_OUT = 5.5;
+  // show in the fog (at 6.45 s the room is at 12 % and the boat at 3 %; at 6.55 s, 1 % and 8 %).
+  const A_OUT = 6.6; // Wayne's line reads ~4.9 s at rest
   const A_ROOM_OUT = { at: A_OUT, dur: R.dur.l };
   // The field → boat dissolve: a whole-frame change, so the symmetric curve (the standard one is
   // front-loaded: most of the boat in a few frames).
-  const B_IN = { at: 5.8, dur: R.dur.xl };
-  const B_PUSH = { at: B_IN.at, dur: 13.3 - B_IN.at, to: 1.05, origin: "60% 39%" }; // toward the boat
-  // Nothing but the boat is under its line: the eyebrow rises from 6.7 s, the boat ≈ 90 % in over
-  // the flat field, and the words are complete at 8.3 s (42.1 s global): about 3.8 s fully read
-  // before scene 05's dip takes it.
-  const B_EYEBROW = 6.7;
-  const B_WORDS = 6.9, WORD_GAP = 0.08;
+  const B_IN = { at: 6.9, dur: R.dur.xl };
+  const B_PUSH = { at: B_IN.at, dur: 14.9 - B_IN.at, to: 1.05, origin: "60% 39%" }; // toward the boat, to the scene's end
+  // Nothing but the boat is under its line: the eyebrow rises from 7.0 s with the boat ≈ 65 % in
+  // over the flat field (≈ 90 % by 7.2 s, when the eyebrow is mostly up and the words start), and
+  // the words are complete at 8.6 s (42.4 s global): about 3.5 s fully read before scene 05's
+  // dip takes it. (Beat A reads about 4.3 s settled; both fall short of ~3 words/s + 1 s only
+  // because the scene cannot grow here, see storyboard.json.)
+  const B_EYEBROW = 7.6;
+  const B_WORDS = 7.8, WORD_GAP = 0.08; // the boat line reads ~4.5 s before the dip
 
   /* ---- beat B's type ---- */
   // Broken after "the ones", so the relative clause "the sea decided to give back"
@@ -171,7 +176,7 @@
     const b = R.tween(t, B_IN.at, B_IN.dur, R.ease.inOut);
     layerB.style.opacity = String(b);
     layerB.style.visibility = b > 0 ? "visible" : "hidden";
-    groupA.style.visibility = b < 1 ? "visible" : "hidden"; // fully covered from 7.0 s
+    groupA.style.visibility = b < 1 ? "visible" : "hidden"; // fully covered from 7.5 s
     R.push(photoB.img, R.tween(t, B_PUSH.at, B_PUSH.dur, R.ease.inOut), { scale: 1 }, { scale: B_PUSH.to });
     R.rise(eyebrowB, R.tween(t, B_EYEBROW, R.dur.l, R.ease.standard), 16);
     R.stagger(t, B_WORDS, wordsB.length, WORD_GAP, R.dur.l, R.ease.emphasized).forEach((p, i) => R.rise(wordsB[i], p, 24));

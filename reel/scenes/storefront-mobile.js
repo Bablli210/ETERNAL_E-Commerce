@@ -11,16 +11,18 @@
  *   0.0  the runtime crossfades us in (600 ms): the browser and "Shop by mood"
  *        dissolve while the Sand ground and the eyebrow, identical in both
  *        scenes, stay put. Nothing else of ours is in the dissolve.
- *   0.65 on clean Sand, phone A fades in and rises 16 px (600 ms, emphasized);
- *        phone B follows at 0.77 s.
- *   1.2  "Mobile is / the primary device." rises word by word across its two
+ *   0.65 on clean Sand, phone A fades in (1200 ms, standard, as scene 02's
+ *        window: a dark body on a light ground settles, it does not pop) and
+ *        rises 16 px (600 ms, emphasized); phone B follows at 0.77 s.
+ *   1.5  "Mobile is / the primary device." rises word by word across its two
  *        lines (24 px, 600 ms, emphasized, 80 ms stagger; within 0.2 px of rest
- *        at 1.9, settled at 2.12 s).
- *   1.9  phone B scrolls css 8380 → 9000 over 4 s: 600 ms sine ease-in, an
+ *        at 2.2, settled at 2.42 s). Phone B is 96 % in when it starts.
+ *   2.2  phone B scrolls css 8380 → 9000 over 4 s: 600 ms sine ease-in, an
  *        even 174 css px/s (157 stage px/s), 600 ms sine ease-out. It is the
  *        only thing moving.
- *   5.9  phone B rests on the Enzo 1898 and Forbidden Apple cards; hold.
- *   6.2  scene 11's light-wipe (1.2 s) carries everything off. Nothing of ours
+ *   6.2  phone B rests on the Enzo 1898 and Forbidden Apple cards as scene
+ *        11's light-wipe (1.2 s, left to right) starts; it holds while the
+ *        wipe crosses the frame and carries everything off. Nothing of ours
  *        fades out.
  *
  * Pure function of t: every animated property is written on every call.
@@ -49,9 +51,9 @@
     { text: "Mobile is", x: 120, y: 300, dx: -1 },
     { text: "the primary device.", x: 120, y: 367, dx: -1 },
   ];
-  // It follows the phones: the first word leaves as phone B lands (0.43 s into
-  // its 0.6 s rise, over 99 % of the way on the emphasized curve).
-  const HEAD = { at: 1.2, gap: 0.08, dur: R.dur.l, dist: 24 };
+  // It follows the phones: the first word starts once phone B is 96 % faded in
+  // (0.73 s into its 1.2 s fade) and its rise long done.
+  const HEAD = { at: 1.5, gap: 0.08, dur: R.dur.l, dist: 24 };
 
   /* ---- the phones ----
    * R.phone at h 784, bezel 12: a 375×784 Night body, 351×760 screen, corner
@@ -69,6 +71,11 @@
   // phone A's copy over "Golden hour" and "Warm skin", phone B over "After
   // dark", a pile of labels for seven frames.
   const RISE = { dur: R.dur.l, dist: 16 };
+  // The fade is slower than the travel. On the 600 ms emphasized curve the
+  // Night bodies went from Sand to 62 % in three frames (phone A's mean 212 →
+  // 111 by 82.87 s, up to 37 levels a frame), a pop; 1200 ms standard, as scene
+  // 02's window, keeps each frame's step to about 10 % of the swing.
+  const FADE = { dur: R.dur.xl, ease: E.standard };
   const CSS_W = 390; // the mobile capture's page width (3 capture px per css px)
   /*
    * Phone A, still: css 4470 → 5314 (844 rows), inside the homepage's
@@ -92,7 +99,9 @@
   // Phone B, drifting: css 8380 ("Tales", "All tales", the Wayne card) → 9000
   // (Enzo 1898 and Forbidden Apple with their lines, bottom edge at css 9844,
   // above the Join band at 9885).
-  const B_SCROLL = { from: 8380, to: 9000, at: 1.9, dur: 4.0, ramp: R.dur.l };
+  // It starts as the headline's last word comes within 0.2 px of rest (2.2)
+  // and lands at 6.2, as the wipe begins; the wipe reaches phone B late.
+  const B_SCROLL = { from: 8380, to: 9000, at: 2.2, dur: 4.0, ramp: R.dur.l };
 
   /*
    * The page: only the rows this scene may show, resampled once, shown from
@@ -287,15 +296,16 @@
   }
 
   /*
-   * One phone for this frame: the body rises by `rise` (0 → 1), and the page
-   * shows page-y `yCss` (site css px) at the top of the screen. The page's
-   * exact offset inside the rising body, rise + (band top − yCss)·0.9, is split
-   * into whole pixels and the nearest of the eight phases; the chosen canvas
-   * cancels the body's fractional rise, so it always lands on whole pixels.
+   * One phone for this frame: the body rises by `rise` (0 → 1) and fades in by
+   * `fade` (0 → 1), and the page shows page-y `yCss` (site css px) at the top
+   * of the screen. The page's exact offset inside the rising body,
+   * rise + (band top − yCss)·0.9, is split into whole pixels and the nearest of
+   * the eight phases; the chosen canvas cancels the body's fractional rise, so
+   * it always lands on whole pixels.
    */
-  function placePhone(ph, rise, yCss) {
+  function placePhone(ph, rise, fade, yCss) {
     const ty = rise >= 1 ? 0 : +((1 - rise) * RISE.dist).toFixed(3);
-    ph.frame.style.opacity = String(rise);
+    ph.frame.style.opacity = String(fade);
     ph.frame.style.transform = ty === 0 ? "none" : `translate(0px, ${ty}px)`;
     const total = ty - (yCss - ph.top) * ph.scale;
     let whole = Math.floor(total);
@@ -342,8 +352,9 @@
 
     // The phones arrive, A then B. Phone A holds on the featured tale; phone B
     // drifts through the tales.
-    placePhone(a, R.tween(t, PHONES.a.at, RISE.dur, E.emphasized), A_SCROLL);
-    placePhone(b, R.tween(t, PHONES.b.at, RISE.dur, E.emphasized), B_SCROLL.from + scrollTravel(t));
+    const arrive = (at) => [R.tween(t, at, RISE.dur, E.emphasized), R.tween(t, at, FADE.dur, FADE.ease)];
+    placePhone(a, ...arrive(PHONES.a.at), A_SCROLL);
+    placePhone(b, ...arrive(PHONES.b.at), B_SCROLL.from + scrollTravel(t));
 
     // The headline, word by word across its two lines.
     words.forEach((w, i) => riseFree(w, R.tween(t, HEAD.at + i * HEAD.gap, HEAD.dur, E.emphasized), HEAD.dist));

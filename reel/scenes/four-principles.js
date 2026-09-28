@@ -41,7 +41,7 @@
   // the plate on the right (y 196). The legend box's right edge sits 4 px right of its ink: CSS
   // tracking trails the last letter by 0.14em (2.5 px) and the D carries ≈ 1.5 px of side bearing.
   const CHIP = { x: 1744 - PANEL.x, y: 110, w: 56, h: 56 };
-  const LEGEND = { text: "eterno · Wayne — colour world", right: PANEL.x + PANEL.w - 1720 - 4, y: 150 };
+  const LEGEND = { text: "eterno · Wayne — colour world, proposed", right: PANEL.x + PANEL.w - 1720 - 4, y: 150 };
   // The tale's plate, matted in its world: stage x 920–1800, y 196–960. 120 px of field left and
   // right of it and below it (the margin), and a deeper mat on top that holds the key; its top
   // edge is the left column's hairline (y 196), its right edge the chip's. The 2560×1429 source
@@ -83,7 +83,7 @@
   // the boat has covered the frame (its t = 7.0, our 26.4; scene 04 starts at our 19.4). Scene 04
   // runs the same numbers, so the plate is the same picture on both sides of the wipe. 5 % over
   // 11.05 s, inOut: ≈ 1.35 % by the wipe.
-  const PLATE_PUSH = { at: R4 + 1.3, dur: 11.05, to: 1.05, origin: "74% 20%" }; // the lamp: plate x 652, y 155
+  const PLATE_PUSH = { at: R4 + 1.3, dur: 11.65, to: 1.05, origin: "74% 20%" }; // the lamp: plate x 652, y 155
 
   /* ---- the left column ---- */
   const X = 120;

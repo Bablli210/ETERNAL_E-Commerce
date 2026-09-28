@@ -12,12 +12,15 @@
  *   0.6  "The storefront" rises, on clean Sand.
  *   0.65 the browser, already on the Tales page (W1), rises 16 px.
  *   1.1  "Tales" rises as one unit.
- *   3.4  W1 → W2 crossfade inside the viewport only (the site's G2); "Tales"
- *        leaves over 320 ms. W2 is the homepage's Shop by mood at rest: the six
- *        tiles alone in Linen, the site's own heading out of frame.
- *   3.72 as "Tales" leaves, "Shop by mood" rises with the page it names: each
- *        page name is on screen for as long as its page.
- *   4.3  hold. Scene 10's crossfade takes the frame from 7.0; nothing fades,
+ *   3.9  W1 → W2 inside the viewport only, through its Linen, as the site's G2
+ *        does (the old body goes, the new one fades in on the ground): W1 and
+ *        "Tales" leave together over 320 ms. W2 is the homepage's Shop by mood
+ *        at rest: the six tiles alone in Linen, the site's own heading out of
+ *        frame. No frame holds both pages.
+ *   4.22 as "Tales" leaves, "Shop by mood" rises with the page it names, which
+ *        fades in over 600 ms: each page name is on screen for as long as its
+ *        page, and each page is readable for about 3 s.
+ *   4.8  hold. Scene 10's crossfade takes the frame from 7.0; nothing fades,
  *        and the Sand and the eyebrow carry straight on into scene 10.
  *
  * Pure function of t: every animated property is written on every call.
@@ -67,12 +70,12 @@
   const X = 120;
   const EYEBROW = { text: "The storefront", x: X, y: 256, at: 0.6 };
   const TITLE_Y = 300;
-  const TALES = { text: "Tales", dx: -2, at: 1.1, out: 3.4 };
+  const TALES = { text: "Tales", dx: -2, at: 1.1, out: 3.9 };
   /*
-   * "Shop by mood" rises as "Tales" finishes leaving (3.4 + 320 ms), with W2
-   * 95 % in: "Tales" is at 10 % on the frame at 3.70 and gone on the next, where
-   * "Shop by mood" starts, so no frame holds both names, and the label names
-   * its page from the moment the page is there.
+   * "Shop by mood" rises as "Tales" finishes leaving (3.9 + 320 ms), with W1:
+   * "Tales" and W1 are at 10 % on the frame at 4.20 and gone on the next, where
+   * "Shop by mood" and W2 start, so no frame holds both names or both pages, and
+   * the label names its page from the moment the page is there.
    */
   const MOOD = { text: "Shop by mood", dx: -4, at: TALES.out + R.dur.m };
 
@@ -82,7 +85,13 @@
   // met Motion's two lines and resin photo mid-dissolve (three headlines, and
   // Motion's panel edge through the page).
   const BROWSER_IN = { at: 0.65, dur: R.dur.l };
-  const SWAP = { at: 3.4, dur: R.dur.l };
+  /*
+   * W1 leaves as its name does (320 ms, exit); W2 comes in with its name on the
+   * symmetric curve the runtime uses for whole-frame dissolves. Page over page on
+   * the standard curve jumped 20 % on its first frame and left the Tales type
+   * ghosted over the tiles for a third of a second.
+   */
+  const SWAP = { at: TALES.out, out: R.dur.m, in: MOOD.at, dur: R.dur.l };
 
   let els = null;
 
@@ -156,9 +165,11 @@
     frame.style.opacity = String(b);
     frame.style.transform = b >= 1 ? "none" : `translate(0, ${((1 - b) * 16).toFixed(3)}px)`;
 
-    /* W1 → W2 inside the viewport. */
-    const swap = R.tween(t, SWAP.at, SWAP.dur, E.standard);
-    w1.canvas.style.visibility = swap >= 1 ? "hidden" : "visible";
+    /* W1 → Linen → W2 inside the viewport. */
+    const out = R.tween(t, SWAP.at, SWAP.out, E.exit);
+    const swap = R.tween(t, SWAP.in, SWAP.dur, E.inOut);
+    w1.canvas.style.opacity = String(1 - out);
+    w1.canvas.style.visibility = out >= 1 ? "hidden" : "visible";
     w2.canvas.style.opacity = String(swap);
     w2.canvas.style.visibility = swap > 0 ? "visible" : "hidden";
 

@@ -31,16 +31,10 @@
   // The site's hero: the 16:9 film covers the 1440×900 css hero as 1600×900 at css x −80;
   // the viewport starts at css y 36 (the dark announcement bar is cropped).
   const PAGE = { x: 0, y: -36 * S, w: 1440 * S, h: 900 * S };
-  /*
-   * The film sits bottom-aligned in the viewport (y −116, not the page's −25):
-   * at the page's own framing the site headline 'Some things are never meant to
-   * fade.' (stage y 632–698) runs across the bottle (y 475–710) and its label.
-   * Raised 91 px, the bottle stands at y 384–619, clear of the headline's
-   * tallest ascender and 44 px under the header; the 625 px film still covers
-   * the 509 px viewport edge to edge, so no edge ever shows. The site's own fix
-   * (the hero h1 held to the text column) is flagged to the site team.
-   */
-  const FILM = { x: -80 * S, y: VIEW_H - 900 * S, w: 1600 * S, h: 900 * S };
+  // The film at the page's own framing: exactly the site's hero geometry, with
+  // the announcement bar cropped. The site's headline now wraps in its text
+  // column (two lines, left of the bottle), so nothing needs reframing.
+  const FILM = { x: -80 * S, y: -36 * S, w: 1600 * S, h: 900 * S };
 
   /* ---- type ---- */
   // 64 px, the film's statement size (scenes 09 and 10), eyebrow 44 px above the

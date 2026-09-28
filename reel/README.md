@@ -1,6 +1,6 @@
 # eternal — the direction film
 
-A 94.7-second film that presents the brand and storefront direction — *Salt,
+A 96.3-second film that presents the brand and storefront direction — *Salt,
 stone and golden hour.* — to the client. It is built from the storefront's
 own material (fonts, colour and motion tokens, photographs, the hero film and
 captures of the built pages) and rendered frame by frame to MP4.
@@ -15,14 +15,14 @@ captures of the built pages) and rendered frame by frame to MP4.
 | 01 | First light — the e∞ mark, then the hero film; "Salt, stone and golden hour." | 0.0 – 8.2 |
 | 02 | The direction, applied — the real homepage over the same moving water | 7.0 – 15.0 |
 | 03 | Four principles — quiet luxury, matière, golden hour, one story per bottle | 14.4 – 35.0 |
-| 04 | One story per bottle — Wayne's tale in its colour world, then Shadow of the Sea | 33.8 – 47.1 |
-| 05 | Three lines, one house — eterna, eterno, eternal | 45.9 – 55.3 |
-| 06 | Colour — the 70/20/6/4 ratio, the palette, the ten colour worlds | 54.7 – 64.7 |
-| 07 | Typography — Cormorant Garamond and Instrument Sans in brand lines | 64.1 – 70.3 |
-| 08 | Motion — two rules from the motion map, each demonstrated | 69.7 – 75.7 |
-| 09 | The storefront — Tales and Shop by mood on desktop | 75.1 – 82.7 |
-| 10 | The storefront — two phones | 82.1 – 89.5 |
-| 11 | Never meant to fade — the wordmark and tagline over the film; the end card | 88.3 – 94.7 |
+| 04 | One story per bottle — Wayne's tale in its colour world, then Shadow of the Sea | 33.8 – 48.7 |
+| 05 | Three lines, one house — eterna, eterno, eternal | 47.5 – 56.9 |
+| 06 | Colour — the 70/20/6/4 ratio, the palette, the ten colour worlds | 56.3 – 66.3 |
+| 07 | Typography — Cormorant Garamond and Instrument Sans in brand lines | 65.7 – 71.9 |
+| 08 | Motion — two rules from the motion map, each demonstrated | 71.3 – 77.3 |
+| 09 | The storefront — Tales and Shop by mood on desktop | 76.7 – 84.3 |
+| 10 | The storefront — two phones | 83.7 – 91.1 |
+| 11 | Never meant to fade — the wordmark and tagline over the film; the end card | 89.9 – 96.3 |
 
 `scenes/*.js` are the source of truth. `storyboard.json` is the plan the
 scenes were built from; two review rounds refined the scenes since, so treat

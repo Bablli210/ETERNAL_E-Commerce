@@ -45,8 +45,10 @@
    */
 
   /* ---- the frame: eyebrow and the title slot (shared by both beats) ---- */
-  const EYEBROW = { text: "Colour", x: 120, y: 150, at: 0.3 }; // same running-head slot as 03 and 07
-  const TITLE_A = { text: "Neutrals do the work.", x: 120 - 2, y: 182, at: 0.4 }; // N's serif: 2 px bearing
+  // The type waits for the 600 ms crossfade in (as 03's does), so it rises onto
+  // clean Linen, never over the ghost of 05's photographs.
+  const EYEBROW = { text: "Colour", x: 120, y: 150, at: 0.6 }; // same running-head slot as 03 and 07
+  const TITLE_A = { text: "Neutrals do the work.", x: 120 - 2, y: 182, at: 0.65 }; // N's serif: 2 px bearing
   const TITLE_B = { text: "Colour worlds — one per scent", x: 120 - 4, y: 182, at: 5.4 }; // round C: 4 px bearing
   const WORD_GAP = 0.08; // 80 ms between words, across the line in reading order
 

@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Eyebrow, SectionHead } from "@/components/ui/Primitives";
@@ -51,11 +52,16 @@ export function Hero({ featured }: { featured: Scent | null }) {
             </Eyebrow>
           )}
           <h1 className="display-xl mt-4">
+            {/* The space sits between the spans, not inside them: a non-breaking space
+                kept the headline on one unbreakable line whenever the words were plain
+                inline (reduced motion), so it overflowed instead of wrapping. */}
             {words.map((w, i) => (
-              <span key={i} className="hero-word" style={{ ["--i" as string]: i }}>
-                {w}
-                {i < words.length - 1 ? " " : ""}
-              </span>
+              <Fragment key={i}>
+                <span className="hero-word" style={{ ["--i" as string]: i }}>
+                  {w}
+                </span>
+                {i < words.length - 1 ? " " : null}
+              </Fragment>
             ))}
           </h1>
           <p className="body-l mt-6 max-w-[54ch] text-dune">{site.description}</p>
