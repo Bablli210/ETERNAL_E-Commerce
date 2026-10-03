@@ -1,32 +1,50 @@
 import Image from "next/image";
-import { ImageSlot } from "@/components/ui/Primitives";
+import { Mark } from "@/components/ui/Wordmark";
 import { SnapRow } from "@/components/motion/SnapRow";
 import type { Scent } from "@/lib/catalogue";
 
-/** Stacked frames on desktop (D1: the first zooms slowly), swipe with snap and dots on mobile. */
+/** Alt text by what the frame shows: local stills follow public/images/README.md (-2 lifestyle, -3 notes). */
+function frameAlt(scent: Scent, url: string, altText: string | null): string {
+  const local = url.match(new RegExp(`/images/products/${scent.handle}(-\\d)?\\.\\w+$`));
+  if (!local) return altText || scent.title;
+  if (local[1] === "-2") return `${scent.title}, the bottle in a scene`;
+  if (local[1] === "-3") return scent.notesShort.length ? `${scent.title} among its notes: ${scent.notesShort.join(", ").toLowerCase()}` : `${scent.title} among its notes`;
+  return scent.title;
+}
+
+/**
+ * Real frames only, in their order (packshot, lifestyle, notes). On a phone
+ * they swipe with a "1 / 3" counter, sized by .pdp-frame so Add to bag stays
+ * on the first screen; from lg they stack. Rendered once for both, so the
+ * first frame is the single preloaded image. A scent with no imagery yet
+ * shows its colour world and the e∞ mark, never a placeholder brief.
+ */
 export function Gallery({ scent }: { scent: Scent }) {
-  const frames: React.ReactNode[] = [];
-  scent.images.slice(0, 4).forEach((img, i) => {
-    frames.push(
-      <div key={`img-${i}`} className="relative aspect-[4/5] w-full overflow-hidden" style={{ backgroundColor: scent.world.bg }}>
-        <Image src={img.url} alt={img.altText ?? `${scent.title} — frame ${i + 1}`} fill priority={i === 0} sizes="(min-width: 1024px) 55vw, 100vw" className={`object-cover ${i === 0 ? "zoom-slow" : ""}`} />
-      </div>,
-    );
-  });
-  const labels = ["Frame 1 — bottle on colour world", "Frame 2 — bottle in scene: wet stone, fog, harbour light", `Frame 3 — notes flatlay: ${scent.notesShort.join(", ") || "top, heart, base"}`, "Frame 4 — packaging"];
-  for (let i = frames.length; i < 3; i++) {
-    frames.push(<ImageSlot key={`slot-${i}`} label={labels[i]} dark={scent.world.dark} className="aspect-[4/5] w-full" style={{ backgroundColor: i === 0 ? scent.world.bg : undefined }} />);
-  }
+  const imgs = scent.images.slice(0, 4);
+  const solo = imgs.length < 2;
+  const frameClass = `pdp-frame ${solo ? "pdp-frame-solo" : ""} relative overflow-hidden lg:aspect-[4/5] lg:h-auto lg:w-full`;
+  const sizes = solo ? "(min-width: 1024px) 50vw, calc(100vw - 40px)" : "(min-width: 1024px) 50vw, calc(100vw - 64px)";
+  const frames = imgs.length
+    ? imgs.map((img, i) => (
+        <div key={img.url} className={frameClass} style={{ backgroundColor: scent.world.bg }}>
+          <Image src={img.url} alt={frameAlt(scent, img.url, img.altText)} fill preload={i === 0} fetchPriority={i === 0 ? "high" : undefined} sizes={sizes} className={`object-cover ${i === 0 ? "zoom-slow" : ""}`} />
+        </div>
+      ))
+    : [
+        <div key="world" role="img" aria-label={scent.title} className={`${frameClass} flex items-center justify-center`} style={{ backgroundColor: scent.world.bg, color: scent.world.accent }}>
+          <Mark size={120} className="opacity-40" />
+        </div>,
+      ];
   return (
-    <>
-      <div className="-mx-5 lg:hidden">
-        <SnapRow items={frames} className="px-5" itemClassName="w-[86vw]" label="Product images" />
-      </div>
-      <div className="hidden flex-col gap-4 lg:flex">
-        {frames.map((f, i) => (
-          <div key={i}>{f}</div>
-        ))}
-      </div>
-    </>
+    <div className="-mx-5 lg:mx-0">
+      <SnapRow
+        items={frames}
+        className="scroll-px-5 gap-2.5 px-5 lg:flex-col lg:gap-4 lg:overflow-visible lg:px-0"
+        label={`${scent.title} images`}
+        counter
+        counterClassName="right-14 lg:hidden"
+        swipeLabel={scent.handle}
+      />
+    </div>
   );
 }
