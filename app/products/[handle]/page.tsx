@@ -87,7 +87,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
         </ol>
       </nav>
 
-      <section className="wrap grid gap-10 pb-16 pt-6 lg:grid-cols-[1.15fr_1fr] lg:gap-16 lg:pt-8">
+      <section className="wrap grid grid-cols-[minmax(0,1fr)] gap-10 pb-16 pt-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16 lg:pt-8">
         <Gallery scent={scent} />
         <div className="lg:sticky lg:top-28 lg:self-start">
           <Eyebrow>{scent.lineLabel ? `${scent.lineLabel} · for ${scent.audience?.toLowerCase()}` : "eternal"}</Eyebrow>
