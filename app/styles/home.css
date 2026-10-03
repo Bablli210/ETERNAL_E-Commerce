@@ -1,1 +1,4 @@
 /* Styles owned by the home workstream. Tailwind utilities first; only what utilities cannot express goes here. */
+
+/* Home variants used as ad landings drop the brand-only sections (playbook 4.2). MotionScript sets data-ad before paint. */
+html[data-ad] .ad-drop { display: none; }

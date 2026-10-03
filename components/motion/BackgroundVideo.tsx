@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { motionAllowed } from "@/lib/motion";
 import type { VideoSources } from "@/lib/site-videos";
 
@@ -50,6 +50,39 @@ function usePlayable(media?: string): boolean {
 }
 
 /**
+ * Starts a clip that was mounted with preload="none" once the page has
+ * finished loading and the main thread is idle, so the poster, the fonts and
+ * the first tap never compete with the film for a phone's bandwidth.
+ */
+function useStartWhenIdle(ref: React.RefObject<HTMLVideoElement | null>, enabled: boolean) {
+  useEffect(() => {
+    const video = ref.current;
+    if (!enabled || !video) return;
+    let idle = 0;
+    let timer = 0;
+    const start = () => {
+      video.muted = true;
+      video.preload = "auto";
+      video.play().catch(() => {
+        /* autoplay refused: the poster stays */
+      });
+    };
+    const whenIdle = () => {
+      // Safari before 18 has no requestIdleCallback.
+      if (typeof window.requestIdleCallback === "function") idle = window.requestIdleCallback(start, { timeout: 2500 });
+      else timer = window.setTimeout(start, 600);
+    };
+    if (document.readyState === "complete") whenIdle();
+    else window.addEventListener("load", whenIdle, { once: true });
+    return () => {
+      window.removeEventListener("load", whenIdle);
+      if (idle) window.cancelIdleCallback(idle);
+      if (timer) window.clearTimeout(timer);
+    };
+  }, [ref, enabled]);
+}
+
+/**
  * A silent looping film behind page content, with the still underneath it.
  *
  * The poster is a real `next/image`, so it is what loads, what the visitor
@@ -66,7 +99,9 @@ export function BackgroundVideo({
   sizes = "100vw",
   priority = false,
   preload = "auto",
+  startWhenIdle = false,
   media,
+  imageClassName = "",
 }: {
   sources: VideoSources;
   poster: string;
@@ -76,24 +111,31 @@ export function BackgroundVideo({
   sizes?: string;
   priority?: boolean;
   preload?: "auto" | "metadata" | "none";
+  /** Fetch nothing of the clip until the page is idle, then start it (the hero). */
+  startWhenIdle?: boolean;
   /** Only load the clip when this media query matches, for slots CSS hides. */
   media?: string;
+  /** Classes for the poster and the clip together, e.g. an object position. */
+  imageClassName?: string;
 }) {
   const playable = usePlayable(media);
   const [playing, setPlaying] = useState(false);
+  const ref = useRef<HTMLVideoElement>(null);
+  useStartWhenIdle(ref, startWhenIdle && playable);
   // Only add `relative` when the caller has not already positioned the box.
   const positioned = /(^|\s)(absolute|fixed|sticky)(\s|$)/.test(className);
   return (
     <div className={`${positioned ? "" : "relative"} overflow-hidden ${className}`} style={style}>
-      <Image src={poster} alt={alt} fill sizes={sizes} priority={priority} className="object-cover" />
+      <Image src={poster} alt={alt} fill sizes={sizes} preload={priority} className={`object-cover ${imageClassName}`} />
       {playable && (
         <video
-          className={`bg-video absolute inset-0 h-full w-full object-cover ${playing ? "is-playing" : ""}`}
-          autoPlay
+          ref={ref}
+          className={`bg-video absolute inset-0 h-full w-full object-cover ${imageClassName} ${playing ? "is-playing" : ""}`}
+          autoPlay={!startWhenIdle}
           muted
           loop
           playsInline
-          preload={preload}
+          preload={startWhenIdle ? "none" : preload}
           aria-hidden="true"
           tabIndex={-1}
           onPlaying={() => setPlaying(true)}
