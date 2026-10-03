@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { finderQuestions } from "@/content/finder";
 import { site } from "@/content/site";
@@ -16,6 +16,7 @@ import { ImageSlot } from "@/components/ui/Primitives";
 import { Icon } from "@/components/ui/Icon";
 import { Mark } from "@/components/ui/Wordmark";
 import { formatMoney } from "@/lib/format";
+import { track } from "@/lib/client/analytics";
 
 const encode = (a: Answers) => btoa(encodeURIComponent(JSON.stringify(a)));
 const decode = (s: string): Answers | null => {
@@ -85,6 +86,21 @@ export function Finder({ index, mysteryBox, tiles = {} }: { index: ScentIndexEnt
 
   const matches = useMemo(() => (done ? rankMatches(index, answers, 3) : []), [done, index, answers]);
   const summary = useMemo(() => summariseAnswers(answers), [answers]);
+  // Funnel events: the first answered question, and each set of results shown.
+  const started = useRef(false);
+  useEffect(() => {
+    if (step !== 1 || started.current) return;
+    started.current = true;
+    track({ name: "finder_start" });
+  }, [step]);
+  const reported = useRef("");
+  useEffect(() => {
+    if (!done || !matches.length) return;
+    const key = JSON.stringify(answers);
+    if (reported.current === key) return;
+    reported.current = key;
+    track({ name: "finder_complete", answers: key, matches: matches.map((m) => m.entry.handle) });
+  }, [done, matches, answers]);
   const trio = matches.every((m) => m.entry.sample?.availableForSale) && matches.length === 3;
   const trioPrice = trio ? matches.reduce((n, m) => n + parseFloat(m.entry.sample!.price.amount), 0) : 0;
 
@@ -109,6 +125,7 @@ export function Finder({ index, mysteryBox, tiles = {} }: { index: ScentIndexEnt
       matches.map((m) => ({
         variantId: m.entry.sample!.id,
         numericId: m.entry.sample!.numericId,
+        productId: m.entry.productId,
         handle: m.entry.handle,
         title: m.entry.title,
         variantLabel: m.entry.sample!.label,

@@ -9,6 +9,7 @@ export function AddPairButton({ a, b }: { a: ScentIndexEntry; b: ScentIndexEntry
   const toLine = (e: ScentIndexEntry) => ({
     variantId: e.bottle!.id,
     numericId: e.bottle!.numericId,
+    productId: e.productId,
     handle: e.handle,
     title: e.title,
     variantLabel: e.bottle!.label,

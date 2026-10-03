@@ -16,6 +16,7 @@ import { Toast } from "@/components/cart/Toast";
 import { MotionScript } from "@/components/motion/MotionScript";
 import { Loader } from "@/components/motion/Loader";
 import { PageFade } from "@/components/motion/PageFade";
+import { Analytics } from "@/components/analytics/Analytics";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -76,6 +77,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <WhatsAppFloat />
           <RevealObserver />
         </CartProvider>
+        <Analytics />
       </body>
     </html>
   );

@@ -108,17 +108,17 @@ export async function fetchBestsellingHandles(first = 12): Promise<string[]> {
 export type CheckoutLine = { merchandiseId: string; quantity: number };
 
 /** Creates a Storefront cart from the local bag and returns Shopify's checkout URL. */
-export async function createCheckout(lines: CheckoutLine[]): Promise<string> {
+export async function createCheckout(lines: CheckoutLine[], attributes: { key: string; value: string }[] = []): Promise<string> {
   const data: { cartCreate: { cart: { checkoutUrl: string } | null; userErrors: { message: string }[] } } = await storefront(
     /* GraphQL */ `
-      mutation CreateCart($lines: [CartLineInput!]!) {
-        cartCreate(input: { lines: $lines }) {
+      mutation CreateCart($lines: [CartLineInput!]!, $attributes: [AttributeInput!]) {
+        cartCreate(input: { lines: $lines, attributes: $attributes }) {
           cart { id checkoutUrl }
           userErrors { field message }
         }
       }
     `,
-    { lines },
+    { lines, attributes },
     { revalidate: false },
   );
   if (!data.cartCreate.cart) throw new Error(data.cartCreate.userErrors.map((e) => e.message).join("; ") || "Cart could not be created");

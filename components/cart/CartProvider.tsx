@@ -5,9 +5,13 @@ import type { Money } from "@/lib/shopify/types";
 import type { World } from "@/lib/catalogue";
 import { parseJSON, readRaw, SERVER_SNAPSHOT, useStoredRaw, writeJSON } from "@/lib/client/storage";
 import { motionAllowed } from "@/lib/motion";
+import { track, type AnalyticsItem } from "@/lib/client/analytics";
+import { checkoutAttributes } from "@/lib/client/attribution";
 
 export type CartLine = {
   variantId: string;
+  /** Shopify product id, numeric; for the Meta catalogue content id. */
+  productId?: string;
   numericId: string;
   handle: string;
   title: string;
@@ -43,6 +47,16 @@ type CartContextValue = {
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
+
+const toItem = (l: Omit<CartLine, "qty">, quantity: number): AnalyticsItem => ({
+  productId: l.productId ?? null,
+  variantId: l.numericId,
+  name: l.title,
+  price: parseFloat(l.price.amount),
+  quantity,
+  variant: l.variantLabel,
+  category: l.lineLabel,
+});
 const KEY = "eternal.bag.v1";
 
 const parseLines = (raw: string | null): CartLine[] => {
@@ -77,6 +91,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const add = useCallback<CartContextValue["add"]>((line, qty = 1, opts) => {
     if (qty > 0) {
+      track({ name: "add_to_cart", items: [toItem(line, qty)] });
       mutate((prev) => {
         const i = prev.findIndex((l) => l.variantId === line.variantId);
         if (i === -1) return [...prev, { ...line, qty }];
@@ -96,6 +111,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addMany = useCallback<CartContextValue["addMany"]>((items) => {
+    if (items.length) track({ name: "add_to_cart", items: items.map((l) => toItem(l, 1)) });
     mutate((prev) => {
       const next = [...prev];
       for (const line of items) {
@@ -109,7 +125,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setOpen(true);
   }, []);
 
-  const remove = useCallback((variantId: string) => mutate((prev) => prev.filter((l) => l.variantId !== variantId)), []);
+  const remove = useCallback((variantId: string) => {
+    const gone = parseLines(readRaw(KEY)).find((l) => l.variantId === variantId);
+    if (gone) track({ name: "remove_from_cart", items: [toItem(gone, gone.qty)] });
+    mutate((prev) => prev.filter((l) => l.variantId !== variantId));
+  }, []);
   const setQty = useCallback((variantId: string, qty: number) => {
     mutate((prev) => (qty <= 0 ? prev.filter((l) => l.variantId !== variantId) : prev.map((l) => (l.variantId === variantId ? { ...l, qty } : l))));
   }, []);
@@ -118,11 +138,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!lines.length) return;
     setCheckingOut(true);
     setError(null);
+    track({ name: "begin_checkout", items: lines.map((l) => toItem(l, l.qty)) });
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lines: lines.map((l) => ({ variantId: l.variantId, quantity: l.qty })) }),
+        body: JSON.stringify({ lines: lines.map((l) => ({ variantId: l.variantId, quantity: l.qty })), attributes: checkoutAttributes() }),
       });
       const json = (await res.json()) as { url?: string; error?: string };
       if (!res.ok || !json.url) throw new Error(json.error ?? "Checkout is unavailable right now");

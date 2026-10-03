@@ -33,7 +33,7 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
   const scent = await getScent(tale.handle);
   const entry = scent ? toIndexEntry(scent) : null;
   const others = tales.filter((t) => t.slug !== tale.slug).slice(0, 2);
-  const product = entry ? { handle: entry.handle, title: entry.title, image: entry.image, lineLabel: entry.lineLabel, world: entry.world } : null;
+  const product = entry ? { productId: entry.productId, handle: entry.handle, title: entry.title, image: entry.image, lineLabel: entry.lineLabel, world: entry.world } : null;
 
   return (
     <>

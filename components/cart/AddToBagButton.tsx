@@ -5,7 +5,7 @@ import { useCart, type CartLine } from "./CartProvider";
 import { Icon } from "@/components/ui/Icon";
 
 export type BagVariant = { id: string; numericId: string; label: string; price: CartLine["price"]; availableForSale: boolean };
-export type BagProduct = { handle: string; title: string; image: string | null; lineLabel: string | null; world: CartLine["world"] };
+export type BagProduct = { productId?: string; handle: string; title: string; image: string | null; lineLabel: string | null; world: CartLine["world"] };
 
 export function AddToBagButton({
   variant,
@@ -39,6 +39,7 @@ export function AddToBagButton({
   const toLine = (v: BagVariant, k: CartLine["kind"]): Omit<CartLine, "qty"> => ({
     variantId: v.id,
     numericId: v.numericId,
+    productId: product.productId,
     handle: product.handle,
     title: product.title,
     variantLabel: v.label,

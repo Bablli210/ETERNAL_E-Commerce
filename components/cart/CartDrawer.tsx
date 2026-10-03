@@ -57,7 +57,7 @@ export function CartDrawer({ index }: { index: ScentIndexEntry[] }) {
     if (!v) return;
     // C3: the suggestion slides into the list as a real line.
     cart.add(
-      { variantId: v.id, numericId: v.numericId, handle: e.handle, title: e.title, variantLabel: v.label, kind: which === "sample" ? "sample" : e.kind === "set" ? "set" : "bottle", price: v.price, image: e.image, lineLabel: e.lineLabel, world: e.world },
+      { variantId: v.id, numericId: v.numericId, productId: e.productId, handle: e.handle, title: e.title, variantLabel: v.label, kind: which === "sample" ? "sample" : e.kind === "set" ? "set" : "bottle", price: v.price, image: e.image, lineLabel: e.lineLabel, world: e.world },
       1,
       { openDrawer: false, toast: false },
     );

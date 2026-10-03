@@ -34,11 +34,11 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
   const kind = entry.kind === "set" ? "set" : size === "sample" ? "sample" : "bottle";
 
   const add = () => {
-    cart.add({ variantId: variant.id, numericId: variant.numericId, handle: entry.handle, title: entry.title, variantLabel: variant.label, kind, price: variant.price, image: entry.image, lineLabel: entry.lineLabel, world: entry.world }, qty, {
+    cart.add({ variantId: variant.id, numericId: variant.numericId, productId: entry.productId, handle: entry.handle, title: entry.title, variantLabel: variant.label, kind, price: variant.price, image: entry.image, lineLabel: entry.lineLabel, world: entry.world }, qty, {
       openDrawer: !(sampleToo && entry.sample && size === "bottle"),
     });
     if (sampleToo && entry.sample && size === "bottle") {
-      cart.add({ variantId: entry.sample.id, numericId: entry.sample.numericId, handle: entry.handle, title: entry.title, variantLabel: entry.sample.label, kind: "sample", price: entry.sample.price, image: entry.image, lineLabel: entry.lineLabel, world: entry.world }, 1);
+      cart.add({ variantId: entry.sample.id, numericId: entry.sample.numericId, productId: entry.productId, handle: entry.handle, title: entry.title, variantLabel: entry.sample.label, kind: "sample", price: entry.sample.price, image: entry.image, lineLabel: entry.lineLabel, world: entry.world }, 1);
     }
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1400);

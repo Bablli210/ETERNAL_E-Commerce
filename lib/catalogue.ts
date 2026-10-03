@@ -383,6 +383,8 @@ export async function getLineCounts(): Promise<Record<LineKey, number>> {
 
 /** Slim, serialisable index for the client-side search overlay and finder. */
 export type ScentIndexEntry = {
+  /** Shopify product id, numeric. */
+  productId: string;
   handle: string;
   title: string;
   line: LineKey | null;
@@ -403,6 +405,7 @@ export type ScentIndexEntry = {
 };
 
 export const toIndexEntry = (s: Scent): ScentIndexEntry => ({
+  productId: numericId(s.id),
   handle: s.handle,
   title: s.title,
   line: s.line,

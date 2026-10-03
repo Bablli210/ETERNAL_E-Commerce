@@ -11,6 +11,7 @@ import { FaqSection, NotesPyramid, TaleExcerpt, WearIt } from "@/components/prod
 import { ProductCard } from "@/components/product/ProductCard";
 import { RecentlyViewed } from "@/components/product/RecentlyViewed";
 import { AddPairButton } from "@/components/product/AddPairButton";
+import { TrackView } from "@/components/analytics/TrackView";
 import { Eyebrow, Price, SectionHead } from "@/components/ui/Primitives";
 
 export const revalidate = 300;
@@ -61,6 +62,9 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {scent.bottle && (
+        <TrackView item={{ productId: entry.productId, variantId: scent.bottle.numericId, name: scent.title, price: parseFloat(scent.bottle.price.amount), variant: scent.bottle.label, category: scent.lineLabel }} />
+      )}
       <nav aria-label="Breadcrumb" className="wrap pt-6 text-[12px] text-ash">
         <ol className="flex flex-wrap gap-1">
           <li>

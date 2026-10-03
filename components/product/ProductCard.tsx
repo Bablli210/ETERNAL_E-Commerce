@@ -13,7 +13,7 @@ import { joinNotes } from "@/lib/format";
  * always visible.
  */
 export function ProductCard({ entry, priority = false, badge, reason, className = "" }: { entry: ScentIndexEntry; priority?: boolean; badge?: ReactNode; reason?: string; className?: string }) {
-  const product = { handle: entry.handle, title: entry.title, image: entry.image, lineLabel: entry.lineLabel, world: entry.world };
+  const product = { productId: entry.productId, handle: entry.handle, title: entry.title, image: entry.image, lineLabel: entry.lineLabel, world: entry.world };
   const showBadge = badge ?? (entry.isBestseller ? "Bestseller" : entry.isNew ? "New" : null);
   return (
     <article className={`group flex flex-col ${className}`} data-card={entry.handle}>

@@ -8,6 +8,7 @@ import { searchIndex } from "@/lib/search";
 import { ProductImage } from "@/components/product/ProductImage";
 import { Eyebrow, Price } from "@/components/ui/Primitives";
 import { Icon } from "@/components/ui/Icon";
+import { track } from "@/lib/client/analytics";
 
 export type TaleIndexEntry = { slug: string; title: string; handle: string; line: string };
 
@@ -26,7 +27,10 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (q.trim()) router.push(`/shop?q=${encodeURIComponent(q.trim())}`);
+    if (q.trim()) {
+      track({ name: "search", term: q.trim() });
+      router.push(`/shop?q=${encodeURIComponent(q.trim())}`);
+    }
     onClose();
   };
 
