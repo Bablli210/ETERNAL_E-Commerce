@@ -26,11 +26,16 @@ type Event =
   | { name: "add_to_cart"; items: AnalyticsItem[] }
   | { name: "remove_from_cart"; items: AnalyticsItem[] }
   | { name: "view_cart"; items: AnalyticsItem[] }
+  /** The Checkout tap in the bag. Shopify's own checkout fires InitiateCheckout and Purchase. */
   | { name: "begin_checkout"; items: AnalyticsItem[] }
-  | { name: "search"; term: string }
+  | { name: "select_item"; list: string; index: number; item: AnalyticsItem }
+  | { name: "search"; term: string; results?: number }
   | { name: "finder_start" }
+  | { name: "finder_step"; step: number; question: string; answer: string }
   | { name: "finder_complete"; answers: string; matches: string[] }
-  | { name: "generate_lead"; method: string };
+  | { name: "generate_lead"; method: string }
+  /** Small interaction signals, sent to the data layer and GA4 only. */
+  | { name: "ui"; action: "faq_open" | "gallery_swipe" | "sheet_open" | "filter_apply" | "whatsapp_click" | "not_found" | "checkout_error"; label?: string };
 
 declare global {
   interface Window {
@@ -79,9 +84,12 @@ export function track(e: Event) {
         window.dataLayer.push({ ecommerce: null });
         window.dataLayer.push({ event: e.name, event_id: id, ecommerce });
         gtag?.("event", e.name, ecommerce);
-        const meta = { view_item: "ViewContent", add_to_cart: "AddToCart", begin_checkout: "InitiateCheckout" } as const;
+        // InitiateCheckout and Purchase belong to Shopify's checkout (Facebook & Instagram channel),
+        // so the bag's Checkout tap is a custom CheckoutClick and never double counts.
+        const meta = { view_item: "ViewContent", add_to_cart: "AddToCart" } as const;
+        const custom = { view_cart: "ViewCart", remove_from_cart: "RemoveFromCart", begin_checkout: "CheckoutClick" } as const;
         if (e.name in meta) fbq?.("track", meta[e.name as keyof typeof meta], metaPayload(e.items), { eventID: id });
-        else fbq?.("trackCustom", e.name === "view_cart" ? "ViewCart" : "RemoveFromCart", metaPayload(e.items), { eventID: id });
+        else fbq?.("trackCustom", custom[e.name as keyof typeof custom], metaPayload(e.items), { eventID: id });
         break;
       }
       case "view_item_list": {
@@ -91,9 +99,24 @@ export function track(e: Event) {
         gtag?.("event", e.name, ecommerce);
         break;
       }
+      case "select_item": {
+        const ecommerce = { item_list_name: e.list, items: ga4Items([e.item]).map((i) => ({ ...i, index: e.index })) };
+        window.dataLayer.push({ ecommerce: null });
+        window.dataLayer.push({ event: e.name, event_id: id, ecommerce });
+        gtag?.("event", e.name, ecommerce);
+        break;
+      }
+      case "finder_step":
+        window.dataLayer.push({ event: "finder_step", event_id: id, step: e.step, question: e.question, answer: e.answer });
+        gtag?.("event", "finder_step", { step: e.step, question: e.question, answer: e.answer });
+        break;
+      case "ui":
+        window.dataLayer.push({ event: e.action, event_id: id, label: e.label });
+        gtag?.("event", e.action, { label: e.label });
+        break;
       case "search":
-        window.dataLayer.push({ event: "search", event_id: id, search_term: e.term });
-        gtag?.("event", "search", { search_term: e.term });
+        window.dataLayer.push({ event: "search", event_id: id, search_term: e.term, results: e.results });
+        gtag?.("event", "search", { search_term: e.term, results: e.results });
         fbq?.("track", "Search", { search_string: e.term }, { eventID: id });
         break;
       case "finder_start":

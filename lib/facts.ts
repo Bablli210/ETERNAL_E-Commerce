@@ -28,6 +28,12 @@ export const facts = {
   deliveryIncluded: site.deliveryIncluded,
   whatsapp: site.whatsapp,
   paymentMethods: site.paymentMethods.filter(isConfirmed),
+  deliveryCutoff: confirmed(site.deliveryCutoff),
+  whatsappHours: confirmed(site.whatsappHours),
+  legalName: confirmed(site.legalName),
+  companyRegistration: confirmed(site.companyRegistration),
+  taxId: confirmed(site.taxId),
+  address: confirmed(site.address),
 } as const;
 
 export type PendingFact = { key: string; value: string; note: string };
@@ -43,6 +49,9 @@ const NOTES: Record<string, string> = {
   freeSamples: "e.g. \"Two free 5 ml samples with every bottle\".",
   sampleCredit: "e.g. \"Its price comes off your 55 ml within 60 days\".",
   paymentMethods: "Only the methods that are live at checkout.",
+  deliveryCutoff: "The courier's daily cut-off, e.g. \"Order by 2 pm for next-day delivery in Cairo & Giza\".",
+  whatsappHours: "When WhatsApp is answered.",
+  legalName: "Shown in the footer with the registration number, tax id and address.",
 };
 
 /** Every site fact still in brackets, for /launch-checklist and the build check. */

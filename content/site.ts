@@ -36,6 +36,16 @@ export const site = {
   firstOrderOffer: "[First-order offer]",
   codFee: "[Cash-on-delivery fee]",
 
+  /** e.g. "Order by 2 pm for next-day delivery in Cairo & Giza". Shown under the buy button. */
+  deliveryCutoff: "[Delivery cut-off]",
+  /** WhatsApp reply hours, e.g. "Every day, 10 am – 10 pm". */
+  whatsappHours: "[WhatsApp hours]",
+  /** Company details for the footer: legal name, commercial registration, tax id, address. */
+  legalName: "[Legal company name]",
+  companyRegistration: "[Commercial registration no.]",
+  taxId: "[Tax id]",
+  address: "[Registered address, Cairo]",
+
   /** International format without +, e.g. "201001234567". null hides WhatsApp buttons. */
   whatsapp: null as string | null,
   instagram: "https://instagram.com/",
