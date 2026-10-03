@@ -64,6 +64,37 @@ const metaPayload = (items: AnalyticsItem[]) => ({
   currency: CURRENCY,
 });
 
+/** Where an event happened, for slicing every report by page template. */
+export const pageType = (path: string) =>
+  path === "/" ? "home" : path.startsWith("/products/") ? "product" : path.startsWith("/shop") ? "collection" : path.startsWith("/finder") ? "finder" : path.startsWith("/tales") ? "tale" : path.startsWith("/bag") ? "bag" : "other";
+
+/** Instagram's and Facebook's in-app browsers, where most ad visitors arrive. */
+export const inApp = () => typeof navigator !== "undefined" && /Instagram|FBAN|FBAV/i.test(navigator.userAgent);
+
+/**
+ * The server half of the pixel (app/api/meta): the same event, with the same
+ * id, sent from the server so Meta keeps it when the browser blocks the pixel
+ * and deduplicates the pair. On only when NEXT_PUBLIC_META_CAPI=1.
+ */
+function capi(eventName: string, eventId: string, customData: Record<string, unknown>) {
+  if (process.env.NEXT_PUBLIC_META_CAPI !== "1" || typeof navigator === "undefined" || !navigator.sendBeacon) return;
+  const body = JSON.stringify({ event_name: eventName, event_id: eventId, event_source_url: window.location.href, custom_data: customData });
+  navigator.sendBeacon("/api/meta", new Blob([body], { type: "application/json" }));
+}
+
+/** Core Web Vitals from real visitors, tagged with the page template and the in-app flag. */
+export function trackVital(metric: { name: string; value: number; id: string; rating?: string }) {
+  if (typeof window === "undefined") return;
+  try {
+    const params = { metric_id: metric.id, value: Math.round(metric.name === "CLS" ? metric.value * 1000 : metric.value), rating: metric.rating, page_type: pageType(window.location.pathname), in_app: inApp() };
+    window.dataLayer = window.dataLayer ?? [];
+    window.dataLayer.push({ event: `web_vital_${metric.name.toLowerCase()}`, ...params });
+    window.gtag?.("event", metric.name, { ...params, non_interaction: true });
+  } catch {
+    /* never break the page */
+  }
+}
+
 const eventId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now() + Math.random()));
 
 export function track(e: Event) {
@@ -88,7 +119,11 @@ export function track(e: Event) {
         // so the bag's Checkout tap is a custom CheckoutClick and never double counts.
         const meta = { view_item: "ViewContent", add_to_cart: "AddToCart" } as const;
         const custom = { view_cart: "ViewCart", remove_from_cart: "RemoveFromCart", begin_checkout: "CheckoutClick" } as const;
-        if (e.name in meta) fbq?.("track", meta[e.name as keyof typeof meta], metaPayload(e.items), { eventID: id });
+        if (e.name in meta) {
+          const name = meta[e.name as keyof typeof meta];
+          fbq?.("track", name, metaPayload(e.items), { eventID: id });
+          capi(name, id, metaPayload(e.items));
+        }
         else fbq?.("trackCustom", custom[e.name as keyof typeof custom], metaPayload(e.items), { eventID: id });
         break;
       }
