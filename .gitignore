@@ -44,3 +44,6 @@ next-env.d.ts
 
 # Audit scratch scripts written by review agents
 /_audit_*
+
+# Agent worktrees
+/.claude/worktrees/
