@@ -15,7 +15,8 @@ export type Tale = {
   complete: boolean;
 };
 
-export const tales: Tale[] = [
+/** Every tale, written or not. Only complete ones are published (see `tales`). */
+export const allTales: Tale[] = [
   {
     slug: "shadow-of-the-sea",
     title: "The sea signs the ones it gives back.",
@@ -79,6 +80,9 @@ export const tales: Tale[] = [
     paragraphs: ["[Full tale to paste from Scents.pdf — 250–400 words in the same voice.]"],
   },
 ];
+
+/** Published tales: a tale whose text is still a placeholder is not shown anywhere. */
+export const tales: Tale[] = allTales.filter((t) => t.complete);
 
 export const taleBySlug = (slug: string) => tales.find((t) => t.slug === slug);
 export const taleForHandle = (handle: string) => tales.find((t) => t.handle === handle);

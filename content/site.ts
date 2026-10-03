@@ -1,8 +1,8 @@
 /**
- * Facts about the house that the boards mark in [square brackets].
- * Every bracketed value below is a fact to confirm before launch; the
- * components render them as written, so replacing a value here updates
- * the whole site. Set a value to null to hide the element that needs it.
+ * Facts about the house. A value still in [square brackets] is a fact to
+ * confirm: lib/facts.ts treats it as missing, so the element that needs it
+ * renders nothing on the site, and /launch-checklist lists it. Replace the
+ * whole string (brackets included) with the confirmed wording to switch it on.
  */
 export const site = {
   name: "eternal",
@@ -13,23 +13,35 @@ export const site = {
   currency: "EGP",
   locale: "en-EG",
 
-  /** One generous message, never a sale. Hidden when null. */
-  announcement: "Two free 5 ml samples with every order [confirm offer]",
+  /** One confirmed offer for the bar above the header, matched to the running ads. */
+  announcement: "[Two free 5 ml samples with every order]",
+  /** The free-samples promise, shown in the hero, buy box and bag. */
+  freeSamples: "[Two free 5 ml samples with every order]",
+  /** How the 5 ml sample price comes back. Shown once 5 ml variants and credit codes exist. */
+  sampleCredit: "[Its price comes off your 55 ml within 60 days]",
 
-  /** Free-shipping threshold in EGP. null hides the cart meter. */
+  /**
+   * Delivery on bottles: true = included on every bottle (the playbook's
+   * launch recommendation), false = charged at checkout, null = not decided
+   * (nothing is said about delivery cost).
+   */
+  deliveryIncluded: null as boolean | null,
+  /** Free-shipping threshold in EGP for bags without a bottle. null hides the bag meter. */
   freeShippingThreshold: null as number | null,
+  /** e.g. "1–2 days in Cairo & Giza, 2–4 days elsewhere". */
   deliveryTime: "[Delivery time]",
   returnsPolicy: "[Returns policy]",
-  returnsWindow: "[n] days",
-  longevityClaim: "[longevity claim, e.g. 8+ hours]",
-  firstOrderOffer: "[FIRST-ORDER OFFER]",
-  codFee: "[COD fee]",
+  returnsWindow: "[n days]",
+  longevityClaim: "[Longevity on skin, from a wear test]",
+  firstOrderOffer: "[First-order offer]",
+  codFee: "[Cash-on-delivery fee]",
 
   /** International format without +, e.g. "201001234567". null hides WhatsApp buttons. */
   whatsapp: null as string | null,
   instagram: "https://instagram.com/",
   tiktok: "https://tiktok.com/",
 
+  /** Only methods that are live at checkout; bracketed ones stay hidden. */
   paymentMethods: ["Visa", "Mastercard", "Meeza", "Cash on delivery", "[Local wallets]"],
 
   scentCount: 43,

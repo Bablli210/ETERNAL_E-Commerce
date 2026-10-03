@@ -9,6 +9,7 @@ import { Mark } from "@/components/ui/Wordmark";
 import { Price } from "@/components/ui/Primitives";
 import { formatMoney } from "@/lib/format";
 import { site } from "@/content/site";
+import { facts } from "@/lib/facts";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { parseJSON, RECENT_KEY, useStoredRaw } from "@/lib/client/storage";
 import { motionAllowed } from "@/lib/motion";
@@ -210,7 +211,10 @@ export function CartDrawer({ index }: { index: ScentIndexEntry[] }) {
                 <span className="text-[13px] font-semibold">Subtotal</span>
                 <Price key={cart.subtotal} money={{ amount: String(cart.subtotal), currencyCode: cart.currency }} className="tick-in inline-block text-[16px] font-semibold" />
               </div>
-              <p className="mt-1 text-[11px] leading-snug text-ash">Shipping and cash-on-delivery fee calculated at checkout · {site.deliveryTime} across Egypt</p>
+              <p className="mt-1 text-[12px] leading-snug text-ash">
+                {facts.deliveryIncluded === true ? "Delivery included" : "Delivery is added at checkout"}
+                {facts.deliveryTime ? ` · ${facts.deliveryTime}` : ""}
+              </p>
               {cart.error && (
                 <p role="alert" className="mt-3 text-[12px] text-gold-text">
                   {cart.error}

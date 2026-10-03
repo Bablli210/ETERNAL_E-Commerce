@@ -7,6 +7,7 @@ import { Film } from "@/components/ui/Film";
 import { Icon } from "@/components/ui/Icon";
 import { ProductCard } from "@/components/product/ProductCard";
 import { site } from "@/content/site";
+import { facts } from "@/lib/facts";
 import { lines, moodOrder, moods, type LineKey } from "@/content/taxonomy";
 import { tales } from "@/content/tales";
 import type { Scent, ScentIndexEntry } from "@/lib/catalogue";
@@ -75,8 +76,8 @@ export function Hero({ featured }: { featured: Scent | null }) {
           </div>
           <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-dune">
             <li>Cash on delivery</li>
-            <li>Two free {site.sampleSizeMl} ml samples</li>
-            <li>{site.deliveryTime} across Egypt</li>
+            {facts.freeSamples && <li>{facts.freeSamples}</li>}
+            {facts.deliveryTime && <li>Delivery {facts.deliveryTime}</li>}
           </ul>
         </div>
         <a href="#proof" className="absolute bottom-8 right-5 hidden items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-dune lg:right-20 lg:flex">
@@ -88,16 +89,18 @@ export function Hero({ featured }: { featured: Scent | null }) {
 }
 
 export function ProofStrip() {
-  const facts = [
-    { big: <>EdP</>, label: "Eau de parfum strength", sub: site.longevityClaim },
-    { big: <CountUp value={site.sampleSizeMl} suffix=" ml" />, label: "Try before you commit", sub: "samples and the discovery set" },
+  const items = [
+    { big: <>EdP</>, label: "Eau de parfum strength", sub: facts.longevityClaim ?? "composed to last on skin" },
+    { big: <CountUp value={site.sampleSizeMl} suffix=" ml" />, label: "Try before you commit", sub: "three scents in the mystery box" },
     { big: <>COD</>, label: "Cash on delivery", sub: "pay when it arrives, anywhere in Egypt" },
-    { big: <>{site.returnsWindow}</>, label: site.returnsPolicy, sub: "unopened bottles" },
+    facts.returnsPolicy && facts.returnsWindow
+      ? { big: <>{facts.returnsWindow}</>, label: facts.returnsPolicy, sub: "sealed bottles" }
+      : { big: <>3</>, label: "Three lines", sub: "for her, for him, for both" },
   ];
   return (
     <section id="proof" className="border-b border-dune">
       <ul className="wrap grid grid-cols-2 divide-dune lg:grid-cols-4 lg:divide-x">
-        {facts.map((f, i) => (
+        {items.map((f, i) => (
           <li key={f.label} className="flex flex-col gap-1 py-8 lg:px-8 lg:py-12 lg:first:pl-0 lg:last:pr-0" data-reveal style={{ ["--i" as string]: i }}>
             <span className="tnum serif text-[44px] font-semibold leading-none text-gold lg:text-[56px]">{f.big}</span>
             <span className="mt-2 text-[14px] font-semibold">{f.label}</span>
@@ -305,15 +308,14 @@ export function RiskReducers({ mysteryBox }: { mysteryBox: ScentIndexEntry | nul
         <SectionHead index="04" title="Try before you commit" />
         <div className="mt-12 grid gap-6 lg:grid-cols-2">
           <article className="flex flex-col bg-paper" data-reveal>
-            <Figure name="discovery-set" label="Six 5 ml vials in the matte black tray" sizes="(min-width: 1024px) 50vw, 100vw" className="aspect-[16/10] w-full" />
+            <Figure name="finder-band" label="Bottles drifting out of focus on frosted glass" sizes="(min-width: 1024px) 50vw, 100vw" className="aspect-[16/10] w-full" />
             <div className="flex flex-1 flex-col p-7">
-              <h3 className="display-m">The discovery set</h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-ash">Choose any [n] scents as {site.sampleSizeMl} ml samples. The full price of the set comes back as credit toward your first {site.bottleSizeMl} ml bottle. [confirm mechanic]</p>
-              <div className="mt-6 flex items-center gap-4">
+              <h3 className="display-m">Not sure where to start?</h3>
+              <p className="mt-3 text-[15px] leading-relaxed text-ash">Five quick questions narrow the house to your three closest matches, with the scent each one is inspired by.</p>
+              <div className="mt-6">
                 <Link href="/finder" className="btn btn-secondary">
-                  Build your set
+                  Find your scent
                 </Link>
-                <span className="text-[12px] text-ash">[Discovery set product to create]</span>
               </div>
             </div>
           </article>
@@ -373,6 +375,7 @@ export function HouseFilm() {
 
 export function TalesTeaser() {
   const picks = tales.slice(1, 4);
+  if (!picks.length) return null;
   return (
     <section className="section">
       <div className="wrap">

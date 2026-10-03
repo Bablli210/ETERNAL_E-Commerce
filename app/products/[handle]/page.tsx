@@ -148,7 +148,6 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               <div className="flex flex-col items-start gap-2 md:items-end">
                 <p className="text-[12px] text-ash">Together</p>
                 <p className="tnum text-[22px] font-medium">{formatMoney({ amount: parseFloat(scent.price.amount) + parseFloat(pair.price.amount), currencyCode: scent.price.currencyCode })}</p>
-                <p className="text-[11px] text-ash">[Pair discount to confirm]</p>
                 <AddPairButton a={entry} b={toIndexEntry(pair)} />
               </div>
             </div>

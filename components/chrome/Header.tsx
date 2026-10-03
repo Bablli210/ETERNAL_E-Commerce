@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { nav, site } from "@/content/site";
+import { nav } from "@/content/site";
+import { facts } from "@/lib/facts";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { useCart } from "@/components/cart/CartProvider";
 import { Icon } from "@/components/ui/Icon";
@@ -93,7 +94,7 @@ export function Header({
 
   const isHome = pathname === "/";
   const transparent = isHome && !scrolled && !menu && !search;
-  const showAnnouncement = Boolean(site.announcement) && !scrolled;
+  const showAnnouncement = Boolean(facts.announcement) && !scrolled;
 
   return (
     <>
@@ -101,12 +102,12 @@ export function Header({
         className={`fixed inset-x-0 top-0 z-[60] transition-transform duration-[240ms] ease-[var(--ease-standard)] ${hidden ? "-translate-y-full" : "translate-y-0"}`}
         onMouseLeave={scheduleClose}
       >
-        {site.announcement && (
+        {facts.announcement && (
           <div
             className={`ann overflow-hidden bg-night text-linen transition-[height] duration-200 ${showAnnouncement ? "h-[var(--announce-h)]" : "h-0"}`}
             aria-hidden={!showAnnouncement}
           >
-            <p className="flex h-[var(--announce-h)] items-center justify-center px-4 text-center text-[12px] tracking-[0.02em]">{site.announcement}</p>
+            <p className="flex h-[var(--announce-h)] items-center justify-center px-4 text-center text-[12px] tracking-[0.02em]">{facts.announcement}</p>
           </div>
         )}
         <header
@@ -159,7 +160,7 @@ export function Header({
         </header>
       </div>
       {/* Reserve the chrome height on every page but the home hero. */}
-      {!isHome && <div style={{ height: site.announcement ? "calc(var(--header-h) + var(--announce-h))" : "var(--header-h)" }} aria-hidden="true" />}
+      {!isHome && <div style={{ height: facts.announcement ? "calc(var(--header-h) + var(--announce-h))" : "var(--header-h)" }} aria-hidden="true" />}
       {mobile && <MobileMenu onClose={() => setMobile(false)} />}
     </>
   );

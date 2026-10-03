@@ -145,6 +145,7 @@ h1, h2, h3, .serif { font-family: var(--font-serif); font-weight: 500; line-heig
 .slot > span { max-width: 26ch; }
 .slot-corner { align-items: flex-start; justify-content: flex-end; text-align: right; padding: 12px 14px; }
 .slot-corner > span { font-size: 10px; letter-spacing: 0.04em; opacity: 0.7; }
+.slot.slot-quiet { background-image: none; border-color: transparent; }
 
 /* Film grain — 3–4 % on Night and Deep sea only. */
 .grain { position: relative; isolation: isolate; }

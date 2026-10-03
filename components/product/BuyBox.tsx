@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { Icon } from "@/components/ui/Icon";
 import { Price } from "@/components/ui/Primitives";
-import { site } from "@/content/site";
+import { facts } from "@/lib/facts";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { formatMoney } from "@/lib/format";
 
@@ -44,7 +44,7 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
     window.setTimeout(() => setAdded(false), 1400);
   };
 
-  const whatsappHref = site.whatsapp ? `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(`Hello eternal — I have a question about ${entry.title}.`)}` : null;
+  const whatsappHref = facts.whatsapp ? `https://wa.me/${facts.whatsapp}?text=${encodeURIComponent(`Hello eternal — I have a question about ${entry.title}.`)}` : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -61,7 +61,7 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
                   <span className="font-semibold">{v.label}</span>
                   <span className="tnum text-ash">
                     {formatMoney(v.price)}
-                    {k === "sample" ? " · credited back" : ""}
+                    {k === "sample" && facts.sampleCredit ? " · credited back" : ""}
                   </span>
                 </label>
               );
@@ -74,7 +74,7 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
         <label className="flex cursor-pointer items-start gap-3 border border-dashed border-dune p-4 text-[13px]">
           <input type="checkbox" checked={sampleToo} onChange={(e) => setSampleToo(e.target.checked)} className="mt-0.5 h-4 w-4 accent-night" />
           <span>
-            <strong>Add the {entry.sample.label} sample too</strong> — {formatMoney(entry.sample.price)}, credited back if you keep the bottle. [confirm]
+            <strong>Add the {entry.sample.label} sample too</strong> — {formatMoney(entry.sample.price)}{facts.sampleCredit ? `. ${facts.sampleCredit}` : ""}
           </span>
         </label>
       )}
@@ -108,12 +108,16 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
         <li className="inline-flex items-center gap-1.5">
           <Icon name="truck" size={14} /> Cash on delivery
         </li>
-        <li className="inline-flex items-center gap-1.5">
-          <Icon name="clock" size={14} /> {site.deliveryTime}
-        </li>
-        <li className="inline-flex items-center gap-1.5">
-          <Icon name="refresh" size={14} /> {site.returnsPolicy}
-        </li>
+        {facts.deliveryTime && (
+          <li className="inline-flex items-center gap-1.5">
+            <Icon name="clock" size={14} /> {facts.deliveryTime}
+          </li>
+        )}
+        {facts.returnsPolicy && (
+          <li className="inline-flex items-center gap-1.5">
+            <Icon name="refresh" size={14} /> {facts.returnsPolicy}
+          </li>
+        )}
         {whatsappHref && (
           <li>
             <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-night hover:text-sea">

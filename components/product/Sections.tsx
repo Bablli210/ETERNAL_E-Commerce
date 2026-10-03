@@ -4,6 +4,7 @@ import { Figure } from "@/components/ui/Figure";
 import { Icon } from "@/components/ui/Icon";
 import type { Scent } from "@/lib/catalogue";
 import { faq } from "@/content/faq";
+import { confirmed } from "@/lib/facts";
 
 export function NotesPyramid({ scent }: { scent: Scent }) {
   return (
@@ -29,7 +30,7 @@ export function NotesPyramid({ scent }: { scent: Scent }) {
           <div className="mt-12 grid gap-8 md:grid-cols-[1fr_1.2fr]" data-reveal>
             <Figure name={`products/${scent.handle}-3`} label={`Notes still — ${scent.notesShort.join(", ") || scent.title}`} sizes="(min-width: 768px) 45vw, 100vw" className="aspect-[4/3] w-full" />
             <div>
-              <p className="body-l max-w-[52ch]">{scent.description || "[Notes copy to write — one sensory line per note, no jargon.]"}</p>
+              {scent.description && <p className="body-l max-w-[52ch]">{scent.description}</p>}
               {scent.notesShort.length > 0 && (
                 <ul className="mt-6 flex flex-wrap gap-2">
                   {scent.notesShort.map((n) => (
@@ -39,7 +40,6 @@ export function NotesPyramid({ scent }: { scent: Scent }) {
                   ))}
                 </ul>
               )}
-              <p className="mt-6 text-[12px] text-ash">[Top / heart / base pyramid with one line per note to come from the 43 note pyramids.]</p>
             </div>
           </div>
         )}
@@ -70,9 +70,7 @@ export function TaleExcerpt({ scent }: { scent: Scent }) {
                 <p key={i}>{p}</p>
               ))}
             </div>
-          ) : (
-            <p className="body-l mt-6 text-ash">[Tale to write — 250–400 words in the same voice as Scents.pdf.]</p>
-          )}
+          ) : null}
           {scent.taleSlug && (
             <Link href={`/tales/${scent.taleSlug}`} className="lnk mt-8">
               Read the full tale <Icon name="arrow-right" size={16} />
@@ -129,15 +127,14 @@ export function WearIt({ scent }: { scent: Scent }) {
                 {scent.sillage !== null && <Meter label="Sillage" value={scent.sillage} />}
               </div>
             )}
-            {!hasMeters && <p className="mt-6 text-[12px] text-ash">[Longevity and sillage scores to come from wear tests.]</p>}
           </div>
         )}
         {scent.inspiredBy && (
           <div data-reveal>
             <span className="tnum serif mb-3 block text-[20px] text-gold">04</span>
             <h2 className="display-l">If you love {scent.inspiredBy}</h2>
-            <p className="body-l mt-6 max-w-[52ch]">{scent.comparison ?? "[One honest line on how ours differs — from the perfumer.]"}</p>
-            <p className="mt-4 text-[12px] text-ash">Our own composition. Not affiliated with the original house. [confirm legal wording]</p>
+            {confirmed(scent.comparison) && <p className="body-l mt-6 max-w-[52ch]">{confirmed(scent.comparison)}</p>}
+            <p className="mt-4 text-[12px] text-ash">Our own composition. Not affiliated with the original house.</p>
           </div>
         )}
       </div>

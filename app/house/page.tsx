@@ -13,8 +13,8 @@ export const metadata: Metadata = { title: "The house", description: "eternal is
 
 const steps = [
   { n: "1", title: "We start from what you love", copy: "Each scent names the fragrance that inspired it. No guessing, no code names." },
-  { n: "2", title: "We compose our own reading", copy: "Same opening you know, our own heart and drydown — closer to the skin, made for Cairo heat. [Perfumer’s note]" },
-  { n: "3", title: "We test it on skin", copy: "Every listing carries its own longevity and sillage score from wear tests, not a slogan. [Method]" },
+  { n: "2", title: "We compose our own reading", copy: "Same opening you know, our own heart and drydown — closer to the skin, made for Cairo heat." },
+  { n: "3", title: "We test it on skin", copy: "Every listing carries its own longevity and sillage score from wear tests, not a slogan." },
 ];
 
 export default async function HousePage() {

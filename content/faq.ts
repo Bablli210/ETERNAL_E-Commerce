@@ -1,4 +1,4 @@
-import { site } from "./site";
+import { facts } from "@/lib/facts";
 
 export type FaqEntry = { id: string; q: string; a: string };
 
@@ -7,7 +7,7 @@ export const faq: FaqEntry[] = [
   {
     id: "longevity",
     q: "Do they really last?",
-    a: `Eau de parfum concentration; ${site.longevityClaim} on skin. Every listing shows its own longevity score from wear tests, not a slogan.`,
+    a: `Every scent is an eau de parfum, the concentration made to last.${facts.longevityClaim ? ` ${facts.longevityClaim}.` : ""} Each listing shows its own longevity and sillage once our wear tests are in.`,
   },
   {
     id: "originals",
@@ -17,12 +17,12 @@ export const faq: FaqEntry[] = [
   {
     id: "cod",
     q: "How does cash on delivery work?",
-    a: `Order, we call to confirm, pay the courier when it arrives. ${site.deliveryTime} across Egypt. ${site.codFee}.`,
+    a: `Choose cash on delivery at checkout, we confirm your order with you, and you pay the courier when it arrives.${facts.deliveryTime ? ` Delivery: ${facts.deliveryTime}.` : ""}${facts.codFee ? ` ${facts.codFee}.` : ""}`,
   },
   {
     id: "returns",
     q: "Can I return a bottle?",
-    a: `${site.returnsPolicy} — unopened bottles within ${site.returnsWindow}.`,
+    a: facts.returnsPolicy && facts.returnsWindow ? `${facts.returnsPolicy} — sealed bottles within ${facts.returnsWindow}.` : "Message us about any order and we will make it right.",
   },
   {
     id: "wrong",

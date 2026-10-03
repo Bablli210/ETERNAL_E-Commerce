@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { footerColumns, site } from "@/content/site";
+import { facts } from "@/lib/facts";
 import { Icon } from "@/components/ui/Icon";
 import { Wordmark } from "@/components/ui/Wordmark";
 import { MotionToggle } from "@/components/motion/MotionToggle";
@@ -29,11 +30,13 @@ export function JoinBand({ storeDomain }: { storeDomain: string }) {
         <div>
           <span className="tnum serif mb-3 block text-[20px] text-dune">12</span>
           <h2 className="display-l">Join the house</h2>
-          <p className="body-l mt-4 max-w-[46ch] text-dune">First access to new scents and the tales behind them, plus {site.firstOrderOffer} on your first order.</p>
+          <p className="body-l mt-4 max-w-[46ch] text-dune">
+            First access to new scents and the tales behind them{facts.firstOrderOffer ? `, plus ${facts.firstOrderOffer} on your first order` : ""}.
+          </p>
         </div>
         <div className="flex flex-col gap-3">
           <JoinForm storeDomain={storeDomain} />
-          <p className="text-[12px] text-dune">Order updates on WhatsApp [opt-in and consent wording to confirm]. Unsubscribe any time.</p>
+          <p className="text-[12px] text-dune">One email when something new arrives. Unsubscribe any time.</p>
         </div>
       </div>
     </section>
@@ -80,16 +83,18 @@ export function Footer({ storeDomain }: { storeDomain: string }) {
         </div>
         <div className="wrap flex flex-col gap-6 border-t border-dune py-6 lg:flex-row lg:items-center lg:justify-between">
           <ul className="flex flex-wrap gap-2" aria-label="Payment methods">
-            {site.paymentMethods.map((m) => (
+            {facts.paymentMethods.map((m) => (
               <li key={m} className="inline-flex h-8 items-center border border-dune px-3 text-[11px] font-medium tracking-[0.04em] text-ash">
                 {m}
               </li>
             ))}
           </ul>
           <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-[12px] text-ash">
-            <span className="inline-flex items-center gap-1.5">
-              <Icon name="truck" size={14} /> Delivery across Egypt in {site.deliveryTime}
-            </span>
+            {facts.deliveryTime && (
+              <span className="inline-flex items-center gap-1.5">
+                <Icon name="truck" size={14} /> Delivery across Egypt: {facts.deliveryTime}
+              </span>
+            )}
             <Link href="/help#privacy" className="hover:text-night">
               Privacy
             </Link>

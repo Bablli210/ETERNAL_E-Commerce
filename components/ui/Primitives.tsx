@@ -49,8 +49,13 @@ export function SectionHead({
   );
 }
 
-/** A hatched image or video slot, labelled with its art direction. */
+/** Art-direction labels show on placeholders only in review builds (NEXT_PUBLIC_SHOW_PLACEHOLDERS=1). */
+const SHOW_PLACEHOLDERS = process.env.NEXT_PUBLIC_SHOW_PLACEHOLDERS === "1";
+
+/** An image or video slot still waiting for its file: hatched and labelled with its brief in review builds. */
 export function ImageSlot({ label, className = "", dark = false, style, ...rest }: { label: string; className?: string; dark?: boolean; style?: React.CSSProperties } & React.HTMLAttributes<HTMLDivElement>) {
+  // Customers see a quiet surface in the slot's colour, never the brief.
+  if (!SHOW_PLACEHOLDERS) return <div className={`slot slot-quiet ${dark ? "slot-dark" : ""} ${className}`} style={style} aria-hidden="true" {...rest} />;
   return (
     <div className={`slot ${dark ? "slot-dark" : ""} ${className}`} style={style} role="img" aria-label={label} {...rest}>
       <span>{label}</span>

@@ -41,3 +41,6 @@ next-env.d.ts
 /reel/out/*draft*.mp4
 /reel/review/sheets/
 /reel/out/*master*.mp4
+
+# Audit scratch scripts written by review agents
+/_audit_*

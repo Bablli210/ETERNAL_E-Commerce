@@ -4,10 +4,12 @@ import { FaqSection } from "@/components/product/Sections";
 import { Figure } from "@/components/ui/Figure";
 import { site } from "@/content/site";
 import { tales } from "@/content/tales";
-import { toIndexEntry, type Scent } from "@/lib/catalogue";
+import { getScent, toIndexEntry, type Scent } from "@/lib/catalogue";
+import { formatMoney } from "@/lib/format";
 import type { CollectionDef } from "@/content/taxonomy";
 
-export function CollectionPage({ def, scents, query }: { def: CollectionDef; scents: Scent[]; query?: string }) {
+export async function CollectionPage({ def, scents, query }: { def: CollectionDef; scents: Scent[]; query?: string }) {
+  const box = await getScent("mystery-box");
   const lineTale = def.kind === "line" ? tales.find((t) => t.line === def.key) : null;
   const editorial: EditorialTile = lineTale
     ? { eyebrow: `A tale from ${def.title}`, quote: lineTale.signature, cta: `Read ${lineTale.handle.replace(/-/g, " ")}’s tale`, href: `/tales/${lineTale.slug}`, dark: def.key === "eterno" }
@@ -40,13 +42,13 @@ export function CollectionPage({ def, scents, query }: { def: CollectionDef; sce
       </section>
       <section className="border-t border-dune bg-sand/40">
         <div className="wrap grid gap-10 py-16 lg:grid-cols-2 lg:items-center lg:py-24" data-reveal>
-          <Figure name="discovery-set" label="Discovery set — six vials in the tray" sizes="(min-width: 1024px) 50vw, 100vw" className="aspect-[16/10] w-full" />
+          <Figure name="mystery-box" label="The mystery box — matte black box, e∞ monogram" dark sizes="(min-width: 1024px) 50vw, 100vw" className="aspect-[16/10] w-full" />
           <div>
-            <p className="eyebrow text-ash">The discovery set</p>
-            <h2 className="display-l mt-3">Try six for the price of [price]</h2>
-            <p className="body-l mt-4 max-w-[50ch] text-ash">Pick any six {def.kind === "line" ? def.title : ""} scents as {site.sampleSizeMl} ml samples. The set price comes back as credit on your first bottle. [confirm]</p>
-            <Link href="/finder" className="btn mt-8">
-              Build your set
+            <p className="eyebrow text-ash">Not ready for a bottle?</p>
+            <h2 className="display-l mt-3">Three scents to try{box ? `, ${formatMoney(box.price)}` : ""}</h2>
+            <p className="body-l mt-4 max-w-[50ch] text-ash">The mystery box: three {site.sampleSizeMl} ml eaux de parfum we choose for you, in the matte black box. Wear them for a week, then choose your bottle.</p>
+            <Link href="/products/mystery-box" className="btn mt-8">
+              See the mystery box
             </Link>
           </div>
         </div>
