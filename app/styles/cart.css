@@ -1,1 +1,10 @@
 /* Styles owned by the cart workstream. Tailwind utilities first; only what utilities cannot express goes here. */
+
+/* The toast clears the product page's sticky bar (it publishes --sticky-bar-h) and the home indicator. */
+.cart-toast { bottom: calc(max(var(--sticky-bar-h, 0px), env(safe-area-inset-bottom, 0px)) + 16px); }
+@media (min-width: 1024px) { .cart-toast { bottom: 32px; } }
+
+/* Touch screens keep :hover after a tap, which would leave Checkout stuck in Deep sea. */
+@media (hover: none) {
+  .cart-checkout:hover { background: var(--color-night); border-color: var(--color-night); }
+}
