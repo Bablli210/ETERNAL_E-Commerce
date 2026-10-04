@@ -9,6 +9,8 @@
   .pimg-hover { display: none; }
   @media (hover: hover) and (pointer: fine) {
     .pimg-hover { display: contents; }
+    /* The notes still shows on hover (and keyboard focus) whether motion is on or off; the motion block only adds the crossfade. */
+    .group:hover .img-hover, .group:focus-within .img-hover { opacity: 1; }
   }
   @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     html:not([data-motion="off"]) .pimg-lift { transition: transform var(--dur-l) var(--ease-standard); }

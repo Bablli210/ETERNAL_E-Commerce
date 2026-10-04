@@ -53,7 +53,8 @@ export default async function LaunchChecklist() {
       .filter(([, v]) => !isConfirmed(v))
       .map(([key, value]) => ({ key: `house.${key}`, value, note: "In content/house.ts. The founder section on /house shows once both lines are real and house-founder is a photograph of the founder." })),
   ];
-  const tales = allTales.filter((t) => !t.complete);
+  // Unwritten, or written but still without the wide still that opens the page.
+  const tales = allTales.filter((t) => !t.complete || !siteImage(`tale-${t.slug}`));
   const products = all
     .map((s) => ({
       s,
@@ -100,10 +101,10 @@ export default async function LaunchChecklist() {
         ))}
       </Section>
 
-      <Section title={`Tales to write (${tales.length})`} note="In content/tales.ts. A tale appears on the site once complete is true.">
+      <Section title={`Tales not yet published (${tales.length})`} note="In content/tales.ts. A tale appears on the site once complete is true and its wide still, public/images/tale-<slug>, exists.">
         {tales.map((t) => (
           <li key={t.slug}>
-            {t.handle.replace(/-/g, " ")} — <span className="text-ash">“{t.signature}”</span>
+            {t.handle.replace(/-/g, " ")} — <span className="text-ash">{t.complete ? `written; waiting for tale-${t.slug} (7:3) and tale-${t.slug}-card (4:3)` : `“${t.signature}”`}</span>
           </li>
         ))}
       </Section>

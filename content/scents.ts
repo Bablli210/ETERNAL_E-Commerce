@@ -71,7 +71,7 @@ export const scents: Record<string, ScentContent> = {
     notesShort: ["Mango", "coconut", "sandalwood"],
   },
   "forbidden-apple": {
-    inspiredBy: "Crab Apple Blossom",
+    inspiredBy: "Clive Christian Crab Apple Blossom",
     signature: "The memory you shouldn’t revisit is the one that still owns you.",
     colorWorld: { bg: "#F1D3D6", accent: "#4F6B3F", dark: false, source: "proposed" },
     notesShort: ["Apple blossom", "rhubarb", "driftwood"],
@@ -93,8 +93,10 @@ export const scents: Record<string, ScentContent> = {
   sapphire: {
     pick: true,
     inspiredBy: "Blue Talisman",
+    signature: "They don’t remind people of a perfume. They remind people of you.",
     colorWorld: { bg: "#1B3F8F", accent: "#DCE6F5", dark: true, source: "proposed" },
     notesShort: ["Pear", "ginger", "white musk"],
+    tale: "sapphire",
   },
   "enzo-1898": {
     pick: true,
@@ -104,12 +106,16 @@ export const scents: Record<string, ScentContent> = {
     tale: "enzo-1898",
   },
   "tonic-club": {
+    signature: "Monaco has enough money. Wear something it remembers.",
     colorWorld: { bg: "#DDE9C8", accent: "#3E5A2E", dark: false, source: "proposed" },
     notesShort: ["Juniper", "nutmeg", "ambery woods"],
+    tale: "tonic-club",
   },
   linen: {
+    signature: "First impressions don’t wait for your résumé.",
     colorWorld: { bg: "#F2EFE8", accent: "#9A968D", dark: false, source: "proposed" },
     notesShort: ["Neroli", "iris", "cedar"],
+    tale: "linen",
   },
   divina: { notesShort: ["Pink pepper", "gardenia", "sandalwood"] },
   fiji: { notesShort: ["Citrus", "aquatic florals", "ambergris"] },
