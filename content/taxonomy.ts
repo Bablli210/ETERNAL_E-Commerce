@@ -81,7 +81,7 @@ export const collections: CollectionDef[] = [
   { slug: "all", kind: "all", title: "All scents", descriptor: "Every scent in the house, across the three lines." },
   { slug: "her", kind: "line", key: "eterna", title: "eterna", descriptor: "For her — florals, fruits and soft musks, composed to be remembered." },
   { slug: "him", kind: "line", key: "eterno", title: "eterno", descriptor: "For him — woods, citrus and amber, composed for the man people ask about." },
-  { slug: "unisex", kind: "line", key: "eternal", title: "eternal", descriptor: "For both — shared signatures that sit close to the skin." },
+  { slug: "unisex", kind: "line", key: "eternal", title: "eternal", descriptor: "Unisex — shared signatures that sit close to the skin." },
   { slug: "bestsellers", kind: "bestsellers", title: "Where to start", descriptor: "The house’s picks for a first bottle, across the three lines." },
   { slug: "new", kind: "new", title: "New arrivals", descriptor: "The latest compositions to join the house." },
   ...familyOrder.map((k) => ({ slug: k, kind: "family" as const, key: k, title: families[k].label, descriptor: families[k].descriptor })),

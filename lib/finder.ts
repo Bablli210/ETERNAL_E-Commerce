@@ -9,6 +9,30 @@ export type Match = { entry: ScentIndexEntry; reasons: string[] };
 export const QUIZ_PROFILE_KEY = "eternal.quiz.v1";
 
 /**
+ * The stored profile, as JSON: the answers as they read on an order
+ * ("mood=after-dark,warm-skin", never "%2C") and when they were given, so
+ * attribution can let an old profile expire as it does an old ad touch.
+ */
+export type QuizProfile = { profile: string; at: number };
+
+/** The answers as one readable string, for the stored profile and the finder_complete event. */
+export const profileOf = (answers: Answers) => decodeURIComponent(answersToParams(answers).toString());
+
+/** The value to store under QUIZ_PROFILE_KEY when the finder is completed now. */
+export const quizProfileRecord = (answers: Answers) => JSON.stringify({ profile: profileOf(answers), at: Date.now() } satisfies QuizProfile);
+
+/** The stored profile while it is younger than `maxAge` ms, else null. One stored without a time (before it carried one) counts as expired. */
+export function readQuizProfile(raw: string | null, maxAge: number, now = Date.now()): string | null {
+  if (!raw) return null;
+  try {
+    const v = JSON.parse(raw) as Partial<QuizProfile> | null;
+    return typeof v?.profile === "string" && typeof v.at === "number" && now - v.at < maxAge ? v.profile : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Three matches for any set of answers. The who question sets the pool: her
  * or him keeps that line and the unisex line, either of us keeps the unisex
  * line, surprise me keeps all three. Every other answer scores a point when

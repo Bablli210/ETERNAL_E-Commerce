@@ -32,7 +32,7 @@ export function faqEntries({ samples }: { samples: boolean }): FaqEntry[] {
       a: [
         "Every scent is an eau de parfum.",
         facts.longevityClaim && sentence(facts.longevityClaim),
-        "How long it lasts also depends on your skin, the weather and how much you spray, so the surest test is your own skin.",
+        `How long it lasts ${facts.longevityClaim ? "also " : ""}depends on your skin, the weather and how much you spray, so the surest test is your own skin.`,
         samples ? "Try the 5 ml before the bottle." : "The mystery box lets you wear three scents before you choose a bottle.",
       ]
         .filter(Boolean)
@@ -57,7 +57,8 @@ export function faqEntries({ samples }: { samples: boolean }): FaqEntry[] {
         samples
           ? ["Try it in 5 ml before you buy the bottle.", facts.sampleCredit && sentence(facts.sampleCredit), "Not sure which to try? The scent finder narrows the house to three matches in five questions."]
           : ["Start small. The mystery box holds three 5 ml scents chosen by the house, so you can wear eternal before you choose a bottle. The scent finder narrows the house to three matches in five questions."],
-        returns ?? "If a bottle you ordered isn’t right, see returns and exchanges on our help page.",
+        // These answers also show on /help itself, so they point to the section by name, not to "our help page".
+        returns ?? "If a bottle you ordered isn’t right, see Returns and exchanges.",
       ]
         .flat()
         .filter(Boolean)
@@ -67,13 +68,13 @@ export function faqEntries({ samples }: { samples: boolean }): FaqEntry[] {
     {
       id: "returns",
       q: "Can I return a bottle?",
-      a: returns ?? "Returns and exchanges follow our refund policy. You will find it on our help page, under returns.",
+      a: returns ?? "Returns and exchanges follow our refund policy. The details, and how to start one, are under Returns and exchanges.",
       links: returns ? undefined : [returnsHelp],
     },
     {
       id: "choose",
       q: "How do I choose?",
-      a: "If you know a fragrance you love, search for it by name: if one of ours was inspired by it, it shows first. If not, the scent finder asks five questions and gives you three matches. Each line is made for someone: eterna for her, eterno for him, eternal for both.",
+      a: "If you know a fragrance you love, search for it by name: if one of ours was inspired by it, it shows first. If not, the scent finder asks five questions and gives you three matches. Each line is made for someone: eterna for her, eterno for him, eternal unisex.",
       links: [finder, { label: "Search the scents", href: "/shop" }],
     },
   ];

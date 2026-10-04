@@ -28,10 +28,13 @@ const MORE = [
 
 const codLive = facts.paymentMethods.some((m) => /cash on delivery/i.test(m));
 
-function Row({ href, onClose, thumb, title, sub }: { href: string; onClose: () => void; thumb: React.ReactNode; title: React.ReactNode; sub: React.ReactNode }) {
+type Follow = (href: string) => (e: React.MouseEvent) => void;
+
+/** Links replace the menu's history entry (useModal), so Back from the page they open skips the closed menu. */
+function Row({ href, follow, thumb, title, sub }: { href: string; follow: Follow; thumb: React.ReactNode; title: React.ReactNode; sub: React.ReactNode }) {
   return (
     <li>
-      <Link href={href} onClick={onClose} className="flex min-h-[76px] items-center gap-4 py-2.5">
+      <Link href={href} replace onClick={follow(href)} className="flex min-h-[76px] items-center gap-4 py-2.5">
         <span className="relative h-14 w-11 shrink-0 overflow-hidden bg-sand">{thumb}</span>
         <span className="min-w-0 flex-1">
           <span className="block text-[16px] font-medium leading-snug">{title}</span>
@@ -46,14 +49,15 @@ function Row({ href, onClose, thumb, title, sub }: { href: string; onClose: () =
 export function MobileMenu({ onClose, counts, box }: { onClose: () => void; counts: Record<LineKey, number>; box: ScentIndexEntry | null }) {
   const panel = useRef<HTMLElement>(null);
   const close = useRef<HTMLButtonElement>(null);
-  useModal(panel, close);
+  // Back closes the menu instead of leaving the site.
+  const { follow } = useModal(panel, close, onClose);
 
   return (
     <div className="fixed inset-0 z-[90] lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
       <button type="button" tabIndex={-1} aria-hidden="true" onClick={onClose} className="fade-enter absolute inset-0 bg-night/40" />
       <aside ref={panel} className="drawer-left absolute inset-y-0 left-0 flex w-[88%] max-w-[400px] flex-col overflow-y-auto overscroll-contain bg-linen pb-[env(safe-area-inset-bottom)] text-night">
         <header className="flex h-[var(--header-h)] shrink-0 items-center justify-between border-b border-dune pl-5 pr-2">
-          <Wordmark href="/" onClick={onClose} />
+          <Wordmark href="/" replace onClick={follow("/")} />
           <button ref={close} type="button" onClick={onClose} aria-label="Close menu" className="flex h-11 w-11 items-center justify-center">
             <Icon name="close" />
           </button>
@@ -65,7 +69,7 @@ export function MobileMenu({ onClose, counts, box }: { onClose: () => void; coun
               <Row
                 key={key}
                 href={`/shop/${lines[key].slug}`}
-                onClose={onClose}
+                follow={follow}
                 thumb={<Image src={`/images/line-${key}.jpg`} alt="" fill sizes="44px" className="object-cover" />}
                 title={
                   <>
@@ -78,7 +82,7 @@ export function MobileMenu({ onClose, counts, box }: { onClose: () => void; coun
             {box && (
               <Row
                 href={`/products/${box.handle}`}
-                onClose={onClose}
+                follow={follow}
                 thumb={<Image src="/images/mystery-box.jpg" alt="" fill sizes="44px" className="object-cover" />}
                 title="Mystery box"
                 sub={`Three ${site.sampleSizeMl} ml samples · ${formatMoney(box.price)}`}
@@ -86,13 +90,13 @@ export function MobileMenu({ onClose, counts, box }: { onClose: () => void; coun
             )}
             <Row
               href="/finder"
-              onClose={onClose}
+              follow={follow}
               thumb={<Image src="/images/finder-band.jpg" alt="" fill sizes="44px" className="object-cover" />}
               title="Find your scent"
               sub="A few questions, three matches"
             />
           </ul>
-          <Link href="/shop" onClick={onClose} className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold">
+          <Link href="/shop" replace onClick={follow("/shop")} className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold">
             <span className="lnk">All scents</span>
             <Icon name="arrow-right" size={16} />
           </Link>
@@ -102,7 +106,7 @@ export function MobileMenu({ onClose, counts, box }: { onClose: () => void; coun
           <ul className="divide-y divide-dune border-y border-dune">
             {MORE.map((r) => (
               <li key={r.href}>
-                <Link href={r.href} onClick={onClose} className="flex h-12 items-center justify-between text-[15px]">
+                <Link href={r.href} replace onClick={follow(r.href)} className="flex h-12 items-center justify-between text-[15px]">
                   {r.label}
                   <Icon name="chevron-right" size={16} className="text-ash" />
                 </Link>

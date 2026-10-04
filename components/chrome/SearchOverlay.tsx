@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransition, type FormEvent, type MouseEvent } from "react";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { searchIndex } from "@/lib/search";
 import { track } from "@/lib/client/analytics";
@@ -40,13 +40,16 @@ function report(sent: Set<string>, term: string, results: number) {
   track({ name: "search", term, results });
 }
 
+/** The search hint offers originals only once enough scents name one; until then it would promise what search can't find. */
+const ORIGINALS_FOR_HINT = 10;
+
 /** A scent row: the original it is inspired by gets a line of its own, since it is what most visitors search for. */
-function ResultRow({ entry, matchedInspiredBy = false, onPick }: { entry: ScentIndexEntry; matchedInspiredBy?: boolean; onPick: () => void }) {
+function ResultRow({ entry, matchedInspiredBy = false, onPick }: { entry: ScentIndexEntry; matchedInspiredBy?: boolean; onPick: (e: MouseEvent) => void }) {
   const line = entry.line ? lineWithAudience(entry.line) : null;
   const detail = entry.inspiredBy ? line : [line, entry.notesShort.join(", ") || entry.bottle?.label].filter(Boolean).join(" · ");
   return (
     <li>
-      <Link href={`/products/${entry.handle}`} onClick={onPick} className="group flex items-center gap-3 py-3">
+      <Link href={`/products/${entry.handle}`} replace onClick={onPick} className="group flex items-center gap-3 py-3">
         <ProductImage src={entry.image} alt="" world={entry.world} sizes="56px" className="h-[68px] w-[56px] shrink-0" />
         <span className="min-w-0 flex-1">
           <span className="display-m block truncate !text-[20px] group-hover:text-sea">{entry.title}</span>
@@ -74,7 +77,8 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
   const [pending, startTransition] = useTransition();
   const [submitted, setSubmitted] = useState(false);
   const height = useSyncExternalStore(subscribe, visibleHeight, () => null);
-  useModal(panel, input);
+  // Back closes the panel instead of leaving the site; links take over its history entry.
+  const { follow, release } = useModal(panel, input, onClose);
 
   const all = useMemo(() => searchIndex(index, term, index.length), [index, term]);
   const none = typed && all.length === 0;
@@ -82,8 +86,11 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
     const t = term.toLowerCase();
     return t.length < 2 ? [] : taleIndex.filter((x) => x.title.toLowerCase().includes(t) || x.handle.includes(t)).slice(0, 3);
   }, [taleIndex, term]);
-  // The hint names a real original from the catalogue, never an invented one.
-  const example = useMemo(() => index.find((e) => e.inspiredBy)?.inspiredBy ?? null, [index]);
+  // The hint names a real original from the catalogue, never an invented one, and only once enough scents name one.
+  const example = useMemo(() => {
+    const originals = index.filter((e) => e.inspiredBy);
+    return originals.length >= ORIGINALS_FOR_HINT ? originals[0].inspiredBy : null;
+  }, [index]);
   const resultsUrl = `/shop?q=${encodeURIComponent(term)}`;
 
   useEffect(() => {
@@ -107,12 +114,14 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
     report(sent.current, term, all.length);
     input.current?.blur();
     setSubmitted(true);
-    startTransition(() => router.push(resultsUrl));
+    // The results take over the panel's history entry, so Back from them returns to the page the search was opened on.
+    release();
+    startTransition(() => router.replace(resultsUrl));
   };
 
-  const pick = (entry: ScentIndexEntry, i: number, list: string) => {
+  const pick = (entry: ScentIndexEntry, i: number, list: string) => (e: MouseEvent) => {
     track({ name: "select_item", list, index: i, item: { productId: entry.productId, variantId: entry.bottle?.numericId ?? entry.productId, name: entry.title, price: parseFloat(entry.price.amount), variant: entry.bottle?.label, category: entry.lineLabel } });
-    onClose();
+    follow(`/products/${entry.handle}`)(e);
   };
 
   const starters = (
@@ -120,7 +129,7 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
       <Eyebrow className="mb-1 block">Where to start</Eyebrow>
       <ul className="flex flex-col divide-y divide-dune">
         {popular.map((p, i) => (
-          <ResultRow key={p.handle} entry={p} onPick={() => pick(p, i, "search_start")} />
+          <ResultRow key={p.handle} entry={p} onPick={pick(p, i, "search_start")} />
         ))}
       </ul>
     </div>
@@ -150,7 +159,7 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
             enterKeyHint="search"
             autoComplete="off"
             spellCheck={false}
-            placeholder="Scent, note or original"
+            placeholder={example ? "Scent, note or original" : "Scent or note"}
             className="serif min-w-0 flex-1 bg-transparent text-[22px] outline-none placeholder:text-ash md:text-[32px] [&::-webkit-search-cancel-button]:appearance-none"
           />
           <button type="submit" aria-label="Search" className="flex h-11 min-w-11 shrink-0 items-center justify-center gap-2 bg-night px-3 text-[13px] font-semibold tracking-[0.04em] text-linen hover:bg-sea">
@@ -172,9 +181,18 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
           </button>
         </form>
 
-        {!typed && example && <p className="mt-2 text-[13px] text-ash">Search by the original you know, e.g. {example}.</p>}
+        {!typed && <p className="mt-2 text-[13px] text-ash">{example ? `Search by the original you know, e.g. ${example}.` : "Search by scent or note."}</p>}
         {typed && all.length > 0 && (
-          <Link href={resultsUrl} onClick={onClose} className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold">
+          <Link
+            href={resultsUrl}
+            replace
+            onClick={(e) => {
+              // A quick tap here is the clearest search of all: it counts before the idle timer would.
+              report(sent.current, term, all.length);
+              follow(resultsUrl)(e);
+            }}
+            className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold"
+          >
             <span className="lnk">
               See all {all.length} {all.length === 1 ? "result" : "results"}
             </span>
@@ -190,7 +208,7 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
                 <Eyebrow className="mb-1 block">Scents ({all.length})</Eyebrow>
                 <ul className="flex flex-col divide-y divide-dune">
                   {all.slice(0, ROWS).map(({ entry, matchedInspiredBy }, i) => (
-                    <ResultRow key={entry.handle} entry={entry} matchedInspiredBy={matchedInspiredBy} onPick={() => pick(entry, i, "search")} />
+                    <ResultRow key={entry.handle} entry={entry} matchedInspiredBy={matchedInspiredBy} onPick={pick(entry, i, "search")} />
                   ))}
                 </ul>
               </>
@@ -198,7 +216,12 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
             {none && (
               <div className="flex flex-col gap-6">
                 <div>
-                  <p className="display-m !text-[22px]">No scent called “{term}” yet.</p>
+                  {/* The term may be an original or a feeling rather than a scent's name, so the miss reads as ours, with a way on that never depends on WhatsApp. */}
+                  <p className="display-m !text-[22px]">We haven’t matched “{term}” yet.</p>
+                  <Link href="/finder" replace onClick={follow("/finder")} className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-[14px] font-medium">
+                    <span className="lnk">Find your match in 60 seconds</span>
+                    <Icon name="arrow-right" size={16} />
+                  </Link>
                   <WhatsAppLink label="search_none" text={`Hello eternal, which of your scents is closest to ${term}?`} className="mt-2 inline-flex min-h-11 items-center gap-2 text-[14px] font-medium">
                     <Icon name="whatsapp" size={18} />
                     <span className="lnk">Ask us which is closest to {term}</span>
@@ -215,7 +238,7 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
                 <ul className="flex flex-col">
                   {tales.map((t) => (
                     <li key={t.slug}>
-                      <Link href={`/tales/${t.slug}`} onClick={onClose} className="serif flex min-h-11 items-center text-[18px] hover:text-sea">
+                      <Link href={`/tales/${t.slug}`} replace onClick={follow(`/tales/${t.slug}`)} className="serif flex min-h-11 items-center text-[18px] hover:text-sea">
                         {t.title}
                       </Link>
                     </li>
@@ -225,7 +248,7 @@ export function SearchOverlay({ index, taleIndex, popular, onClose }: { index: S
             )}
             <div className="border-t border-dune pt-4">
               <p className="text-[13px] text-ash">Not sure what to search for?</p>
-              <Link href="/finder" onClick={onClose} className="inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold">
+              <Link href="/finder" replace onClick={follow("/finder")} className="inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold">
                 <span className="lnk">Find your scent</span>
                 <Icon name="arrow-right" size={16} />
               </Link>

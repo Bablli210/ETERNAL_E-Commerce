@@ -10,13 +10,19 @@ export type Tale = {
   line: "eterna" | "eterno" | "eternal";
   signature: string;
   heroArt: string;
+  /** "1 min read", counted from the text itself (below), so it can never disagree with it. */
   readTime: string;
   paragraphs: string[];
   complete: boolean;
 };
 
-/** Every tale, written or not. Only complete ones are published (see `tales`). */
-export const allTales: Tale[] = [
+/** Reading time at about 230 words a minute, never under one. */
+const readTimeOf = (paragraphs: string[]) => {
+  const words = paragraphs.join(" ").split(/\s+/).filter(Boolean).length;
+  return `${Math.max(1, Math.round(words / 230))} min read`;
+};
+
+const drafts: Omit<Tale, "readTime">[] = [
   {
     slug: "shadow-of-the-sea",
     title: "The sea signs the ones it gives back.",
@@ -24,7 +30,6 @@ export const allTales: Tale[] = [
     line: "eterno",
     signature: "You can smell the ones the sea decided to give back.",
     heroArt: "Campaign still, full bleed — fishing boat coming out of the fog, first light",
-    readTime: "3 min read",
     complete: true,
     paragraphs: [
       "There’s an island the old charts leave blank. Not unmarked by accident — left off on purpose, the way you’d avoid writing down a name you didn’t want to say twice.",
@@ -42,7 +47,6 @@ export const allTales: Tale[] = [
     line: "eterno",
     signature: "Don’t be the man she notices. Be the man she asks about.",
     heroArt: "Dinner table, one empty chair, low light",
-    readTime: "3 min read",
     complete: false,
     paragraphs: ["[Full tale to paste from Scents.pdf — 250–400 words in the same voice.]"],
   },
@@ -53,7 +57,6 @@ export const allTales: Tale[] = [
     line: "eterno",
     signature: "He looks like money was never the problem.",
     heroArt: "Lake Como, silver grand tourer, Sunday",
-    readTime: "3 min read",
     complete: false,
     paragraphs: ["[Full tale to paste from Scents.pdf — 250–400 words in the same voice.]"],
   },
@@ -64,7 +67,6 @@ export const allTales: Tale[] = [
     line: "eterna",
     signature: "The memory you shouldn’t revisit is the one that still owns you.",
     heroArt: "Crab-apple tree beside a hotel entrance",
-    readTime: "3 min read",
     complete: false,
     paragraphs: ["[Full tale to paste from Scents.pdf — 250–400 words in the same voice.]"],
   },
@@ -75,11 +77,13 @@ export const allTales: Tale[] = [
     line: "eterno",
     signature: "Wherever you arrive, belong there.",
     heroArt: "Departures board, dusk",
-    readTime: "3 min read",
     complete: false,
     paragraphs: ["[Full tale to paste from Scents.pdf — 250–400 words in the same voice.]"],
   },
 ];
+
+/** Every tale, written or not. Only complete ones are published (see `tales`). */
+export const allTales: Tale[] = drafts.map((t) => ({ ...t, readTime: readTimeOf(t.paragraphs) }));
 
 /** Published tales: a tale whose text is still a placeholder is not shown anywhere. */
 export const tales: Tale[] = allTales.filter((t) => t.complete);

@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
 import { finderQuestions } from "@/content/finder";
 import { site } from "@/content/site";
 import type { ScentIndexEntry } from "@/lib/catalogue";
-import { answersFromParams, answersToParams, firstUnanswered, QUIZ_PROFILE_KEY, rankMatches, summariseAnswers, type Answers, type Match } from "@/lib/finder";
+import { answersFromParams, answersToParams, firstUnanswered, profileOf, QUIZ_PROFILE_KEY, quizProfileRecord, rankMatches, summariseAnswers, type Answers, type Match } from "@/lib/finder";
 import { facts } from "@/lib/facts";
-import { motionAllowed } from "@/lib/motion";
+import { isDesktop, motionAllowed } from "@/lib/motion";
 import { writeRaw } from "@/lib/client/storage";
 import { track } from "@/lib/client/analytics";
 import { formatMoney, joinNotes } from "@/lib/format";
@@ -26,7 +26,10 @@ const total = finderQuestions.length;
  * The URL is the finder's state: ?who=her&time=day&q=3 is question 3 with two
  * answers, and a full set of answers without q is the results. Each answer
  * pushes a history entry, so the phone's back gesture steps back a question,
- * and coming back from a match's product page reopens the matches.
+ * and coming back from a match's product page reopens the matches. The server
+ * renders the screen the URL names (initialSearch), so a shared results link
+ * paints the matches, and every tile is a real link to the next screen, so a
+ * tap before the script has loaded still moves on.
  */
 const CHANGE = "eternal:finder";
 const subscribe = (onChange: () => void) => {
@@ -38,8 +41,6 @@ const subscribe = (onChange: () => void) => {
   };
 };
 const readSearch = () => window.location.search;
-/** The server renders question 1, so the first screen paints before any script runs. */
-const serverSearch = () => "";
 
 const screenFrom = (search: string): { answers: Answers; step: number } => {
   const params = new URLSearchParams(search);
@@ -66,8 +67,29 @@ const navigate = (href: string, mode: "push" | "replace") => {
 /** Single-choice answers move on by themselves, after the choice has shown. */
 const ADVANCE_MS = 280;
 
-export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentIndexEntry[]; mysteryBox: ScentIndexEntry | null; boxImage: string | null; tiles: Record<string, string | null> }) {
-  const search = useSyncExternalStore(subscribe, readSearch, serverSearch);
+/**
+ * The "composing your matches" moment, on a desktop only and never longer
+ * than this. On a phone, and in Instagram's or Facebook's browser where the
+ * ads open, the matches show the moment the last answer is in (playbook 7.1).
+ */
+const COMPOSE_MS = 600;
+const composes = () => motionAllowed() && isDesktop() && !/Instagram|FBAN|FBAV/i.test(navigator.userAgent);
+
+export function Finder({
+  index,
+  mysteryBox,
+  boxImage,
+  tiles,
+  initialSearch,
+}: {
+  index: ScentIndexEntry[];
+  mysteryBox: ScentIndexEntry | null;
+  boxImage: string | null;
+  tiles: Record<string, string | null>;
+  /** The screen's part of the request's query ("?who=her&q=2"), so the server renders the screen the URL names. */
+  initialSearch: string;
+}) {
+  const search = useSyncExternalStore(subscribe, readSearch, () => initialSearch);
   const { answers, step } = useMemo(() => screenFrom(search), [search]);
   const [direction, setDirection] = useState<"fwd" | "back" | null>(null);
   const [composing, setComposing] = useState(false);
@@ -80,9 +102,20 @@ export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentInd
   const opened = useRef(0);
   const started = useRef(false);
   const timer = useRef<number | null>(null);
+  const cancelAdvance = () => {
+    if (timer.current) window.clearTimeout(timer.current);
+    timer.current = null;
+  };
   useEffect(() => {
     opened.current = screenFrom(window.location.search).step;
+    // A Back gesture inside the auto-advance's pause cancels it, so the finder never jumps forward again over the Back.
+    const onPop = () => {
+      if (timer.current) window.clearTimeout(timer.current);
+      timer.current = null;
+    };
+    window.addEventListener("popstate", onPop);
     return () => {
+      window.removeEventListener("popstate", onPop);
       if (timer.current) window.clearTimeout(timer.current);
     };
   }, []);
@@ -96,12 +129,12 @@ export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentInd
 
   useEffect(() => {
     if (!composing) return;
-    const t = window.setTimeout(() => setComposing(false), 1200);
+    const t = window.setTimeout(() => setComposing(false), COMPOSE_MS);
     return () => window.clearTimeout(t);
   }, [composing]);
 
   const advance = () => {
-    if (timer.current) window.clearTimeout(timer.current);
+    cancelAdvance();
     // Read the URL, not the render: an auto-advance fires after the answer was written.
     const now = screenFrom(window.location.search);
     const question = finderQuestions[now.step];
@@ -113,10 +146,11 @@ export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentInd
     }
     track({ name: "finder_step", step: now.step + 1, question: question.id, answer: picked.join(",") });
     if (now.step === total - 1) {
-      const profile = answersToParams(now.answers).toString();
+      const profile = profileOf(now.answers);
       track({ name: "finder_complete", answers: profile, matches: rankMatches(index, now.answers, 3).map((m) => m.entry.handle) });
-      writeRaw(QUIZ_PROFILE_KEY, profile);
-      if (motionAllowed()) setComposing(true);
+      // With the time it was given, so attribution can let it expire (lib/finder.ts readQuizProfile).
+      writeRaw(QUIZ_PROFILE_KEY, quizProfileRecord(now.answers));
+      if (composes()) setComposing(true);
     }
     setDirection("fwd");
     navigate(hrefFor(now.answers, now.step + 1), "push");
@@ -124,21 +158,31 @@ export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentInd
 
   const q = finderQuestions[Math.min(step, total - 1)];
   const chosen = answers[q.id] ?? [];
-  const choose = (id: string) => {
+  /** The answers once this option is tapped. */
+  const toggled = (id: string): Answers => {
     let picked: string[];
     if (q.max === 1) picked = [id];
     else if (chosen.includes(id)) picked = chosen.filter((x) => x !== id);
     else picked = [...chosen, id].slice(-q.max); // a third mood replaces the first
     const next = { ...answers, [q.id]: picked };
     if (!picked.length) delete next[q.id];
-    navigate(hrefFor(next, step), "replace");
+    return next;
+  };
+  const choose = (id: string) => {
+    navigate(hrefFor(toggled(id), step), "replace");
     if (q.max === 1) {
-      if (timer.current) window.clearTimeout(timer.current);
-      timer.current = window.setTimeout(advance, ADVANCE_MS);
+      cancelAdvance();
+      // Only if the visitor is still on this question when the pause ends: a Back inside it wins.
+      const at = step;
+      timer.current = window.setTimeout(() => {
+        timer.current = null;
+        if (screenFrom(window.location.search).step === at) advance();
+      }, ADVANCE_MS);
     }
   };
 
   const back = () => {
+    cancelAdvance();
     if (step === 0) return;
     setDirection("back");
     if (step > opened.current) window.history.back();
@@ -174,9 +218,11 @@ export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentInd
     }
   };
 
+  // Each screen is keyed, so the results are new nodes rather than the composing screen's moved ones, and the
+  // composing screen fills the viewport, so nothing below it is in view to shift when the results replace it.
   if (composing) {
     return (
-      <section className="wrap flex min-h-[60vh] flex-col items-center justify-center py-16 text-center" aria-live="polite">
+      <section key="composing" className="wrap flex min-h-[calc(100svh-var(--header-h))] flex-col items-center justify-center py-16 text-center" aria-live="polite">
         <Mark size={128} draw className="draw-slow text-night" />
         <p className="display-m mt-8">Composing your matches…</p>
         <p className="mt-2 text-[14px] text-ash">Reading your answers against {scents} scents.</p>
@@ -202,10 +248,11 @@ export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentInd
           lineLabel: e.lineLabel,
           world: e.world,
         })),
+        { source: "finder" },
       );
     const waText = () => encodeURIComponent(`Hello eternal, my finder matches are ${matches.map((m) => m.entry.title).join(", ")}. ${resultsUrl()}`);
     return (
-      <section className="wrap pb-12 pt-6 lg:py-16">
+      <section key="results" className="wrap pb-12 pt-6 lg:py-16">
         <p className="eyebrow text-ash">Your matches</p>
         <h1 className="mt-2 font-serif text-[32px] font-semibold leading-[1.08] lg:text-[clamp(36px,4vw,56px)]">Three to start with</h1>
         <p className="mt-2 max-w-[60ch] text-[14px] leading-snug text-ash lg:text-[16px]">
@@ -292,15 +339,25 @@ export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentInd
   }
 
   const showNext = q.max > 1 || chosen.length > 0;
-  const cols = q.options.length === 3 ? "grid-cols-3" : "grid-cols-2 lg:grid-cols-4";
-  const shape = q.options.length === 3 ? "aspect-[4/5] lg:aspect-[4/3]" : "aspect-[16/9] lg:aspect-[4/3]";
+  const three = q.options.length === 3;
+  const cols = three ? "grid-cols-3" : "grid-cols-2 lg:grid-cols-4";
+  const shape = three ? "aspect-[4/5] lg:aspect-[4/3]" : "aspect-[16/9] lg:aspect-[4/3]";
+  // Links act in place once the script runs; before that the browser follows them to the server-rendered screen.
+  const onBack = (e: MouseEvent) => {
+    e.preventDefault();
+    back();
+  };
+  const onNext = (e: MouseEvent) => {
+    e.preventDefault();
+    advance();
+  };
   return (
-    <section className="wrap pb-10 pt-2 lg:py-12">
+    <section key="question" className="wrap pb-10 pt-2 lg:py-12">
       <div className="flex h-11 items-center justify-between">
         {step > 0 ? (
-          <button type="button" className="-ml-2 inline-flex h-11 items-center gap-1.5 px-2 text-[13px] font-semibold hover:text-sea" onClick={back}>
+          <a href={hrefFor(answers, step - 1)} className="-ml-2 inline-flex h-11 items-center gap-1.5 px-2 text-[13px] font-semibold hover:text-sea" onClick={onBack}>
             <Icon name="arrow-left" size={16} /> Back
-          </button>
+          </a>
         ) : (
           <span className="text-[12px] text-ash">Five questions, three matches</span>
         )}
@@ -323,12 +380,39 @@ export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentInd
           {q.options.map((o) => {
             const on = chosen.includes(o.id);
             const src = tiles[`${q.id}-${o.id}`];
+            // A single answer leads to the next question; a pick-two answer reloads this one with the tile toggled.
+            const href = hrefFor(toggled(o.id), q.max === 1 ? step + 1 : step);
             return (
               <li key={o.id}>
-                {/* F2: the chosen tile takes a Night ring and a check; the others dim. */}
-                <button type="button" aria-pressed={on} onClick={() => choose(o.id)} className={`tile relative block w-full overflow-hidden bg-sand text-left ${shape}`}>
+                {/* F2: the chosen tile takes a Night ring and a check; the others dim. A real link, so a tap before the
+                    script has loaded still answers (an ad's first screen is nothing but these tiles). */}
+                <a
+                  href={href}
+                  role="button"
+                  aria-pressed={on}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    choose(o.id);
+                  }}
+                  // Space presses it, as it would a button.
+                  onKeyDown={(e) => {
+                    if (e.key !== " ") return;
+                    e.preventDefault();
+                    choose(o.id);
+                  }}
+                  className={`tile relative block w-full overflow-hidden bg-sand text-left ${shape}`}
+                >
                   {src ? (
-                    <Image src={src} alt="" fill sizes="(min-width: 1024px) 25vw, 50vw" className={`object-cover transition-opacity duration-200 ${chosen.length && !on ? "opacity-60" : ""}`} />
+                    <Image
+                      src={src}
+                      alt=""
+                      fill
+                      // The first question is the first screen: its tiles load first, and a three-up tile asks for a third of the width, not half.
+                      loading={step === 0 ? "eager" : "lazy"}
+                      fetchPriority={step === 0 ? "high" : "auto"}
+                      sizes={three ? "(min-width: 1024px) 25vw, 31vw" : "(min-width: 1024px) 25vw, 45vw"}
+                      className={`object-cover transition-opacity duration-200 ${chosen.length && !on ? "opacity-60" : ""}`}
+                    />
                   ) : (
                     <ImageSlot label={o.art} className="absolute inset-0" />
                   )}
@@ -346,18 +430,23 @@ export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentInd
                       </svg>
                     </span>
                   )}
-                </button>
+                </a>
               </li>
             );
           })}
         </ul>
       </div>
 
-      {showNext && (
-        <button type="button" className="btn btn-block mt-5 lg:mt-8 lg:w-auto" onClick={advance} disabled={chosen.length === 0}>
-          {step === total - 1 ? "See my matches" : "Next"} <Icon name="arrow-right" size={16} className="btn-arrow" />
-        </button>
-      )}
+      {showNext &&
+        (chosen.length > 0 ? (
+          <a href={hrefFor(answers, step + 1)} className="btn btn-block mt-5 lg:mt-8 lg:w-auto" onClick={onNext}>
+            {step === total - 1 ? "See my matches" : "Next"} <Icon name="arrow-right" size={16} className="btn-arrow" />
+          </a>
+        ) : (
+          <button type="button" className="btn btn-block mt-5 lg:mt-8 lg:w-auto" disabled>
+            {step === total - 1 ? "See my matches" : "Next"} <Icon name="arrow-right" size={16} className="btn-arrow" />
+          </button>
+        ))}
       <p className="mt-5 text-[12px] text-ash">No sign-up. Your answers only shape your matches.</p>
     </section>
   );

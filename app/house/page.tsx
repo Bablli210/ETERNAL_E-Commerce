@@ -18,7 +18,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "The house",
-  description: "eternal is a perfume house from Cairo: eaux de parfum in three lines, eterna for her, eterno for him and eternal for both.",
+  description: "eternal is a perfume house from Cairo: eaux de parfum in three lines, eterna for her, eterno for him and eternal unisex.",
   alternates: { canonical: "/house" },
 };
 
@@ -54,7 +54,7 @@ export default async function HousePage() {
         <Eyebrow>The house</Eyebrow>
         <h1 className="display-xl mt-3 max-w-[16ch]">{site.tagline}</h1>
         <p className="mt-5 max-w-[56ch] text-[17px] leading-relaxed lg:mt-8 lg:text-[19px]">
-          eternal is a perfume house from Cairo. Our eaux de parfum come in three lines: eterna for her, eterno for him and eternal for both.
+          eternal is a perfume house from Cairo. Our eaux de parfum come in three lines: eterna for her, eterno for him and eternal unisex.
         </p>
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link href="/shop" className="btn">

@@ -18,19 +18,25 @@ import { Loader } from "@/components/motion/Loader";
 import { PageFade } from "@/components/motion/PageFade";
 import { Analytics } from "@/components/analytics/Analytics";
 
+/*
+ * display "optional": the fonts are preloaded, so they are almost always in
+ * time; a slow first visit keeps the fallback for that page view instead of
+ * reflowing the hero under the visitor (the fallbacks, Times New Roman and
+ * Arial, are missing on Android, so their metric adjustment does nothing there).
+ */
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   style: ["normal", "italic"],
   variable: "--font-cormorant",
-  display: "swap",
+  display: "optional",
 });
 
 const instrument = Instrument_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
   variable: "--font-instrument",
-  display: "swap",
+  display: "optional",
 });
 
 const ogImage = siteImage("og-image");
