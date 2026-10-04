@@ -1,6 +1,19 @@
 import "server-only";
 
 export const storeDomain = process.env.SHOPIFY_STORE_DOMAIN ?? "eternal-10199.myshopify.com";
+
+/**
+ * The branded host Shopify serves the store and checkout on, such as
+ * checkout.example.com (host name only, no https://). Set
+ * SHOPIFY_CHECKOUT_DOMAIN once that host is the store's primary domain
+ * (playbook 4.6 and 7.2): checkout links, the checkout preconnect and the
+ * newsletter form then stay on the brand's domain, so the visitor sees one
+ * domain and the ad-click cookies reach checkout. Posting to the
+ * myshopify.com host after that would be redirected, which turns a form POST
+ * into a GET and drops it. Unset, it falls back to storeDomain.
+ */
+export const checkoutDomain = process.env.SHOPIFY_CHECKOUT_DOMAIN || storeDomain;
+
 const token = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 const apiVersion = process.env.SHOPIFY_API_VERSION ?? "2026-07";
 

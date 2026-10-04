@@ -1,9 +1,9 @@
 import Link from "next/link";
 
-/** The wordmark: lowercase serif, clear space the height of the e. */
-export function Wordmark({ className = "", href = "/", inverted = false }: { className?: string; href?: string; inverted?: boolean }) {
+/** The wordmark: lowercase serif, clear space the height of the e. 24 px in the 56 px phone header, 28 px on desktop. */
+export function Wordmark({ className = "", href = "/", inverted = false, onClick }: { className?: string; href?: string; inverted?: boolean; onClick?: () => void }) {
   return (
-    <Link href={href} aria-label="eternal — home" className={`serif inline-flex items-baseline text-[28px] font-semibold tracking-[0.02em] leading-none ${inverted ? "text-linen" : "text-night"} ${className}`}>
+    <Link href={href} onClick={onClick} aria-label="eternal — home" className={`serif inline-flex min-h-11 items-center text-[24px] font-semibold tracking-[0.02em] leading-none lg:text-[28px] ${inverted ? "text-linen" : "text-night"} ${className}`}>
       eternal
     </Link>
   );

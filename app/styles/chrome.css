@@ -1,1 +1,30 @@
 /* Styles owned by the chrome workstream. Tailwind utilities first; only what utilities cannot express goes here. */
+
+/*
+ * WhatsApp float. It sits 12 px above any sticky bar (bars publish
+ * --sticky-bar-h, which already includes their safe-area padding) and clear of
+ * the home indicator when there is none.
+ */
+.wa-float {
+  bottom: max(calc(16px + env(safe-area-inset-bottom, 0px)), calc(var(--sticky-bar-h, 0px) + 12px));
+  transition: opacity 200ms var(--ease-standard), visibility 200ms;
+}
+@media (min-width: 1024px) {
+  .wa-float { bottom: max(32px, calc(var(--sticky-bar-h, 0px) + 12px)); }
+}
+
+/*
+ * It steps aside whenever something else needs the bottom of the screen: an
+ * open dialog (menu, search, bag, filters), the keyboard (a focused field), the
+ * add-to-bag toast, and the product page's own Add to bag button. The product
+ * page's sticky bar shows exactly while that button is out of view, so no bar
+ * on a product page means the button is on screen. Hidden rather than removed,
+ * so its one pulse does not replay each time it comes back.
+ */
+html:has([aria-modal="true"]) .wa-float,
+html:has(.cart-toast) .wa-float,
+html:has(:is(input:not([type="checkbox"], [type="radio"], [type="submit"], [type="button"], [type="hidden"]), textarea, select, [contenteditable="true"]):focus) .wa-float,
+html:has(.pdp-hero):not(:has(.pdp-bar)) .wa-float {
+  visibility: hidden;
+  opacity: 0;
+}

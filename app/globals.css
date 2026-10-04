@@ -13,7 +13,8 @@
   --color-sand: #e4d9c5;
   --color-dune: #cdbfa5;
   --color-stone: #9e9382;
-  --color-ash: #6d665c;
+  /* Darkened from #6d665c so secondary text clears 4.5:1 on Sand (5.0) as well as Linen (6.1). */
+  --color-ash: #5f584f;
   --color-night: #171614;
   --color-gold: #b97a2b;
   --color-gold-text: #8f5b1b;
@@ -33,13 +34,21 @@
 @layer base {
 :root {
   color-scheme: light;
-  --header-h: 72px;
-  --announce-h: 36px;
+  /* Phones get a 56 px header so the first screen keeps more of the product; desktop keeps 72 px. */
+  --header-h: 56px;
+  --announce-h: 32px;
+  /* Where sticky bars under the header pin: 0 while the header is slid away on scroll down (Header sets data-chrome-hidden). */
+  --chrome-top: var(--header-h);
 }
+@media (min-width: 1024px) { :root { --header-h: 72px; } }
+html[data-chrome-hidden] { --chrome-top: 0px; }
 
+/* Next turns smooth scrolling off during route changes only because layout.tsx sets data-scroll-behavior="smooth". */
 html {
   background: var(--color-linen);
   scroll-behavior: smooth;
+  /* Hash links land below the fixed header instead of under it. */
+  scroll-padding-top: calc(var(--header-h) + 16px);
 }
 
 body {
@@ -56,6 +65,12 @@ body {
 ::selection { background: var(--color-gold); color: var(--color-linen); }
 
 h1, h2, h3, .serif { font-family: var(--font-serif); font-weight: 500; line-height: 1.05; letter-spacing: -0.01em; }
+
+/* 16 px or more: below that iOS zooms the page when a field is focused, and Instagram's browser often stays zoomed. */
+input, select, textarea { font-size: 16px; }
+
+/* One visible focus ring everywhere, instead of the browser's 1 px default that disappears on Night. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline: 2px solid var(--color-gold-text); outline-offset: 2px; }
 }
 
 @layer components {
@@ -64,7 +79,7 @@ h1, h2, h3, .serif { font-family: var(--font-serif); font-weight: 500; line-heig
 .display-m { font-family: var(--font-serif); font-weight: 500; font-size: clamp(24px, 2vw, 28px); line-height: 1.1; }
 .signature { font-family: var(--font-serif); font-style: italic; font-weight: 500; font-size: clamp(20px, 1.7vw, 24px); line-height: 1.2; }
 .body-l { font-size: 17px; line-height: 1.6; }
-.eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; }
+.eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; }
 .ui { font-size: 13px; letter-spacing: 0.04em; font-weight: 500; }
 .tnum { font-variant-numeric: tabular-nums; }
 
@@ -77,31 +92,41 @@ h1, h2, h3, .serif { font-family: var(--font-serif); font-weight: 500; line-heig
 .hairline { border-color: var(--color-dune); }
 .rule { height: 1px; background: var(--color-dune); }
 
-/* Buttons — radius 0, 52 px tall, 44 small. Hover shifts Night to Deep sea. */
+/*
+ * Buttons — radius 0, at least 52 px tall (44 small). A long label wraps onto a
+ * second line instead of running out of the button on a narrow phone.
+ * Hover shifts Night to Deep sea, only where hover exists: a touch screen keeps
+ * :hover after a tap, which would leave the button dark.
+ */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-  height: 52px; padding: 0 26px; border-radius: 0;
-  font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.04em;
+  min-height: 52px; max-width: 100%; padding: 8px 26px; border-radius: 0;
+  font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.04em; line-height: 1.25;
+  text-align: center; text-wrap: balance;
   border: 1px solid var(--color-night); background: var(--color-night); color: var(--color-linen);
-  text-decoration: none; white-space: nowrap; cursor: pointer;
+  text-decoration: none; cursor: pointer;
   transition: background-color 160ms var(--ease-standard), border-color 160ms var(--ease-standard), color 160ms var(--ease-standard), transform 120ms var(--ease-standard);
 }
-.btn:hover { background: var(--color-sea); border-color: var(--color-sea); color: var(--color-linen); }
 .btn:active { transform: scale(0.98); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; cursor: not-allowed; }
-.btn .btn-arrow { transition: transform 160ms var(--ease-standard); }
-.btn:hover .btn-arrow { transform: translateX(4px); }
+.btn .btn-arrow { flex: none; transition: transform 160ms var(--ease-standard); }
 .btn-secondary { background: transparent; color: var(--color-night); }
-.btn-secondary:hover { background: var(--color-night); color: var(--color-linen); border-color: var(--color-night); }
 .btn-light { background: var(--color-linen); color: var(--color-night); border-color: var(--color-linen); }
-.btn-light:hover { background: var(--color-paper); border-color: var(--color-paper); color: var(--color-night); }
 .btn-outline-light { background: transparent; color: var(--color-linen); border-color: var(--color-linen); }
-.btn-outline-light:hover { background: var(--color-linen); color: var(--color-night); }
-.btn-ghost { background: transparent; border-color: transparent; color: var(--color-night); padding: 0 8px; }
-.btn-ghost:hover { background: transparent; border-color: transparent; color: var(--color-sea); }
-.btn-sm { height: 44px; padding: 0 18px; font-size: 12px; }
-.btn-xs { height: 36px; padding: 0 14px; font-size: 12px; }
+.btn-ghost { background: transparent; border-color: transparent; color: var(--color-night); padding-inline: 8px; }
+.btn-sm { min-height: 44px; padding: 6px 18px; font-size: 12px; }
+.btn-xs { min-height: 36px; padding: 4px 14px; font-size: 12px; }
 .btn-block { width: 100%; }
+@media (hover: hover) {
+  .btn:hover { background: var(--color-sea); border-color: var(--color-sea); color: var(--color-linen); }
+  .btn:hover .btn-arrow { transform: translateX(4px); }
+  .btn-secondary:hover { background: var(--color-night); color: var(--color-linen); border-color: var(--color-night); }
+  .btn-light:hover { background: var(--color-paper); border-color: var(--color-paper); color: var(--color-night); }
+  .btn-outline-light:hover { background: var(--color-linen); color: var(--color-night); }
+  .btn-ghost:hover { background: transparent; border-color: transparent; color: var(--color-sea); }
+}
+/* A thumb needs 44 px: on touch screens the small sizes grow to it. */
+@media (pointer: coarse) { .btn-xs { min-height: 44px; } }
 
 /* Text links: a faint rest underline; the solid one draws left to right on hover. */
 .lnk {
@@ -124,13 +149,14 @@ h1, h2, h3, .serif { font-family: var(--font-serif); font-weight: 500; line-heig
   font-size: 12px; font-weight: 500; color: var(--color-night); white-space: nowrap; cursor: pointer;
   transition: background-color 160ms var(--ease-standard), color 160ms var(--ease-standard), border-color 160ms var(--ease-standard);
 }
-.chip:hover { border-color: var(--color-night); }
+@media (hover: hover) { .chip:hover { border-color: var(--color-night); } }
+@media (pointer: coarse) { .chip { height: 44px; } }
 .chip.on, .chip[aria-pressed="true"] { background: var(--color-night); color: var(--color-linen); border-color: var(--color-night); }
 
-/* Inputs — 52 px, Paper fill, Dune hairline, Night ring on focus. */
+/* Inputs — 52 px, 16 px text (no iOS zoom), Paper fill, Dune hairline, Night ring on focus. */
 .field {
   height: 52px; width: 100%; padding: 0 16px; border: 1px solid var(--color-dune); background: var(--color-paper);
-  color: var(--color-night); font-size: 14px; border-radius: 0; outline: none;
+  color: var(--color-night); font-size: 16px; border-radius: 0; outline: none;
   transition: border-color 160ms var(--ease-standard), box-shadow 160ms var(--ease-standard);
 }
 .field::placeholder { color: var(--color-ash); }
@@ -185,7 +211,7 @@ h1, h2, h3, .serif { font-family: var(--font-serif); font-weight: 500; line-heig
 
 /* Badges — the only uppercase tags on the site, in the accent colours. */
 .badge { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-linen); background: var(--color-sea); }
-.badge-gold { background: var(--color-gold); }
+.badge-gold { background: var(--color-gold-text); }
 .badge-night { background: var(--color-night); }
 
 /* Native scroll-snap carousels. */

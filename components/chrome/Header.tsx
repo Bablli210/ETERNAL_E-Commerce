@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { nav } from "@/content/site";
+import type { LineKey } from "@/content/taxonomy";
 import { facts } from "@/lib/facts";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { useCart } from "@/components/cart/CartProvider";
@@ -12,6 +13,9 @@ import { Wordmark } from "@/components/ui/Wordmark";
 import { MegaMenu, type FeaturedTiles } from "./MegaMenu";
 import { SearchOverlay, type TaleIndexEntry } from "./SearchOverlay";
 import { MobileMenu } from "./MobileMenu";
+
+/** The bag button's name says what is in it; before the stored bag is read it is just "Bag". */
+const bagLabel = (ready: boolean, n: number) => (ready ? `Bag, ${n} ${n === 1 ? "item" : "items"}` : "Bag");
 
 export function Header({
   index,
@@ -62,6 +66,11 @@ export function Header({
     };
   }, [menu, search]);
 
+  // Sticky bars under the header follow it out of view (globals.css turns this into --chrome-top).
+  useEffect(() => {
+    document.documentElement.toggleAttribute("data-chrome-hidden", hidden);
+  }, [hidden]);
+
   // Route change closes every panel (state adjusted during render, per React's guidance).
   const [seenPath, setSeenPath] = useState(pathname);
   if (seenPath !== pathname) {
@@ -91,15 +100,28 @@ export function Header({
   const scheduleClose = useCallback(() => {
     closeTimer.current = window.setTimeout(() => setMenu(false), 120);
   }, []);
+  const closeSearch = useCallback(() => setSearch(false), []);
+  const closeMobile = useCallback(() => setMobile(false), []);
+
+  // What the phone menu says about each line and the box, from the catalogue itself.
+  const counts = useMemo(() => {
+    const n = (line: LineKey) => index.filter((e) => e.kind === "scent" && e.line === line).length;
+    return { eterna: n("eterna"), eterno: n("eterno"), eternal: n("eternal") };
+  }, [index]);
+  const box = useMemo(() => index.find((e) => e.kind === "set" && e.handle === "mystery-box") ?? null, [index]);
 
   const isHome = pathname === "/";
   const transparent = isHome && !scrolled && !menu && !search;
   const showAnnouncement = Boolean(facts.announcement) && !scrolled;
+  // How far down the header ends right now, for the search panel's height.
+  const chromeH = showAnnouncement ? "calc(var(--header-h) + var(--announce-h))" : "var(--header-h)";
 
   return (
     <>
+      {search && <button type="button" tabIndex={-1} aria-hidden="true" onClick={closeSearch} className="fade-enter fixed inset-0 z-[55] bg-night/40" />}
       <div
         className={`fixed inset-x-0 top-0 z-[60] transition-transform duration-[240ms] ease-[var(--ease-standard)] ${hidden ? "-translate-y-full" : "translate-y-0"}`}
+        style={{ ["--chrome-h" as string]: chromeH }}
         onMouseLeave={scheduleClose}
       >
         {facts.announcement && (
@@ -107,7 +129,7 @@ export function Header({
             className={`ann overflow-hidden bg-night text-linen transition-[height] duration-200 ${showAnnouncement ? "h-[var(--announce-h)]" : "h-0"}`}
             aria-hidden={!showAnnouncement}
           >
-            <p className="flex h-[var(--announce-h)] items-center justify-center px-4 text-center text-[12px] tracking-[0.02em]">{facts.announcement}</p>
+            <p className="truncate px-4 text-center text-[12px] leading-[var(--announce-h)] tracking-[0.02em]">{facts.announcement}</p>
           </div>
         )}
         <header
@@ -115,7 +137,7 @@ export function Header({
             transparent ? "border-transparent bg-transparent text-linen" : "border-dune bg-linen text-night"
           }`}
         >
-          <div className="wrap grid h-full grid-cols-[1fr_auto_1fr] items-center">
+          <div className="wrap grid h-full grid-cols-[1fr_auto_1fr] items-center max-lg:px-2">
             <nav aria-label="Primary" className="hidden items-center gap-7 lg:flex">
               {nav.map((item) => {
                 const isShop = item.href === "/shop";
@@ -142,26 +164,43 @@ export function Header({
 
             <Wordmark inverted={transparent} className="justify-self-center" />
 
-            <div className="flex items-center justify-end gap-1 sm:gap-3">
-              <button type="button" className="ui inline-flex h-11 items-center gap-2 px-2 hover:opacity-70" aria-label="Search" aria-expanded={search} onClick={() => setSearch((s) => !s)}>
+            <div className="flex items-center justify-end sm:gap-3">
+              <button
+                type="button"
+                className="ui inline-flex h-11 w-11 items-center justify-center gap-2 hover:opacity-70 sm:w-auto sm:px-2"
+                aria-label="Search"
+                aria-expanded={search}
+                onClick={() => setSearch((s) => !s)}
+              >
                 <Icon name="search" />
                 <span className="hidden sm:inline">Search</span>
               </button>
-              <button type="button" className="relative inline-flex h-11 items-center gap-2 px-2 hover:opacity-70" aria-label={`Bag, ${cart.count} items`} onClick={cart.openDrawer}>
+              <button
+                type="button"
+                data-bag-button
+                className="relative inline-flex h-11 w-11 items-center justify-center hover:opacity-70"
+                aria-label={bagLabel(cart.ready, cart.count)}
+                onClick={() => {
+                  setSearch(false);
+                  cart.openDrawer();
+                }}
+              >
                 <Icon name="bag" className={tick ? "bag-tick" : undefined} />
                 {cart.ready && cart.count > 0 && (
-                  <span className="tnum absolute -right-0.5 top-1 flex h-[18px] min-w-[18px] items-center justify-center bg-gold px-1 text-[10px] font-bold text-linen">{cart.count}</span>
+                  <span aria-hidden="true" className="tnum absolute right-0 top-1 flex h-[18px] min-w-[18px] items-center justify-center bg-gold-text px-1 text-[11px] font-bold text-linen">
+                    {cart.count}
+                  </span>
                 )}
               </button>
             </div>
           </div>
           {menu && <MegaMenu featured={featured} onEnter={openMenu} onLeave={scheduleClose} />}
-          {search && <SearchOverlay index={index} taleIndex={taleIndex} popular={popular} onClose={() => setSearch(false)} />}
+          {search && <SearchOverlay index={index} taleIndex={taleIndex} popular={popular} onClose={closeSearch} />}
         </header>
       </div>
-      {/* Reserve the chrome height on every page but the home hero. */}
-      {!isHome && <div style={{ height: facts.announcement ? "calc(var(--header-h) + var(--announce-h))" : "var(--header-h)" }} aria-hidden="true" />}
-      {mobile && <MobileMenu onClose={() => setMobile(false)} />}
+      {/* Reserve the chrome's height on every page but the home hero, which runs under it. */}
+      {!isHome && <div aria-hidden="true" className={facts.announcement ? "h-[calc(var(--header-h)+var(--announce-h))]" : "h-[var(--header-h)]"} />}
+      {mobile && <MobileMenu onClose={closeMobile} counts={counts} box={box} />}
     </>
   );
 }

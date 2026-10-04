@@ -1,74 +1,128 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
-import { lines } from "@/content/taxonomy";
+import { useRef } from "react";
+import { lines, type LineKey } from "@/content/taxonomy";
 import { site } from "@/content/site";
+import { facts } from "@/lib/facts";
+import { formatMoney } from "@/lib/format";
+import type { ScentIndexEntry } from "@/lib/catalogue";
 import { Icon } from "@/components/ui/Icon";
 import { Wordmark } from "@/components/ui/Wordmark";
+import { useModal } from "./useModal";
+import { WhatsAppLink } from "./WhatsAppLink";
 
-const rows = [
-  { label: "Shop all scents", href: "/shop" },
-  { label: "Bestsellers", href: "/shop/bestsellers" },
-  { label: "New arrivals", href: "/shop/new" },
-  { label: "Mystery box", href: "/products/mystery-box" },
+/** Audience first: the line names differ by one letter, so a stranger picks "For him", and the name rides along. */
+const AUDIENCES: { key: LineKey; label: string }[] = [
+  { key: "eterna", label: "For her" },
+  { key: "eterno", label: "For him" },
+  { key: "eternal", label: "Unisex" },
+];
+
+const MORE = [
   { label: "Tales", href: "/tales" },
   { label: "The house", href: "/house" },
   { label: "Help & delivery", href: "/help" },
 ];
 
-export function MobileMenu({ onClose }: { onClose: () => void }) {
-  const first = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    first.current?.focus();
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, []);
+const codLive = facts.paymentMethods.some((m) => /cash on delivery/i.test(m));
+
+function Row({ href, onClose, thumb, title, sub }: { href: string; onClose: () => void; thumb: React.ReactNode; title: React.ReactNode; sub: React.ReactNode }) {
+  return (
+    <li>
+      <Link href={href} onClick={onClose} className="flex min-h-[76px] items-center gap-4 py-2.5">
+        <span className="relative h-14 w-11 shrink-0 overflow-hidden bg-sand">{thumb}</span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[16px] font-medium leading-snug">{title}</span>
+          <span className="block truncate text-[13px] text-ash">{sub}</span>
+        </span>
+        <Icon name="chevron-right" size={16} className="shrink-0 text-ash" />
+      </Link>
+    </li>
+  );
+}
+
+export function MobileMenu({ onClose, counts, box }: { onClose: () => void; counts: Record<LineKey, number>; box: ScentIndexEntry | null }) {
+  const panel = useRef<HTMLElement>(null);
+  const close = useRef<HTMLButtonElement>(null);
+  useModal(panel, close);
+
   return (
     <div className="fixed inset-0 z-[90] lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-      <button type="button" aria-label="Close menu" onClick={onClose} className="fade-enter absolute inset-0 bg-night/40" />
-      <aside className="drawer-left absolute inset-y-0 left-0 flex w-[88%] max-w-[400px] flex-col overflow-y-auto bg-linen text-night">
-        <header className="flex h-[var(--header-h)] items-center justify-between border-b border-dune px-5">
-          <Wordmark href="/" />
-          <button ref={first} type="button" onClick={onClose} aria-label="Close" className="flex h-11 w-11 items-center justify-center">
+      <button type="button" tabIndex={-1} aria-hidden="true" onClick={onClose} className="fade-enter absolute inset-0 bg-night/40" />
+      <aside ref={panel} className="drawer-left absolute inset-y-0 left-0 flex w-[88%] max-w-[400px] flex-col overflow-y-auto overscroll-contain bg-linen pb-[env(safe-area-inset-bottom)] text-night">
+        <header className="flex h-[var(--header-h)] shrink-0 items-center justify-between border-b border-dune pl-5 pr-2">
+          <Wordmark href="/" onClick={onClose} />
+          <button ref={close} type="button" onClick={onClose} aria-label="Close menu" className="flex h-11 w-11 items-center justify-center">
             <Icon name="close" />
           </button>
         </header>
-        <div className="flex flex-col gap-6 px-5 py-6">
-          <Link href="/finder" onClick={onClose} className="btn btn-block">
-            Find your scent — 2 minutes
+
+        <nav aria-label="Shop" className="px-5">
+          <ul className="divide-y divide-dune border-b border-dune">
+            {AUDIENCES.map(({ key, label }) => (
+              <Row
+                key={key}
+                href={`/shop/${lines[key].slug}`}
+                onClose={onClose}
+                thumb={<Image src={`/images/line-${key}.jpg`} alt="" fill sizes="44px" className="object-cover" />}
+                title={
+                  <>
+                    {label} <span aria-hidden="true">·</span> <span className="serif text-[20px] font-semibold">{lines[key].label}</span>
+                  </>
+                }
+                sub={`${counts[key]} scents · ${lines[key].blurb}`}
+              />
+            ))}
+            {box && (
+              <Row
+                href={`/products/${box.handle}`}
+                onClose={onClose}
+                thumb={<Image src="/images/mystery-box.jpg" alt="" fill sizes="44px" className="object-cover" />}
+                title="Mystery box"
+                sub={`Three ${site.sampleSizeMl} ml samples · ${formatMoney(box.price)}`}
+              />
+            )}
+            <Row
+              href="/finder"
+              onClose={onClose}
+              thumb={<Image src="/images/finder-band.jpg" alt="" fill sizes="44px" className="object-cover" />}
+              title="Find your scent"
+              sub="A few questions, three matches"
+            />
+          </ul>
+          <Link href="/shop" onClick={onClose} className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold">
+            <span className="lnk">All scents</span>
+            <Icon name="arrow-right" size={16} />
           </Link>
-          <div className="grid grid-cols-3 gap-2">
-            {(["eterna", "eterno", "eternal"] as const).map((k) => {
-              const l = lines[k];
-              return (
-                <Link key={k} href={`/shop/${l.slug}`} onClick={onClose} className={`flex aspect-[3/4] flex-col justify-end p-3 ${l.toneDark ? "text-linen" : "text-night"}`} style={{ backgroundColor: l.tone }}>
-                  <span className="serif text-[22px] leading-none">{l.label}</span>
-                  <span className="mt-1 text-[11px] opacity-80">{l.audience}</span>
-                </Link>
-              );
-            })}
-          </div>
+        </nav>
+
+        <nav aria-label="The house" className="mt-3 px-5">
           <ul className="divide-y divide-dune border-y border-dune">
-            {rows.map((r) => (
+            {MORE.map((r) => (
               <li key={r.href}>
-                <Link href={r.href} onClick={onClose} className="flex h-12 items-center justify-between text-[15px] font-medium">
+                <Link href={r.href} onClick={onClose} className="flex h-12 items-center justify-between text-[15px]">
                   {r.label}
                   <Icon name="chevron-right" size={16} className="text-ash" />
                 </Link>
               </li>
             ))}
           </ul>
-        </div>
-        <div className="mt-auto flex items-center justify-between border-t border-dune px-5 py-4 text-[12px] text-ash">
-          <span>EGP · Egypt</span>
-          {site.whatsapp && (
-            <a href={`https://wa.me/${site.whatsapp}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-night">
-              <Icon name="whatsapp" size={18} /> Chat on WhatsApp
-            </a>
+        </nav>
+
+        <div className="mt-auto flex flex-col gap-1 border-t border-dune px-5 py-3 text-[13px]">
+          <WhatsAppLink label="menu" text="Hello eternal, I have a question about a scent." className="flex min-h-11 items-center gap-3">
+            <Icon name="whatsapp" size={20} className="shrink-0" />
+            <span>
+              <span className="block font-medium">Chat with us on WhatsApp</span>
+              {facts.whatsappHours && <span className="block text-[12px] text-ash">{facts.whatsappHours}</span>}
+            </span>
+          </WhatsAppLink>
+          {codLive && (
+            <p className="flex min-h-11 items-center gap-3 text-ash">
+              <Icon name="shield" size={20} className="shrink-0 text-gold-text" /> Pay cash on delivery
+            </p>
           )}
         </div>
       </aside>

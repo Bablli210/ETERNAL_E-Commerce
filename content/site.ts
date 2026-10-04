@@ -61,20 +61,21 @@ export const site = {
 
 export const nav = [
   { label: "Shop", href: "/shop" },
-  { label: "Scent finder", href: "/finder" },
+  { label: "Find your scent", href: "/finder" },
   { label: "Tales", href: "/tales" },
   { label: "The house", href: "/house" },
 ] as const;
 
+/** The line names differ by one letter, so each one travels with its audience. */
 export const footerColumns = [
   {
     title: "Shop",
     links: [
-      { label: "Her — eterna", href: "/shop/her" },
-      { label: "Him — eterno", href: "/shop/him" },
-      { label: "Unisex — eternal", href: "/shop/unisex" },
-      { label: "Discovery set", href: "/finder" },
+      { label: "For her · eterna", href: "/shop/her" },
+      { label: "For him · eterno", href: "/shop/him" },
+      { label: "Unisex · eternal", href: "/shop/unisex" },
       { label: "Mystery box", href: "/products/mystery-box" },
+      { label: "Find your scent", href: "/finder" },
       { label: "Bestsellers", href: "/shop/bestsellers" },
       { label: "New", href: "/shop/new" },
     ],
@@ -93,7 +94,6 @@ export const footerColumns = [
     links: [
       { label: "Our story", href: "/house" },
       { label: "Tales", href: "/tales" },
-      { label: "Scent finder", href: "/finder" },
     ],
   },
 ] as const;

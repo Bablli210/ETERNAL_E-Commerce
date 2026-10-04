@@ -16,7 +16,7 @@ export function Price({ money, className = "" }: { money: Money; className?: str
   return <span className={`tnum ${className}`}>{formatMoney(money)}</span>;
 }
 
-/** Index number, left-aligned serif title, action on the right baseline. */
+/** Index number, left-aligned serif title, action on the right baseline (a 44 px tap target that hugs its label). */
 export function SectionHead({
   index,
   title,
@@ -35,13 +35,13 @@ export function SectionHead({
   return (
     <div className={`flex flex-col gap-6 md:flex-row md:items-end md:justify-between ${className}`} data-reveal>
       <div className="max-w-[640px]">
-        {index && <span className={`tnum serif mb-3 block text-[20px] ${dark ? "text-dune" : "text-gold"}`}>{index}</span>}
+        {index && <span className={`tnum serif mb-3 block text-[20px] ${dark ? "text-dune" : "text-gold-text"}`}>{index}</span>}
         <h2 className={`display-l ${dark ? "text-linen" : "text-night"}`}>{title}</h2>
         {sub && <p className={`body-l mt-4 max-w-[52ch] ${dark ? "text-dune" : "text-ash"}`}>{sub}</p>}
       </div>
       {action && (
-        <Link href={action.href} className={`lnk shrink-0 ${dark ? "text-linen" : "text-night"}`}>
-          {action.label}
+        <Link href={action.href} className={`-my-3 inline-flex min-h-11 shrink-0 items-center gap-1.5 self-start text-[13px] font-semibold md:self-auto ${dark ? "text-linen" : "text-night"}`}>
+          <span className="lnk">{action.label}</span>
           <Icon name="arrow-right" size={16} />
         </Link>
       )}
