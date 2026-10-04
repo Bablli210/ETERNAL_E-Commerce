@@ -81,7 +81,7 @@ const drafts: Omit<Tale, "readTime">[] = [
     slug: "forbidden-apple",
     title: "The crab apple tree was still flowering.",
     handle: "forbidden-apple",
-    line: "eterna",
+    line: "eterno",
     signature: "The memory you shouldn’t revisit is the one that still owns you.",
     heroArt: "Campaign still, wide — a crab apple tree in flower beside a whitewashed hotel entrance",
     complete: true,

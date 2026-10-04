@@ -71,6 +71,8 @@ export const scents: Record<string, ScentContent> = {
     notesShort: ["Mango", "coconut", "sandalwood"],
   },
   "forbidden-apple": {
+    // The owner: eterno. Shopify tags it both "eterna" and "for him"; this settles it.
+    line: "eterno",
     inspiredBy: "Clive Christian Crab Apple Blossom",
     signature: "The memory you shouldn’t revisit is the one that still owns you.",
     colorWorld: { bg: "#F1D3D6", accent: "#4F6B3F", dark: false, source: "proposed" },
