@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CollectionPage } from "@/components/product/CollectionPage";
-import { collections } from "@/content/taxonomy";
+import { collections, lines, type LineKey } from "@/content/taxonomy";
 import { getCollection } from "@/lib/catalogue";
 
 export const revalidate = 300;
@@ -15,7 +15,9 @@ export async function generateMetadata({ params }: { params: Promise<{ collectio
   const { collection } = await params;
   const def = collections.find((c) => c.slug === collection);
   if (!def) return {};
-  return { title: def.title, description: def.descriptor, alternates: { canonical: `/shop/${def.slug}` } };
+  // The line names differ by one letter, so the tab and the in-app title bar say who each is for.
+  const title = def.kind === "line" ? `${def.key === "eternal" ? "Unisex" : `For ${lines[def.key as LineKey].audience.toLowerCase()}`} · ${def.title}` : def.title;
+  return { title, description: def.descriptor, alternates: { canonical: `/shop/${def.slug}` } };
 }
 
 export default async function CollectionRoute({ params }: { params: Promise<{ collection: string }> }) {
