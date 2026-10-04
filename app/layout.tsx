@@ -27,9 +27,23 @@ import { Analytics } from "@/components/analytics/Analytics";
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
+  style: ["normal"],
   variable: "--font-cormorant",
   display: "optional",
+});
+
+/*
+ * The italic sets only the signature lines, which are never on the first
+ * screen, so it is not preloaded: it stays off the network while the hero
+ * downloads and swaps in out of view.
+ */
+const cormorantItalic = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500"],
+  style: ["italic"],
+  variable: "--font-cormorant-italic",
+  display: "swap",
+  preload: false,
 });
 
 const instrument = Instrument_Sans({
@@ -76,7 +90,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     // data-scroll-behavior: Next 16 suspends the smooth scrolling (globals.css) during route changes only with this opt-in; without it a new page lands part-way down.
-    <html lang="en" data-scroll-behavior="smooth" className={`${cormorant.variable} ${instrument.variable}`}>
+    <html lang="en" data-scroll-behavior="smooth" className={`${cormorant.variable} ${cormorantItalic.variable} ${instrument.variable}`}>
       <body>
         <MotionScript />
         <Loader />

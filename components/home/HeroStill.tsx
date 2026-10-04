@@ -15,7 +15,8 @@ export function HeroStill({ hero, className = "" }: { hero: Hero; className?: st
   if (!phone) return null;
   const common = { alt: hero.alt, fill: true } as const;
   // On a phone the 1.2:1 crop fills a box a little taller than wide, so it renders about 130% of the screen width.
-  const { props: phoneProps } = getImageProps({ ...common, src: phone, sizes: "(min-width: 1024px) 100vw, 130vw" });
+  // A 3x screen still gets a little over 2x (1200 px, not 1920): it looks the same and is 40% lighter, which brings the ad landing's first paint forward.
+  const { props: phoneProps } = getImageProps({ ...common, src: phone, sizes: "(min-width: 1024px) 100vw, (min-resolution: 2.5dppx) 100vw, 130vw" });
   const desktop = wide ? getImageProps({ ...common, src: wide, sizes: "100vw" }).props : null;
   const PHONE = desktop ? "(max-width: 1023.98px)" : undefined;
   preload(phoneProps.src, { as: "image", imageSrcSet: phoneProps.srcSet, imageSizes: phoneProps.sizes, fetchPriority: "high", media: PHONE });
