@@ -52,7 +52,7 @@ export const site = {
   /** e.g. "Order by 2 pm for next-day delivery in Cairo & Giza". Shown under the buy button. */
   deliveryCutoff: "[Delivery cut-off]",
   /** WhatsApp reply hours, e.g. "Every day, 10 am – 10 pm". */
-  whatsappHours: "[WhatsApp hours]",
+  whatsappHours: "Every day, 10 am to 10 pm",
   /** Company details for the footer: legal name, commercial registration, tax id, address. */
   legalName: "[Legal company name]",
   companyRegistration: "[Commercial registration no.]",

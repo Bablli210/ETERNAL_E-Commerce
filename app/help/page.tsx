@@ -157,7 +157,7 @@ export default async function HelpPage() {
                 )}
                 {wa && (
                   <>
-                    <p className={email ? "mt-3" : undefined}>Message us on WhatsApp about a scent or an order.{facts.whatsappHours ? ` ${sentence(`Hours: ${facts.whatsappHours}`)}` : ""}</p>
+                    <p className={email ? "mt-3" : undefined}>Message us on WhatsApp about a scent or an order.{facts.whatsappHours ? ` ${sentence(`We answer ${facts.whatsappHours.charAt(0).toLowerCase()}${facts.whatsappHours.slice(1)}`)}` : ""}</p>
                     <WhatsAppLink number={wa} text="Hello eternal, I have a question." from="help" className="btn btn-secondary mt-1 w-full sm:w-auto">
                       <Icon name="whatsapp" size={18} /> Message us on WhatsApp
                     </WhatsAppLink>
