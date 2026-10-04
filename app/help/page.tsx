@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 /** An owner's line as one sentence, whether or not it was written with a full stop. */
 const sentence = (s: string) => `${s.replace(/[.\s]+$/, "")}.`;
-/** "Visa, Mastercard or cash on delivery". */
+/** "cash on delivery or InstaPay". */
 const orList = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(", ")} or ${items.at(-1)}` : (items[0] ?? ""));
 
 const policy = (path: string) => `https://${checkoutDomain}/policies/${path}`;
@@ -60,6 +60,7 @@ export default async function HelpPage() {
   const faq = faqEntries({ samples: scents.some((s) => s.sample?.availableForSale) });
   const cod = facts.paymentMethods.some((m) => /cash/i.test(m));
   const methods = facts.paymentMethods.map((m) => (/cash/i.test(m) ? m.toLowerCase() : m));
+  const instapay = facts.paymentMethods.some((m) => /instapay/i.test(m));
   const returns = facts.returnsPolicy ? sentence(facts.returnsWindow ? `${facts.returnsPolicy}, within ${facts.returnsWindow}` : facts.returnsPolicy) : null;
   const wa = facts.whatsapp;
   const email = confirmed(site.contactEmail);
@@ -102,8 +103,13 @@ export default async function HelpPage() {
       id: "payments",
       nav: "Payments",
       title: "Payments",
-      ar: "تظهر وسائل الدفع المتاحة عند إتمام الطلب.",
-      body: <p>{methods.length ? `You can pay by ${orList(methods)}, on Shopify’s secure checkout.` : "The ways to pay are shown on Shopify’s secure checkout, before you place the order."}</p>,
+      ar: cod && instapay ? "يمكنك الدفع نقدًا عند الاستلام أو عبر إنستاباي." : "تظهر وسائل الدفع المتاحة عند إتمام الطلب.",
+      body: (
+        <>
+          <p>{methods.length ? `You can pay by ${orList(methods)}, on Shopify’s secure checkout.` : "The ways to pay are shown on Shopify’s secure checkout, before you place the order."}</p>
+          {instapay && <p>To pay by InstaPay, choose it at checkout. The transfer details are shown when you place the order and in your confirmation email.</p>}
+        </>
+      ),
     },
     {
       id: "returns",

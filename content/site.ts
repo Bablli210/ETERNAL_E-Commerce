@@ -66,8 +66,12 @@ export const site = {
   instagram: "https://instagram.com/",
   tiktok: "https://tiktok.com/",
 
-  /** Only methods that are live at checkout; bracketed ones stay hidden. */
-  paymentMethods: ["Visa", "Mastercard", "Meeza", "Cash on delivery", "[Local wallets]"],
+  /**
+   * Only methods that are live at checkout; bracketed ones stay hidden.
+   * InstaPay is a manual payment method in Shopify, whose instructions give
+   * the transfer details on the order confirmation.
+   */
+  paymentMethods: ["Cash on delivery", "InstaPay"],
 
   scentCount: 43,
   sampleSizeMl: 5,
