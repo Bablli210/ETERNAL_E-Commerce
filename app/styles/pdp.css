@@ -1,1 +1,42 @@
 /* Styles owned by the pdp workstream. Tailwind utilities first; only what utilities cannot express goes here. */
+@layer components {
+  /*
+   * First screen on a phone. The gallery frame takes the height left over once
+   * the header, name, price, notes and Add to bag fit above the fold, so the
+   * button is on screen without a scroll on any phone 640 px tall or more
+   * (12 px is the gap above the frame). It stays between 240 px and 4:5. The
+   * page marks which optional rows it renders (data-hook, data-chips,
+   * data-size); each adds its height here.
+   */
+  @media (max-width: 1023px) {
+    .pdp-hero {
+      --pdp-chrome: var(--header-h);
+      --pdp-info: 154px;
+      --pdp-hook: 0px;
+      --pdp-chips: 0px;
+      --pdp-size: 0px;
+    }
+    .pdp-hero[data-announce] { --pdp-chrome: calc(var(--header-h) + var(--announce-h)); }
+    .pdp-hero[data-hook] { --pdp-hook: 50px; }
+    .pdp-hero[data-chips] { --pdp-chips: 52px; }
+    .pdp-hero[data-size] { --pdp-size: 56px; }
+
+    /* Several frames: the next one peeks in at the right edge. One frame: full width. */
+    .pdp-frame {
+      --pdp-w: calc(100vw - 64px);
+      width: var(--pdp-w);
+      height: clamp(240px, calc(100svh - var(--pdp-chrome) - 12px - var(--pdp-info) - var(--pdp-hook) - var(--pdp-chips) - var(--pdp-size)), min(calc(var(--pdp-w) * 1.25), 560px));
+    }
+    .pdp-frame-solo { --pdp-w: calc(100vw - 40px); }
+  }
+
+  /* Bottles sit low in the lifestyle and notes stills; a cropped frame keeps them. */
+  .pdp-frame img { object-position: 50% 62%; }
+
+  /*
+   * While the sticky add-to-bag bar shows, the page ends above it so the
+   * footer's last row stays reachable, and focus never scrolls behind it.
+   */
+  body:has(.pdp-bar) { padding-bottom: var(--sticky-bar-h, 0px); }
+  html:has(.pdp-bar) { scroll-padding-bottom: var(--sticky-bar-h, 0px); }
+}
