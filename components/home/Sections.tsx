@@ -1,34 +1,82 @@
-import { Fragment } from "react";
+import { Fragment, type ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Eyebrow, SectionHead } from "@/components/ui/Primitives";
+import { Eyebrow, Price } from "@/components/ui/Primitives";
 import { Figure } from "@/components/ui/Figure";
 import { Film } from "@/components/ui/Film";
 import { Icon } from "@/components/ui/Icon";
 import { ProductCard } from "@/components/product/ProductCard";
+import { AddToBagButton } from "@/components/cart/AddToBagButton";
 import { site } from "@/content/site";
 import { facts } from "@/lib/facts";
 import { lines, moodOrder, moods, type LineKey } from "@/content/taxonomy";
 import { tales } from "@/content/tales";
 import type { Scent, ScentIndexEntry } from "@/lib/catalogue";
-import { joinNotes } from "@/lib/format";
+import type { Money } from "@/lib/shopify/types";
+import { formatMoney, joinNotes, sentenceCase } from "@/lib/format";
+import { siteVideo } from "@/lib/site-videos";
 import { Parallax, ParallaxSection } from "@/components/motion/Parallax";
-import { CountUp } from "@/components/motion/CountUp";
+import { HouseFilmPlayer } from "./HouseFilmPlayer";
+import { SelectList, type ListItem } from "./SelectList";
 
-export function Hero({ featured }: { featured: Scent | null }) {
-  const words = site.tagline.split(" ");
-  const bg = featured?.world.dark ? featured.world.bg : "#163a4e";
+const LINE_ORDER: LineKey[] = ["eterna", "eterno", "eternal"];
+
+/** The three line names differ by one letter, so the audience always travels with them. */
+const FOR: Record<LineKey, string> = { eterna: "for her", eterno: "for him", eternal: "for both" };
+
+/** "55 ml" that never breaks between the number and the unit. */
+const ml = (n: number) => `${n} ml`;
+
+const listItem = (e: ScentIndexEntry): ListItem => ({
+  handle: e.handle,
+  item: { productId: e.productId, variantId: e.bottle?.numericId ?? e.productId, name: e.title, price: parseFloat(e.price.amount), variant: e.bottle?.label, category: e.lineLabel },
+});
+
+/** A compact section head: the title (and one line under it) on the left, one 44 px action on the right. */
+function HomeHead({ title, sub, action, className = "" }: { title: ReactNode; sub?: ReactNode; action?: { label: string; href: string }; className?: string }) {
   return (
-    <ParallaxSection id="hero" className="grain relative flex min-h-[100svh] flex-col justify-end overflow-hidden text-linen" style={{ backgroundColor: bg }}>
-      <div className="hero-film absolute inset-0">
+    <div className={`flex items-end justify-between gap-4 ${className}`}>
+      <div className="max-w-[640px]">
+        <h2 className="display-l">{title}</h2>
+        {sub && <p className="mt-2 text-[15px] leading-snug text-ash lg:mt-4 lg:text-[17px]">{sub}</p>}
+      </div>
+      {action && (
+        <Link href={action.href} className="-mb-3 inline-flex min-h-11 shrink-0 items-center gap-1.5 text-[13px] font-semibold">
+          <span className="lnk">{action.label}</span>
+          <Icon name="arrow-right" size={16} />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The first screen (playbook 3.4): the film's own bottle named and one tap
+ * away, the house in one line, the price floor, one primary action and the
+ * finder as a quiet second. On a phone the film sits above the copy, so the
+ * bottle is never under the headline.
+ */
+export function Hero({ scent, fromPrice, samplePrice }: { scent: ScentIndexEntry | null; fromPrice: Money | null; samplePrice: Money | null }) {
+  const words = site.tagline.split(" ");
+  const bg = scent?.world.dark ? scent.world.bg : "#171614";
+  // Only figures the catalogue or the owner has confirmed; nothing here is a placeholder.
+  const offer = [
+    fromPrice && `${ml(site.bottleSizeMl)} from ${formatMoney(fromPrice)}`,
+    samplePrice && `${ml(site.sampleSizeMl)} from ${formatMoney(samplePrice)}`,
+    facts.freeSamples,
+  ].filter(Boolean);
+  return (
+    <ParallaxSection id="hero" className="grain relative grid min-h-[75svh] grid-rows-[1fr_auto] overflow-hidden text-linen lg:min-h-[92svh]" style={{ backgroundColor: bg }}>
+      <div className="hero-film relative col-start-1 row-start-1 -mb-24 lg:row-end-3 lg:mb-0">
         <Film
           name="home-hero"
           label="Hero film — bottle on wet stone, Mediterranean light, 6-second loop; poster still as fallback"
           dark
           priority
+          startWhenIdle
           sizes="100vw"
           media="(min-width: 1024px)"
-          className="hidden h-full w-full lg:block"
+          className="absolute inset-0 hidden lg:block"
           placeholderClassName="slot-corner !border-0 opacity-60"
           style={{ backgroundColor: bg }}
         />
@@ -37,22 +85,39 @@ export function Hero({ featured }: { featured: Scent | null }) {
           label="Hero film — mobile crop"
           dark
           priority
+          startWhenIdle
           sizes="100vw"
           media="(max-width: 1023.98px)"
-          className="h-full w-full lg:hidden"
+          className="absolute inset-0 lg:hidden"
+          imageClassName="object-[50%_55%]"
           placeholderClassName="slot-corner !border-0 opacity-60"
           style={{ backgroundColor: bg }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-night/90 via-night/45 to-night/30 lg:from-night/70 lg:via-night/10 lg:to-night/30" />
+        {/* Phone: the film fades into the band the copy sits on. Desktop: the copy sits on the film. */}
+        <div aria-hidden="true" className="absolute inset-0 lg:hidden" style={{ backgroundImage: `linear-gradient(to top, ${bg} 6%, transparent 42%), linear-gradient(to bottom, rgba(23, 22, 20, 0.45), transparent 22%)` }} />
+        <div aria-hidden="true" className="absolute inset-0 hidden bg-gradient-to-t from-night/70 via-night/10 to-night/30 lg:block" />
       </div>
-      <div className="wrap relative pb-16 pt-40 lg:pb-24">
+      <div className="wrap relative col-start-1 row-start-2 pb-6 lg:pb-24">
         <div className="hero-drift max-w-[820px]">
-          {featured && (
-            <Eyebrow className="!text-dune">
-              Featured · {featured.lineLabel} · {featured.title}
-            </Eyebrow>
+          {scent && (
+            <SelectList list="home_hero" items={[listItem(scent)]}>
+              <Link href={`/products/${scent.handle}`} data-card={scent.handle} className="inline-flex min-h-11 items-center gap-x-2 text-[13px] tracking-[0.02em] text-dune">
+                <span className="font-semibold text-linen">{scent.title}</span>
+                {scent.line && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <span>
+                      {lines[scent.line].label}, {FOR[scent.line]}
+                    </span>
+                  </>
+                )}
+                <span aria-hidden="true">·</span>
+                <span className="tnum whitespace-nowrap">{formatMoney(scent.price)}</span>
+                <Icon name="arrow-right" size={14} className="text-linen" />
+              </Link>
+            </SelectList>
           )}
-          <h1 className="display-xl mt-4">
+          <h1 className="display-xl mt-1 max-sm:text-[min(44px,11.2vw)]">
             {/* The space sits between the spans, not inside them: a non-breaking space
                 kept the headline on one unbreakable line whenever the words were plain
                 inline (reduced motion), so it overflowed instead of wrapping. */}
@@ -65,20 +130,19 @@ export function Hero({ featured }: { featured: Scent | null }) {
               </Fragment>
             ))}
           </h1>
-          <p className="body-l mt-6 max-w-[54ch] text-dune">{site.description}</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+          {/* A short phone (Instagram's browser, small Androids) drops this line so the bottle stays clear of the copy. */}
+          <p className="mt-3 max-w-[46ch] text-[15px] leading-normal text-dune max-lg:[@media(max-height:760px)]:hidden lg:mt-6 lg:text-[17px]">
+            Eaux de parfum from Cairo, in three lines: eterna for her, eterno for him, eternal for both.
+          </p>
+          {offer.length > 0 && <p className="tnum mt-2 text-[13px] font-semibold tracking-[0.02em] text-linen">{offer.join(" · ")}</p>}
+          <div className="mt-5 flex flex-wrap items-center gap-x-6 lg:mt-8">
             <Link href="/shop" className="btn btn-light">
-              Shop the collection
+              Shop the scents
             </Link>
-            <Link href="/finder" className="btn btn-outline-light">
-              Find your scent — 2 minutes
+            <Link href="/finder" className="inline-flex min-h-11 items-center text-[13px] font-semibold">
+              <span className="lnk">Find yours in 60 seconds</span>
             </Link>
           </div>
-          <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[12px] text-dune">
-            <li>Cash on delivery</li>
-            {facts.freeSamples && <li>{facts.freeSamples}</li>}
-            {facts.deliveryTime && <li>Delivery {facts.deliveryTime}</li>}
-          </ul>
         </div>
         <a href="#proof" className="absolute bottom-8 right-5 hidden items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-dune lg:right-20 lg:flex">
           Scroll <Icon name="chevron-down" size={14} />
@@ -88,23 +152,27 @@ export function Hero({ featured }: { featured: Scent | null }) {
   );
 }
 
+/** One row of confirmed facts. Each unconfirmed fact simply is not there; nothing waits in brackets. */
 export function ProofStrip() {
   const items = [
-    { big: <>EdP</>, label: "Eau de parfum strength", sub: facts.longevityClaim ?? "composed to last on skin" },
-    { big: <CountUp value={site.sampleSizeMl} suffix=" ml" />, label: "Try before you commit", sub: "three scents in the mystery box" },
-    { big: <>COD</>, label: "Cash on delivery", sub: "pay when it arrives, anywhere in Egypt" },
-    facts.returnsPolicy && facts.returnsWindow
-      ? { big: <>{facts.returnsWindow}</>, label: facts.returnsPolicy, sub: "sealed bottles" }
-      : { big: <>3</>, label: "Three lines", sub: "for her, for him, for both" },
-  ];
+    `Eau de parfum, ${ml(site.bottleSizeMl)}`,
+    facts.paymentMethods.includes("Cash on delivery") && "Cash on delivery",
+    facts.deliveryIncluded === true && "Delivery included",
+    facts.deliveryTime && `Delivery ${facts.deliveryTime}`,
+    facts.returnsPolicy,
+    facts.longevityClaim,
+  ].filter((v): v is string => Boolean(v));
   return (
-    <section id="proof" className="border-b border-dune">
-      <ul className="wrap grid grid-cols-2 divide-dune lg:grid-cols-4 lg:divide-x">
+    <section id="proof" aria-label="Why order from eternal" className="no-scrollbar overflow-x-auto border-b border-dune bg-paper">
+      <ul className="mx-auto flex w-max items-center px-5 text-[13px] font-medium">
         {items.map((f, i) => (
-          <li key={f.label} className="flex flex-col gap-1 py-8 lg:px-8 lg:py-12 lg:first:pl-0 lg:last:pr-0" data-reveal style={{ ["--i" as string]: i }}>
-            <span className="tnum serif text-[44px] font-semibold leading-none text-gold lg:text-[56px]">{f.big}</span>
-            <span className="mt-2 text-[14px] font-semibold">{f.label}</span>
-            <span className="text-[12px] text-ash">{f.sub}</span>
+          <li key={f} className="flex h-12 items-center whitespace-nowrap">
+            {i > 0 && (
+              <span aria-hidden="true" className="px-3 text-stone">
+                ·
+              </span>
+            )}
+            {f}
           </li>
         ))}
       </ul>
@@ -112,185 +180,38 @@ export function ProofStrip() {
   );
 }
 
+/**
+ * The three lines side by side, even on a phone: name, audience and size of
+ * each, one tap to the line. On a phone the tiles carry no visible heading, so
+ * they peek above the fold straight under the proof strip.
+ */
 export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; total: number }) {
   return (
-    <section className="section">
+    <section className="py-6 lg:py-30">
       <div className="wrap">
-        <SectionHead index="01" title="Three lines, one house" action={{ label: `Shop all ${total} scents`, href: "/shop" }} />
-        <div className="mt-12 grid gap-4 md:grid-cols-3">
-          {(["eterna", "eterno", "eternal"] as const).map((k, i) => {
+        <h2 className="sr-only lg:hidden">The three lines</h2>
+        <HomeHead title="Three lines" action={{ label: `Shop all ${total}`, href: "/shop" }} className="max-lg:hidden" />
+        <ul className="grid grid-cols-3 gap-2 lg:mt-12 lg:gap-6">
+          {LINE_ORDER.map((k) => {
             const l = lines[k];
             return (
-              <Link key={k} href={`/shop/${l.slug}`} className={`group relative flex aspect-[4/5] flex-col justify-end overflow-hidden p-7 ${l.toneDark ? "text-linen" : "text-night"}`} style={{ backgroundColor: l.tone, ["--i" as string]: i }} data-reveal>
-                <Figure
-                  name={`line-${l.key}`}
-                  label={`${l.label} — person in a landscape, back to camera, 4:5`}
-                  dark={l.toneDark}
-                  sizes="(min-width: 768px) 33vw, 100vw"
-                  className="hover-lift absolute inset-0"
-                  placeholderClassName="slot-corner !border-0 opacity-70"
-                  style={{ backgroundColor: l.tone }}
-                />
-                <span
-                  aria-hidden="true"
-                  className={`pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t ${l.toneDark ? "from-night/85 via-night/35" : "from-linen/95 via-linen/55"} to-transparent`}
-                />
-                <div className="relative">
-                  <span className="serif text-[40px] font-semibold leading-none">{l.label}</span>
-                  <p className="mt-2 text-[13px] opacity-80">
-                    {l.audience} · {counts[k]} scents · {l.blurb}
-                  </p>
-                  <span className="lnk slide-x mt-5 inline-flex">
-                    Shop {l.audience.toLowerCase()} <Icon name="arrow-right" size={16} />
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function Bestsellers({ entries }: { entries: ScentIndexEntry[] }) {
-  return (
-    <section className="section border-t border-dune">
-      <div className="wrap">
-        <SectionHead index="02" title="Most worn this month" sub="Bestsellers across the three lines, updated from real orders." action={{ label: "See all bestsellers", href: "/shop/bestsellers" }} />
-      </div>
-      <div className="wrap mt-12">
-        <div className="snap-row -mx-5 px-5 lg:mx-0 lg:px-0">
-          {entries.map((e, i) => (
-            <div key={e.handle} className="w-[72vw] sm:w-[320px]" data-reveal style={{ ["--i" as string]: Math.min(i, 4) }}>
-              <ProductCard entry={e} badge={i === 0 ? "Bestseller" : undefined} />
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function FinderEntry() {
-  return (
-    <section className="border-t border-dune bg-linen">
-      <div className="wrap grid gap-8 py-20 lg:grid-cols-[1.2fr_1fr] lg:items-center lg:py-28" data-reveal>
-        <div>
-          <h2 className="display-l">Not sure where to start?</h2>
-          <p className="body-l mt-4 max-w-[54ch] text-ash">Answer five quick questions and we match you to three scents — then try all three as {site.sampleSizeMl} ml samples before you commit to a bottle.</p>
-          <div className="mt-8 flex items-center gap-5">
-            <Link href="/finder" className="btn">
-              Start the scent finder
-            </Link>
-            <span className="text-[12px] text-ash">Takes about 2 minutes</span>
-          </div>
-        </div>
-        <Figure name="finder-band" label="Nine bottles drifting out of focus on frosted glass — the one under the cursor sharpens" sizes="(min-width: 1024px) 40vw, 100vw" className="aspect-[4/3] w-full" />
-      </div>
-    </section>
-  );
-}
-
-export function FeaturedTale({ scent }: { scent: Scent | null }) {
-  if (!scent) return null;
-  const tale = scent.taleSlug ? tales.find((t) => t.slug === scent.taleSlug) : null;
-  const first = scent.story?.[0] ?? tale?.paragraphs[0];
-  const excerpt = first ? (first.length > 420 ? first.slice(0, 420).trimEnd() + "…" : first) : null;
-  // H5: the paragraph's lines fade in one after another, the signature line last.
-  const sentences = excerpt ? excerpt.match(/[^.!?…]+[.!?…]+["’”]?\s*|[^.!?…]+$/g) ?? [excerpt] : [];
-  const bg = scent.world.dark ? scent.world.bg : "#163a4e";
-  return (
-    <section className="grain watermark relative overflow-hidden text-linen" style={{ backgroundColor: bg }}>
-      <div className="wrap section relative grid gap-12 lg:grid-cols-2 lg:items-center">
-        <Parallax factor={0.15} className="overflow-hidden" data-reveal>
-          <div className="parallax-y -my-[8%]">
-            <Figure
-              name={["tale-featured", scent.taleSlug ? `tale-${scent.taleSlug}` : "tale-featured"]}
-              label="Campaign still — fog on the harbour, fishing boat, morning light"
-              dark
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="aspect-[4/5] w-full"
-              style={{ backgroundColor: bg }}
-            />
-          </div>
-        </Parallax>
-        <div style={{ ["--stagger" as string]: "80ms" }}>
-          <Eyebrow className="!text-dune block" data-reveal>A tale from {scent.lineLabel}</Eyebrow>
-          <h2 className="display-l mt-4" data-reveal style={{ ["--i" as string]: 1 }}>{tale?.title ?? scent.signature}</h2>
-          {sentences.length > 0 && (
-            <p className="body-l mt-6 max-w-[56ch] text-dune">
-              {sentences.map((line, i) => (
-                <span key={i} className="inline" data-reveal style={{ ["--i" as string]: i + 2 }}>
-                  {line}
-                </span>
-              ))}
-            </p>
-          )}
-          {scent.signature && (
-            <p className="signature mt-6 text-linen" data-reveal style={{ ["--i" as string]: sentences.length + 2 }}>
-              “{scent.signature}”
-            </p>
-          )}
-          <dl className="mt-8 grid grid-cols-3 gap-4 border-t border-linen/20 pt-6 text-[13px]" data-reveal style={{ ["--i" as string]: sentences.length + 3 }}>
-            <div>
-              <dt className="eyebrow text-dune">The scent</dt>
-              <dd className="mt-1">{scent.title}</dd>
-            </div>
-            <div>
-              <dt className="eyebrow text-dune">Notes</dt>
-              <dd className="mt-1">{joinNotes(scent.notesShort)}</dd>
-            </div>
-            {scent.inspiredBy && (
-              <div>
-                <dt className="eyebrow text-dune">Inspired by</dt>
-                <dd className="mt-1">{scent.inspiredBy}</dd>
-              </div>
-            )}
-          </dl>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row" data-reveal style={{ ["--i" as string]: sentences.length + 4 }}>
-            {scent.taleSlug && (
-              <Link href={`/tales/${scent.taleSlug}`} className="btn btn-light">
-                Read the tale
-              </Link>
-            )}
-            <Link href={`/products/${scent.handle}`} className="btn btn-outline-light">
-              Shop {scent.title}
-            </Link>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-export function MoodTiles() {
-  return (
-    <section className="section">
-      <div className="wrap">
-        <SectionHead index="03" title="Shop by mood" sub="For when you know the feeling but not the notes." />
-        <ul className="mt-12 grid grid-cols-2 gap-4 lg:grid-cols-3">
-          {moodOrder.map((k, i) => {
-            const m = moods[k];
-            const dark = k === "after-dark";
-            return (
-              <li key={k} data-reveal style={{ ["--i" as string]: i }}>
-                <Link href={`/shop/${k}`} className={`group relative flex aspect-[4/3] flex-col justify-end overflow-hidden p-5 lg:p-7 ${dark ? "text-linen" : "text-night"}`} style={{ backgroundColor: m.wash }}>
+              <li key={k}>
+                <Link href={`/shop/${l.slug}`} className="group block">
                   <Figure
-                    name={`mood-${k}`}
-                    label={m.art}
-                    dark={dark}
-                    sizes="(min-width: 1024px) 33vw, 50vw"
-                    className="hover-lift absolute inset-0"
-                    placeholderClassName="slot-corner !border-0 opacity-80"
-                    style={{ backgroundColor: m.wash }}
+                    name={`line-${k}`}
+                    label={`${l.label} — the bottle in a back pocket, 3:4`}
+                    dark={l.toneDark}
+                    sizes="(min-width: 1024px) 30vw, 33vw"
+                    className="aspect-[3/4] w-full"
+                    imageClassName="hover-lift"
+                    placeholderClassName="slot-corner !border-0 opacity-70"
+                    style={{ backgroundColor: l.tone }}
                   />
-                  <span className="wash absolute inset-0" style={{ backgroundColor: dark ? "#F3EFE7" : m.wash === "#E9E4D3" ? "#9E9382" : m.wash }} aria-hidden="true" />
-                  <span
-                    aria-hidden="true"
-                    className={`pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t ${dark ? "from-night/85 via-night/35" : "from-linen/95 via-linen/50"} to-transparent`}
-                  />
-                  <span className="u-draw serif relative self-start text-[28px] leading-none lg:text-[34px]">{m.label}</span>
+                  <span className="serif mt-2 block text-[24px] font-semibold leading-none lg:mt-4 lg:text-[36px]">{l.label}</span>
+                  <span className="mt-1 block text-[13px] font-semibold lg:text-[15px]">{sentenceCase(FOR[k])}</span>
+                  <span className="block text-[12px] text-ash lg:text-[13px]">
+                    {counts[k]} scents<span className="hidden lg:inline"> · {l.blurb}</span>
+                  </span>
                 </Link>
               </li>
             );
@@ -301,41 +222,79 @@ export function MoodTiles() {
   );
 }
 
-export function RiskReducers({ mysteryBox }: { mysteryBox: ScentIndexEntry | null }) {
+/** The house's own picks, one from each line first. Not a bestseller list, so no bestseller badges. */
+export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; total: number }) {
+  if (!entries.length) return null;
   return (
-    <section className="section border-t border-dune bg-sand/40">
+    <section className="border-t border-dune pb-10 pt-7 lg:py-30">
       <div className="wrap">
-        <SectionHead index="04" title="Try before you commit" />
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
-          <article className="flex flex-col bg-paper" data-reveal>
-            <Figure name="finder-band" label="Bottles drifting out of focus on frosted glass" sizes="(min-width: 1024px) 50vw, 100vw" className="aspect-[16/10] w-full" />
-            <div className="flex flex-1 flex-col p-7">
-              <h3 className="display-m">Not sure where to start?</h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-ash">Five quick questions narrow the house to your three closest matches, with the scent each one is inspired by.</p>
-              <div className="mt-6">
-                <Link href="/finder" className="btn btn-secondary">
-                  Find your scent
+        <HomeHead title="Where to start" sub="The house’s picks for a first bottle." />
+        <SelectList list="home_where_to_start" items={entries.map(listItem)} className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-12 lg:grid-cols-4 lg:gap-x-6">
+          {entries.map((e) => (
+            <ProductCard key={e.handle} entry={e} badge={e.isNew ? "New" : false} />
+          ))}
+        </SelectList>
+        <Link href="/shop" className="btn btn-secondary btn-block mt-8 lg:mt-12 lg:w-auto">
+          See all {total} scents
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Two ways to lower the risk of a first order: the mystery box, added to the
+ * bag right here, and the finder. The finder only promises a 5 ml trio when
+ * every scent really has a 5 ml to add.
+ */
+export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryBox: ScentIndexEntry | null; everySampled: boolean }) {
+  return (
+    <section className="border-t border-dune bg-sand/40 py-10 lg:py-30">
+      <div className="wrap">
+        <HomeHead title="Try before you commit" />
+        <div className="mt-6 grid gap-4 lg:mt-12 lg:grid-cols-2 lg:gap-6">
+          {box?.bottle && (
+            <article className="grid grid-cols-[38%_1fr] gap-x-4 bg-paper p-3 lg:grid-cols-[42%_1fr] lg:gap-x-8 lg:p-6">
+              {/* The picture repeats the "What’s inside" link for a thumb, not for a screen reader or the tab order. */}
+              <Link href={`/products/${box.handle}`} className="relative block aspect-[4/5] overflow-hidden" style={{ backgroundColor: box.world.bg }} aria-hidden="true" tabIndex={-1}>
+                {box.image ? (
+                  <Image src={box.image} alt="" fill sizes="(min-width: 1024px) 20vw, 38vw" className="object-cover" />
+                ) : (
+                  <Figure name="mystery-box" label="Mystery box — matte black box, e∞ monogram" dark sizes="(min-width: 1024px) 20vw, 38vw" className="absolute inset-0" />
+                )}
+              </Link>
+              <div className="flex flex-col py-1">
+                <h3 className="display-m">The mystery box</h3>
+                <p className="mt-2 text-[14px] leading-snug text-ash lg:text-[15px]">
+                  Three {ml(site.sampleSizeMl)} scents chosen by the house, in a matte black box. For the curious, and for gifts.
+                </p>
+                <Price money={box.price} className="mt-auto pt-3 text-[16px] font-semibold" />
+              </div>
+              <div className="col-span-2 mt-3 flex flex-col lg:mt-6">
+                <AddToBagButton
+                  variant={box.bottle}
+                  product={{ productId: box.productId, handle: box.handle, title: box.title, image: box.image, lineLabel: box.lineLabel, world: box.world }}
+                  kind="set"
+                  block
+                  label={`Add the mystery box · ${formatMoney(box.price)}`}
+                />
+                <Link href={`/products/${box.handle}`} className="mt-1 inline-flex min-h-11 items-center justify-center text-[13px] font-semibold">
+                  <span className="lnk">What’s inside</span>
                 </Link>
               </div>
+            </article>
+          )}
+          <article className="watermark relative flex flex-col justify-between gap-6 overflow-hidden bg-night p-6 text-linen lg:p-10">
+            <div className="relative">
+              <h3 className="display-m">Not sure which is yours?</h3>
+              <p className="mt-2 max-w-[44ch] text-[15px] leading-relaxed text-dune">
+                Five quick questions, and the finder matches you to three scents from across the house
+                {everySampled ? `, then lets you try all three as ${ml(site.sampleSizeMl)} before you choose a bottle.` : "."}
+              </p>
             </div>
-          </article>
-          <article className="flex flex-col bg-paper" data-reveal style={{ ["--i" as string]: 1 }}>
-            {mysteryBox?.image ? (
-              <div className="relative aspect-[16/10] w-full" style={{ backgroundColor: mysteryBox.world.bg }}>
-                <Image src={mysteryBox.image} alt={mysteryBox.title} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-              </div>
-            ) : (
-              <Figure name="mystery-box" label="Mystery box film still — matte black box, e∞ monogram" dark sizes="(min-width: 1024px) 50vw, 100vw" className="aspect-[16/10] w-full" />
-            )}
-            <div className="flex flex-1 flex-col p-7">
-              <h3 className="display-m">The mystery box</h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-ash">A matte black box, the e∞ monogram, and three {site.sampleSizeMl} ml scents we choose for you. For the curious, and for gifts.</p>
-              <div className="mt-6">
-                <Link href="/products/mystery-box" className="btn">
-                  Order the mystery box{mysteryBox ? ` · EGP ${Math.round(parseFloat(mysteryBox.price.amount))}` : ""}
-                </Link>
-              </div>
-            </div>
+            <Link href="/finder" className="btn btn-light relative self-start">
+              Find yours in 60 seconds
+            </Link>
           </article>
         </div>
       </div>
@@ -343,28 +302,147 @@ export function RiskReducers({ mysteryBox }: { mysteryBox: ScentIndexEntry | nul
   );
 }
 
+export function MoodTiles() {
+  return (
+    <section className="py-10 lg:py-30">
+      <div className="wrap">
+        <HomeHead title="Shop by mood" sub="For when you know the feeling but not the notes." />
+        <ul className="mt-6 grid grid-cols-3 gap-x-2 gap-y-5 lg:mt-12 lg:gap-x-6 lg:gap-y-10">
+          {moodOrder.map((k, i) => {
+            const m = moods[k];
+            const dark = k === "after-dark";
+            return (
+              <li key={k} data-reveal style={{ ["--i" as string]: i }}>
+                <Link href={`/shop/${k}`} className="group block">
+                  <div className="relative aspect-square overflow-hidden lg:aspect-[4/3]" style={{ backgroundColor: m.wash }}>
+                    <Figure
+                      name={`mood-${k}`}
+                      label={m.art}
+                      dark={dark}
+                      sizes="33vw"
+                      className="absolute inset-0"
+                      imageClassName="hover-lift"
+                      placeholderClassName="slot-corner !border-0 opacity-80"
+                      style={{ backgroundColor: m.wash }}
+                    />
+                    <span className="wash absolute inset-0" style={{ backgroundColor: dark ? "#F3EFE7" : m.wash === "#E9E4D3" ? "#9E9382" : m.wash }} aria-hidden="true" />
+                  </div>
+                  <span className="u-draw serif mt-2 inline-block text-[19px] leading-tight lg:mt-3 lg:text-[28px]">{m.label}</span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+/** The opening of the first sentences of a tale, up to about `max` characters, cut at a sentence. */
+function excerptOf(text: string, max = 240): string[] {
+  const sentences = text.match(/[^.!?…]+[.!?…]+["’”]?\s*|[^.!?…]+$/g) ?? [text];
+  const out: string[] = [];
+  let length = 0;
+  for (const s of sentences) {
+    if (out.length && length + s.length > max) break;
+    out.push(s);
+    length += s.length;
+  }
+  return out;
+}
+
+/** Only for a scent whose tale is published: an unwritten tale never reaches the home page. */
+export function FeaturedTale({ scent }: { scent: Scent | null }) {
+  const tale = scent?.taleSlug ? tales.find((t) => t.slug === scent.taleSlug) : null;
+  if (!scent || !tale) return null;
+  // H5: the excerpt's sentences fade in one after another, the signature line last.
+  const sentences = excerptOf(scent.story?.[0] ?? tale.paragraphs[0]);
+  const bg = scent.world.dark ? scent.world.bg : "#163a4e";
+  return (
+    <section className="grain watermark relative overflow-hidden text-linen" style={{ backgroundColor: bg }}>
+      <div className="wrap relative grid gap-8 py-12 lg:grid-cols-2 lg:items-center lg:gap-12 lg:py-30">
+        <Parallax factor={0.15} className="overflow-hidden" data-reveal>
+          <div className="parallax-y -my-[8%]">
+            <Figure
+              name={[`tale-${tale.slug}-card`, "tale-featured", `tale-${tale.slug}`]}
+              label={`${scent.title} in its tale — the bottle in the scene, 4:3`}
+              dark
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="aspect-[4/3] w-full"
+              style={{ backgroundColor: bg }}
+            />
+          </div>
+        </Parallax>
+        <div style={{ ["--stagger" as string]: "80ms" }}>
+          {scent.line && (
+            <p className="text-[13px] tracking-[0.02em] text-dune" data-reveal>
+              A tale from {lines[scent.line].label}, {FOR[scent.line]}
+            </p>
+          )}
+          <h2 className="display-l mt-3" data-reveal style={{ ["--i" as string]: 1 }}>
+            {tale.title}
+          </h2>
+          {sentences.length > 0 && (
+            <p className="mt-5 max-w-[56ch] text-[16px] leading-relaxed text-dune lg:text-[17px]">
+              {sentences.map((line, i) => (
+                <span key={i} className="inline" data-reveal style={{ ["--i" as string]: i + 2 }}>
+                  {line}
+                </span>
+              ))}
+            </p>
+          )}
+          {scent.signature && (
+            <p className="signature mt-5 text-linen" data-reveal style={{ ["--i" as string]: sentences.length + 2 }}>
+              “{scent.signature}”
+            </p>
+          )}
+          <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-linen/20 pt-5 text-[14px] lg:grid-cols-3" data-reveal style={{ ["--i" as string]: sentences.length + 3 }}>
+            <div className="max-lg:hidden">
+              <dt className="eyebrow text-[12px] text-dune">The scent</dt>
+              <dd className="mt-1">{scent.title}</dd>
+            </div>
+            <div>
+              <dt className="eyebrow text-[12px] text-dune">Notes</dt>
+              <dd className="mt-1">{joinNotes(scent.notesShort)}</dd>
+            </div>
+            {scent.inspiredBy && (
+              <div>
+                <dt className="eyebrow text-[12px] text-dune">Inspired by</dt>
+                <dd className="mt-1">{scent.inspiredBy}</dd>
+              </div>
+            )}
+          </dl>
+          <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-1" data-reveal style={{ ["--i" as string]: sentences.length + 4 }}>
+            <Link href={`/products/${scent.handle}`} className="btn btn-light">
+              Shop {scent.title} · {formatMoney(scent.price)}
+            </Link>
+            <Link href={`/tales/${tale.slug}`} className="inline-flex min-h-11 items-center text-[13px] font-semibold">
+              <span className="lnk">Read the tale</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/** The house film loads only on tap; ad landings drop it (ad-drop, see home.css). */
 export function HouseFilm() {
   return (
-    <section className="grain bg-night text-linen">
-      <div className="wrap section grid gap-12 lg:grid-cols-[1.3fr_1fr] lg:items-center">
-        <Link href="/house" className="group relative block aspect-video w-full overflow-hidden" data-reveal aria-label="Watch the house film">
-          <Figure
-            name="house-film-poster"
-            label="The house film — brand explainer, 1:30, poster frame [video to add]"
-            dark
-            sizes="(min-width: 1024px) 60vw, 100vw"
-            className="kenburns absolute inset-0"
-            placeholderClassName="slot-corner !border-0"
-          />
-          <span className="absolute left-1/2 top-1/2 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-linen/70 text-linen transition-transform duration-200 group-hover:scale-[1.06]">
-            <Icon name="play" size={24} />
-          </span>
-        </Link>
+    <section className="ad-drop grain bg-night text-linen">
+      <div className="wrap grid gap-8 py-12 lg:grid-cols-[1.3fr_1fr] lg:items-center lg:gap-12 lg:py-30">
+        <HouseFilmPlayer
+          sources={siteVideo("house-film")}
+          className="relative block aspect-video w-full overflow-hidden"
+          poster={<Figure name="house-film-poster" label="The house film — brand explainer, 1:30, poster frame" dark sizes="(min-width: 1024px) 60vw, 100vw" className="kenburns absolute inset-0" placeholderClassName="slot-corner !border-0" />}
+        />
         <div data-reveal>
-          <Eyebrow className="!text-dune">The house</Eyebrow>
-          <h2 className="display-l mt-4">Composed to be remembered.</h2>
-          <p className="body-l mt-6 max-w-[50ch] text-dune">We start from the fragrances people already love, and compose our own reading of them — tested on skin for lasting power, bottled in Cairo, told through a tale. Inspired by, never imitated.</p>
-          <Link href="/house" className="btn btn-outline-light mt-8">
+          <Eyebrow className="text-[12px] !text-dune">The house</Eyebrow>
+          <h2 className="display-l mt-3">Composed to be remembered.</h2>
+          <p className="mt-5 max-w-[50ch] text-[16px] leading-relaxed text-dune lg:text-[17px]">
+            We start from the fragrances people already love and compose our own reading of each one, bottled in Cairo and told through a tale. Inspired by, never imitated.
+          </p>
+          <Link href="/house" className="btn btn-outline-light mt-7">
             Our story
           </Link>
         </div>
@@ -373,24 +451,25 @@ export function HouseFilm() {
   );
 }
 
-export function TalesTeaser() {
-  const picks = tales.slice(1, 4);
+/** Published tales other than the featured one; nothing at all while none is written. Ad landings drop it. */
+export function TalesTeaser({ exclude }: { exclude: string | null }) {
+  const picks = tales.filter((t) => t.slug !== exclude).slice(0, 3);
   if (!picks.length) return null;
   return (
-    <section className="section">
+    <section className="ad-drop py-10 lg:py-30">
       <div className="wrap">
-        <SectionHead title="Tales" action={{ label: "All tales", href: "/tales" }} />
-        <ul className="mt-12 grid gap-8 md:grid-cols-3">
+        <HomeHead title="Tales" action={{ label: "All tales", href: "/tales" }} />
+        <ul className="mt-6 grid gap-8 md:grid-cols-3 lg:mt-12">
           {picks.map((t, i) => (
             <li key={t.slug} data-reveal style={{ ["--i" as string]: i }}>
               <Link href={`/tales/${t.slug}`} className="group flex flex-col">
-                <Figure name={`tale-${t.slug}`} label={t.heroArt} sizes="(min-width: 768px) 33vw, 100vw" className="t3-img aspect-[4/3] w-full" />
-                <Eyebrow className="mt-5">
-                  {t.line} · {t.handle.replace(/-/g, " ")}
-                </Eyebrow>
-                <p className="serif mt-2 text-[26px] leading-[1.15] group-hover:text-sea">{t.signature}</p>
-                <span className="lnk mt-4 self-start">
-                  Read the tale <Icon name="arrow-right" size={16} />
+                <Figure name={[`tale-${t.slug}-card`, `tale-${t.slug}`]} label={t.heroArt} sizes="(min-width: 768px) 33vw, 100vw" className="t3-img aspect-[4/3] w-full" />
+                <span className="mt-4 text-[13px] tracking-[0.02em] text-ash">
+                  {lines[t.line].label}, {FOR[t.line]}
+                </span>
+                <p className="serif mt-1 text-[26px] leading-[1.15] group-hover:text-sea">{t.signature}</p>
+                <span className="mt-3 inline-flex min-h-11 items-center self-start text-[13px] font-semibold">
+                  <span className="lnk">Read the tale</span>
                 </span>
               </Link>
             </li>

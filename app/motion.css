@@ -62,14 +62,10 @@
 
   @media (prefers-reduced-motion: no-preference) {
     html:not([data-motion="off"]) {
-      /* G1 · first visit: the mark draws, the Linen curtain lifts. */
+      /* G1 · a desktop first visit to home: the mark draws, the Linen curtain lifts. Never below 1024 px (MotionScript). */
       &[data-loading="1"] .loader { display: flex; animation: m-curtain 400ms var(--ease-emphasized) 600ms forwards; }
       .draw path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: m-draw 600ms var(--ease-emphasized) forwards; }
       .draw-slow path { animation-duration: var(--dur-xl); }
-      @media (max-width: 1023px) {
-        &[data-loading="1"] .loader { animation-delay: 300ms; animation-duration: 200ms; }
-        .loader .draw path { animation-duration: 300ms; }
-      }
 
       /* G2 · page cross-fade; the header stays put. */
       .page-enter { animation: m-fade var(--dur-s) var(--ease-standard); }
