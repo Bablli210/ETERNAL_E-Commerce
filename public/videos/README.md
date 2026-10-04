@@ -40,3 +40,15 @@ new one is `<Film name="…" label="…" />` in place of `<Figure />`.
 metered or 2g connection — the poster simply stays. Each crop is also gated on
 its own media query, so a visitor downloads the desktop clip or the mobile
 clip, never both.
+
+## Weight
+
+Phones on mobile data are the audience, so the mobile clip stays under 400 KB
+(playbook 7.1). `home-hero-mobile` is 720 px wide, H.264 CRF 22 (about 310 KB)
+and VP9 WebM (about 280 KB); 720 px covers a 390 px phone at 2x without visible
+loss.
+
+```
+ffmpeg -i master.mp4 -vf "scale=720:-2:flags=lanczos" -c:v libx264 -preset slow \
+  -crf 22 -profile:v high -pix_fmt yuv420p -movflags +faststart -an home-hero-mobile.mp4
+```
