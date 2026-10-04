@@ -14,7 +14,7 @@ export const site = {
   locale: "en-EG",
 
   /** One confirmed offer for the bar above the header, matched to the running ads. */
-  announcement: "Free delivery on orders over EGP 2,000",
+  announcement: "Free delivery on orders over EGP 2,200",
   /**
    * The free 5 ml that ships with each bottle, so the customer tries another
    * scent. Shown in the hero, on a bottle's buy box and in the bag (one per
@@ -32,10 +32,10 @@ export const site = {
   deliveryIncluded: false as boolean | null,
   /**
    * Free delivery from this bag subtotal, in EGP. It must match the free rate
-   * in Shopify's shipping settings (minimum order price 2,000). null hides the
+   * in Shopify's shipping settings (minimum order price 2,200). null hides the
    * bag meter and every free-delivery line.
    */
-  freeShippingThreshold: 2000 as number | null,
+  freeShippingThreshold: 2200 as number | null,
   /** Couriers deliver Sunday to Thursday; Friday and Saturday are off. */
   deliveryTime: "within 2 working days, Sunday to Thursday",
   /** Unopened bottles only, so a return can be resold. */

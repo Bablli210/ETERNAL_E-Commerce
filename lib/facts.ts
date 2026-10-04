@@ -28,7 +28,7 @@ export const facts = {
   freeSamples: confirmed(site.freeSamples),
   sampleCredit: confirmed(site.sampleCredit),
   freeShippingThreshold: site.freeShippingThreshold,
-  /** "EGP 2,000", for "Free delivery over EGP 2,000". */
+  /** "EGP 2,200", for "Free delivery over EGP 2,200". */
   freeDeliveryOver: site.freeShippingThreshold !== null ? formatMoney({ amount: site.freeShippingThreshold, currencyCode: site.currency }) : null,
   deliveryIncluded: site.deliveryIncluded,
   whatsapp: site.whatsapp,
