@@ -1,30 +1,20 @@
 /* Styles owned by the collection workstream. Tailwind utilities first; only what utilities cannot express goes here. */
 @layer components {
   /*
-   * H4 on cards, for devices that really hover. Touch screens never display
-   * the second frame, so its lazy image is never fetched, and a tap cannot
-   * leave the crossfade or the zoom stuck on (iOS can also spend the first tap
-   * on a hover change and swallow the navigation).
+   * H4 on cards: hovering a card turns that card, and only that card, to its
+   * notes still. Switched on for any device with an input that can hover
+   * (any-hover), so a touchscreen laptop or an iPad with a trackpad gets it
+   * too, not only a mouse-first computer. Touch-only phones never display the
+   * second frame, so its lazy image is never fetched there and a tap cannot
+   * leave it stuck on.
    */
   .pimg-hover { display: none; }
-  @media (hover: hover) and (pointer: fine) {
+  @media (any-hover: hover) {
     .pimg-hover { display: contents; }
-    /* The notes still shows on hover (and keyboard focus) whether motion is on or off; the motion block only adds the crossfade. */
+    /* With motion on or off; the motion block only adds the crossfade. */
     .group:hover .img-hover, .group:focus-within .img-hover { opacity: 1; }
   }
-  /*
-   * Touch screens have no hover: a small button on each card turns that card, and only that card,
-   * to its notes still (CardNotes sets .notes-on). The still is fetched only once it is asked for.
-   */
-  .notes-toggle { display: none; }
-  @media (hover: none), (pointer: coarse) {
-    .notes-on .pimg-hover { display: contents; }
-    .group.notes-on .img-hover { opacity: 1; }
-    .notes-toggle { position: absolute; right: 4px; bottom: 4px; z-index: 3; display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: var(--color-night); }
-    .notes-toggle > span { display: flex; width: 32px; height: 32px; align-items: center; justify-content: center; border-radius: 9999px; background: rgb(250 248 243 / 0.92); box-shadow: 0 1px 4px rgb(23 22 20 / 0.18); }
-    .notes-on .notes-toggle > span { background: var(--color-night); color: var(--color-linen); }
-  }
-  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  @media (any-hover: hover) and (prefers-reduced-motion: no-preference) {
     html:not([data-motion="off"]) .pimg-lift { transition: transform var(--dur-l) var(--ease-standard); }
     html:not([data-motion="off"]) .group:hover .pimg-lift { transform: scale(1.03); }
   }

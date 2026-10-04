@@ -1,18 +1,15 @@
 import Image from "next/image";
 import { Mark } from "@/components/ui/Wordmark";
-import { Icon } from "@/components/ui/Icon";
 import type { World } from "@/lib/catalogue";
 
 /**
  * A packshot on its colour world, painted visible straight from the server
  * HTML. Nothing waits for hydration: an image held at opacity 0 does not
  * count as painted, which kept collection LCP at 4.5 s. `priority` (the first
- * row of a grid) loads eagerly at high fetch priority. H4: on devices that
- * hover, the notes still crossfades in under the pointer, card by card. Touch
- * screens have no hover, so with `notesToggle` a small button on the image
- * turns that one card to its notes still (CardNotes); the still downloads only
- * when asked for. A product without a picture yet shows its colour world and
- * the eternal mark.
+ * row of a grid) loads eagerly at high fetch priority. H4: on any device that
+ * can hover, the notes still crossfades in under the pointer, card by card
+ * (collection.css); touch-only phones never fetch it. A product without a
+ * picture yet shows its colour world and the eternal mark.
  */
 export function ProductImage({
   src,
@@ -23,7 +20,6 @@ export function ProductImage({
   priority = false,
   fit = "cover",
   className = "",
-  notesToggle = false,
 }: {
   src: string | null;
   hoverSrc?: string | null;
@@ -35,8 +31,6 @@ export function ProductImage({
   priority?: boolean;
   fit?: "cover" | "contain";
   className?: string;
-  /** A touch-screen button that shows this card's notes still. Only where the image is not inside a link. */
-  notesToggle?: boolean;
 }) {
   const fitClass = fit === "cover" ? "object-cover" : "object-contain";
   return (
@@ -48,13 +42,6 @@ export function ProductImage({
             <span className="pimg-hover" aria-hidden="true">
               <Image src={hoverSrc} alt="" fill sizes={sizes} className={`img-hover ${fitClass}`} />
             </span>
-          )}
-          {hoverSrc && notesToggle && (
-            <button type="button" className="notes-toggle" data-notes-toggle aria-pressed="false" aria-label="Show the notes">
-              <span>
-                <Icon name="leaf" size={16} />
-              </span>
-            </button>
           )}
         </>
       ) : (
