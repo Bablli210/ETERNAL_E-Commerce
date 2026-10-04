@@ -47,6 +47,48 @@ declare global {
 
 export const CURRENCY = "EGP";
 
+const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+const GA4 = process.env.NEXT_PUBLIC_GA4_ID;
+
+/**
+ * The pixel's and gtag's command queues, created on first use. A product page
+ * fires view_item as soon as it hydrates, usually before fbevents.js and
+ * gtag.js have loaded; with the queues in place those calls wait instead of
+ * being dropped, and each library replays them when it arrives
+ * (components/analytics/Analytics.tsx only loads the two scripts).
+ */
+export function ensureQueues() {
+  if (typeof window === "undefined") return;
+  if (PIXEL && !window.fbq) {
+    type Fbq = ((...args: unknown[]) => void) & { callMethod?: (...a: unknown[]) => void; queue: unknown[]; push: unknown; loaded: boolean; version: string };
+    const fbq = function (this: unknown) {
+      // The pixel library expects the queue to hold Arguments objects, as its own snippet does.
+      // eslint-disable-next-line prefer-rest-params, prefer-spread
+      if (fbq.callMethod) fbq.callMethod.apply(fbq, arguments as unknown as unknown[]);
+      // eslint-disable-next-line prefer-rest-params
+      else fbq.queue.push(arguments);
+    } as unknown as Fbq;
+    fbq.queue = [];
+    fbq.push = fbq;
+    fbq.loaded = true;
+    fbq.version = "2.0";
+    window.fbq = fbq;
+    (window as unknown as { _fbq: Fbq })._fbq = fbq;
+    fbq("init", PIXEL);
+    fbq("track", "PageView");
+  }
+  if (GA4 && !window.gtag) {
+    window.dataLayer = window.dataLayer ?? [];
+    window.gtag = function () {
+      // gtag.js reads Arguments objects from the data layer, not arrays.
+      // eslint-disable-next-line prefer-rest-params
+      window.dataLayer!.push(arguments);
+    };
+    window.gtag("js", new Date());
+    window.gtag("config", GA4, { send_page_view: false });
+  }
+}
+
 /** The content id the Shopify Facebook & Instagram channel gives catalogue items, so dynamic ads match. */
 const contentId = (i: AnalyticsItem) => (i.productId ? `shopify_EG_${i.productId}_${i.variantId}` : i.variantId);
 const value = (items: AnalyticsItem[]) => Math.round(items.reduce((n, i) => n + i.price * (i.quantity ?? 1), 0) * 100) / 100;
@@ -100,6 +142,7 @@ const eventId = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ?
 export function track(e: Event) {
   if (typeof window === "undefined") return;
   try {
+    ensureQueues();
     const id = eventId();
     const fbq = window.fbq;
     const gtag = window.gtag;

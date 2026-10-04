@@ -5,13 +5,14 @@
  * that sent them. The landing URL's UTM and click-id parameters are stored
  * twice: the first touch (kept 30 days) and the latest touch (kept 7 days,
  * Meta's default click window). Both travel to Shopify checkout as cart
- * attributes, so every order shows its campaign on the order page.
+ * attributes, so every order shows its campaign on the order page. A
+ * ?discount=CODE in the ad link is kept the same way and applied at checkout.
  */
 const FIRST = "eternal.attr.first.v1";
 const LAST = "eternal.attr.last.v1";
 const DAY = 86_400_000;
 
-const PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid", "gclid", "ttclid"] as const;
+const PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid", "gclid", "ttclid", "discount"] as const;
 type Param = (typeof PARAMS)[number];
 
 export type Touch = Partial<Record<Param, string>> & { landing: string; referrer: string; at: number };
@@ -53,21 +54,10 @@ export function lastTouch() {
   return read(LAST, 7 * DAY);
 }
 
-const cookie = (name: string) => {
-  const hit = document.cookie.split("; ").find((c) => c.startsWith(`${name}=`));
-  return hit ? decodeURIComponent(hit.slice(name.length + 1)) : null;
-};
-
 /** Cart attributes for Shopify: shown under "Additional details" on the order. */
 export function checkoutAttributes(): { key: string; value: string }[] {
   const out: { key: string; value: string }[] = [];
-  // Meta's browser and click ids, and GA4's client id, so an order can be matched to its ad and session.
-  const fbp = cookie("_fbp");
-  const fbc = cookie("_fbc");
-  const ga = cookie("_ga")?.split(".").slice(-2).join(".");
-  if (fbp) out.push({ key: "_fbp", value: fbp });
-  if (fbc) out.push({ key: "_fbc", value: fbc });
-  if (ga) out.push({ key: "ga_cid", value: ga });
+  // Meta's _fbp/_fbc and GA's client id are read from cookies by the checkout route itself.
   if (/Instagram|FBAN|FBAV/i.test(navigator.userAgent)) out.push({ key: "in_app", value: /Instagram/i.test(navigator.userAgent) ? "instagram" : "facebook" });
   const last = lastTouch();
   const first = read(FIRST, 30 * DAY);

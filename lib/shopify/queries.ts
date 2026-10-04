@@ -112,17 +112,17 @@ export type CheckoutLine = { merchandiseId: string; quantity: number };
  * URL. The buyer's country is set to Egypt, so checkout opens with Egypt
  * already selected.
  */
-export async function createCheckout(lines: CheckoutLine[], attributes: { key: string; value: string }[] = []): Promise<string> {
+export async function createCheckout(lines: CheckoutLine[], attributes: { key: string; value: string }[] = [], discountCodes: string[] = []): Promise<string> {
   const data: { cartCreate: { cart: { checkoutUrl: string } | null; userErrors: { message: string }[] } } = await storefront(
     /* GraphQL */ `
-      mutation CreateCart($lines: [CartLineInput!]!, $attributes: [AttributeInput!]) {
-        cartCreate(input: { lines: $lines, attributes: $attributes, buyerIdentity: { countryCode: EG } }) {
+      mutation CreateCart($lines: [CartLineInput!]!, $attributes: [AttributeInput!], $discountCodes: [String!]) {
+        cartCreate(input: { lines: $lines, attributes: $attributes, discountCodes: $discountCodes, buyerIdentity: { countryCode: EG } }) {
           cart { id checkoutUrl }
           userErrors { field message }
         }
       }
     `,
-    { lines, attributes },
+    { lines, attributes, discountCodes },
     { revalidate: false },
   );
   if (!data.cartCreate.cart) throw new Error(data.cartCreate.userErrors.map((e) => e.message).join("; ") || "Cart could not be created");

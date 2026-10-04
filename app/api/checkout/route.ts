@@ -11,6 +11,8 @@ const ATTRIBUTE_KEYS = new Set(["utm_source", "utm_medium", "utm_campaign", "utm
 /** Test arms travel as exp_{id}. */
 const EXPERIMENT_KEY = /^exp_[a-z0-9_-]{1,32}$/i;
 const VARIANT_ID = /^(gid:\/\/shopify\/ProductVariant\/)?\d+$/;
+/** A discount code from the ad link (?discount=CODE); Shopify validates it at checkout. */
+const DISCOUNT_CODE = /^[A-Za-z0-9_-]{2,40}$/;
 const MAX_QTY = 10;
 
 /**
@@ -30,6 +32,7 @@ export async function POST(req: Request) {
     .filter((l) => l && typeof l.variantId === "string" && VARIANT_ID.test(l.variantId) && Number.isFinite(l.quantity) && l.quantity >= 1)
     .map((l) => ({ variantId: l.variantId, quantity: Math.min(MAX_QTY, Math.floor(l.quantity)) }));
   if (!lines.length) return NextResponse.json({ error: "Your bag is empty" }, { status: 400 });
+  const discount = (Array.isArray(body.attributes) ? body.attributes : []).find((a) => a?.key === "discount" && typeof a.value === "string" && DISCOUNT_CODE.test(a.value))?.value;
   const attributes = (Array.isArray(body.attributes) ? body.attributes : [])
     .filter((a) => a && (ATTRIBUTE_KEYS.has(a.key) || EXPERIMENT_KEY.test(a.key)) && typeof a.value === "string" && a.value)
     .map((a) => ({ key: a.key, value: a.value.slice(0, 200) }));
@@ -45,7 +48,7 @@ export async function POST(req: Request) {
 
   if (shopifyConfigured) {
     try {
-      const url = await createCheckout(lines.map((l) => ({ merchandiseId: l.variantId.startsWith("gid:") ? l.variantId : `gid://shopify/ProductVariant/${l.variantId}`, quantity: l.quantity })), attributes);
+      const url = await createCheckout(lines.map((l) => ({ merchandiseId: l.variantId.startsWith("gid:") ? l.variantId : `gid://shopify/ProductVariant/${l.variantId}`, quantity: l.quantity })), attributes, discount ? [discount] : []);
       return NextResponse.json({ url, mode: "storefront" });
     } catch (err) {
       console.error("[checkout] Storefront cart failed, falling back to permalink:", err);
@@ -56,6 +59,7 @@ export async function POST(req: Request) {
   for (const a of attributes) query.append(`attributes[${a.key}]`, a.value);
   const source = attributes.find((a) => a.key === "utm_source")?.value;
   if (source) query.set("ref", source);
+  if (discount) query.set("discount", discount);
   const qs = query.toString();
   const permalink = `https://${storeDomain}/cart/${lines.map((l) => `${numericId(l.variantId)}:${l.quantity}`).join(",")}${qs ? `?${qs}` : ""}`;
   return NextResponse.json({ url: permalink, mode: "permalink" });
