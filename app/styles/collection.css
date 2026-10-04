@@ -2,21 +2,27 @@
 @layer components {
   /*
    * H4 on cards: hovering a card turns that card, and only that card, to its
-   * notes still. Switched on for any device with an input that can hover
-   * (any-hover), so a touchscreen laptop or an iPad with a trackpad gets it
-   * too, not only a mouse-first computer. Touch-only phones never display the
-   * second frame, so its lazy image is never fetched there and a tap cannot
-   * leave it stuck on.
+   * notes still. Three ways in, because browsers do not all say truthfully
+   * whether they can hover (some Windows laptops with a touchscreen report
+   * that they cannot): any input that can hover, any screen at laptop width
+   * (no phone is 1024 px wide), and html[data-hover], which MotionScript sets
+   * at the first movement of a real mouse or trackpad. A phone matches none,
+   * so its second frame is never displayed or fetched, and a tap cannot leave
+   * it stuck on.
    */
   .pimg-hover { display: none; }
-  @media (any-hover: hover) {
+  @media (any-hover: hover), (min-width: 1024px) {
     .pimg-hover { display: contents; }
     /* With motion on or off; the motion block only adds the crossfade. */
     .group:hover .img-hover, .group:focus-within .img-hover { opacity: 1; }
   }
-  @media (any-hover: hover) and (prefers-reduced-motion: no-preference) {
-    html:not([data-motion="off"]) .pimg-lift { transition: transform var(--dur-l) var(--ease-standard); }
-    html:not([data-motion="off"]) .group:hover .pimg-lift { transform: scale(1.03); }
+  html[data-hover] .pimg-hover { display: contents; }
+  html[data-hover] .group:hover .img-hover, html[data-hover] .group:focus-within .img-hover { opacity: 1; }
+  @media (any-hover: hover), (min-width: 1024px) {
+    @media (prefers-reduced-motion: no-preference) {
+      html:not([data-motion="off"]) .pimg-lift { transition: transform var(--dur-l) var(--ease-standard); }
+      html:not([data-motion="off"]) .group:hover .pimg-lift { transform: scale(1.03); }
+    }
   }
 
   /* The card's name link covers the whole card; its buttons sit above it. */

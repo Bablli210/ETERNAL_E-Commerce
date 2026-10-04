@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { preconnect } from "react-dom";
-import { MAX_QTY, sizeLabel, useCart, type CartLine } from "./CartProvider";
+import { MAX_QTY, sampleNames, sizeLabel, useCart, type CartLine } from "./CartProvider";
 import { inertOutside } from "@/lib/client/inertOutside";
 import { Icon } from "@/components/ui/Icon";
 import { Mark } from "@/components/ui/Wordmark";
@@ -53,14 +53,42 @@ function wrapTab(e: KeyboardEvent, root: HTMLElement) {
 }
 
 /** The bag as a WhatsApp message, with a link that rebuilds it on any browser (the /bag route). */
-function bagMessage(lines: CartLine[], subtotal: number) {
+function bagMessage(lines: CartLine[], subtotal: number, samples: string[]) {
   const restore = `${window.location.origin}/bag?items=${lines.map((l) => `${l.numericId}:${l.qty}`).join(",")}`;
   return [
     "Hello eternal, this is my bag:",
     ...lines.map((l) => `${l.qty} × ${l.title}, ${sizeLabel(l.variantLabel)} · ${formatMoney({ amount: parseFloat(l.price.amount) * l.qty, currencyCode: l.price.currencyCode })}`),
+    ...(samples.length ? [`Free 5 ml: ${samples.join(", ")}`] : []),
     `Subtotal ${formatMoney({ amount: subtotal, currencyCode: lines[0]?.price.currencyCode })}`,
     restore,
   ].join("\n");
+}
+
+/** More picks than this and the rest are the house's choice; no bag reaches it in practice. */
+const MAX_SAMPLE_PICKS = 20;
+
+type SampleGroup = { label: string; options: { handle: string; title: string }[] };
+
+/** One free 5 ml: a native select, so a phone opens its own picker. "" leaves it to the house. */
+function SamplePicker({ slot, of, value, groups, onPick }: { slot: number; of: number; value: string; groups: SampleGroup[]; onPick: (slot: number, handle: string) => void }) {
+  return (
+    <label className="relative mt-2 block">
+      <span className="sr-only">{of > 1 ? `Free 5 ml ${slot + 1} of ${of}` : "Free 5 ml"}</span>
+      <select value={value} onChange={(e) => onPick(slot, e.target.value)} className="sample-select h-11 w-full appearance-none rounded-none border border-dune bg-paper pl-3 pr-10 text-[14px] text-night">
+        <option value="">Let the house choose</option>
+        {groups.map((g) => (
+          <optgroup key={g.label} label={g.label}>
+            {g.options.map((o) => (
+              <option key={o.handle} value={o.handle}>
+                {o.title}
+              </option>
+            ))}
+          </optgroup>
+        ))}
+      </select>
+      <Icon name="chevron-down" size={16} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ash" />
+    </label>
+  );
 }
 
 type Suggestion = { key: string; eyebrow: string; entry: ScentIndexEntry; variant: NonNullable<ScentIndexEntry["bottle"]>; note: string; image: string | null };
@@ -132,6 +160,26 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
   const hasBottle = payable.some((l) => l.kind === "bottle");
   /** One free 5 ml ships with each bottle. */
   const bottles = payable.reduce((n, l) => (l.kind === "bottle" ? n + l.qty : n), 0);
+  /**
+   * What a free 5 ml can be: every scent, by line, except the ones already in
+   * the bag as a bottle (the 5 ml is for trying something new). A pick made
+   * before that bottle was added stays listed, so the select never goes blank.
+   */
+  const inBag = useMemo(() => new Set(payable.filter((l) => l.kind === "bottle").map((l) => l.handle)), [payable]);
+  const sampleGroups = (keep: string): SampleGroup[] => {
+    const pool = index.filter((e) => e.kind === "scent" && (!inBag.has(e.handle) || e.handle === keep));
+    const groups: SampleGroup[] = (["eterna", "eterno", "eternal"] as LineKey[]).map((k) => ({
+      label: lineWithAudience(k),
+      options: pool.filter((e) => e.line === k).map((e) => ({ handle: e.handle, title: e.title })),
+    }));
+    const other = pool.filter((e) => !e.line).map((e) => ({ handle: e.handle, title: e.title }));
+    if (other.length) groups.push({ label: "More scents", options: other });
+    return groups.filter((g) => g.options.length);
+  };
+  const pickSample = (slot: number, handle: string) => {
+    cart.setSample(slot, handle);
+    track({ name: "ui", action: "sample_pick", label: handle || "house" });
+  };
   const threshold = facts.freeShippingThreshold;
   const away = threshold !== null ? Math.max(0, threshold - cart.subtotal) : null;
   const deliveryIncluded = (facts.deliveryIncluded === true && hasBottle) || away === 0;
@@ -220,7 +268,8 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
   // The ad's ?discount=CODE travels to checkout; the bag says so, since Shopify applies it there and the total here is before it.
   const code = discountCode();
   const before = [!deliveryIncluded && "delivery", code && "your code"].filter(Boolean).join(" and ");
-  const waHref = facts.whatsapp && payable.length ? `https://wa.me/${facts.whatsapp}?text=${encodeURIComponent(bagMessage(payable, cart.subtotal))}` : null;
+  const freeNames = facts.freeSamples ? sampleNames(cart.samples, bottles, (h) => byHandle.get(h)?.title ?? null) : [];
+  const waHref = facts.whatsapp && payable.length ? `https://wa.me/${facts.whatsapp}?text=${encodeURIComponent(bagMessage(payable, cart.subtotal, freeNames))}` : null;
   const onWhatsApp = () => track({ name: "ui", action: "whatsapp_click", label: "bag" });
 
   return (
@@ -279,7 +328,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
                   return (
                     <li key={l.variantId} className={`line-row ${removing.has(l.variantId) ? "removing" : ""} ${cart.lastAdded === l.variantId ? "line-new" : ""}`}>
                       <div className="flex gap-4 overflow-hidden border-b border-dune py-4">
-                        <Link href={href} replace onClick={follow(href)} tabIndex={-1} aria-hidden="true" className="relative block h-[96px] w-[76px] shrink-0 overflow-hidden" style={{ backgroundColor: l.world.bg }}>
+                        <Link href={href} replace onClick={follow(href)} tabIndex={-1} aria-hidden="true" className="relative block h-[76px] w-[76px] shrink-0 overflow-hidden" style={thumb(l.handle, l.image) ? undefined : { backgroundColor: l.world.bg }}>
                           <Thumb src={thumb(l.handle, l.image)} world={l.world} sizes="76px" mark={44} />
                         </Link>
                         <div className="flex min-w-0 flex-1 flex-col">
@@ -323,19 +372,27 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
                   );
                 })}
                 {facts.freeSamples && bottles > 0 && (
-                  <li className="flex items-center gap-4 border-b border-dune py-4">
-                    <span className="flex h-11 w-[76px] shrink-0 items-center justify-center bg-sand text-night">
-                      <Mark size={36} />
+                  <li className="flex gap-4 border-b border-dune py-4">
+                    <span className="flex h-[76px] w-[76px] shrink-0 items-center justify-center bg-sand text-night">
+                      <Mark size={40} />
                     </span>
-                    <p className="min-w-0 flex-1 text-[14px]">{bottles === 1 ? "A 5 ml of another scent to try" : `${bottles} × 5 ml of other scents to try`}</p>
-                    <span className="shrink-0 text-[13px] font-semibold">Free</span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline justify-between gap-3">
+                        <p className="display-m !text-[20px] leading-tight">{bottles === 1 ? "Your free 5 ml" : `Your ${bottles} free 5 ml`}</p>
+                        <span className="shrink-0 text-[13px] font-semibold">Free</span>
+                      </div>
+                      <p className="mt-1 text-[13px] leading-snug text-ash">One with every bottle. Pick {bottles === 1 ? "the scent" : "each scent"} you want to try, or leave it to the house.</p>
+                      {Array.from({ length: Math.min(bottles, MAX_SAMPLE_PICKS) }, (_, i) => (
+                        <SamplePicker key={i} slot={i} of={bottles} value={cart.samples[i] ?? ""} groups={sampleGroups(cart.samples[i] ?? "")} onPick={pickSample} />
+                      ))}
+                    </div>
                   </li>
                 )}
               </ul>
 
               {suggestion && (
                 <section aria-label="A suggestion" className="rise-in my-4 flex gap-3 border border-dune p-3" style={{ ["--i" as string]: 3 }}>
-                  <span className="relative block h-[70px] w-14 shrink-0 overflow-hidden" style={{ backgroundColor: suggestion.entry.world.bg }}>
+                  <span className="relative block h-14 w-14 shrink-0 overflow-hidden" style={suggestion.image ? undefined : { backgroundColor: suggestion.entry.world.bg }}>
                     <Thumb src={suggestion.image} world={suggestion.entry.world} sizes="56px" mark={32} />
                   </span>
                   <div className="min-w-0 flex-1">

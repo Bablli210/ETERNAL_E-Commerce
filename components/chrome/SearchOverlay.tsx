@@ -50,7 +50,7 @@ function ResultRow({ entry, matchedInspiredBy = false, onPick }: { entry: ScentI
   return (
     <li>
       <Link href={`/products/${entry.handle}`} replace onClick={onPick} className="group flex items-center gap-3 py-3">
-        <ProductImage src={entry.image} alt="" world={entry.world} sizes="56px" className="h-[68px] w-[56px] shrink-0" />
+        <ProductImage src={entry.image} alt="" world={entry.world} sizes="56px" className="h-14 w-14 shrink-0" />
         <span className="min-w-0 flex-1">
           <span className="display-m block truncate !text-[20px] group-hover:text-sea">{entry.title}</span>
           {entry.inspiredBy && (

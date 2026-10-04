@@ -14,6 +14,10 @@
  * other page go straight to the content: the curtain costs about half a
  * second, and ad visitors pay for it twice, in attention and in ad spend.
  * The ad flag is set before storage is touched, so blocked storage cannot drop it.
+ *
+ * data-hover: the first time a real mouse or trackpad moves over the page,
+ * cards switch on their hover frame (collection.css), whatever the browser
+ * reports about its pointer.
  */
 const code =
   '(function(){var d=document.documentElement,l=location;' +
@@ -21,7 +25,8 @@ const code =
   'try{var m=localStorage.getItem("eternal.motion");if(m==="off"){d.dataset.motion="off";}' +
   'var first=!sessionStorage.getItem("eternal.loaded");sessionStorage.setItem("eternal.loaded","1");' +
   'if(first&&m!=="off"&&!ad&&l.pathname==="/"&&window.innerWidth>=1024' +
-  '&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches){d.dataset.loading="1";}}catch(e){}})();';
+  '&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches){d.dataset.loading="1";}}catch(e){}' +
+  'function h(e){if(e.pointerType==="mouse"){d.dataset.hover="1";removeEventListener("pointerover",h,true);}}addEventListener("pointerover",h,true);})();';
 
 export function MotionScript() {
   return <script dangerouslySetInnerHTML={{ __html: code }} />;

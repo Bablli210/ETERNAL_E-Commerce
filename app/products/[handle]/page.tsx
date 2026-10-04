@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/metadata";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import snapshot from "@/content/catalogue.snapshot.json";
@@ -6,11 +7,10 @@ import { site } from "@/content/site";
 import { families, lines } from "@/content/taxonomy";
 import { getRelated, getScent, getScentIndex, getCatalogue, toIndexEntry, type Scent } from "@/lib/catalogue";
 import { facts } from "@/lib/facts";
-import { sentenceCase, sizeLabel } from "@/lib/format";
-import { siteImage } from "@/lib/site-images";
+import { joinNotes, sentenceCase, sizeLabel } from "@/lib/format";
 import { Gallery } from "@/components/product/Gallery";
 import { BuyBox } from "@/components/product/BuyBox";
-import { BoxContents, Differs, FaqSection, NotesPyramid, Pairing, sectionReady, TaleExcerpt, WearIt } from "@/components/product/Sections";
+import { BoxContents, Differs, FaqSection, notesAnswer, Pairing, sectionReady, TaleExcerpt, WearIt } from "@/components/product/Sections";
 import { ProductCard } from "@/components/product/ProductCard";
 import { RecentlyViewed } from "@/components/product/RecentlyViewed";
 import { lineWithAudience } from "@/components/product/line";
@@ -32,7 +32,13 @@ const box = {
   description: `Three ${site.sampleSizeMl} ml eaux de parfum, chosen by the house: a first meeting with eternal before you choose a bottle.`,
 };
 
-const describe = (s: Scent) => (s.kind === "set" ? box.description : s.description.trim() || s.signature || site.description);
+/** The product's own words; one without a Shopify description yet still says what it is, rather than the house's line. */
+const describe = (s: Scent) => {
+  if (s.kind === "set") return box.description;
+  if (s.description.trim()) return s.description.trim();
+  const what = s.line ? `${s.title}, an eau de parfum from ${lineWithAudience(s.line, ", ")}.` : `${s.title}, an eau de parfum from ${site.name}.`;
+  return [what, s.inspiredBy && `Inspired by ${s.inspiredBy}.`, s.notesShort.length && `Notes of ${joinNotes(s.notesShort.slice(0, 3)).toLowerCase()}.`, s.signature].filter(Boolean).join(" ");
+};
 const absolute = (url: string) => new URL(url, site.url).href;
 
 /** A mis-cased link from a bio or an ad (/products/WAYNE) lands on the product, not a 404. */
@@ -48,23 +54,18 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
   const { handle } = await params;
   const scent = await findScent(handle);
   if (!scent) return {};
-  const description = describe(scent).slice(0, 160);
-  const image = scent.image?.url ?? siteImage("og-image");
-  return {
-    title: scent.kind === "scent" && scent.line ? `${scent.title} — ${lineWithAudience(scent.line, ", ")}` : scent.title,
+  const description = describe(scent).replace(/\s+/g, " ").slice(0, 160);
+  // The unisex line is called eternal, like the house, so its products leave the house's name off the end rather than say it twice.
+  const named = scent.kind === "scent" && scent.line ? `${scent.title} — ${lineWithAudience(scent.line, ", ")}` : scent.title;
+  return pageMeta({
+    title: named,
+    absolute: scent.line === "eternal",
     description,
-    alternates: { canonical: `/products/${scent.handle}` },
-    // The page's openGraph replaces the layout's, so it carries the brand, locale, address and an image for link previews in DMs and WhatsApp.
-    openGraph: {
-      siteName: site.name,
-      locale: "en_EG",
-      url: `/products/${scent.handle}`,
-      title: `${scent.title} — ${site.name}`,
-      description,
-      images: image ? [{ url: image }] : undefined,
-      type: "website",
-    },
-  };
+    path: `/products/${scent.handle}`,
+    // The packshot previews the product in DMs and WhatsApp.
+    image: scent.image?.url ?? null,
+    imageAlt: scent.title,
+  });
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ handle: string }> }) {
@@ -85,10 +86,12 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   const order = (
     isSet
       ? ["box", "faq"]
-      : [sectionReady.differs(scent) && "differs", hasNotes && "notes", sectionReady.wear(scent) && "wear", "faq", pair && "pair", sectionReady.tale(scent) && "tale"]
+      : [sectionReady.differs(scent) && "differs", sectionReady.wear(scent) && "wear", "faq", pair && "pair", sectionReady.tale(scent) && "tale"]
   ).filter(Boolean);
   const n = (key: string) => String(order.indexOf(key) + 1).padStart(2, "0");
   const faqIds = isSet ? ["longevity", "cod", "returns"] : [...(scent.inspiredBy ? ["originals"] : []), "longevity", "wrong", "cod", "returns", "choose"];
+  // What it smells like opens "Good to know"; the page has no notes section of its own.
+  const faqLead = hasNotes ? [{ id: "notes", q: "What does it smell like?", a: notesAnswer(scent) }] : [];
   // The box sells vials, not a bottle: its returns question says so.
   const faqQuestions = isSet ? { returns: "Can I return the box?" } : undefined;
 
@@ -187,14 +190,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               <p className="text-[12px] leading-[18px] text-ash">{isSet ? box.hookSub : "Our own composition, not affiliated with its house."}</p>
             </div>
           )}
-          {chips.length > 0 &&
-            (hasNotes ? (
-              <a href="#notes" className="mt-2 flex min-h-11 flex-wrap items-center gap-1.5" aria-label={`Notes: ${notes.join(", ")}. See how it smells.`}>
-                {chips}
-              </a>
-            ) : (
-              <p className="mt-2 flex min-h-11 flex-wrap items-center gap-1.5">{chips}</p>
-            ))}
+          {chips.length > 0 && <p className="mt-2 flex min-h-11 flex-wrap items-center gap-1.5">{chips}</p>}
           <div className="mt-3">
             <BuyBox entry={entry} lowStock={live ? scent.lowStock : null} />
           </div>
@@ -227,9 +223,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
       {isSet && <BoxContents index={n("box")} sampleMl={site.sampleSizeMl} bottleMl={site.bottleSizeMl} />}
       {order.includes("differs") && <Differs scent={scent} index={n("differs")} />}
-      {order.includes("notes") && <NotesPyramid scent={scent} index={n("notes")} />}
       {order.includes("wear") && <WearIt scent={scent} index={n("wear")} />}
-      <FaqSection ids={faqIds} questions={faqQuestions} samples={Boolean(scent.sample)} index={n("faq")} current={`/products/${scent.handle}`} />
+      <FaqSection ids={faqIds} questions={faqQuestions} lead={faqLead} samples={Boolean(scent.sample)} index={n("faq")} current={`/products/${scent.handle}`} />
       {pair && <Pairing scent={scent} pair={pair} index={n("pair")} />}
       {order.includes("tale") && <TaleExcerpt scent={scent} index={n("tale")} />}
 

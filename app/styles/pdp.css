@@ -59,34 +59,3 @@
   html:has(.pdp-bar) { scroll-padding-bottom: var(--sticky-bar-h, 0px); }
 }
 
-/* "How it smells", Notes you can touch (NotesTouch): a dot on each ingredient in the notes sculpture. */
-@layer components {
-  .note-dot {
-    position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0; background: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; z-index: 1;
-  }
-  .note-dot::before {
-    content: ""; width: 28px; height: 28px; border-radius: 9999px; border: 2px solid var(--color-paper);
-    background: rgb(23 22 20 / 0.38) radial-gradient(circle, var(--color-paper) 0 3.5px, transparent 4px);
-    box-shadow: 0 1px 8px rgb(0 0 0 / 0.28); transition: transform 200ms var(--ease-standard), background-color 200ms var(--ease-standard);
-  }
-  .note-dot[aria-pressed="true"]::before { background-color: var(--color-gold); transform: scale(1.15); }
-  .note-dot:focus-visible { outline: none; }
-  .note-dot:focus-visible::before { outline: 2px solid var(--color-paper); outline-offset: 3px; }
-  .note-caption {
-    position: absolute; inset: auto 0 0 0; z-index: 2; display: grid; gap: 2px; padding: 56px 16px 14px; color: var(--color-linen); pointer-events: none;
-    background: linear-gradient(to top, rgb(23 22 20 / 0.86) 30%, rgb(23 22 20 / 0));
-  }
-  .note-chip { min-height: 40px; border: 1px solid var(--color-dune); background: var(--color-paper); border-radius: 9999px; padding: 6px 14px; font-size: 14px; cursor: pointer; }
-  .note-chip-off { border-style: dashed; background: transparent; }
-  .note-chip[aria-pressed="true"] { background: var(--color-night); border-color: var(--color-night); color: var(--color-linen); }
-  @media (hover: hover) and (pointer: fine) { .note-chip:hover { border-color: var(--color-night); } }
-  /* A soft ring draws the eye to the dots until one is picked; never with motion off. */
-  @media (prefers-reduced-motion: no-preference) {
-    html:not([data-motion="off"]) .note-dot[aria-pressed="false"]::after {
-      content: ""; position: absolute; width: 28px; height: 28px; border-radius: 9999px; border: 1px solid rgb(250 248 243 / 0.8);
-      animation: note-ring 2.6s var(--ease-standard) infinite;
-    }
-  }
-  @keyframes note-ring { from { transform: scale(0.9); opacity: 0.9; } to { transform: scale(1.7); opacity: 0; } }
-}

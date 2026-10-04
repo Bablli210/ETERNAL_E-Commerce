@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/metadata";
+import { siteImage } from "@/lib/site-images";
 import Link from "next/link";
 import { tales } from "@/content/tales";
 import { getScent } from "@/lib/catalogue";
@@ -10,7 +12,7 @@ import { Icon } from "@/components/ui/Icon";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = { title: "Tales", description: "The stories behind our scents. Read one, then smell what it describes.", alternates: { canonical: "/tales" } };
+export const metadata: Metadata = pageMeta({ title: "Tales", description: "The stories behind our scents. Read one, then smell what it describes.", path: "/tales", image: siteImage("tale-featured") });
 
 export default async function TalesPage() {
   const scents = await Promise.all(tales.map((t) => getScent(t.handle)));

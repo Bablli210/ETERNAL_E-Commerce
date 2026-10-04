@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/metadata";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { taleBySlug, tales } from "@/content/tales";
@@ -28,7 +29,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const tale = taleBySlug(slug);
   if (!tale) return {};
-  return { title: tale.title, description: tale.signature, alternates: { canonical: `/tales/${tale.slug}` } };
+  const scent = await getScent(tale.handle);
+  const description = scent ? `${tale.signature} A tale of ${scent.title}, ${lineWithAudience(tale.line, ", ")}.` : tale.signature;
+  return pageMeta({ title: tale.title, description, path: `/tales/${tale.slug}`, image: siteImage([`tale-${tale.slug}-card`, `tale-${tale.slug}`]), imageAlt: describe(tale.heroArt) });
 }
 
 /** "Campaign still, full bleed — fishing boat…" → "Fishing boat…": the art direction minus the production note. */
@@ -42,14 +45,25 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
   const entry = scent ? toIndexEntry(scent) : null;
   const boxEntry = box ? toIndexEntry(box) : null;
   const others = tales.filter((t) => t.slug !== tale.slug).slice(0, 2);
+  // The scent's own name, as the shop writes it; the handle stands in only if the product is missing.
+  const name = scent?.title ?? sentenceCase(tale.handle.replace(/-/g, " "));
   const product: BagProduct | null = entry ? { productId: entry.productId, handle: entry.handle, title: entry.title, image: entry.image, lineLabel: entry.lineLabel, world: entry.world } : null;
 
   return (
     <>
       {/* T1: a hairline progress bar tracks the read. */}
       <ReadingProgress targetId="tale-body" />
-      {/* The wide still at its own 7:3, so the whole scene and its subject stay in frame on a phone. */}
-      {siteImage(`tale-${tale.slug}`) && <Figure name={`tale-${tale.slug}`} label="" alt={describe(tale.heroArt)} priority sizes="100vw" className="aspect-[7/3] w-full bg-night" />}
+      {/* The wide still at its own 7:3, so the whole scene and its subject stay in frame on a phone, with the scent's name across it. */}
+      {siteImage(`tale-${tale.slug}`) && (
+        <div className="relative">
+          <Figure name={`tale-${tale.slug}`} label="" alt={describe(tale.heroArt)} priority sizes="100vw" className="aspect-[7/3] w-full bg-night" />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,rgb(23_22_20/0.42),rgb(23_22_20/0.12)_60%,transparent_85%)] px-5">
+            <p className="tale-name serif whitespace-nowrap text-center leading-none font-medium text-linen [text-shadow:0_2px_24px_rgb(23_22_20/0.45)]" style={{ fontSize: `clamp(34px, ${Math.min(12, 150 / name.length).toFixed(1)}vw, 168px)` }}>
+              {name}
+            </p>
+          </div>
+        </div>
+      )}
 
       <article className="wrap grid gap-10 pb-14 pt-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-20 lg:py-20">
         <div id="tale-body" className="mx-auto w-full max-w-[640px] lg:mx-0">
@@ -122,7 +136,7 @@ function BuyCard({ entry, product, box }: { entry: ScentIndexEntry; product: Bag
     <div className="border border-dune bg-paper p-5">
       <Eyebrow>The scent in this tale</Eyebrow>
       <Link href={`/products/${entry.handle}`} className="group mt-4 grid grid-cols-[96px_minmax(0,1fr)] gap-4 lg:block">
-        <ProductImage src={entry.image} alt="" world={entry.world} sizes="(min-width: 1024px) 320px, 96px" className="aspect-[4/5] w-full" />
+        <ProductImage src={entry.image} alt="" world={entry.world} sizes="(min-width: 1024px) 320px, 96px" className="aspect-square w-full" />
         <div className="min-w-0 lg:mt-4">
           {entry.line && <p className="text-[12px] text-ash">{lineWithAudience(entry.line)}</p>}
           <p className="font-serif text-[26px] font-semibold leading-[1.1] group-hover:text-sea">{entry.title}</p>

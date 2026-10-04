@@ -3,13 +3,14 @@ import { Mark } from "@/components/ui/Wordmark";
 import type { World } from "@/lib/catalogue";
 
 /**
- * A packshot on its colour world, painted visible straight from the server
+ * A packshot, painted visible straight from the server
  * HTML. Nothing waits for hydration: an image held at opacity 0 does not
  * count as painted, which kept collection LCP at 4.5 s. `priority` (the first
  * row of a grid) loads eagerly at high fetch priority. H4: on any device that
  * can hover, the notes still crossfades in under the pointer, card by card
  * (collection.css); touch-only phones never fetch it. A product without a
- * picture yet shows its colour world and the eternal mark.
+ * picture yet shows its colour world and the eternal mark; one with a picture
+ * shows nothing behind it, so no colour flashes in before the image.
  */
 export function ProductImage({
   src,
@@ -34,7 +35,7 @@ export function ProductImage({
 }) {
   const fitClass = fit === "cover" ? "object-cover" : "object-contain";
   return (
-    <div className={`relative overflow-hidden ${className}`} style={{ backgroundColor: world.bg }}>
+    <div className={`relative overflow-hidden ${className}`} style={src ? undefined : { backgroundColor: world.bg }}>
       {src ? (
         <>
           <Image src={src} alt={alt} fill sizes={sizes} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} className={`pimg-lift ${fitClass}`} />

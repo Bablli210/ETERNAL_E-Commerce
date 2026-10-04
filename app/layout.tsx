@@ -41,17 +41,26 @@ const instrument = Instrument_Sans({
 
 const ogImage = siteImage("og-image");
 
+/** Defaults for every page; each page sets its own title, description, canonical and preview through lib/metadata.ts. */
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: { default: `${site.name} — ${site.tagline}`, template: `%s — ${site.name}` },
   description: site.description,
+  applicationName: site.name,
+  category: "shopping",
   openGraph: {
     siteName: site.name,
     type: "website",
     locale: "en_EG",
+    title: `${site.name} — ${site.tagline}`,
+    description: site.description,
     images: ogImage ? [{ url: ogImage, width: 1200, height: 630, alt: site.tagline }] : undefined,
   },
-  robots: { index: true, follow: true },
+  twitter: { card: "summary_large_image", title: `${site.name} — ${site.tagline}`, description: site.description, images: ogImage ? [ogImage] : undefined },
+  // Prices and order numbers are not phone numbers: iOS must not turn them into call links.
+  formatDetection: { telephone: false, email: false, address: false },
+  appleWebApp: { title: site.name, statusBarStyle: "default" },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
 };
 
 /** viewportFit "cover" lets fixed bars pad themselves with env(safe-area-inset-*) clear of the notch and home indicator. */

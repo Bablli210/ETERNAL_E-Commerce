@@ -53,8 +53,9 @@ export default async function LaunchChecklist() {
       .filter(([, v]) => !isConfirmed(v))
       .map(([key, value]) => ({ key: `house.${key}`, value, note: "In content/house.ts. The founder section on /house shows once both lines are real and house-founder is a photograph of the founder." })),
   ];
-  // Unwritten, or written but still without the wide still that opens the page.
-  const tales = allTales.filter((t) => !t.complete || !siteImage(`tale-${t.slug}`));
+  // Unwritten, or written but still without the wide still that opens the page. Archived tales are off the site on purpose.
+  const tales = allTales.filter((t) => !t.archived && (!t.complete || !siteImage(`tale-${t.slug}`)));
+  const archived = allTales.filter((t) => t.archived);
   const products = all
     .map((s) => ({
       s,
@@ -108,6 +109,14 @@ export default async function LaunchChecklist() {
           </li>
         ))}
       </Section>
+
+      {archived.length > 0 && (
+        <Section title={`Tales archived (${archived.length})`} note="Taken off the site by the owner. In content/tales.ts: delete archived: true to publish one again.">
+          {archived.map((t) => (
+            <li key={t.slug}>{t.handle.replace(/-/g, " ")}</li>
+          ))}
+        </Section>
+      )}
 
       <Section title={`Site images missing (${images.length})`} note="In public/images/, by base name. See public/images/README.md.">
         {images.map((n) => (

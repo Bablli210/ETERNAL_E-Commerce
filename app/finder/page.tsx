@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/metadata";
 import { Finder } from "@/components/finder/Finder";
 import { getScent, getScentIndex, toIndexEntry } from "@/lib/catalogue";
 import { finderQuestions } from "@/content/finder";
@@ -7,11 +8,12 @@ import { siteImage } from "@/lib/site-images";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-const base: Metadata = {
+const base: Metadata = pageMeta({
   title: "Scent finder — five questions, three matches",
   description: "Answer five quick questions and get three scents from across the house, each with its price and one tap to add it. No sign-up.",
-  alternates: { canonical: "/finder" },
-};
+  path: "/finder",
+  image: siteImage("finder-band"),
+});
 
 /** The request's query as URLSearchParams, first value of each key. */
 const toParams = (raw: Awaited<SearchParams>) => {
@@ -32,12 +34,14 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   const answers = answersFromParams(toParams(await searchParams));
   if (firstUnanswered(answers) < finderQuestions.length) return base;
   const matches = rankMatches(await getScentIndex(), answers, 3).map((m) => m.entry.title);
-  return {
-    ...base,
-    title: { absolute: "My three eternal matches" },
+  return pageMeta({
+    title: "My three eternal matches",
+    absolute: true,
     description: `${matches.join(", ")}: three matches from the eternal scent finder. Five questions, no sign-up.`,
-    robots: { index: false, follow: true },
-  };
+    path: "/finder",
+    image: siteImage("finder-band"),
+    noindex: true,
+  });
 }
 
 export default async function FinderPage({ searchParams }: { searchParams: SearchParams }) {

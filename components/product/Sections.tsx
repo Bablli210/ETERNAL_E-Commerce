@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Accordion, Eyebrow, Meter, Price, SectionHead } from "@/components/ui/Primitives";
 import { Figure } from "@/components/ui/Figure";
@@ -13,9 +14,6 @@ import { AddPairButton } from "./AddPairButton";
 import { FaqTrack } from "./FaqTrack";
 import { lineWithAudience } from "./line";
 import { ProductImage } from "./ProductImage";
-import { NotesTouch } from "./NotesTouch";
-import { noteMaps } from "@/content/notes-map";
-import { noteLine } from "@/content/note-lines";
 
 /** What each optional section needs before it renders. The page numbers only the sections that do. */
 export const sectionReady = {
@@ -41,64 +39,23 @@ export function Differs({ scent, index }: { scent: Scent; index: string }) {
 }
 
 /**
- * "How it smells". With a notes sculpture (products/<handle>-3) and a notes map
- * (content/notes-map.ts): Notes you can touch, a dot on each pictured
- * ingredient. Otherwise the sculpture beside the pyramid, or the description
- * and its notes.
+ * What it smells like, as one answer in "Good to know": the notes as they
+ * arrive on skin when the scent has them, else its description. The product
+ * page has no notes section of its own; the three notes also sit under the name.
  */
-export function NotesPyramid({ scent, index }: { scent: Scent; index: string }) {
-  const still = siteImage(`products/${scent.handle}-3`);
-  const map = noteMaps[scent.handle];
-  // Only once at least one note is placed on the photo; until then the sculpture and pyramid below.
-  if (still && map?.some((n) => n.at)) {
+export function notesAnswer(scent: Scent): ReactNode {
+  if (scent.notes)
     return (
-      <section id="notes" className="section border-t border-dune">
-        <div className="wrap">
-          <SectionHead index={index} title="How it smells" sub="Every note in the photo is real. Pick one to see what it brings." />
-          <div className="mt-10">
-            <NotesTouch handle={scent.handle} title={scent.title} src={still} notes={map.map((n) => ({ ...n, at: n.at ?? null, line: noteLine(n.name) }))} />
-          </div>
-        </div>
-      </section>
+      <span className="grid gap-1">
+        {scent.notes.map((n) => (
+          <span key={n.stage}>
+            <span className="font-semibold text-night">{n.stage}:</span> {n.name}
+            {n.copy ? `. ${n.copy}` : ""}
+          </span>
+        ))}
+      </span>
     );
-  }
-  // No scroll margin here: the page's scroll-padding-top already clears the header, so the chips' jump lands once, not twice.
-  return (
-    <section id="notes" className="section border-t border-dune">
-      <div className="wrap">
-        <SectionHead index={index} title="How it smells" sub={scent.notes ? "Notes as they arrive on skin." : undefined} />
-        <div className={`mt-10 grid gap-10 ${still ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-start lg:gap-16" : ""}`}>
-          {still && <Figure name={`products/${scent.handle}-3`} label="" alt={`${scent.title} among its notes`} sizes="(min-width: 768px) 40vw, calc(100vw - 40px)" className="aspect-[4/5] w-full" data-reveal />}
-          {scent.notes ? (
-            <ol>
-              {scent.notes.map((n, i) => (
-                <li key={n.stage} className="border-t border-dune py-6 first:border-t-0 first:pt-0" data-reveal style={{ ["--i" as string]: i }}>
-                  <p className="tnum text-[12px] font-semibold tracking-[0.08em] text-gold-text uppercase">
-                    0{i + 1} · {n.stage}
-                  </p>
-                  <h3 className="display-m mt-1">{n.name}</h3>
-                  {n.copy && <p className="mt-2 max-w-[52ch] text-[16px] leading-relaxed text-ash">{n.copy}</p>}
-                </li>
-              ))}
-            </ol>
-          ) : (
-            <div data-reveal>
-              <p className="body-l max-w-[52ch]">{scent.description}</p>
-              {scent.notesShort.length > 0 && (
-                <ul className="mt-6 flex flex-wrap gap-2">
-                  {scent.notesShort.map((n) => (
-                    <li key={n} className="chip cursor-default">
-                      {sentenceCase(n)}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
+  return scent.description.trim();
 }
 
 export function WearIt({ scent, index }: { scent: Scent; index: string }) {
@@ -148,6 +105,7 @@ export function FaqSection({
   index,
   current,
   questions,
+  lead = [],
 }: {
   ids: string[];
   samples?: boolean;
@@ -155,8 +113,10 @@ export function FaqSection({
   index?: string;
   current?: string;
   questions?: Record<string, string>;
+  /** Answers for this page only, shown first (the product's notes). */
+  lead?: { id: string; q: string; a: ReactNode }[];
 }) {
-  const items = faqEntries({ samples })
+  const faq = faqEntries({ samples })
     .filter((f) => ids.includes(f.id))
     .sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
     .map((f) => ({ ...f, q: questions?.[f.id] ?? f.q, links: f.links?.filter((l) => l.href !== current) }))
@@ -178,6 +138,7 @@ export function FaqSection({
         f.a
       ),
     }));
+  const items = [...lead, ...faq];
   if (!items.length) return null;
   return (
     <section className="section border-t border-dune">
@@ -231,11 +192,11 @@ export function Pairing({ scent, pair, index }: { scent: Scent; pair: Scent; ind
   );
 }
 
-/** An 88 × 110 thumbnail through the image optimiser: a 256 px AVIF of a few KB, never the full-size original. */
+/** An 88 × 88 thumbnail through the image optimiser: a 256 px AVIF of a few KB, never the full-size original. */
 function MiniCard({ entry }: { entry: ReturnType<typeof toIndexEntry> }) {
   return (
     <div className="flex items-center gap-4">
-      <ProductImage src={entry.image} alt="" world={entry.world} sizes="88px" className="h-[110px] w-[88px] shrink-0" />
+      <ProductImage src={entry.image} alt="" world={entry.world} sizes="88px" className="h-[88px] w-[88px] shrink-0" />
       <div className="min-w-0">
         {entry.line && <span className="block text-[12px] text-ash">{lineWithAudience(entry.line)}</span>}
         <span className="display-m block group-hover:text-sea">{entry.title}</span>

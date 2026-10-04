@@ -4,12 +4,40 @@ import { getBestsellers, getCatalogue, getFeaturedScent, getLineCounts, getScent
 import type { Money } from "@/lib/shopify/types";
 import type { Hero as HeroDef } from "@/content/heroes";
 import { site } from "@/content/site";
+import { pageMeta } from "@/lib/metadata";
 
-/** Every version of the home page is the one page "/" to search engines and link previews. */
-export const homeMetadata: Metadata = {
-  title: `${site.name} — ${site.tagline}`,
-  description: site.description,
-  alternates: { canonical: "/" },
+/**
+ * Every version of the home page is the one page "/" to search engines and
+ * link previews. The title is absolute: "/" is served from /home/<still>, a
+ * child of the layout, whose template would add the house's name twice.
+ */
+export const homeMetadata: Metadata = pageMeta({ title: `${site.name} — ${site.tagline}`, absolute: true, description: site.description, path: "/" });
+
+const home = site.url.replace(/\/$/, "");
+/** Who the shop is and how to search it, for search engines: the house, its WhatsApp line, and the shop's search. */
+const houseLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${home}/#house`,
+      name: site.name,
+      url: `${home}/`,
+      logo: `${home}/apple-icon.png`,
+      description: site.description,
+      // Only a real profile; the bare instagram.com placeholder is not one.
+      ...(/instagram\.com\/[^/?#]+/.test(site.instagram) ? { sameAs: [site.instagram] } : {}),
+      ...(site.whatsapp ? { contactPoint: { "@type": "ContactPoint", contactType: "customer service", telephone: `+${site.whatsapp}`, availableLanguage: ["English", "Arabic"] } } : {}),
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${home}/#site`,
+      url: `${home}/`,
+      name: site.name,
+      publisher: { "@id": `${home}/#house` },
+      potentialAction: { "@type": "SearchAction", target: { "@type": "EntryPoint", urlTemplate: `${home}/shop?q={search_term_string}` }, "query-input": "required name=search_term_string" },
+    },
+  ],
 };
 
 /** One pick from each line first, then the house's next ones in order, so every audience sees a way in. */
@@ -36,6 +64,8 @@ export async function HomePage({ hero }: { hero: HeroDef }) {
   const everySampled = scents.length > 0 && scents.every((s) => s.sample?.availableForSale);
   return (
     <>
+      {/* "<" escaped, so no string in the data can close the tag. */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(houseLd).replace(/</g, "\\u003c") }} />
       <Hero hero={hero} scent={heroScent ? toIndexEntry(heroScent) : null} fromPrice={fromPrice} samplePrice={samplePrice} />
       <ProofStrip />
       <LineTiles counts={counts} total={scents.length} />

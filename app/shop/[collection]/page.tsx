@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/metadata";
+import { siteImage } from "@/lib/site-images";
 import { notFound } from "next/navigation";
 import { CollectionPage } from "@/components/product/CollectionPage";
 import { parseGridState } from "@/components/product/grid-state";
@@ -23,7 +25,9 @@ export async function generateMetadata({ params }: { params: Promise<{ collectio
   if (!def) return {};
   // The line names differ by one letter, so the tab and the in-app title bar say who each is for.
   const title = def.kind === "line" ? `${def.key === "eternal" ? "Unisex" : `For ${lines[def.key as LineKey].audience.toLowerCase()}`} · ${def.title}` : def.title;
-  return { title, description: def.descriptor, alternates: { canonical: `/shop/${def.slug}` } };
+  // A line previews with its own picture, a mood with its mood still; the rest with the house's.
+  const image = def.kind === "line" ? siteImage([`collection-${def.slug}`, `line-${def.key}`]) : def.kind === "mood" ? siteImage(`mood-${def.key}`) : null;
+  return pageMeta({ title, description: def.descriptor, path: `/shop/${def.slug}`, image });
 }
 
 export default async function CollectionRoute({ params, searchParams }: { params: Promise<{ collection: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {

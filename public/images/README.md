@@ -20,9 +20,9 @@ image always wins over a local file of the same frame.
 | --- | --- |
 | `products/<handle>` | The packshot: gallery frame 1 and every product card |
 | `products/<handle>-2` | Gallery frame 2, the lifestyle frame: the bottle in a scene |
-| `products/<handle>-3` | Gallery frame 3, the notes sculpture: the bottle among its notes. Also the "How it smells" still on the product page, and the frame a card crossfades to on hover |
+| `products/<handle>-3` | Gallery frame 3, the notes sculpture: the bottle among its notes. Also the frame a card crossfades to on hover |
 | `products/<handle>-4` | Gallery frame 4, the packaging |
-| `products/<handle>-hover` | Only to override the card's hover frame (desktop only). Without it the card uses `-3`, then frame 2 |
+| `products/<handle>-hover` | Only to override the card's hover frame (laptops and desktops). Without it the card uses `-3`, then frame 2 |
 
 `<handle>` is the Shopify product handle, the name in the product URL:
 `shadow-of-the-sea`, not `Shadow of the Sea`. A product with no packshot

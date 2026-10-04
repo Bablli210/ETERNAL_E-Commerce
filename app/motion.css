@@ -134,6 +134,14 @@
       /* H9 / D4 · sticky bars slide in. */
       .bar-enter { animation: m-sheet 240ms var(--ease-standard); }
 
+      /* H3 · the lines: the still crossfades to the hovered line; the name and its arrow follow. */
+      .line-still { transition: opacity var(--dur-l) var(--ease-standard); }
+      .line-name, .line-arrow { transition: color var(--dur-s) var(--ease-standard), opacity var(--dur-s) var(--ease-standard), transform var(--dur-s) var(--ease-standard); }
+      .line-name[data-on] .line-arrow { transform: translateX(var(--nudge)); }
+
+      /* T2 · the scent's name rises across the tale banner as the page opens. */
+      .tale-name { animation: m-rise 900ms var(--ease-emphasized) 150ms both; }
+
       /* D1 · first gallery frame zooms slowly. */
       .zoom-slow { animation: m-zoom 8s var(--ease-standard) forwards; }
 

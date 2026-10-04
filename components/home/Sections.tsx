@@ -19,6 +19,8 @@ import { HouseFilmPlayer } from "./HouseFilmPlayer";
 import { HeroStill } from "./HeroStill";
 import type { Hero as HeroDef } from "@/content/heroes";
 import { SelectList, type ListItem } from "./SelectList";
+import { LineShowcase, type LineShowcaseItem } from "./LineShowcase";
+import { siteImage } from "@/lib/site-images";
 
 const LINE_ORDER: LineKey[] = ["eterna", "eterno", "eternal"];
 
@@ -162,42 +164,30 @@ export function ProofStrip() {
 }
 
 /**
- * The three lines side by side, even on a phone: name, audience and size of
- * each, one tap to the line. On a phone the tiles carry no visible heading, so
- * they peek above the fold straight under the proof strip.
+ * The three lines: their names on the left, one high-noon still on the right
+ * that turns to whichever line is hovered (LineShowcase). On a phone the
+ * section carries no visible heading, so the names sit straight under the
+ * proof strip and each is one tap from its line.
  */
 export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; total: number }) {
+  const items: LineShowcaseItem[] = LINE_ORDER.map((k) => ({
+    key: k,
+    label: lines[k].label,
+    audience: sentenceCase(FOR[k]),
+    count: counts[k],
+    blurb: lines[k].blurb,
+    href: `/shop/${lines[k].slug}`,
+    src: siteImage(`line-${k}`),
+    tone: lines[k].tone,
+  }));
   return (
-    <section className="py-6 lg:py-30">
+    <section className="py-8 lg:py-30">
       <div className="wrap">
         <h2 className="sr-only lg:hidden">The three lines</h2>
         <HomeHead title="Three lines" action={{ label: `Shop all ${total}`, href: "/shop" }} className="max-lg:hidden" />
-        <ul className="grid grid-cols-3 gap-2 lg:mt-12 lg:gap-6">
-          {LINE_ORDER.map((k) => {
-            const l = lines[k];
-            return (
-              <li key={k}>
-                <Link href={`/shop/${l.slug}`} className="group block">
-                  <Figure
-                    name={`line-${k}`}
-                    label={`${l.label} — the bottle in a back pocket, 3:4`}
-                    dark={l.toneDark}
-                    sizes="(min-width: 1024px) 30vw, 33vw"
-                    className="aspect-[3/4] w-full"
-                    imageClassName="hover-lift"
-                    placeholderClassName="slot-corner !border-0 opacity-70"
-                    style={{ backgroundColor: l.tone }}
-                  />
-                  <span className="serif mt-2 block text-[24px] font-semibold leading-none lg:mt-4 lg:text-[36px]">{l.label}</span>
-                  <span className="mt-1 block text-[13px] font-semibold lg:text-[15px]">{sentenceCase(FOR[k])}</span>
-                  <span className="block text-[12px] text-ash lg:text-[13px]">
-                    {counts[k]} scents<span className="hidden lg:inline"> · {l.blurb}</span>
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        <div className="lg:mt-12">
+          <LineShowcase items={items} />
+        </div>
       </div>
     </section>
   );
@@ -237,7 +227,7 @@ export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryB
           {box?.bottle && (
             <article className="grid grid-cols-[38%_1fr] gap-x-4 bg-paper p-3 lg:grid-cols-[42%_1fr] lg:gap-x-8 lg:p-6">
               {/* The picture repeats the "What’s inside" link for a thumb, not for a screen reader or the tab order. */}
-              <Link href={`/products/${box.handle}`} className="relative block aspect-[4/5] overflow-hidden" style={{ backgroundColor: box.world.bg }} aria-hidden="true" tabIndex={-1}>
+              <Link href={`/products/${box.handle}`} className="relative block aspect-square overflow-hidden" style={box.image ? undefined : { backgroundColor: box.world.bg }} aria-hidden="true" tabIndex={-1}>
                 {box.image ? (
                   <Image src={box.image} alt="" fill sizes="(min-width: 1024px) 20vw, 38vw" className="object-cover" />
                 ) : (

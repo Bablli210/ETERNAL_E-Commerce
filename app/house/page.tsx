@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/metadata";
 import Link from "next/link";
 import { getCatalogue, getLineCounts, getScent } from "@/lib/catalogue";
 import { lines, type LineKey } from "@/content/taxonomy";
@@ -16,11 +17,12 @@ import { Icon } from "@/components/ui/Icon";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "The house",
   description: "eternal is a perfume house from Cairo: eaux de parfum in three lines, eterna for her, eterno for him and eternal unisex.",
-  alternates: { canonical: "/house" },
-};
+  path: "/house",
+  image: siteImage("house-film-poster"),
+});
 
 const LINE_ORDER: LineKey[] = ["eterna", "eterno", "eternal"];
 

@@ -9,7 +9,14 @@ export const site = {
   tagline: "Some things are never meant to fade.",
   /** The meta and link-preview description on every page, so it states nothing still waiting for the owner. */
   description: "Eaux de parfum in three lines: eterna for her, eterno for him, eternal unisex. A perfume house from Cairo.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://eternal-storefront.vercel.app",
+  /**
+   * The address in canonical links, the sitemap and link previews. Set
+   * NEXT_PUBLIC_SITE_URL once the custom domain is live; until then each
+   * Vercel project uses its own production address, so neither points at the other.
+   */
+  url:
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://eternal-storefront.vercel.app"),
   currency: "EGP",
   locale: "en-EG",
 

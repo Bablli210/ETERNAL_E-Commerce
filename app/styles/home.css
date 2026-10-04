@@ -5,3 +5,13 @@ html[data-ad] .ad-drop { display: none; }
 
 /* Ad landings and in-app visits read the headline at once: no word-by-word rise (playbook 7.1, 0 ms of curtain or fade). */
 html[data-ad] .hero-word { animation: none; opacity: 1; transform: none; }
+
+/* The lines (LineShowcase): the hovered or focused name in full ink, its still on the right. */
+@layer components {
+  .line-name { color: var(--color-stone); }
+  .line-name[data-on] { color: var(--color-night); }
+  .line-arrow { opacity: 0; }
+  .line-name[data-on] .line-arrow { opacity: 1; }
+  .line-still { opacity: 0; }
+  .line-still[data-on] { opacity: 1; }
+}

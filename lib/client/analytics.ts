@@ -36,7 +36,7 @@ type Event =
   | { name: "finder_complete"; answers: string; matches: string[] }
   | { name: "generate_lead"; method: string }
   /** Small interaction signals, sent to the data layer and GA4 only. */
-  | { name: "ui"; action: "faq_open" | "gallery_swipe" | "sheet_open" | "filter_apply" | "whatsapp_click" | "not_found" | "checkout_error" | "note_tap"; label?: string };
+  | { name: "ui"; action: "faq_open" | "gallery_swipe" | "sheet_open" | "filter_apply" | "whatsapp_click" | "not_found" | "checkout_error" | "sample_pick"; label?: string };
 
 declare global {
   interface Window {

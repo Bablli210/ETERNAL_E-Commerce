@@ -279,7 +279,7 @@ export function Finder({
           ) : (
             mysteryBox?.bottle && (
               <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-4 bg-paper p-4">
-                <div className="relative aspect-square overflow-hidden" style={{ backgroundColor: mysteryBox.world.bg }}>
+                <div className="relative aspect-square overflow-hidden" style={boxImage ? undefined : { backgroundColor: mysteryBox.world.bg }}>
                   {boxImage && <Image src={boxImage} alt="" fill sizes="72px" className="object-cover" />}
                 </div>
                 <div className="min-w-0">
@@ -461,7 +461,7 @@ function MatchCard({ match, position }: { match: Match; position: number }) {
   return (
     <article className="group grid grid-cols-[112px_minmax(0,1fr)] gap-4 md:grid-cols-1 md:gap-0">
       <Link href={`/products/${e.handle}`} onClick={select} tabIndex={-1} aria-hidden="true" className="relative block self-start">
-        <ProductImage src={e.image} hoverSrc={e.hoverImage} alt="" world={e.world} sizes="(min-width: 768px) 30vw, 112px" className="aspect-[4/5] w-full" />
+        <ProductImage src={e.image} hoverSrc={e.hoverImage} alt="" world={e.world} sizes="(min-width: 768px) 30vw, 112px" className="aspect-square w-full" />
         {position === 0 && <span className="badge absolute left-2 top-2">Best match</span>}
       </Link>
       <div className="flex min-w-0 flex-col md:pt-4">

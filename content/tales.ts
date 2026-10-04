@@ -16,6 +16,8 @@ export type Tale = {
   readTime: string;
   paragraphs: string[];
   complete: boolean;
+  /** Taken off the site by the owner: kept here, published nowhere. */
+  archived?: boolean;
 };
 
 /** Reading time at about 230 words a minute, never under one. */
@@ -83,6 +85,7 @@ const drafts: Omit<Tale, "readTime">[] = [
     signature: "The memory you shouldn’t revisit is the one that still owns you.",
     heroArt: "Campaign still, wide — a crab apple tree in flower beside a whitewashed hotel entrance",
     complete: true,
+    archived: true,
     paragraphs: [
       "There are places you avoid because something terrible happened there. And places you avoid because something beautiful did.",
       "Years later, he returned to the coast. The hotel had changed its name. The terrace had been rebuilt. Even the road leading there seemed smaller than he remembered. But beside the entrance stood the same crab apple tree. Still flowering. That was enough.",
@@ -99,6 +102,7 @@ const drafts: Omit<Tale, "readTime">[] = [
     signature: "Wherever you arrive, belong there.",
     heroArt: "Campaign still, wide — travellers crossing a departures hall at dusk",
     complete: true,
+    archived: true,
     paragraphs: [
       "Some men belong to one place. He never did.",
       "Cairo on Monday. A meeting in Milan on Wednesday. By Friday, nobody was quite sure where he was. His life ran between departures and arrivals — hotel keys, unfamiliar streets, conversations with people he’d met ten minutes earlier. And somehow, wherever he went, he belonged.",
@@ -159,8 +163,8 @@ const drafts: Omit<Tale, "readTime">[] = [
 /** Every tale, written or not. Only complete ones are published (see `tales`). */
 export const allTales: Tale[] = drafts.map((t) => ({ ...t, readTime: readTimeOf(t.paragraphs) }));
 
-/** Published tales: written, with the wide still that opens the page. Anything short of that is not shown anywhere. */
-export const tales: Tale[] = allTales.filter((t) => t.complete && siteImage(`tale-${t.slug}`));
+/** Published tales: written, not archived, with the wide still that opens the page. Anything short of that is not shown anywhere. */
+export const tales: Tale[] = allTales.filter((t) => t.complete && !t.archived && siteImage(`tale-${t.slug}`));
 
 export const taleBySlug = (slug: string) => tales.find((t) => t.slug === slug);
 export const taleForHandle = (handle: string) => tales.find((t) => t.handle === handle);

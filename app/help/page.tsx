@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/metadata";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { faqEntries } from "@/content/faq";
@@ -14,11 +15,11 @@ import { WhatsAppLink } from "@/components/content/WhatsAppLink";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "Help: delivery, cash on delivery, payments and returns",
-  description: "How delivery, cash on delivery, payments and returns work at eternal, and answers to the questions people ask before a first order.",
-  alternates: { canonical: "/help" },
-};
+  description: "How delivery, cash on delivery, payments and returns work at eternal, in English and Arabic, and answers to the questions people ask before a first order.",
+  path: "/help",
+});
 
 /** An owner's line as one sentence, whether or not it was written with a full stop. */
 const sentence = (s: string) => `${s.replace(/[.\s]+$/, "")}.`;
@@ -150,7 +151,7 @@ export default async function HelpPage() {
                 {email && (
                   <>
                     <p>Questions before you order, or about an order: email us and we will answer.</p>
-                    <a href={`mailto:${email}`} className="btn btn-secondary mt-1 w-full sm:w-auto">
+                    <a href={`mailto:${email}`} className="btn btn-secondary mt-1 w-full sm:w-auto sm:self-start">
                       Email us
                     </a>
                   </>
@@ -158,7 +159,7 @@ export default async function HelpPage() {
                 {wa && (
                   <>
                     <p className={email ? "mt-3" : undefined}>Message us on WhatsApp about a scent or an order.{facts.whatsappHours ? ` ${sentence(`We answer ${facts.whatsappHours.charAt(0).toLowerCase()}${facts.whatsappHours.slice(1)}`)}` : ""}</p>
-                    <WhatsAppLink number={wa} text="Hello eternal, I have a question." from="help" className="btn btn-secondary mt-1 w-full sm:w-auto">
+                    <WhatsAppLink number={wa} text="Hello eternal, I have a question." from="help" className="btn btn-secondary mt-1 w-full sm:w-auto sm:self-start">
                       <Icon name="whatsapp" size={18} /> Message us on WhatsApp
                     </WhatsAppLink>
                   </>
@@ -197,10 +198,12 @@ export default async function HelpPage() {
 
   return (
     <>
-      <section className="wrap pt-6 lg:pt-16">
+      {/* One centred reading column: the topics, then the questions. Answers stay left-aligned (and the Arabic right-aligned) so they read easily. */}
+      <section className="wrap pt-8 text-center lg:pt-16">
         <Eyebrow>Help</Eyebrow>
         <h1 className="display-l mt-3">Good to know</h1>
-        <nav aria-label="Help topics" className="no-scrollbar -mx-5 mt-5 flex gap-2 overflow-x-auto px-5 lg:mx-0 lg:flex-wrap lg:px-0">
+        <p className="mx-auto mt-3 max-w-[46ch] text-[16px] leading-relaxed text-ash">Delivery, payment and returns, in English and Arabic. Anything else, ask us.</p>
+        <nav aria-label="Help topics" className="no-scrollbar -mx-5 mt-6 flex gap-2 overflow-x-auto px-5 sm:mx-auto sm:max-w-[1040px] sm:flex-wrap sm:justify-center sm:px-0">
           {topics.map((t) => (
             <a key={t.id} href={`#${t.id}`} className="flex h-11 shrink-0 items-center">
               <span className="chip">{t.nav}</span>
@@ -212,47 +215,53 @@ export default async function HelpPage() {
         </nav>
       </section>
 
-      <section className="wrap grid gap-14 py-10 lg:grid-cols-[1fr_1.2fr] lg:gap-20 lg:py-16">
-        <div className="flex flex-col divide-y divide-dune border-y border-dune">
-          {topics.map((t) => (
-            <div key={t.id} id={t.id} className={`py-7 ${clear}`}>
-              <h2 className="display-m">{t.title}</h2>
-              {t.ar && (
-                <p lang="ar" dir="rtl" className="help-ar mt-2 text-[16px] leading-relaxed text-ash">
-                  {t.ar}
-                </p>
-              )}
-              <div className="mt-3 flex flex-col gap-2 text-[15px] leading-relaxed text-ash">{t.body}</div>
-            </div>
-          ))}
+      <div className="wrap py-10 lg:py-16">
+        <div className="mx-auto max-w-[680px]">
+          <div className="divide-y divide-dune border-y border-dune">
+            {topics.map((t) => (
+              <section key={t.id} id={t.id} aria-labelledby={`${t.id}-title`} className={`py-8 lg:py-10 ${clear}`}>
+                <h2 id={`${t.id}-title`} className="display-m">
+                  {t.title}
+                </h2>
+                <div className="mt-3 flex flex-col gap-2.5 text-[16px] leading-relaxed text-night">{t.body}</div>
+                {t.ar && (
+                  <p lang="ar" dir="rtl" className="help-ar mt-4 border-r-2 border-gold pr-4 text-[17px] leading-loose text-ash">
+                    {t.ar}
+                  </p>
+                )}
+              </section>
+            ))}
+          </div>
+          <section id="questions" aria-labelledby="questions-title" className={`pt-14 lg:pt-20 ${clear}`}>
+            <h2 id="questions-title" className="display-l mb-6 text-center">
+              Questions
+            </h2>
+            <FaqTrack>
+              <Accordion
+                items={faq.map((f) => ({
+                  id: f.id,
+                  q: f.q,
+                  a: (
+                    <>
+                      <p>{f.a}</p>
+                      {f.links && (
+                        <p className="mt-1 flex flex-wrap gap-x-5">
+                          {f.links.map((l) => (
+                            <Way key={l.href} href={l.href}>
+                              {l.label}
+                            </Way>
+                          ))}
+                        </p>
+                      )}
+                    </>
+                  ),
+                }))}
+              />
+            </FaqTrack>
+          </section>
+          <FinderBand title="Still deciding?" className="mt-14" />
         </div>
-        <div id="questions" className={clear}>
-          <h2 className="display-l mb-6">Questions</h2>
-          <FaqTrack>
-            <Accordion
-              items={faq.map((f) => ({
-                id: f.id,
-                q: f.q,
-                a: (
-                  <>
-                    <p>{f.a}</p>
-                    {f.links && (
-                      <p className="mt-1 flex flex-wrap gap-x-5">
-                        {f.links.map((l) => (
-                          <Way key={l.href} href={l.href}>
-                            {l.label}
-                          </Way>
-                        ))}
-                      </p>
-                    )}
-                  </>
-                ),
-              }))}
-            />
-          </FaqTrack>
-          <FinderBand title="Still deciding?" className="mt-12" />
-        </div>
-      </section>
+      </div>
     </>
   );
 }

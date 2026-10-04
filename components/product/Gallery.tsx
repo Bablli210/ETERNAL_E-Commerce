@@ -26,7 +26,7 @@ export function Gallery({ scent }: { scent: Scent }) {
   const sizes = solo ? "(min-width: 1024px) 50vw, calc(100vw - 40px)" : "(min-width: 1024px) 50vw, calc(100vw - 64px)";
   const frames = imgs.length
     ? imgs.map((img, i) => (
-        <div key={img.url} className={frameClass} style={{ backgroundColor: scent.world.bg }}>
+        <div key={img.url} className={frameClass}>
           <Image src={img.url} alt={frameAlt(scent, img.url, img.altText)} fill preload={i === 0} fetchPriority={i === 0 ? "high" : undefined} sizes={sizes} className={`object-cover ${i === 0 ? "zoom-slow" : ""}`} />
         </div>
       ))

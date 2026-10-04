@@ -57,6 +57,12 @@ type CartContextValue = {
   /** Closes the drawer. Pass "navigate" from a link inside it, which replaces the drawer's history entry itself. */
   closeDrawer: (reason?: "navigate") => void;
   checkout: () => Promise<void>;
+  /**
+   * The free 5 ml that ships with each bottle: one pick per bottle, by product
+   * handle, in bag order. "" (or a missing pick) leaves the choice to the house.
+   */
+  samples: string[];
+  setSample: (slot: number, handle: string) => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -71,6 +77,17 @@ const toItem = (l: Omit<CartLine, "qty">, quantity: number): AnalyticsItem => ({
   category: l.lineLabel,
 });
 const KEY = "eternal.bag.v1";
+const SAMPLES_KEY = "eternal.samples.v1";
+/** Picks made while storage is blocked (private mode): they last the visit instead of vanishing. */
+let samplesInMemory: string[] = [];
+const parseSamples = (raw: string | null): string[] => {
+  if (raw === null) return samplesInMemory;
+  const v = parseJSON<unknown>(raw, []);
+  return Array.isArray(v) ? v.map((h) => (typeof h === "string" ? h : "")) : [];
+};
+/** What the order says for the free 5 ml: one name per bottle, "House's choice" where none was picked. */
+export const sampleNames = (samples: string[], bottles: number, titleOf: (handle: string) => string | null) =>
+  Array.from({ length: bottles }, (_, i) => (samples[i] && titleOf(samples[i])) || "House’s choice");
 /** The product page caps its stepper here too. */
 export const MAX_QTY = 10;
 /** A second add of the same variant inside this window is a double tap, not a second bottle. */
@@ -113,6 +130,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null);
   const [lastAdded, setLastAdded] = useState<string | null>(null);
   const [toast, setToast] = useState<CartContextValue["toast"]>(null);
+  const samplesRaw = useStoredRaw(SAMPLES_KEY);
+  /** Bumped on every pick, so a pick held only in memory (blocked storage) still re-renders. */
+  const [samplesTick, setSamplesTick] = useState(0);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- samplesTick re-reads the in-memory picks.
+  const samples = useMemo(() => (samplesRaw === SERVER_SNAPSHOT ? [] : parseSamples(samplesRaw)), [samplesRaw, samplesTick]);
+  const setSample = useCallback((slot: number, handle: string) => {
+    const next = parseSamples(readRaw(SAMPLES_KEY)).slice();
+    while (next.length <= slot) next.push("");
+    next[slot] = handle;
+    samplesInMemory = next;
+    writeJSON(SAMPLES_KEY, next);
+    setSamplesTick((t) => t + 1);
+  }, []);
+  /** Scent names by handle, from the catalogue the bag reconciles against, for the free 5 ml picks on the order. */
+  const sampleTitles = useRef<Map<string, string>>(new Map());
   /** True while the open drawer owns a history entry of its own. */
   const bagEntry = useRef(false);
   const openTimer = useRef<number | null>(null);
@@ -278,6 +310,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const reconcile = useCallback<CartContextValue["reconcile"]>((index) => {
+    sampleTitles.current = new Map(index.map((e) => [e.handle, e.title]));
     const live = new Map<string, { entry: ScentIndexEntry; price: Money; availableForSale: boolean }>();
     for (const entry of index) for (const v of [entry.bottle, entry.sample]) if (v) live.set(v.id, { entry, price: v.price, availableForSale: v.availableForSale });
     if (!live.size) return;
@@ -322,12 +355,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCheckingOut(true);
     setError(null);
     track({ name: "begin_checkout", items: payable.map((l) => toItem(l, l.qty)) });
+    // The free 5 ml picks reach the order as "Free 5 ml samples" (api/checkout), so the team packs the right vials.
+    const bottles = payable.reduce((n, l) => (l.kind === "bottle" ? n + l.qty : n), 0);
+    const freeSamples = bottles > 0 ? [{ key: "free_samples", value: sampleNames(samples, bottles, (h) => sampleTitles.current.get(h) ?? null).join(", ") }] : [];
     let failure = "network";
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lines: payable.map((l) => ({ variantId: l.variantId, quantity: l.qty })), attributes: checkoutAttributes() }),
+        body: JSON.stringify({ lines: payable.map((l) => ({ variantId: l.variantId, quantity: l.qty })), attributes: [...checkoutAttributes(), ...freeSamples] }),
         // A stalled request on mobile data must end in a message, not an endless spinner.
         signal: typeof AbortSignal.timeout === "function" ? AbortSignal.timeout(15_000) : undefined,
       });
@@ -343,7 +379,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       track({ name: "ui", action: "checkout_error", label: failure });
       setCheckingOut(false);
     }
-  }, [lines, checkingOut]);
+  }, [lines, checkingOut, samples]);
 
   const value = useMemo<CartContextValue>(() => {
     const count = lines.reduce((n, l) => n + l.qty, 0);
@@ -369,8 +405,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
       openDrawer: () => setOpen(true),
       closeDrawer,
       checkout,
+      samples,
+      setSample,
     };
-  }, [lines, open, ready, checkingOut, error, lastAdded, toast, add, addMany, restore, reconcile, remove, setQty, closeDrawer, checkout]);
+  }, [lines, open, ready, checkingOut, error, lastAdded, toast, add, addMany, restore, reconcile, remove, setQty, closeDrawer, checkout, samples, setSample]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

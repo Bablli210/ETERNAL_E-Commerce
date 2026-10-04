@@ -11,6 +11,8 @@ const ATTRIBUTE_KEYS = new Set(["utm_source", "utm_medium", "utm_campaign", "utm
 /** Test arms travel as exp_{id}. */
 const EXPERIMENT_KEY = /^exp_[a-z0-9_-]{1,32}$/i;
 const VARIANT_ID = /^(gid:\/\/shopify\/ProductVariant\/)?\d+$/;
+/** The free 5 ml picks, scent names joined by commas (CartProvider); shown on the order as "Free 5 ml samples". */
+const SAMPLES = /^[\p{L}\p{N} .,'’&()-]{1,600}$/u;
 /** A discount code from the ad link (?discount=CODE); Shopify validates it at checkout. */
 const DISCOUNT_CODE = /^[A-Za-z0-9_-]{2,40}$/;
 const MAX_QTY = 10;
@@ -59,6 +61,9 @@ export async function POST(req: Request) {
   const attributes = (Array.isArray(body.attributes) ? body.attributes : [])
     .filter((a) => a && (ATTRIBUTE_KEYS.has(a.key) || EXPERIMENT_KEY.test(a.key)) && typeof a.value === "string" && a.value)
     .map((a) => ({ key: a.key, value: a.value.slice(0, 200) }));
+  // Visible to the team on the order, so each bottle ships with the 5 ml the buyer picked.
+  const samples = (Array.isArray(body.attributes) ? body.attributes : []).find((a) => a?.key === "free_samples" && typeof a.value === "string" && SAMPLES.test(a.value))?.value;
+  if (samples) attributes.push({ key: "Free 5 ml samples", value: samples });
 
   // The Meta and Google first-party cookies tie the order to the browser that clicked the ad. Shopify hides _-prefixed attributes from the buyer.
   const jar = await cookies();

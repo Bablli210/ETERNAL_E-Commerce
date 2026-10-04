@@ -75,7 +75,6 @@ export const scents: Record<string, ScentContent> = {
     signature: "The memory you shouldn’t revisit is the one that still owns you.",
     colorWorld: { bg: "#F1D3D6", accent: "#4F6B3F", dark: false, source: "proposed" },
     notesShort: ["Apple blossom", "rhubarb", "driftwood"],
-    tale: "forbidden-apple",
   },
   wayne: {
     pick: true,
@@ -88,7 +87,6 @@ export const scents: Record<string, ScentContent> = {
     signature: "Wherever you arrive, belong there.",
     colorWorld: { bg: "#C7C3CE", accent: "#6F5E8A", dark: false, source: "proposed" },
     notesShort: ["Grapefruit", "amberwood", "musk"],
-    tale: "mercury",
   },
   sapphire: {
     pick: true,
