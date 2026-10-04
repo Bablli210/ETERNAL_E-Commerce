@@ -12,6 +12,7 @@ import { siteImage } from "@/lib/site-images";
 import { AddPairButton } from "./AddPairButton";
 import { FaqTrack } from "./FaqTrack";
 import { lineWithAudience } from "./line";
+import { ProductImage } from "./ProductImage";
 
 /** What each optional section needs before it renders. The page numbers only the sections that do. */
 export const sectionReady = {
@@ -39,8 +40,9 @@ export function Differs({ scent, index }: { scent: Scent; index: string }) {
 /** "How it smells": the notes sculpture (products/<handle>-3) beside the pyramid, or the description and its notes. */
 export function NotesPyramid({ scent, index }: { scent: Scent; index: string }) {
   const still = siteImage(`products/${scent.handle}-3`);
+  // No scroll margin here: the page's scroll-padding-top already clears the header, so the chips' jump lands once, not twice.
   return (
-    <section id="notes" className="section scroll-mt-[var(--header-h)] border-t border-dune">
+    <section id="notes" className="section border-t border-dune">
       <div className="wrap">
         <SectionHead index={index} title="How it smells" sub={scent.notes ? "Notes as they arrive on skin." : undefined} />
         <div className={`mt-10 grid gap-10 ${still ? "md:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] md:items-start lg:gap-16" : ""}`}>
@@ -113,10 +115,29 @@ export function WearIt({ scent, index }: { scent: Scent; index: string }) {
   );
 }
 
-export function FaqSection({ ids, samples = false, title = "Good to know", index }: { ids: string[]; samples?: boolean; title?: string; index?: string }) {
+/**
+ * `current` is the page it sits on: an answer never links to it. `questions`
+ * rewords a question for this page (the mystery box returns a box, not a bottle).
+ */
+export function FaqSection({
+  ids,
+  samples = false,
+  title = "Good to know",
+  index,
+  current,
+  questions,
+}: {
+  ids: string[];
+  samples?: boolean;
+  title?: string;
+  index?: string;
+  current?: string;
+  questions?: Record<string, string>;
+}) {
   const items = faqEntries({ samples })
     .filter((f) => ids.includes(f.id))
     .sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
+    .map((f) => ({ ...f, q: questions?.[f.id] ?? f.q, links: f.links?.filter((l) => l.href !== current) }))
     .map((f) => ({
       id: f.id,
       q: f.q,
@@ -188,21 +209,17 @@ export function Pairing({ scent, pair, index }: { scent: Scent; pair: Scent; ind
   );
 }
 
+/** An 88 × 110 thumbnail through the image optimiser: a 256 px AVIF of a few KB, never the full-size original. */
 function MiniCard({ entry }: { entry: ReturnType<typeof toIndexEntry> }) {
   return (
-    <span className="flex items-center gap-4">
-      <span className="relative block h-[110px] w-[88px] shrink-0 overflow-hidden" style={{ backgroundColor: entry.world.bg }}>
-        {entry.image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={entry.image} alt="" className="h-full w-full object-cover" loading="lazy" />
-        )}
-      </span>
-      <span className="min-w-0">
+    <div className="flex items-center gap-4">
+      <ProductImage src={entry.image} alt="" world={entry.world} sizes="88px" className="h-[110px] w-[88px] shrink-0" />
+      <div className="min-w-0">
         {entry.line && <span className="block text-[12px] text-ash">{lineWithAudience(entry.line)}</span>}
         <span className="display-m block group-hover:text-sea">{entry.title}</span>
         <Price money={entry.price} className="text-[14px] text-ash" />
-      </span>
-    </span>
+      </div>
+    </div>
   );
 }
 

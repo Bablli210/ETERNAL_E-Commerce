@@ -1,36 +1,59 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useCart } from "@/components/cart/CartProvider";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { facts } from "@/lib/facts";
 import { track } from "@/lib/client/analytics";
 import type { ScentIndexEntry } from "@/lib/catalogue";
-import { formatMoney } from "@/lib/format";
+import { formatMoney, sizeLabel } from "@/lib/format";
 import { lineWithAudience } from "./line";
 
 /**
  * Sizes are variants, the sample is a real variant: the size choice appears
  * by itself once a 5 ml variant exists. Quantity lives in the bag, so the
  * button is one full-width tap with its price on it.
+ *
+ * Both Add buttons submit a plain GET form to /bag?items=<variant>:1, which
+ * rebuilds the bag and opens it. Before the page hydrates (a slow phone on
+ * mobile data, straight from an ad) a tap still adds the scent that way; once
+ * it has, the submit is caught and the scent goes in the bag in place.
  */
 export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: number | null }) {
   const cart = useCart();
   const [size, setSize] = useState<"bottle" | "sample">("bottle");
   const [added, setAdded] = useState(false);
+  // The label fades only when it changes, never on the first paint of an ad's landing.
+  const [swapped, setSwapped] = useState(false);
   const [sticky, setSticky] = useState(false);
   const mainRef = useRef<HTMLButtonElement>(null);
   const barRef = useRef<HTMLDivElement>(null);
 
-  // The bar shows whenever the main button is not fully on screen, above or below it.
+  /*
+   * The bar shows whenever the main button is not fully on screen, above or
+   * below it. Above, the header covers the top of the screen until it slides
+   * away on scroll down (data-chrome-hidden); the observer is rebuilt each time
+   * it moves, so a button in full view under a hidden header never has a twin.
+   */
   useEffect(() => {
     const el = mainRef.current;
     if (!el) return;
-    const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 0;
-    const io = new IntersectionObserver(([e]) => setSticky(e.intersectionRatio < 1), { threshold: [0, 1], rootMargin: `-${header}px 0px 0px 0px` });
-    io.observe(el);
-    return () => io.disconnect();
+    const root = document.documentElement;
+    let io: IntersectionObserver | null = null;
+    const observe = () => {
+      io?.disconnect();
+      const top = parseFloat(getComputedStyle(root).getPropertyValue("--chrome-top")) || 0;
+      io = new IntersectionObserver(([e]) => setSticky(e.intersectionRatio < 1), { threshold: [0, 1], rootMargin: `-${top}px 0px 0px 0px` });
+      io.observe(el);
+    };
+    observe();
+    const mo = new MutationObserver(observe);
+    mo.observe(root, { attributes: true, attributeFilter: ["data-chrome-hidden"] });
+    return () => {
+      mo.disconnect();
+      io?.disconnect();
+    };
   }, []);
 
   // Sticky-bar contract: --sticky-bar-h holds the bar's height while it shows, so floating buttons sit above it.
@@ -53,46 +76,66 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
   const kind = entry.kind === "set" ? "set" : size === "sample" ? "sample" : "bottle";
   const price = formatMoney(variant.price);
 
-  const add = () => {
-    cart.add({ variantId: variant.id, numericId: variant.numericId, productId: entry.productId, handle: entry.handle, title: entry.title, variantLabel: variant.label, kind, price: variant.price, image: entry.image, lineLabel: entry.lineLabel, world: entry.world });
+  /** Once hydrated, the form's submit adds in place instead of opening /bag. */
+  const add = (source: "pdp" | "sticky") => (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    cart.add({ variantId: variant.id, numericId: variant.numericId, productId: entry.productId, handle: entry.handle, title: entry.title, variantLabel: variant.label, kind, price: variant.price, image: entry.image, lineLabel: entry.lineLabel, world: entry.world }, 1, { source });
+    setSwapped(true);
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1400);
   };
   const label = !variant.availableForSale ? "Sold out" : added ? null : `Add to bag · ${price}`;
+  const item = `${variant.numericId}:1`;
 
   return (
     <div className="flex flex-col gap-3">
-      {entry.sample && (
-        <fieldset>
-          <legend className="sr-only">Size</legend>
-          <div className="grid grid-cols-2 gap-2">
-            {(["bottle", "sample"] as const).map((k) => {
-              const v = k === "bottle" ? entry.bottle! : entry.sample!;
-              const on = size === k;
-              return (
-                <label key={k} className={`size-opt flex h-11 cursor-pointer items-center justify-between gap-2 bg-paper px-3 text-[13px] ${on ? "shadow-[inset_0_0_0_2px_var(--color-night)]" : "shadow-[inset_0_0_0_1px_var(--color-dune)]"}`}>
-                  <input type="radio" name="size" value={k} checked={on} onChange={() => setSize(k)} className="sr-only" />
-                  <span className="font-semibold">{v.label}</span>
-                  <span className="tnum truncate text-ash">
-                    {formatMoney(v.price)}
-                    {k === "sample" && facts.sampleCredit ? " · credited back" : ""}
-                  </span>
-                </label>
-              );
-            })}
-          </div>
-        </fieldset>
-      )}
+      <form action="/bag" method="get" onSubmit={add("pdp")} className="contents">
+        <input type="hidden" name="source" value="pdp" />
+        {/* With two sizes the checked one is the item, so a size tapped before hydration is the one added. */}
+        {entry.sample ? (
+          <fieldset>
+            <legend className="sr-only">Size</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {(["bottle", "sample"] as const).map((k) => {
+                const v = k === "bottle" ? entry.bottle! : entry.sample!;
+                const on = size === k;
+                return (
+                  <label key={k} className={`size-opt flex h-11 cursor-pointer items-center justify-between gap-2 bg-paper px-3 text-[13px] ${on ? "shadow-[inset_0_0_0_2px_var(--color-night)]" : "shadow-[inset_0_0_0_1px_var(--color-dune)]"}`}>
+                    <input
+                      type="radio"
+                      name="items"
+                      value={`${v.numericId}:1`}
+                      checked={on}
+                      onChange={() => {
+                        setSwapped(true);
+                        setSize(k);
+                      }}
+                      className="sr-only"
+                    />
+                    <span className="font-semibold">{v.label}</span>
+                    <span className="tnum truncate text-ash">
+                      {formatMoney(v.price)}
+                      {k === "sample" && facts.sampleCredit ? " · credited back" : ""}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </fieldset>
+        ) : (
+          <input type="hidden" name="items" value={item} />
+        )}
 
-      <button ref={mainRef} type="button" className="btn w-full" onClick={add} disabled={!variant.availableForSale} aria-live="polite">
-        <span key={`${size}-${added}`} className="price-swap inline-flex items-center gap-2">
-          {label ?? (
-            <>
-              Added <Icon name="check" size={16} />
-            </>
-          )}
-        </span>
-      </button>
+        <button ref={mainRef} type="submit" className="btn w-full" disabled={!variant.availableForSale} aria-live="polite">
+          <span key={`${size}-${added}`} className={`${swapped ? "price-swap " : ""}inline-flex items-center gap-2`}>
+            {label ?? (
+              <>
+                Added <Icon name="check" size={16} />
+              </>
+            )}
+          </span>
+        </button>
+      </form>
 
       {lowStock !== null && <p className="text-[13px] text-gold-text">Only {lowStock} left in {entry.bottle?.label ?? "this size"}.</p>}
 
@@ -104,13 +147,17 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
             <div className="min-w-0">
               <p className="display-m truncate !text-[18px]">{entry.title}</p>
               <p className="truncate text-[12px] text-ash">
-                {variant.label}
+                {sizeLabel(variant.label)}
                 {entry.line ? ` · ${lineWithAudience(entry.line)}` : ""}
               </p>
             </div>
-            <button type="button" className="btn h-12 shrink-0 px-5" onClick={add} disabled={!variant.availableForSale}>
-              {label ?? "Added"}
-            </button>
+            <form action="/bag" method="get" onSubmit={add("sticky")} className="shrink-0">
+              <input type="hidden" name="items" value={item} />
+              <input type="hidden" name="source" value="sticky" />
+              <button type="submit" className="btn h-12 px-5" disabled={!variant.availableForSale}>
+                {label ?? "Added"}
+              </button>
+            </form>
           </div>
         </div>
       )}

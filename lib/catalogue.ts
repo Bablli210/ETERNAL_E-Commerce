@@ -137,6 +137,8 @@ const lineFromTags = (tags: string[]): LineKey | null => {
 };
 
 const STOP = new Set(["a", "an", "the", "of", "on", "over", "with", "and", "into", "onto", "base", "notes", "note", "accord", "eau", "de", "parfum", "ml", "then", "resting", "open", "opening", "closing", "settling", "resolving", "lift", "fold", "melt", "luminous", "sparkling", "soft", "white", "dry", "sharp", "aromatic", "signature", "fresh", "woody", "sweet", "elusive", "whisper-warm", "powdery", "same", "every", "boat", "comes", "home", "luminous floral"]);
+/** Words that describe the whole scent rather than name a note. */
+const DESCRIBES = /\b(duet|medley|trio|blend|signature)\b|&/;
 
 /** Three notes for a card when no metafield or editorial list exists. */
 const notesFromDescription = (description: string): string[] => {
@@ -145,8 +147,8 @@ const notesFromDescription = (description: string): string[] => {
     .replace(/\(.*?\)/g, " ")
     .replace(/[—:.;]/g, ",")
     .replace(/\b(resting on|base of|over|with|and|onto|into|open|opening|closing|settling on|resolving to|lift into|melt into|fold into)\b/g, ",");
-  // "A luminous floral: bergamot…" describes the scent; only what follows is a note.
-  const parts = cleaned.split(",").map((s) => s.trim().replace(/^(a|an|the) /, "")).filter((s) => s && !STOP.has(s) && s.split(" ").length <= 3 && !/\d/.test(s));
+  // "A luminous floral: bergamot…" describes the scent; only what follows is a note. So do "a soft floral duet" and "fresh & woody".
+  const parts = cleaned.split(",").map((s) => s.trim().replace(/^(a|an|the) /, "")).filter((s) => s && !STOP.has(s) && !DESCRIBES.test(s) && s.split(" ").length <= 3 && !/\d/.test(s));
   const uniq: string[] = [];
   for (const p of parts) if (!uniq.includes(p)) uniq.push(p);
   return uniq.slice(0, 3).map((s, i) => (i === 0 ? s.charAt(0).toUpperCase() + s.slice(1) : s));
@@ -451,7 +453,12 @@ export const toIndexEntry = (s: Scent): ScentIndexEntry => ({
   sample: s.sample ? { id: s.sample.id, numericId: s.sample.numericId, label: s.sample.label, price: s.sample.price, availableForSale: s.sample.availableForSale } : null,
 });
 
-export async function getScentIndex(): Promise<ScentIndexEntry[]> {
+/**
+ * One array per request: the layout hands it to the header and the bag, and a
+ * page that passes the same array to its own client components (the product
+ * page's Recently viewed, a collection's search) is serialised once, not twice.
+ */
+export const getScentIndex = cache(async (): Promise<ScentIndexEntry[]> => {
   const { all } = await getCatalogue();
   return all.map(toIndexEntry);
-}
+});
