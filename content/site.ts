@@ -13,9 +13,10 @@ export const site = {
    * The address in canonical links, the sitemap and link previews. Set
    * NEXT_PUBLIC_SITE_URL once the custom domain is live; until then each
    * Vercel project uses its own production address, so neither points at the other.
+   * An empty value counts as unset (a blank field in Vercel would otherwise break every page).
    */
   url:
-    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/+$/, "") ||
     (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://eternal-storefront.vercel.app"),
   currency: "EGP",
   locale: "en-EG",
