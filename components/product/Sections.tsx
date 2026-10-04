@@ -13,6 +13,9 @@ import { AddPairButton } from "./AddPairButton";
 import { FaqTrack } from "./FaqTrack";
 import { lineWithAudience } from "./line";
 import { ProductImage } from "./ProductImage";
+import { NotesTouch } from "./NotesTouch";
+import { noteMaps } from "@/content/notes-map";
+import { noteLine } from "@/content/note-lines";
 
 /** What each optional section needs before it renders. The page numbers only the sections that do. */
 export const sectionReady = {
@@ -37,9 +40,28 @@ export function Differs({ scent, index }: { scent: Scent; index: string }) {
   );
 }
 
-/** "How it smells": the notes sculpture (products/<handle>-3) beside the pyramid, or the description and its notes. */
+/**
+ * "How it smells". With a notes sculpture (products/<handle>-3) and a notes map
+ * (content/notes-map.ts): Notes you can touch, a dot on each pictured
+ * ingredient. Otherwise the sculpture beside the pyramid, or the description
+ * and its notes.
+ */
 export function NotesPyramid({ scent, index }: { scent: Scent; index: string }) {
   const still = siteImage(`products/${scent.handle}-3`);
+  const map = noteMaps[scent.handle];
+  // Only once at least one note is placed on the photo; until then the sculpture and pyramid below.
+  if (still && map?.some((n) => n.at)) {
+    return (
+      <section id="notes" className="section border-t border-dune">
+        <div className="wrap">
+          <SectionHead index={index} title="How it smells" sub="Every note in the photo is real. Tap one to see what it brings." />
+          <div className="mt-10">
+            <NotesTouch handle={scent.handle} title={scent.title} src={still} notes={map.map((n) => ({ ...n, at: n.at ?? null, line: noteLine(n.name) }))} />
+          </div>
+        </div>
+      </section>
+    );
+  }
   // No scroll margin here: the page's scroll-padding-top already clears the header, so the chips' jump lands once, not twice.
   return (
     <section id="notes" className="section border-t border-dune">
