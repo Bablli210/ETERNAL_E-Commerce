@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { Mark } from "@/components/ui/Wordmark";
 
 /**
- * G1 · the e∞ mark draws in a single stroke, then the Linen curtain lifts
+ * G1 · the mark draws in a single stroke, then the Linen curtain lifts
  * (600 + 400 ms). MotionScript decides before paint whether it shows at all:
  * desktop, home page, first page of the session, never for an ad visitor.
  */

@@ -241,7 +241,7 @@ export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryB
                 {box.image ? (
                   <Image src={box.image} alt="" fill sizes="(min-width: 1024px) 20vw, 38vw" className="object-cover" />
                 ) : (
-                  <Figure name="mystery-box" label="Mystery box — matte black box, e∞ monogram" dark sizes="(min-width: 1024px) 20vw, 38vw" className="absolute inset-0" />
+                  <Figure name="mystery-box" label="Mystery box — matte black box with the eternal mark" dark sizes="(min-width: 1024px) 20vw, 38vw" className="absolute inset-0" />
                 )}
               </Link>
               <div className="flex flex-col py-1">

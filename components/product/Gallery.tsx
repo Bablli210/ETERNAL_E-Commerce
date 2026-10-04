@@ -17,7 +17,7 @@ function frameAlt(scent: Scent, url: string, altText: string | null): string {
  * they swipe with a "1 / 3" counter, sized by .pdp-frame so Add to bag stays
  * on the first screen; from lg they stack. Rendered once for both, so the
  * first frame is the single preloaded image. A scent with no imagery yet
- * shows its colour world and the e∞ mark, never a placeholder brief.
+ * shows its colour world and the eternal mark, never a placeholder brief.
  */
 export function Gallery({ scent }: { scent: Scent }) {
   const imgs = scent.images.slice(0, 4);

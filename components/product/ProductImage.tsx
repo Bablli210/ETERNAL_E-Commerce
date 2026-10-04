@@ -9,7 +9,7 @@ import type { World } from "@/lib/catalogue";
  * row of a grid) loads eagerly at high fetch priority. H4: on devices that
  * hover, a second frame crossfades in; touch screens never display it, so
  * phones do not download it and a tap cannot leave it stuck on. A product
- * without a picture yet shows its colour world and the e∞ mark.
+ * without a picture yet shows its colour world and the eternal mark.
  */
 export function ProductImage({
   src,
