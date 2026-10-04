@@ -14,6 +14,28 @@ const VARIANT_ID = /^(gid:\/\/shopify\/ProductVariant\/)?\d+$/;
 /** A discount code from the ad link (?discount=CODE); Shopify validates it at checkout. */
 const DISCOUNT_CODE = /^[A-Za-z0-9_-]{2,40}$/;
 const MAX_QTY = 10;
+const UTM = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
+
+/** Every Checkout tap makes its own cart; nothing on this route is ever cached. */
+export const dynamic = "force-dynamic";
+
+/**
+ * The landing campaign proxy.ts keeps in the 30-day eternal_utm cookie, for
+ * when the browser's own copy is gone (Safari's storage cap, cleared data).
+ */
+function utmFromCookie(value: string | undefined): { key: string; value: string }[] {
+  if (!value) return [];
+  try {
+    const c = JSON.parse(value) as Record<string, unknown>;
+    if (!c || typeof c !== "object") return [];
+    const out: { key: string; value: string }[] = [];
+    for (const k of UTM) if (typeof c[k] === "string" && c[k]) out.push({ key: k, value: (c[k] as string).slice(0, 200) });
+    if (out.length && typeof c.landing === "string" && c.landing.startsWith("/")) out.push({ key: "landing_page", value: c.landing.slice(0, 200) });
+    return out;
+  } catch {
+    return [];
+  }
+}
 
 /**
  * Turns the local bag into a Shopify checkout. With a Storefront token this
@@ -28,6 +50,7 @@ export async function POST(req: Request) {
   } catch {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   }
+  if (!body || typeof body !== "object") return NextResponse.json({ error: "Invalid body" }, { status: 400 });
   const lines = (Array.isArray(body.lines) ? body.lines : [])
     .filter((l) => l && typeof l.variantId === "string" && VARIANT_ID.test(l.variantId) && Number.isFinite(l.quantity) && l.quantity >= 1)
     .map((l) => ({ variantId: l.variantId, quantity: Math.min(MAX_QTY, Math.floor(l.quantity)) }));
@@ -45,6 +68,10 @@ export async function POST(req: Request) {
   if (fbp) attributes.push({ key: "_fbp", value: fbp.slice(0, 200) });
   if (fbc) attributes.push({ key: "_fbc", value: fbc.slice(0, 200) });
   if (ga) attributes.push({ key: "ga_cid", value: ga.split(".").slice(-2).join(".") });
+  // No campaign from the browser: fall back to the server cookie, so the order still carries its ad (and its ref below).
+  if (!attributes.some((a) => a.key.startsWith("utm_"))) {
+    for (const a of utmFromCookie(jar.get("eternal_utm")?.value)) if (!attributes.some((b) => b.key === a.key)) attributes.push(a);
+  }
 
   if (shopifyConfigured) {
     try {

@@ -5,7 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { preconnect } from "react-dom";
-import { MAX_QTY, useCart, type CartLine } from "./CartProvider";
+import { MAX_QTY, sizeLabel, useCart, type CartLine } from "./CartProvider";
+import { inertOutside } from "./inertOutside";
 import { Icon } from "@/components/ui/Icon";
 import { Mark } from "@/components/ui/Wordmark";
 import { Price } from "@/components/ui/Primitives";
@@ -16,6 +17,7 @@ import type { LineKey } from "@/content/taxonomy";
 import { parseJSON, RECENT_KEY, useStoredRaw } from "@/lib/client/storage";
 import { motionAllowed } from "@/lib/motion";
 import { track } from "@/lib/client/analytics";
+import { discountCode } from "@/lib/client/attribution";
 
 const BOX = "mystery-box";
 
@@ -23,28 +25,16 @@ const BOX = "mystery-box";
 const AUDIENCE: Record<LineKey, string> = { eterna: "for her", eterno: "for him", eternal: "for both" };
 const lineName = (label: string | null) => (label && label in AUDIENCE ? `${label}, ${AUDIENCE[label as LineKey]}` : label);
 
-/** How the shopper can pay, from the confirmed methods only. A confirmed COD fee wording wins. */
+/**
+ * The confirmed payment methods, listed once under Checkout. Above it, only a
+ * confirmed COD fee wording earns a line: on a short in-app screen every line
+ * in the footer is a line less of the bag.
+ */
 const methods = facts.paymentMethods;
-const payByCod = methods.some((m) => /cash on delivery/i.test(m));
-const payByCard = methods.some((m) => /visa|mastercard|meeza|card/i.test(m));
-const payLine = facts.codFee ?? (payByCod ? (payByCard ? "Pay by card or cash on delivery" : "Pay cash on delivery") : null);
+const payLine = facts.codFee;
 
 const FOCUSABLE = "a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]";
 const BAG_BUTTON = '[data-bag-button], header button[aria-label^="Bag"]';
-
-/** Makes everything outside the sheet inert, so Tab, the screen-reader cursor and taps stay inside it. */
-function inertOutside(el: HTMLElement) {
-  const changed: HTMLElement[] = [];
-  for (let node: HTMLElement | null = el; node && node !== document.body; node = node.parentElement) {
-    for (const sibling of Array.from(node.parentElement?.children ?? [])) {
-      if (sibling !== node && sibling instanceof HTMLElement && !sibling.inert) {
-        sibling.inert = true;
-        changed.push(sibling);
-      }
-    }
-  }
-  return () => changed.forEach((s) => (s.inert = false));
-}
 
 /** Tab and Shift+Tab wrap around inside the sheet. */
 function wrapTab(e: KeyboardEvent, root: HTMLElement) {
@@ -67,7 +57,7 @@ function bagMessage(lines: CartLine[], subtotal: number) {
   const restore = `${window.location.origin}/bag?items=${lines.map((l) => `${l.numericId}:${l.qty}`).join(",")}`;
   return [
     "Hello eternal, this is my bag:",
-    ...lines.map((l) => `${l.qty} × ${l.title}, ${l.variantLabel} · ${formatMoney({ amount: parseFloat(l.price.amount) * l.qty, currencyCode: l.price.currencyCode })}`),
+    ...lines.map((l) => `${l.qty} × ${l.title}, ${sizeLabel(l.variantLabel)} · ${formatMoney({ amount: parseFloat(l.price.amount) * l.qty, currencyCode: l.price.currencyCode })}`),
     `Subtotal ${formatMoney({ amount: subtotal, currencyCode: lines[0]?.price.currencyCode })}`,
     restore,
   ].join("\n");
@@ -191,7 +181,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
     cart.add(
       { variantId: s.variant.id, numericId: s.variant.numericId, productId: e.productId, handle: e.handle, title: e.title, variantLabel: s.variant.label, kind: e.kind === "set" ? "set" : "bottle", price: s.variant.price, image: e.image, lineLabel: e.lineLabel, world: e.world },
       1,
-      { openDrawer: false, toast: false },
+      { openDrawer: false, toast: false, source: "bag_suggestion" },
     );
     settle(s.key);
   };
@@ -221,11 +211,14 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
   if (!cart.open) return null;
 
   const total = formatMoney({ amount: cart.subtotal, currencyCode: cart.currency });
+  // The ad's ?discount=CODE travels to checkout; the bag says so, since Shopify applies it there and the total here is before it.
+  const code = discountCode();
+  const before = [!deliveryIncluded && "delivery", code && "your code"].filter(Boolean).join(" and ");
   const waHref = facts.whatsapp && payable.length ? `https://wa.me/${facts.whatsapp}?text=${encodeURIComponent(bagMessage(payable, cart.subtotal))}` : null;
   const onWhatsApp = () => track({ name: "ui", action: "whatsapp_click", label: "bag" });
 
   return (
-    <div ref={dialogRef} className="fixed inset-0 z-[80]" role="dialog" aria-modal="true" aria-labelledby="bag-title">
+    <div ref={dialogRef} className="fixed inset-0 z-[80]" role="dialog" aria-modal="true" aria-labelledby="bag-title" data-bag-sheet>
       <button type="button" tabIndex={-1} aria-hidden="true" onClick={() => cart.closeDrawer()} className="fade-enter absolute inset-0 touch-none bg-night/40" />
       <aside ref={panelRef} tabIndex={-1} className="cart-panel absolute outline-none inset-x-0 bottom-0 flex max-h-[92dvh] flex-col bg-paper text-night lg:inset-y-0 lg:left-auto lg:right-0 lg:max-h-none lg:w-full lg:max-w-[460px]">
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-dune pl-5 pr-2">
@@ -276,7 +269,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
               <ul>
                 {cart.lines.map((l) => {
                   const href = `/products/${l.handle}`;
-                  const label = [l.variantLabel, l.kind === "set" ? null : lineName(l.lineLabel)].filter(Boolean).join(" · ");
+                  const label = [sizeLabel(l.variantLabel), l.kind === "set" ? null : lineName(l.lineLabel)].filter(Boolean).join(" · ");
                   return (
                     <li key={l.variantId} className={`line-row ${removing.has(l.variantId) ? "removing" : ""} ${cart.lastAdded === l.variantId ? "line-new" : ""}`}>
                       <div className="flex gap-4 overflow-hidden border-b border-dune py-4">
@@ -369,13 +362,18 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
                 <Price key={cart.subtotal} money={{ amount: String(cart.subtotal), currencyCode: cart.currency }} className="tick-in inline-block" />
               </div>
               <p className="mt-0.5 text-[13px] leading-snug text-ash">{deliveryLine}</p>
+              {code && (
+                <p className="text-[13px] leading-snug text-ash">
+                  Code <span className="font-semibold text-night">{code}</span> is applied at checkout
+                </p>
+              )}
               {payLine && <p className="text-[13px] leading-snug text-ash">{payLine}</p>}
-              <div className="mt-2 flex items-baseline justify-between border-t border-dune pt-2">
-                <span className="text-[14px] font-semibold">
+              <div className="mt-2 flex items-baseline justify-between gap-3 border-t border-dune pt-2">
+                <span className="min-w-0 text-[14px] font-semibold">
                   Estimated total
-                  {!deliveryIncluded && <span className="font-normal text-ash">, before delivery</span>}
+                  {before && <span className="font-normal text-ash">, before {before}</span>}
                 </span>
-                <span className="tnum text-[17px] font-semibold">{total}</span>
+                <span className="tnum shrink-0 whitespace-nowrap text-[17px] font-semibold">{total}</span>
               </div>
               {cart.error && (
                 <p role="alert" className="mt-2 text-[13px] leading-snug text-gold-text">
