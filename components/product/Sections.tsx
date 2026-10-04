@@ -54,7 +54,7 @@ export function NotesPyramid({ scent, index }: { scent: Scent; index: string }) 
     return (
       <section id="notes" className="section border-t border-dune">
         <div className="wrap">
-          <SectionHead index={index} title="How it smells" sub="Every note in the photo is real. Tap one to see what it brings." />
+          <SectionHead index={index} title="How it smells" sub="Every note in the photo is real. Pick one to see what it brings." />
           <div className="mt-10">
             <NotesTouch handle={scent.handle} title={scent.title} src={still} notes={map.map((n) => ({ ...n, at: n.at ?? null, line: noteLine(n.name) }))} />
           </div>

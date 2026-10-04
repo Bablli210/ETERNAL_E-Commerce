@@ -51,7 +51,6 @@ export function NotesTouch({ handle, title, src, notes }: { handle: string; titl
         </div>
       </div>
       <div className="grid gap-5">
-        <p className="text-[14px] text-ash">Tap a note in the photo, or below, to see what it brings.</p>
         {TIERS.map((t) => {
           const row = notes.map((x, i) => [x, i] as const).filter(([x]) => x.tier === t);
           if (!row.length) return null;
