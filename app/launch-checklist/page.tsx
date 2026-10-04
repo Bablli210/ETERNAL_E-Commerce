@@ -20,12 +20,13 @@ const SITE_IMAGES = [...heroes.flatMap((h) => [`hero-${h.handle}`, `hero-${h.han
  * set, never its value. NEXT_PUBLIC_* keys are fixed when the site is built,
  * so this reflects the deployed build.
  */
-function storeSetup() {
+function storeSetup(live: boolean) {
   const onMyshopify = checkoutDomain.endsWith(".myshopify.com");
   return [
     { key: "NEXT_PUBLIC_META_PIXEL_ID", ok: Boolean(process.env.NEXT_PUBLIC_META_PIXEL_ID), cost: "No Meta pixel: the ads can’t optimise on, or attribute, a view, an add or a checkout." },
     { key: "NEXT_PUBLIC_GA4_ID", ok: Boolean(process.env.NEXT_PUBLIC_GA4_ID), cost: "No GA4: no funnel from ad landing to checkout." },
-    { key: "SHOPIFY_STOREFRONT_ACCESS_TOKEN", ok: shopifyConfigured, cost: "The site runs on the committed catalogue snapshot: prices, stock and new scents only change when it is re-exported." },
+    { key: "SHOPIFY_STOREFRONT_PRIVATE_TOKEN or SHOPIFY_STOREFRONT_ACCESS_TOKEN", ok: shopifyConfigured, cost: "The site runs on the committed catalogue snapshot: prices, stock and new scents only change when it is re-exported." },
+    ...(shopifyConfigured ? [{ key: "Live catalogue from Shopify", ok: live, cost: "A token is set, but Shopify refused it or returned no products, so the site is showing the snapshot. Check the token, and that the products are published to the Headless channel." }] : []),
     { key: "SHOPIFY_CHECKOUT_DOMAIN", ok: Boolean(process.env.SHOPIFY_CHECKOUT_DOMAIN), cost: "Not set: checkout links, the bag’s checkout warm-up and the newsletter form use the store domain (SHOPIFY_STORE_DOMAIN)." },
     { key: "Checkout off myshopify.com", ok: !onMyshopify, cost: "Checkout still runs on a myshopify.com address: the shopper sees a second domain, and the ad-click cookie (_fbc) never reaches checkout, so Meta can’t tie a Purchase to its click." },
     { key: "COOKIE_DOMAIN", ok: Boolean(process.env.COOKIE_DOMAIN), cost: "The click cookies stay on the storefront host. Set it to the root domain once checkout runs on a subdomain of it." },
@@ -45,7 +46,7 @@ const lineConflict = (tags: string[]) => {
  * until it is supplied, so nothing here is visible to customers.
  */
 export default async function LaunchChecklist() {
-  const { all } = await getCatalogue();
+  const { all, live } = await getCatalogue();
   const facts = pendingFacts();
   // Unwritten, or written but still without the wide still that opens the page. Archived tales are off the site on purpose.
   const tales = allTales.filter((t) => !t.archived && (!t.complete || !siteImage(`tale-${t.slug}`)));
@@ -69,7 +70,7 @@ export default async function LaunchChecklist() {
     }))
     .filter((x) => x.missing.length);
   const images = SITE_IMAGES.filter((n) => !siteImage(n));
-  const setup = storeSetup();
+  const setup = storeSetup(live);
   const lineless = products.filter(({ s }) => s.kind === "scent" && !s.line).length;
 
   return (

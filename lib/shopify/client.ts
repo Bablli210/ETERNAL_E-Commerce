@@ -14,11 +14,19 @@ export const storeDomain = process.env.SHOPIFY_STORE_DOMAIN ?? "eternal-10199.my
  */
 export const checkoutDomain = process.env.SHOPIFY_CHECKOUT_DOMAIN || storeDomain;
 
-const token = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+/**
+ * Two kinds of Storefront API token, both read only on the server. The
+ * Headless channel's private token (shpat_…) is Shopify's choice for server
+ * calls and goes in its own header, with the shopper's IP on a checkout so
+ * Shopify's bot protection sees the buyer, not the server. The public token
+ * is the fallback. The private one wins when both are set.
+ */
+const privateToken = process.env.SHOPIFY_STOREFRONT_PRIVATE_TOKEN?.trim() || null;
+const publicToken = process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null;
 const apiVersion = process.env.SHOPIFY_API_VERSION ?? "2026-07";
 
 /** True when a Storefront API token is configured; otherwise the site runs on the snapshot. */
-export const shopifyConfigured = Boolean(token && token.length > 0);
+export const shopifyConfigured = Boolean(privateToken || publicToken);
 
 export class StorefrontError extends Error {
   constructor(message: string, public readonly errors?: unknown) {
@@ -39,16 +47,16 @@ const MUTATION = /^\s*mutation\b/m;
 export async function storefront<T>(
   query: string,
   variables: Record<string, unknown> = {},
-  { revalidate = 300, tags }: { revalidate?: number | false; tags?: string[] } = {},
+  { revalidate = 300, tags, buyerIp }: { revalidate?: number | false; tags?: string[]; buyerIp?: string } = {},
 ): Promise<T> {
-  if (!token) throw new StorefrontError("SHOPIFY_STOREFRONT_ACCESS_TOKEN is not set");
+  if (!privateToken && !publicToken) throw new StorefrontError("No Storefront API token is set");
   const fresh = revalidate === 0 || MUTATION.test(query);
+  const auth: Record<string, string> = privateToken
+    ? { "Shopify-Storefront-Private-Token": privateToken, ...(buyerIp ? { "Shopify-Storefront-Buyer-IP": buyerIp } : {}) }
+    : { "X-Shopify-Storefront-Access-Token": publicToken as string };
   const res = await fetch(`https://${storeDomain}/api/${apiVersion}/graphql.json`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Shopify-Storefront-Access-Token": token,
-    },
+    headers: { "Content-Type": "application/json", ...auth },
     body: JSON.stringify({ query, variables }),
     ...(fresh ? { cache: "no-store" as const } : { next: { revalidate, tags } }),
   });

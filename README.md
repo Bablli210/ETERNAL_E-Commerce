@@ -103,10 +103,13 @@ same checks Vercel does.
 
 1. In Shopify admin, add the **Headless** sales channel (or create a custom app with the
    `unauthenticated_read_product_listings`, `unauthenticated_read_product_inventory` and
-   `unauthenticated_write_checkouts` scopes) and copy the **public Storefront API access
-   token**.
-2. In Vercel, set `SHOPIFY_STOREFRONT_ACCESS_TOKEN` (and `SHOPIFY_STORE_DOMAIN` if the
-   store domain changes). Redeploy.
+   `unauthenticated_write_checkouts` scopes), publish every product to that channel, and
+   copy its Storefront API tokens.
+2. In Vercel, set `SHOPIFY_STOREFRONT_PRIVATE_TOKEN` (the private `shpat_…` token, type
+   Sensitive) and `SHOPIFY_STOREFRONT_ACCESS_TOKEN` (the public token, used only if the
+   private one is missing), plus `SHOPIFY_STORE_DOMAIN` (the store's myshopify.com
+   address). Redeploy. `/launch-checklist` shows "Live catalogue from Shopify" once the
+   site reads the store.
 
 Without the token the site keeps running on the snapshot; refresh it by re-exporting the
 products into `content/catalogue.snapshot.json`.

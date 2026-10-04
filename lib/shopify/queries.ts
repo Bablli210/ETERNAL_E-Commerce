@@ -100,7 +100,7 @@ export type CheckoutLine = { merchandiseId: string; quantity: number };
  * URL. The buyer's country is set to Egypt, so checkout opens with Egypt
  * already selected. Never cached: every Checkout tap gets a cart of its own.
  */
-export async function createCheckout(lines: CheckoutLine[], attributes: { key: string; value: string }[] = [], discountCodes: string[] = []): Promise<string> {
+export async function createCheckout(lines: CheckoutLine[], attributes: { key: string; value: string }[] = [], discountCodes: string[] = [], buyerIp?: string): Promise<string> {
   const data: { cartCreate: { cart: { checkoutUrl: string } | null; userErrors: { message: string }[] } } = await storefront(
     /* GraphQL */ `
       mutation CreateCart($lines: [CartLineInput!]!, $attributes: [AttributeInput!], $discountCodes: [String!]) {
@@ -111,7 +111,7 @@ export async function createCheckout(lines: CheckoutLine[], attributes: { key: s
       }
     `,
     { lines, attributes, discountCodes },
-    { revalidate: 0 },
+    { revalidate: 0, buyerIp },
   );
   if (!data.cartCreate.cart) throw new Error(data.cartCreate.userErrors.map((e) => e.message).join("; ") || "Cart could not be created");
   return data.cartCreate.cart.checkoutUrl;

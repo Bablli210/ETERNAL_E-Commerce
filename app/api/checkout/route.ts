@@ -80,7 +80,8 @@ export async function POST(req: Request) {
 
   if (shopifyConfigured) {
     try {
-      const url = await createCheckout(lines.map((l) => ({ merchandiseId: l.variantId.startsWith("gid:") ? l.variantId : `gid://shopify/ProductVariant/${l.variantId}`, quantity: l.quantity })), attributes, discount ? [discount] : []);
+      const buyerIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || undefined;
+      const url = await createCheckout(lines.map((l) => ({ merchandiseId: l.variantId.startsWith("gid:") ? l.variantId : `gid://shopify/ProductVariant/${l.variantId}`, quantity: l.quantity })), attributes, discount ? [discount] : [], buyerIp);
       return NextResponse.json({ url, mode: "storefront" });
     } catch (err) {
       console.error("[checkout] Storefront cart failed, falling back to permalink:", err);
