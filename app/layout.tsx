@@ -4,7 +4,7 @@ import "./globals.css";
 import { site } from "@/content/site";
 import { tales } from "@/content/tales";
 import { getBestsellers, getNewArrivals, getScentIndex, toIndexEntry } from "@/lib/catalogue";
-import { storeDomain } from "@/lib/shopify/client";
+import { checkoutDomain } from "@/lib/shopify/client";
 import { siteImage } from "@/lib/site-images";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { CartDrawer } from "@/components/cart/CartDrawer";
@@ -48,7 +48,8 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export const viewport: Viewport = { themeColor: "#f3efe7", width: "device-width", initialScale: 1 };
+/** viewportFit "cover" lets fixed bars pad themselves with env(safe-area-inset-*) clear of the notch and home indicator. */
+export const viewport: Viewport = { themeColor: "#f3efe7", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [index, bestsellers, newArrivals] = await Promise.all([getScentIndex(), getBestsellers(4), getNewArrivals(1)]);
@@ -59,7 +60,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const taleIndex = tales.map((t) => ({ slug: t.slug, title: t.title, handle: t.handle, line: t.line }));
 
   return (
-    <html lang="en" className={`${cormorant.variable} ${instrument.variable}`}>
+    // data-scroll-behavior: Next 16 suspends the smooth scrolling (globals.css) during route changes only with this opt-in; without it a new page lands part-way down.
+    <html lang="en" data-scroll-behavior="smooth" className={`${cormorant.variable} ${instrument.variable}`}>
       <body>
         <MotionScript />
         <Loader />
@@ -71,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <main id="main">
             <PageFade>{children}</PageFade>
           </main>
-          <Footer storeDomain={storeDomain} />
+          <Footer shopDomain={checkoutDomain} />
           <CartDrawer index={index} />
           <Toast />
           <WhatsAppFloat />

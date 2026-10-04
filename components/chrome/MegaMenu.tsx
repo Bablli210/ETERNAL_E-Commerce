@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { ProductImage } from "@/components/product/ProductImage";
 import { Eyebrow, Price } from "@/components/ui/Primitives";
+import { site } from "@/content/site";
 import { familyOrder, families } from "@/content/taxonomy";
 import type { ScentIndexEntry } from "@/lib/catalogue";
+import { lineWithAudience } from "@/components/product/line";
 
 export type FeaturedTiles = { bestseller: ScentIndexEntry | null; newIn: ScentIndexEntry | null };
 
@@ -12,9 +14,9 @@ const lists = [
   {
     title: "By line",
     links: [
-      { label: "Her — eterna", href: "/shop/her" },
-      { label: "Him — eterno", href: "/shop/him" },
-      { label: "Unisex — eternal", href: "/shop/unisex" },
+      { label: "For her · eterna", href: "/shop/her" },
+      { label: "For him · eterno", href: "/shop/him" },
+      { label: "Unisex · eternal", href: "/shop/unisex" },
       { label: "All scents", href: "/shop" },
     ],
   },
@@ -25,11 +27,10 @@ const lists = [
   {
     title: "Start here",
     links: [
+      { label: "Find your scent", href: "/finder" },
+      { label: `Mystery box · 3 × ${site.sampleSizeMl} ml`, href: "/products/mystery-box" },
       { label: "Bestsellers", href: "/shop/bestsellers" },
       { label: "New arrivals", href: "/shop/new" },
-      { label: "Discovery set", href: "/finder" },
-      { label: "Mystery box", href: "/products/mystery-box" },
-      { label: "Scent finder — 2 minutes", href: "/finder" },
     ],
   },
 ];
@@ -53,16 +54,16 @@ export function MegaMenu({ featured, onEnter, onLeave }: { featured: FeaturedTil
           </div>
         ))}
         {[
-          { e: featured.bestseller, eyebrow: "Featured", label: "Bestseller" },
-          { e: featured.newIn, eyebrow: `New in ${featured.newIn?.lineLabel ?? "the house"}`, label: "New arrival" },
-        ].map(({ e, eyebrow, label }, i) =>
+          { e: featured.bestseller, eyebrow: "House pick" },
+          { e: featured.newIn, eyebrow: "New in" },
+        ].map(({ e, eyebrow }, i) =>
           e ? (
             <Link key={i} href={`/products/${e.handle}`} className="rise-in group flex gap-4" style={{ ["--i" as string]: i + 1 }}>
               <ProductImage src={e.image} alt={e.title} world={e.world} sizes="140px" className="h-[170px] w-[136px] shrink-0" />
               <div className="flex flex-col justify-center">
                 <Eyebrow>{eyebrow}</Eyebrow>
                 <span className="display-m mt-1 group-hover:text-sea">{e.title}</span>
-                <span className="mt-1 text-[12px] text-ash">{e.inspiredBy ? `Inspired by ${e.inspiredBy}` : e.lineLabel ?? label}</span>
+                <span className="mt-1 text-[12px] text-ash">{e.inspiredBy ? `Inspired by ${e.inspiredBy}` : e.line ? lineWithAudience(e.line) : null}</span>
                 <Price money={e.price} className="mt-2 text-[13px] font-medium" />
               </div>
             </Link>
