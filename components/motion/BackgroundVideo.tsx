@@ -128,9 +128,11 @@ export function BackgroundVideo({
     <div className={`${positioned ? "" : "relative"} overflow-hidden ${className}`} style={style}>
       <Image src={poster} alt={alt} fill sizes={sizes} preload={priority} className={`object-cover ${imageClassName}`} />
       {playable && (
+        // Inset by 1 px so the clip is always a hair smaller than the poster: otherwise sub-pixel
+        // rounding can make it the larger paint, and LCP would move to whenever the clip starts.
         <video
           ref={ref}
-          className={`bg-video absolute inset-0 h-full w-full object-cover ${imageClassName} ${playing ? "is-playing" : ""}`}
+          className={`bg-video absolute inset-px h-[calc(100%-2px)] w-[calc(100%-2px)] object-cover ${imageClassName} ${playing ? "is-playing" : ""}`}
           autoPlay={!startWhenIdle}
           muted
           loop
