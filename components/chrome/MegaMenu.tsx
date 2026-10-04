@@ -21,7 +21,7 @@ const lists = [
     ],
   },
   {
-    title: "By family",
+    title: "By scent",
     links: familyOrder.map((k) => ({ label: families[k].label, href: `/shop/${k}` })),
   },
   {

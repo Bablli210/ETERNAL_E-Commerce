@@ -419,7 +419,7 @@ export function CollectionGrid({
   const groups: FilterGroup[] = [
     { title: "Sort", options: sorts.map((s) => ({ key: s.key, label: s.label, active: url.sort === s.key, onToggle: () => apply({ sort: s.key }) })) },
     { title: "Line", options: lineOptions((k) => lineWithAudience(k)) },
-    { title: "Family", options: familyOptions },
+    { title: "Scent", options: familyOptions },
     { title: "Mood", options: moodOptions },
   ];
 
