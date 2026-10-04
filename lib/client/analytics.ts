@@ -23,7 +23,8 @@ export type AnalyticsItem = {
 type Event =
   | { name: "view_item"; items: AnalyticsItem[] }
   | { name: "view_item_list"; list: string; items: AnalyticsItem[] }
-  | { name: "add_to_cart"; items: AnalyticsItem[] }
+  /** source: where the add happened (pdp, sticky, card, pairing, finder, bag_suggestion, bag_link, bag_qty…). */
+  | { name: "add_to_cart"; items: AnalyticsItem[]; source?: string }
   | { name: "remove_from_cart"; items: AnalyticsItem[] }
   | { name: "view_cart"; items: AnalyticsItem[] }
   /** The Checkout tap in the bag. Shopify's own checkout fires InitiateCheckout and Purchase. */
@@ -154,18 +155,20 @@ export function track(e: Event) {
       case "remove_from_cart":
       case "view_cart":
       case "begin_checkout": {
+        const source = e.name === "add_to_cart" ? e.source : undefined;
         const ecommerce = { currency: CURRENCY, value: value(e.items), items: ga4Items(e.items) };
         window.dataLayer.push({ ecommerce: null });
-        window.dataLayer.push({ event: e.name, event_id: id, ecommerce });
-        gtag?.("event", e.name, ecommerce);
+        window.dataLayer.push({ event: e.name, event_id: id, source, ecommerce });
+        gtag?.("event", e.name, source ? { ...ecommerce, source } : ecommerce);
         // InitiateCheckout and Purchase belong to Shopify's checkout (Facebook & Instagram channel),
         // so the bag's Checkout tap is a custom CheckoutClick and never double counts.
         const meta = { view_item: "ViewContent", add_to_cart: "AddToCart" } as const;
         const custom = { view_cart: "ViewCart", remove_from_cart: "RemoveFromCart", begin_checkout: "CheckoutClick" } as const;
         if (e.name in meta) {
           const name = meta[e.name as keyof typeof meta];
-          fbq?.("track", name, metaPayload(e.items), { eventID: id });
-          capi(name, id, metaPayload(e.items));
+          const payload = source ? { ...metaPayload(e.items), source } : metaPayload(e.items);
+          fbq?.("track", name, payload, { eventID: id });
+          capi(name, id, payload);
         }
         else fbq?.("trackCustom", custom[e.name as keyof typeof custom], metaPayload(e.items), { eventID: id });
         break;

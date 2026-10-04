@@ -40,8 +40,9 @@ type CartContextValue = {
   lastAdded: string | null;
   toast: { id: number; title: string; label: string } | null;
   dismissToast: () => void;
-  add: (line: Omit<CartLine, "qty">, qty?: number, opts?: { openDrawer?: boolean; toast?: boolean }) => void;
-  addMany: (lines: Omit<CartLine, "qty">[]) => void;
+  /** opts.source names where the add happened, for the add_to_cart event (pdp, sticky, card, finder…). */
+  add: (line: Omit<CartLine, "qty">, qty?: number, opts?: { openDrawer?: boolean; toast?: boolean; source?: string }) => void;
+  addMany: (lines: Omit<CartLine, "qty">[], opts?: { source?: string }) => void;
   /** Sets these lines to exactly these quantities, keeps the rest of the bag, and opens the drawer (the /bag link). */
   restore: (lines: CartLine[]) => void;
   /** Brings stored lines up to date with the live catalogue: price, title, image, availability. */
@@ -160,7 +161,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const add = useCallback<CartContextValue["add"]>((line, qty = 1, opts) => {
     if (qty > 0) {
       if (!firstTap(line.variantId)) return;
-      track({ name: "add_to_cart", items: [toItem(line, qty)] });
+      track({ name: "add_to_cart", items: [toItem(line, qty)], source: opts?.source });
       mutate((prev) => {
         const i = prev.findIndex((l) => l.variantId === line.variantId);
         if (i === -1) return [...prev, { ...line, qty: Math.min(MAX_QTY, qty) }];
@@ -188,10 +189,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const addMany = useCallback<CartContextValue["addMany"]>((items) => {
+  const addMany = useCallback<CartContextValue["addMany"]>((items, opts) => {
     const fresh = items.filter((l) => firstTap(l.variantId));
     if (!fresh.length) return;
-    track({ name: "add_to_cart", items: fresh.map((l) => toItem(l, 1)) });
+    track({ name: "add_to_cart", items: fresh.map((l) => toItem(l, 1)), source: opts?.source });
     mutate((prev) => {
       const next = [...prev];
       for (const line of fresh) {
@@ -250,7 +251,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!current) return;
     const next = Math.min(MAX_QTY, Math.max(0, qty));
     const delta = next - current.qty;
-    if (delta > 0) track({ name: "add_to_cart", items: [toItem(current, delta)] });
+    if (delta > 0) track({ name: "add_to_cart", items: [toItem(current, delta)], source: "bag_qty" });
     if (delta < 0) track({ name: "remove_from_cart", items: [toItem(current, -delta)] });
     mutate((prev) => (next === 0 ? prev.filter((l) => l.variantId !== variantId) : prev.map((l) => (l.variantId === variantId ? { ...l, qty: next } : l))));
   }, []);
