@@ -181,7 +181,7 @@ export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; 
     tone: lines[k].tone,
   }));
   return (
-    <section className="py-8 lg:py-30">
+    <section className="py-8 lg:py-24">
       <div className="wrap">
         <h2 className="sr-only lg:hidden">The three lines</h2>
         <HomeHead title="Three lines" action={{ label: `Shop all ${total}`, href: "/shop" }} className="max-lg:hidden" />
@@ -197,7 +197,7 @@ export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; 
 export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; total: number }) {
   if (!entries.length) return null;
   return (
-    <section className="border-t border-dune pb-10 pt-7 lg:py-30">
+    <section className="border-t border-dune pb-10 pt-7 lg:py-24">
       <div className="wrap">
         <HomeHead title="Where to start" sub="The house’s picks for a first bottle." />
         <SelectList list="home_where_to_start" items={entries.map(listItem)} className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-12 lg:grid-cols-4 lg:gap-x-6">
@@ -220,7 +220,7 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
  */
 export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryBox: ScentIndexEntry | null; everySampled: boolean }) {
   return (
-    <section className="border-t border-dune bg-sand/40 py-10 lg:py-30">
+    <section className="border-t border-dune bg-sand/40 py-10 lg:py-24">
       <div className="wrap">
         <HomeHead title="Try before you commit" />
         <div className="mt-6 grid gap-4 lg:mt-12 lg:grid-cols-2 lg:gap-6">
@@ -276,7 +276,7 @@ export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryB
 
 export function MoodTiles() {
   return (
-    <section className="py-10 lg:py-30">
+    <section className="py-10 lg:py-24">
       <div className="wrap">
         <HomeHead title="Shop by mood" sub="For when you know the feeling but not the notes." />
         <ul className="mt-6 grid grid-cols-3 gap-x-2 gap-y-5 lg:mt-12 lg:gap-x-6 lg:gap-y-10">
@@ -332,7 +332,7 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
   const bg = scent.world.dark ? scent.world.bg : "#163a4e";
   return (
     <section className="grain watermark relative overflow-hidden text-linen" style={{ backgroundColor: bg }}>
-      <div className="wrap relative grid gap-8 py-12 lg:grid-cols-2 lg:items-center lg:gap-12 lg:py-30">
+      <div className="wrap relative grid gap-8 py-12 lg:grid-cols-2 lg:items-center lg:gap-12 lg:py-24">
         <Parallax factor={0.15} className="overflow-hidden" data-reveal>
           <div className="parallax-y -my-[8%]">
             <Figure
@@ -407,7 +407,7 @@ export function HouseFilm() {
   const origin = confirmed(site.origin);
   return (
     <section className="ad-drop grain bg-night text-linen">
-      <div className="wrap grid gap-8 py-12 lg:grid-cols-[1.3fr_1fr] lg:items-center lg:gap-12 lg:py-30">
+      <div className="wrap grid gap-8 py-12 lg:grid-cols-[1.3fr_1fr] lg:items-center lg:gap-12 lg:py-24">
         <HouseFilmPlayer
           sources={siteVideo("house-film")}
           className="relative block aspect-video w-full overflow-hidden"
@@ -433,7 +433,7 @@ export function TalesTeaser({ exclude }: { exclude: string | null }) {
   const picks = tales.filter((t) => t.slug !== exclude).slice(0, 3);
   if (!picks.length) return null;
   return (
-    <section className="ad-drop py-10 lg:py-30">
+    <section className="ad-drop py-10 lg:py-24">
       <div className="wrap">
         <HomeHead title="Tales" action={{ label: "All tales", href: "/tales" }} />
         <ul className="mt-6 grid gap-8 md:grid-cols-3 lg:mt-12">

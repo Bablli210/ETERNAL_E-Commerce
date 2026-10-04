@@ -85,8 +85,9 @@ input, select, textarea { font-size: 16px; }
 .wrap { margin-inline: auto; width: 100%; max-width: 1440px; padding-inline: 20px; }
 @media (min-width: 1024px) { .wrap { padding-inline: 80px; } }
 
-.section { padding-block: 72px; }
-@media (min-width: 1024px) { .section { padding-block: 120px; } }
+/* One vertical rhythm for every content section: 56 px on a phone, 96 px from lg (the home page's own bands match it on desktop). */
+.section { padding-block: 56px; }
+@media (min-width: 1024px) { .section { padding-block: 96px; } }
 
 .hairline { border-color: var(--color-dune); }
 .rule { height: 1px; background: var(--color-dune); }

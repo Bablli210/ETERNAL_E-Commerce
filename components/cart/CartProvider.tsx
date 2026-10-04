@@ -197,6 +197,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const url = new URL(window.location.href);
     if (url.searchParams.get("ordered") !== "1") return;
     writeJSON(KEY, []);
+    // The free 5 ml picks went out with that order; the next bag starts with the house's choice.
+    samplesInMemory = [];
+    writeJSON(SAMPLES_KEY, []);
     url.searchParams.delete("ordered");
     window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
   }, []);
