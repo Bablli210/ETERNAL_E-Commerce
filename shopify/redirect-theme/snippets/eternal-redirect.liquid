@@ -1,0 +1,67 @@
+{%- comment -%}
+  eternal: the shop lives on the storefront below. This Shopify theme only
+  serves checkout, customer accounts, policies and the password page; every
+  shopping page forwards to the same page on the storefront and keeps the
+  ad's tracking parameters (utm_*, fbclid, gclid, ttclid, discount).
+  The theme editor is never redirected.
+
+  When the storefront moves to its own domain, change eternal_site to it,
+  e.g. https://www.myeternal.net
+{%- endcomment -%}
+{%- assign eternal_site = 'https://eternal-storefront.vercel.app' -%}
+{%- assign eternal_path = '' -%}
+{%- unless request.design_mode -%}
+  {%- case request.page_type -%}
+    {%- when 'index', '404' -%}
+      {%- assign eternal_path = '/' -%}
+    {%- when 'product' -%}
+      {%- assign eternal_path = '/products/' | append: product.handle -%}
+    {%- when 'collection' -%}
+      {%- assign eternal_slugs = 'her,him,unisex,bestsellers,new,fresh,woody,amber-spice,floral,gourmand,aquatic,sea-air,golden-hour,after-dark,fresh-linen,warm-skin,wild-garden' | split: ',' -%}
+      {%- if collection.handle == 'eterna' -%}
+        {%- assign eternal_path = '/shop/her' -%}
+      {%- elsif collection.handle == 'eterno' -%}
+        {%- assign eternal_path = '/shop/him' -%}
+      {%- elsif collection.handle == 'eternal' -%}
+        {%- assign eternal_path = '/shop/unisex' -%}
+      {%- elsif eternal_slugs contains collection.handle -%}
+        {%- assign eternal_path = '/shop/' | append: collection.handle -%}
+      {%- else -%}
+        {%- assign eternal_path = '/shop' -%}
+      {%- endif -%}
+    {%- when 'list-collections', 'search' -%}
+      {%- assign eternal_path = '/shop' -%}
+    {%- when 'cart' -%}
+      {%- assign eternal_path = '/bag' -%}
+    {%- when 'page' -%}
+      {%- assign eternal_path = '/help' -%}
+    {%- when 'blog', 'article' -%}
+      {%- assign eternal_path = '/tales' -%}
+  {%- endcase -%}
+{%- endunless -%}
+{%- if eternal_path != '' -%}
+  <meta name="robots" content="noindex">
+  <script>
+    (function () {
+      var target = new URL({{ eternal_path | json }}, {{ eternal_site | json }});
+      var here = new URLSearchParams(location.search);
+      here.forEach(function (value, key) {
+        if (/^(utm_[a-z]+|fbclid|gclid|ttclid|discount)$/.test(key)) target.searchParams.set(key, value);
+      });
+      {%- if request.page_type == 'search' %}
+      if (here.get('q')) target.searchParams.set('q', here.get('q'));
+      {%- endif %}
+      {%- if request.page_type == 'index' %}
+      // Shopify's "Continue shopping" after an order opens this home page from checkout on the same host; ordered=1 tells the storefront to empty the bag.
+      try {
+        if (document.referrer) {
+          var from = new URL(document.referrer);
+          if (from.host === location.host && !/^\/(policies|account|pages|password)/.test(from.pathname)) target.searchParams.set('ordered', '1');
+        }
+      } catch (e) {}
+      {%- endif %}
+      location.replace(target.toString());
+    })();
+  </script>
+  <noscript><meta http-equiv="refresh" content="0; url={{ eternal_site }}{{ eternal_path }}"></noscript>
+{%- endif -%}
