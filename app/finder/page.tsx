@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { Finder } from "@/components/finder/Finder";
 import { getScent, getScentIndex, toIndexEntry } from "@/lib/catalogue";
 import { finderQuestions } from "@/content/finder";
@@ -9,7 +8,7 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Scent finder — five questions, three matches",
-  description: "Answer five quick questions and we match you to three scents, then try all three as samples before you commit to a bottle.",
+  description: "Answer five quick questions and get three scents from across the house, each with its price and one tap to add it. No sign-up.",
   alternates: { canonical: "/finder" },
 };
 
@@ -20,9 +19,5 @@ export default async function FinderPage() {
   for (const q of finderQuestions) {
     for (const o of q.options) tiles[`${q.id}-${o.id}`] = siteImage(`finder-${q.id}-${o.id}`);
   }
-  return (
-    <Suspense>
-      <Finder index={index} mysteryBox={mysteryBox ? toIndexEntry(mysteryBox) : null} tiles={tiles} />
-    </Suspense>
-  );
+  return <Finder index={index} mysteryBox={mysteryBox ? toIndexEntry(mysteryBox) : null} boxImage={siteImage(["products/mystery-box", "mystery-box"])} tiles={tiles} />;
 }

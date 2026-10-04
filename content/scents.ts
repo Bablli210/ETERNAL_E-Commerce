@@ -16,9 +16,11 @@ export type NoteStage = { stage: "Top" | "Heart" | "Base"; name: string; copy: s
 
 export type ScentContent = {
   line?: LineKey;
+  /** Only where the original is confirmed; the page names it in its body, never in a title. */
   inspiredBy?: string;
   comparison?: string;
   signature?: string;
+  /** Three real notes, top to base: each renders as a chip, so never a phrase. */
   notesShort?: string[];
   notes?: NoteStage[];
   colorWorld?: { bg: string; accent: string; dark: boolean; source: "packshot" | "proposed" };
@@ -27,6 +29,7 @@ export type ScentContent = {
   wear?: { time?: string; season?: string; occasion?: string; projection?: string };
   tale?: string; // slug in content/tales.ts
   alsoTry?: string[]; // handles
+  /** Only from real sales (playbook 5.6), never by hand; the live catalogue uses Shopify's best-selling order. */
   bestseller?: boolean;
   featured?: boolean;
 };
@@ -49,18 +52,15 @@ export const scents: Record<string, ScentContent> = {
     wear: { time: "Evening", season: "Autumn to spring", occasion: "Dates, dinners, signature", projection: "Arm’s length" },
     tale: "shadow-of-the-sea",
     alsoTry: ["sapphire", "tonic-club"],
-    bestseller: true,
     featured: true,
   },
   destiny: {
     colorWorld: { bg: "#A9C4E4", accent: "#3F6FA8", dark: false, source: "packshot" },
     notesShort: ["Orange blossom", "tuberose", "vanilla"],
-    bestseller: true,
   },
   "caribbean-punch": {
     colorWorld: { bg: "#F0E3CC", accent: "#D9843A", dark: false, source: "packshot" },
     notesShort: ["Mango", "coconut", "sandalwood"],
-    bestseller: true,
   },
   "forbidden-apple": {
     inspiredBy: "Crab Apple Blossom",
@@ -74,26 +74,23 @@ export const scents: Record<string, ScentContent> = {
     colorWorld: { bg: "#2B2A28", accent: "#B97A2B", dark: true, source: "proposed" },
     notesShort: ["Bergamot", "lavender", "incense"],
     tale: "wayne",
-    bestseller: true,
   },
   mercury: {
     signature: "Wherever you arrive, belong there.",
     colorWorld: { bg: "#C7C3CE", accent: "#6F5E8A", dark: false, source: "proposed" },
-    notesShort: ["Grapefruit", "then warmer", "and darker"],
+    notesShort: ["Grapefruit", "amberwood", "musk"],
     tale: "mercury",
   },
   sapphire: {
     inspiredBy: "Blue Talisman",
     colorWorld: { bg: "#1B3F8F", accent: "#DCE6F5", dark: true, source: "proposed" },
     notesShort: ["Pear", "ginger", "white musk"],
-    bestseller: true,
   },
   "enzo-1898": {
     signature: "He looks like money was never the problem.",
     colorWorld: { bg: "#2F5A4E", accent: "#6B3A2B", dark: true, source: "proposed" },
     notesShort: ["Mandarin", "cedarwood", "white musk"],
     tale: "enzo-1898",
-    bestseller: true,
   },
   "tonic-club": {
     colorWorld: { bg: "#DDE9C8", accent: "#3E5A2E", dark: false, source: "proposed" },
@@ -103,10 +100,9 @@ export const scents: Record<string, ScentContent> = {
     colorWorld: { bg: "#F2EFE8", accent: "#9A968D", dark: false, source: "proposed" },
     notesShort: ["Neroli", "iris", "cedar"],
   },
-  "hundred-whispers": { bestseller: true },
-  "vintage-vanilla": { bestseller: true },
-  "mystery-box": {
-    line: "eternal",
-    notesShort: ["Three 5 ml samples", "chosen for you"],
-  },
+  divina: { notesShort: ["Pink pepper", "gardenia", "sandalwood"] },
+  fiji: { notesShort: ["Citrus", "aquatic florals", "ambergris"] },
+  carbon: { notesShort: ["Bergamot", "Sichuan pepper", "cedar"] },
+  /** Three scents in one box: no line and no notes of its own. */
+  "mystery-box": { notesShort: [] },
 };
