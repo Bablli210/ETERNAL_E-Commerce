@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCatalogue } from "@/lib/catalogue";
-import { isConfirmed, pendingFacts } from "@/lib/facts";
-import { house } from "@/content/house";
+import { pendingFacts } from "@/lib/facts";
 import { siteImage } from "@/lib/site-images";
 import { allTales } from "@/content/tales";
 import { heroes } from "@/content/heroes";
@@ -14,7 +13,7 @@ export const revalidate = 300;
 export const metadata: Metadata = { title: "Launch checklist", robots: { index: false, follow: false } };
 
 /** Site-wide image slots that should hold a real file before launch. */
-const SITE_IMAGES = [...heroes.flatMap((h) => [`hero-${h.handle}`, `hero-${h.handle}-mobile`]), "line-eterna", "line-eterno", "line-eternal", "finder-band", "mystery-box", "house-film-poster", "house-founder", "house-step-1", "house-step-2", "house-step-3", "og-image"];
+const SITE_IMAGES = [...heroes.flatMap((h) => [`hero-${h.handle}`, `hero-${h.handle}-mobile`]), "line-eterna", "line-eterno", "line-eternal", "finder-band", "mystery-box", "house-film-poster", "og-image"];
 
 /**
  * The environment the ads depend on, read on the server: whether each key is
@@ -47,12 +46,7 @@ const lineConflict = (tags: string[]) => {
  */
 export default async function LaunchChecklist() {
   const { all } = await getCatalogue();
-  const facts = [
-    ...pendingFacts(),
-    ...Object.entries(house)
-      .filter(([, v]) => !isConfirmed(v))
-      .map(([key, value]) => ({ key: `house.${key}`, value, note: "In content/house.ts. The founder section on /house shows once both lines are real and house-founder is a photograph of the founder." })),
-  ];
+  const facts = pendingFacts();
   // Unwritten, or written but still without the wide still that opens the page. Archived tales are off the site on purpose.
   const tales = allTales.filter((t) => !t.archived && (!t.complete || !siteImage(`tale-${t.slug}`)));
   const archived = allTales.filter((t) => t.archived);
@@ -93,7 +87,7 @@ export default async function LaunchChecklist() {
         ))}
       </Section>
 
-      <Section title={`Facts to confirm (${facts.length})`} note="In content/site.ts (and content/house.ts). Replace the bracketed text with the confirmed wording.">
+      <Section title={`Facts to confirm (${facts.length})`} note="In content/site.ts. Replace the bracketed text with the confirmed wording.">
         {facts.map((f) => (
           <li key={f.key + f.value}>
             <code className="text-[13px]">{f.key}</code> — <span className="text-ash">{f.value}</span>

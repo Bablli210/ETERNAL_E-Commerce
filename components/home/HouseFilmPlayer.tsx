@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useRef, useState, type ReactNode } from "react";
 import { Icon } from "@/components/ui/Icon";
 import type { VideoSources } from "@/lib/site-videos";
@@ -17,9 +16,7 @@ export function HouseFilmPlayer({ sources, poster, className = "" }: { sources: 
   const [playing, setPlaying] = useState(false);
   if (!sources) {
     return (
-      <Link href="/house" className={`group ${className}`} aria-label="Our story">
-        {poster}
-      </Link>
+      <div className={`group ${className}`}>{poster}</div>
     );
   }
   const play = () => {

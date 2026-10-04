@@ -419,8 +419,8 @@ export function HouseFilm() {
           <p className="mt-5 max-w-[50ch] text-[16px] leading-relaxed text-dune lg:text-[17px]">
             We start from the fragrances people already love and compose our own reading of each one, {origin ? `${lowerFirst(origin)} and ` : ""}told through a tale. Inspired by, never imitated.
           </p>
-          <Link href="/house" className="btn btn-outline-light mt-7">
-            Our story
+          <Link href="/tales" className="btn btn-outline-light mt-7">
+            Read the tales
           </Link>
         </div>
       </div>

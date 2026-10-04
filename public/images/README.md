@@ -45,7 +45,7 @@ yet shows its colour world and the e∞ mark on every card.
 | `tale-featured` | Featured tale still. Used when the tale has no `tale-<slug>-card` |
 | `mood-sea-air`, `mood-golden-hour`, `mood-after-dark`, `mood-fresh-linen`, `mood-warm-skin`, `mood-wild-garden` | The six mood tiles |
 | `mystery-box` | The wide mystery box still. "Try before you commit" falls back to it while the box has no packshot; `products/mystery-box` is that packshot, used there, in the collection grid and in the bag |
-| `house-film-poster` | House film poster, home and the house page |
+| `house-film-poster` | House film poster, on the home page |
 
 ## Campaign heroes
 
@@ -73,14 +73,12 @@ finder-place-coast        finder-place-city        finder-place-garden    finder
 finder-strength-soft      finder-strength-present  finder-strength-loud
 ```
 
-## Tales and the house
+## Tales
 
 | File | Used for |
 | --- | --- |
 | `tale-<slug>` | The tale's wide still (7:3): its hero, its card on the tales index and its band on the product page |
 | `tale-<slug>-card` | A 4:3 crop of the same still, 1600 × 1195, for the home page's featured tale and tales teaser. Falls back to `tale-<slug>` |
-| `house-step-1`, `house-step-2`, `house-step-3` | How we compose |
-| `house-founder` | Founder portrait |
 
 Tale slugs on the site: `shadow-of-the-sea`, `wayne`, `enzo-1898`,
 `forbidden-apple`, `mercury`. Stills for `divina`, `hundred-whispers`,

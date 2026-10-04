@@ -89,7 +89,6 @@ export const nav = [
   { label: "Shop", href: "/shop" },
   { label: "Find your scent", href: "/finder" },
   { label: "Tales", href: "/tales" },
-  { label: "The house", href: "/house" },
 ] as const;
 
 /** The line names differ by one letter, so each one travels with its audience. */
@@ -118,7 +117,6 @@ export const footerColumns = [
   {
     title: "The house",
     links: [
-      { label: "Our story", href: "/house" },
       { label: "Tales", href: "/tales" },
     ],
   },

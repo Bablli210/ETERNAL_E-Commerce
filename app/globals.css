@@ -6,7 +6,6 @@
 @import "./styles/pdp.css";
 @import "./styles/cart.css";
 @import "./styles/content.css";
-@import "./styles/house.css";
 
 @theme {
   --color-linen: #f3efe7;

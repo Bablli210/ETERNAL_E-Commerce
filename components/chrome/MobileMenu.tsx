@@ -22,7 +22,6 @@ const AUDIENCES: { key: LineKey; label: string }[] = [
 
 const MORE = [
   { label: "Tales", href: "/tales" },
-  { label: "The house", href: "/house" },
   { label: "Help & delivery", href: "/help" },
 ];
 
@@ -102,7 +101,7 @@ export function MobileMenu({ onClose, counts, box }: { onClose: () => void; coun
           </Link>
         </nav>
 
-        <nav aria-label="The house" className="mt-3 px-5">
+        <nav aria-label="More" className="mt-3 px-5">
           <ul className="divide-y divide-dune border-y border-dune">
             {MORE.map((r) => (
               <li key={r.href}>

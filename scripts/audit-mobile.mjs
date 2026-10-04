@@ -12,7 +12,7 @@ const exe = "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
 const pages = [
   ["home", "/"], ["shop", "/shop"], ["shop-her", "/shop/her"], ["shop-bestsellers", "/shop/bestsellers"],
   ["pdp-wayne", "/products/wayne"], ["pdp-aurora", "/products/aurora"], ["pdp-mystery-box", "/products/mystery-box"],
-  ["finder", "/finder"], ["tales", "/tales"], ["tale-wayne", "/tales/wayne"], ["house", "/house"], ["help", "/help"],
+  ["finder", "/finder"], ["tales", "/tales"], ["tale-wayne", "/tales/wayne"], ["help", "/help"],
   ["404", "/does-not-exist"],
 ];
 
