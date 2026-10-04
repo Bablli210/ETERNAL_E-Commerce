@@ -2,223 +2,345 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { finderQuestions } from "@/content/finder";
 import { site } from "@/content/site";
 import type { ScentIndexEntry } from "@/lib/catalogue";
-import { rankMatches, summariseAnswers, type Answers } from "@/lib/finder";
+import { answersFromParams, answersToParams, firstUnanswered, QUIZ_PROFILE_KEY, rankMatches, summariseAnswers, type Answers, type Match } from "@/lib/finder";
+import { facts } from "@/lib/facts";
 import { motionAllowed } from "@/lib/motion";
+import { writeRaw } from "@/lib/client/storage";
+import { track } from "@/lib/client/analytics";
+import { formatMoney, joinNotes } from "@/lib/format";
 import { useCart } from "@/components/cart/CartProvider";
-import { ProductCard } from "@/components/product/ProductCard";
-import { CountUp } from "@/components/motion/CountUp";
+import { AddToBagButton } from "@/components/cart/AddToBagButton";
+import { ProductImage } from "@/components/product/ProductImage";
+import { lineWithAudience } from "@/components/product/line";
 import { ImageSlot } from "@/components/ui/Primitives";
 import { Icon } from "@/components/ui/Icon";
 import { Mark } from "@/components/ui/Wordmark";
-import { formatMoney } from "@/lib/format";
-import { track } from "@/lib/client/analytics";
 
-const encode = (a: Answers) => btoa(encodeURIComponent(JSON.stringify(a)));
-const decode = (s: string): Answers | null => {
-  try {
-    return JSON.parse(decodeURIComponent(atob(s))) as Answers;
-  } catch {
-    return null;
-  }
+const total = finderQuestions.length;
+
+/*
+ * The URL is the finder's state: ?who=her&time=day&q=3 is question 3 with two
+ * answers, and a full set of answers without q is the results. Each answer
+ * pushes a history entry, so the phone's back gesture steps back a question,
+ * and coming back from a match's product page reopens the matches.
+ */
+const CHANGE = "eternal:finder";
+const subscribe = (onChange: () => void) => {
+  window.addEventListener("popstate", onChange);
+  window.addEventListener(CHANGE, onChange);
+  return () => {
+    window.removeEventListener("popstate", onChange);
+    window.removeEventListener(CHANGE, onChange);
+  };
+};
+const readSearch = () => window.location.search;
+/** The server renders question 1, so the first screen paints before any script runs. */
+const serverSearch = () => "";
+
+const screenFrom = (search: string): { answers: Answers; step: number } => {
+  const params = new URLSearchParams(search);
+  const answers = answersFromParams(params);
+  const open = firstUnanswered(answers);
+  const q = Number(params.get("q"));
+  return { answers, step: params.has("q") && q >= 1 ? Math.min(q - 1, open) : open };
 };
 
-export function Finder({ index, mysteryBox, tiles = {} }: { index: ScentIndexEntry[]; mysteryBox: ScentIndexEntry | null; tiles?: Record<string, string | null> }) {
-  const total = finderQuestions.length;
-  // A shared link restores the answers and opens on the results.
-  const searchParams = useSearchParams();
-  const shared = useMemo(() => {
-    const a = searchParams.get("a");
-    return a ? decode(a) : null;
-  }, [searchParams]);
-  const [step, setStep] = useState(shared ? total : 0);
-  const [answers, setAnswers] = useState<Answers>(shared ?? {});
-  const [direction, setDirection] = useState<"fwd" | "back">("fwd");
+const hrefFor = (answers: Answers, step: number) => {
+  const params = answersToParams(answers);
+  if (!params.toString()) return "/finder";
+  if (step < total) params.set("q", String(step + 1));
+  // Commas are legal in a query; leaving them bare keeps a shared link readable.
+  return `/finder?${params.toString().replace(/%2C/g, ",")}`;
+};
+
+const navigate = (href: string, mode: "push" | "replace") => {
+  if (mode === "push") window.history.pushState(null, "", href);
+  else window.history.replaceState(null, "", href);
+  window.dispatchEvent(new Event(CHANGE));
+};
+
+/** Single-choice answers move on by themselves, after the choice has shown. */
+const ADVANCE_MS = 280;
+
+export function Finder({ index, mysteryBox, boxImage, tiles }: { index: ScentIndexEntry[]; mysteryBox: ScentIndexEntry | null; boxImage: string | null; tiles: Record<string, string | null> }) {
+  const search = useSyncExternalStore(subscribe, readSearch, serverSearch);
+  const { answers, step } = useMemo(() => screenFrom(search), [search]);
+  const [direction, setDirection] = useState<"fwd" | "back" | null>(null);
   const [composing, setComposing] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [shareState, setShareState] = useState<"idle" | "copied" | "manual">("idle");
   const { addMany } = useCart();
   const done = step >= total;
+  const scents = index.filter((e) => e.kind === "scent").length;
 
-  // F3: the mark draws for 1.2 s ("composing your matches") before the results.
+  // The step this visit opened on: entries before it belong to another page, so Back replaces instead.
+  const opened = useRef(0);
+  const started = useRef(false);
+  const timer = useRef<number | null>(null);
+  useEffect(() => {
+    opened.current = screenFrom(window.location.search).step;
+    return () => {
+      if (timer.current) window.clearTimeout(timer.current);
+    };
+  }, []);
+
+  // Every screen starts at the top; the first paint keeps the browser's own position.
+  const lastStep = useRef<number | null>(null);
+  useEffect(() => {
+    if (lastStep.current !== null && lastStep.current !== step) window.scrollTo({ top: 0 });
+    lastStep.current = step;
+  }, [step]);
+
   useEffect(() => {
     if (!composing) return;
-    const t = window.setTimeout(() => {
-      setComposing(false);
-      setStep(total);
-    }, 1200);
+    const t = window.setTimeout(() => setComposing(false), 1200);
     return () => window.clearTimeout(t);
-  }, [composing, total]);
+  }, [composing]);
+
+  const advance = () => {
+    if (timer.current) window.clearTimeout(timer.current);
+    // Read the URL, not the render: an auto-advance fires after the answer was written.
+    const now = screenFrom(window.location.search);
+    const question = finderQuestions[now.step];
+    const picked = question && now.answers[question.id];
+    if (!picked?.length) return;
+    if (!started.current) {
+      started.current = true;
+      track({ name: "finder_start" });
+    }
+    track({ name: "finder_step", step: now.step + 1, question: question.id, answer: picked.join(",") });
+    if (now.step === total - 1) {
+      const profile = answersToParams(now.answers).toString();
+      track({ name: "finder_complete", answers: profile, matches: rankMatches(index, now.answers, 3).map((m) => m.entry.handle) });
+      writeRaw(QUIZ_PROFILE_KEY, profile);
+      if (motionAllowed()) setComposing(true);
+    }
+    setDirection("fwd");
+    navigate(hrefFor(now.answers, now.step + 1), "push");
+  };
 
   const q = finderQuestions[Math.min(step, total - 1)];
   const chosen = answers[q.id] ?? [];
-  const toggle = (id: string) => {
-    setAnswers((prev) => {
-      const cur = prev[q.id] ?? [];
-      if (cur.includes(id)) return { ...prev, [q.id]: cur.filter((x) => x !== id) };
-      if (q.max === 1) return { ...prev, [q.id]: [id] };
-      if (cur.length >= q.max) return prev;
-      return { ...prev, [q.id]: [...cur, id] };
-    });
+  const choose = (id: string) => {
+    let picked: string[];
+    if (q.max === 1) picked = [id];
+    else if (chosen.includes(id)) picked = chosen.filter((x) => x !== id);
+    else picked = [...chosen, id].slice(-q.max); // a third mood replaces the first
+    const next = { ...answers, [q.id]: picked };
+    if (!picked.length) delete next[q.id];
+    navigate(hrefFor(next, step), "replace");
+    if (q.max === 1) {
+      if (timer.current) window.clearTimeout(timer.current);
+      timer.current = window.setTimeout(advance, ADVANCE_MS);
+    }
   };
-  // Every screen starts at the top, so the slide reads as one motion.
-  const toTop = () => window.scrollTo({ top: 0, behavior: motionAllowed() ? "smooth" : "auto" });
-  const next = () => {
-    setDirection("fwd");
-    toTop();
-    if (step === total - 1 && motionAllowed()) setComposing(true);
-    else setStep((s) => Math.min(total, s + 1));
-  };
+
   const back = () => {
+    if (step === 0) return;
     setDirection("back");
-    toTop();
-    setStep((s) => Math.max(0, s - 1));
+    if (step > opened.current) window.history.back();
+    else {
+      opened.current = step - 1;
+      navigate(hrefFor(answers, step - 1), "replace");
+    }
   };
+
   const retake = () => {
-    setAnswers({});
     setDirection("back");
-    setStep(0);
-    window.history.replaceState(null, "", "/finder");
+    setShareState("idle");
+    opened.current = 0;
+    navigate("/finder", "push");
   };
 
   const matches = useMemo(() => (done ? rankMatches(index, answers, 3) : []), [done, index, answers]);
   const summary = useMemo(() => summariseAnswers(answers), [answers]);
-  // Funnel events: the first answered question, and each set of results shown.
-  const started = useRef(false);
-  useEffect(() => {
-    if (step !== 1 || started.current) return;
-    started.current = true;
-    track({ name: "finder_start" });
-  }, [step]);
-  const reported = useRef("");
-  useEffect(() => {
-    if (!done || !matches.length) return;
-    const key = JSON.stringify(answers);
-    if (reported.current === key) return;
-    reported.current = key;
-    track({ name: "finder_complete", answers: key, matches: matches.map((m) => m.entry.handle) });
-  }, [done, matches, answers]);
-  const trio = matches.every((m) => m.entry.sample?.availableForSale) && matches.length === 3;
-  const trioPrice = trio ? matches.reduce((n, m) => n + parseFloat(m.entry.sample!.price.amount), 0) : 0;
+  const resultsUrl = () => `${window.location.origin}${hrefFor(answers, total)}`;
 
   const share = async () => {
-    const url = `${window.location.origin}/finder?a=${encode(answers)}`;
-    window.history.replaceState(null, "", url);
+    const url = resultsUrl();
     try {
       if (navigator.share) {
         await navigator.share({ title: "My three eternal matches", url });
         return;
       }
       await navigator.clipboard.writeText(url);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      /* cancelled */
+      setShareState("copied");
+    } catch (err) {
+      // A cancelled share is not a failure; a refused clipboard shows the link to copy by hand.
+      if (!(err instanceof DOMException && err.name === "AbortError")) setShareState("manual");
     }
   };
-
-  const addTrio = () =>
-    addMany(
-      matches.map((m) => ({
-        variantId: m.entry.sample!.id,
-        numericId: m.entry.sample!.numericId,
-        productId: m.entry.productId,
-        handle: m.entry.handle,
-        title: m.entry.title,
-        variantLabel: m.entry.sample!.label,
-        kind: "sample" as const,
-        price: m.entry.sample!.price,
-        image: m.entry.image,
-        lineLabel: m.entry.lineLabel,
-        world: m.entry.world,
-      })),
-    );
 
   if (composing) {
     return (
       <section className="wrap flex min-h-[60vh] flex-col items-center justify-center py-16 text-center" aria-live="polite">
         <Mark size={128} draw className="draw-slow text-night" />
         <p className="display-m mt-8">Composing your matches…</p>
-        <p className="mt-2 text-[13px] text-ash">Reading your answers against {index.filter((e) => e.kind === "scent").length} scents.</p>
+        <p className="mt-2 text-[14px] text-ash">Reading your answers against {scents} scents.</p>
       </section>
     );
   }
 
   if (done) {
+    const trio = matches.length === 3 && matches.every((m) => m.entry.sample?.availableForSale);
+    const trioPrice = trio ? matches.reduce((n, m) => n + parseFloat(m.entry.sample!.price.amount), 0) : 0;
+    const addTrio = () =>
+      addMany(
+        matches.map(({ entry: e }) => ({
+          variantId: e.sample!.id,
+          numericId: e.sample!.numericId,
+          productId: e.productId,
+          handle: e.handle,
+          title: e.title,
+          variantLabel: e.sample!.label,
+          kind: "sample" as const,
+          price: e.sample!.price,
+          image: e.image,
+          lineLabel: e.lineLabel,
+          world: e.world,
+        })),
+      );
+    const waText = () => encodeURIComponent(`Hello eternal, my finder matches are ${matches.map((m) => m.entry.title).join(", ")}. ${resultsUrl()}`);
     return (
-      <section className="wrap py-10 lg:py-16" style={{ ["--stagger" as string]: "120ms" }}>
-        <p className="tnum text-[12px] text-ash">Step {total} of {total}</p>
-        <h1 className="display-l mt-3">Your three matches</h1>
-        <p className="body-l mt-3 max-w-[60ch] text-ash">
-          Chosen from {index.filter((e) => e.kind === "scent").length} scents for {summary.length ? summary.join(", ") : "you"}.
+      <section className="wrap pb-12 pt-6 lg:py-16">
+        <p className="eyebrow text-ash">Your matches</p>
+        <h1 className="mt-2 font-serif text-[32px] font-semibold leading-[1.08] lg:text-[clamp(36px,4vw,56px)]">Three to start with</h1>
+        <p className="mt-2 max-w-[60ch] text-[14px] leading-snug text-ash lg:text-[16px]">
+          From {scents} scents, for {summary.join(" · ")}.
         </p>
-        <div className="mt-10 grid gap-x-6 gap-y-10 md:grid-cols-3">
+
+        <ol className="mt-6 grid gap-6 md:mt-10 md:grid-cols-3 md:gap-x-6">
           {matches.map((m, i) => (
-            <div key={m.entry.handle} data-reveal style={{ ["--i" as string]: i }}>
-              <ProductCard entry={m.entry} badge={<CountUp value={m.percent} suffix="% match" duration={600} />} reason={m.reasons.slice(0, 3).join(", ") || undefined} />
-            </div>
+            <li key={m.entry.handle}>
+              <MatchCard match={m} position={i} />
+            </li>
           ))}
-        </div>
-        <div className="mt-12 flex flex-col gap-4 border-t border-dune pt-8 md:flex-row md:items-center md:justify-between" data-reveal style={{ ["--i" as string]: 3 }}>
+        </ol>
+
+        <div className="mt-8 grid gap-4 md:mt-12 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-start md:gap-6">
           {trio ? (
-            <button type="button" className="btn pulse-once" style={{ animationDelay: "1s" }} onClick={addTrio}>
-              Try all three as {site.sampleSizeMl} ml samples — {formatMoney({ amount: trioPrice, currencyCode: matches[0].entry.price.currencyCode })}
-            </button>
-          ) : mysteryBox ? (
-            <Link href="/products/mystery-box" className="btn pulse-once" style={{ animationDelay: "1s" }}>
-              Not ready for a bottle? The mystery box — three {site.sampleSizeMl} ml samples, {formatMoney(mysteryBox.price)}
-            </Link>
-          ) : null}
-          <div className="flex flex-wrap items-center gap-5 text-[13px]">
-            <button type="button" className="lnk lnk-quiet" onClick={share}>
-              {copied ? "Link copied" : "Share results"} <Icon name="share" size={14} />
-            </button>
-            <button type="button" className="lnk lnk-quiet" onClick={retake}>
-              Retake <Icon name="refresh" size={14} />
-            </button>
+            <div className="bg-paper p-5">
+              <p className="text-[14px]">Not sure yet? Wear all three first.</p>
+              <button type="button" className="btn btn-block mt-3" onClick={addTrio}>
+                Try all 3 as {matches[0].entry.sample!.label} · {formatMoney({ amount: trioPrice, currencyCode: matches[0].entry.sample!.price.currencyCode })}
+              </button>
+              {facts.sampleCredit && <p className="mt-2 text-[12px] text-ash">{facts.sampleCredit}</p>}
+            </div>
+          ) : (
+            mysteryBox?.bottle && (
+              <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-4 bg-paper p-4">
+                <div className="relative aspect-square overflow-hidden" style={{ backgroundColor: mysteryBox.world.bg }}>
+                  {boxImage && <Image src={boxImage} alt="" fill sizes="72px" className="object-cover" />}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[12px] text-ash">Not ready for a bottle?</p>
+                  <p className="font-serif text-[22px] font-semibold leading-tight">The mystery box</p>
+                  <p className="mt-1 text-[14px] leading-snug text-ash">
+                    Three {site.sampleSizeMl} ml scents, chosen by the house, so they may not be these three.
+                  </p>
+                </div>
+                <div className="col-span-2 flex flex-col gap-1">
+                  <AddToBagButton
+                    variant={mysteryBox.bottle}
+                    product={{ productId: mysteryBox.productId, handle: mysteryBox.handle, title: mysteryBox.title, image: mysteryBox.image, lineLabel: mysteryBox.lineLabel, world: mysteryBox.world }}
+                    kind="set"
+                    block
+                    label={`Add the box · ${formatMoney(mysteryBox.bottle.price)}`}
+                  />
+                  <Link href={`/products/${mysteryBox.handle}`} className="mx-auto inline-flex min-h-11 items-center text-[13px] font-semibold">
+                    <span className="lnk">What is inside</span>
+                  </Link>
+                </div>
+              </div>
+            )
+          )}
+
+          <div className="flex flex-col gap-3">
+            {facts.whatsapp && (
+              <a
+                href={`https://wa.me/${facts.whatsapp}?text=${waText()}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary btn-block"
+                onClick={() => track({ name: "generate_lead", method: "whatsapp_finder" })}
+              >
+                <Icon name="whatsapp" size={18} /> Send my matches to WhatsApp
+              </a>
+            )}
+            <div className="flex flex-wrap items-center gap-x-6">
+              <button type="button" className="inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold" onClick={share}>
+                <span className="lnk lnk-quiet">{shareState === "copied" ? "Link copied" : "Share my matches"}</span> <Icon name="share" size={14} />
+              </button>
+              <button type="button" className="inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold" onClick={retake}>
+                <span className="lnk lnk-quiet">Start again</span> <Icon name="refresh" size={14} />
+              </button>
+            </div>
+            {shareState === "manual" && (
+              <label className="block text-[12px] text-ash">
+                Copy this link
+                <input readOnly value={resultsUrl()} onFocus={(e) => e.currentTarget.select()} className="field mt-1 !h-11 !text-[16px]" />
+              </label>
+            )}
           </div>
         </div>
-        <p className="mt-6 text-[12px] text-ash">Your answers only shape the matches. Nothing is saved unless you share the link.</p>
+        <p className="mt-6 text-[12px] text-ash">No sign-up. Your answers only shape your matches.</p>
       </section>
     );
   }
 
+  const showNext = q.max > 1 || chosen.length > 0;
+  const cols = q.options.length === 3 ? "grid-cols-3" : "grid-cols-2 lg:grid-cols-4";
+  const shape = q.options.length === 3 ? "aspect-[4/5] lg:aspect-[4/3]" : "aspect-[16/9] lg:aspect-[4/3]";
   return (
-    <section className="wrap py-10 lg:py-16">
-      {/* F1: the progress bar fills. */}
-      <div className="h-px w-full bg-dune" aria-hidden="true">
-        <div className="progress-fill h-px bg-night" style={{ transform: `scaleX(${(step + 1) / total})` }} />
-      </div>
-      <div key={step} className={direction === "back" ? "screen-back" : "screen-fwd"}>
-        <p className="tnum mt-4 text-[12px] text-ash">
-          Step {step + 1} of {total} · {q.eyebrow}
+    <section className="wrap pb-10 pt-2 lg:py-12">
+      <div className="flex h-11 items-center justify-between">
+        {step > 0 ? (
+          <button type="button" className="-ml-2 inline-flex h-11 items-center gap-1.5 px-2 text-[13px] font-semibold hover:text-sea" onClick={back}>
+            <Icon name="arrow-left" size={16} /> Back
+          </button>
+        ) : (
+          <span className="text-[12px] text-ash">Five questions, three matches</span>
+        )}
+        <p className="tnum text-[12px] text-ash">
+          {step + 1} of {total}
         </p>
-        <h1 className="display-l mt-3">{q.title}</h1>
-        <p className="body-l mt-3 max-w-[56ch] text-ash">{q.help}</p>
+      </div>
+      <div className="h-[2px] w-full bg-dune" role="progressbar" aria-label="Finder progress" aria-valuemin={1} aria-valuemax={total} aria-valuenow={step + 1}>
+        {/* F1: the progress bar fills. */}
+        <div className="progress-fill h-full bg-night" style={{ transform: `scaleX(${(step + 1) / total})` }} />
+      </div>
 
-        <ul className={`mt-10 grid gap-4 ${q.options.length > 4 ? "grid-cols-2 lg:grid-cols-3" : "grid-cols-2 lg:grid-cols-4"}`} role="group" aria-label={q.title}>
+      {/* F1: screens slide in once the visitor moves; the first screen paints as it is. */}
+      <div key={step} className={direction === "fwd" ? "screen-fwd" : direction === "back" ? "screen-back" : ""}>
+        <p className="eyebrow mt-6 hidden text-ash lg:block">{q.eyebrow}</p>
+        <h1 className="mt-4 font-serif text-[30px] font-semibold leading-[1.1] lg:mt-3 lg:text-[clamp(36px,4vw,56px)]">{q.title}</h1>
+        <p className="mt-2 text-[15px] leading-snug text-ash lg:text-[17px]">{q.help}</p>
+
+        <ul className={`mt-5 grid gap-2 lg:mt-10 lg:gap-4 ${cols}`} role="group" aria-label={q.title}>
           {q.options.map((o) => {
             const on = chosen.includes(o.id);
+            const src = tiles[`${q.id}-${o.id}`];
             return (
               <li key={o.id}>
-                {/* F2: the tile lifts 4 px with a Night border; the check draws. */}
-                <button
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => toggle(o.id)}
-                  className={`tile group relative flex aspect-[4/3] w-full flex-col justify-end overflow-hidden p-4 text-left ${on ? "shadow-[inset_0_0_0_2px_var(--color-night)]" : "shadow-[inset_0_0_0_1px_transparent] hover:shadow-[inset_0_0_0_1px_var(--color-night)]"}`}
-                >
-                  {tiles[`${q.id}-${o.id}`] ? (
-                    <Image src={tiles[`${q.id}-${o.id}`]!} alt="" fill sizes="(min-width: 1024px) 33vw, 50vw" className="absolute inset-0 object-cover" />
+                {/* F2: the chosen tile takes a Night ring and a check; the others dim. */}
+                <button type="button" aria-pressed={on} onClick={() => choose(o.id)} className={`tile relative block w-full overflow-hidden bg-sand text-left ${shape}`}>
+                  {src ? (
+                    <Image src={src} alt="" fill sizes="(min-width: 1024px) 25vw, 50vw" className={`object-cover transition-opacity duration-200 ${chosen.length && !on ? "opacity-60" : ""}`} />
                   ) : (
                     <ImageSlot label={o.art} className="absolute inset-0" />
                   )}
-                  <span className="serif relative z-10 bg-linen/90 px-2 py-1 text-[20px] leading-none lg:text-[24px]">{o.label}</span>
+                  <span aria-hidden="true" className={`pointer-events-none absolute inset-0 z-10 ${on ? "shadow-[inset_0_0_0_3px_var(--color-night)]" : ""}`} />
+                  <span className="absolute inset-x-2 bottom-2 z-10 flex lg:inset-x-3 lg:bottom-3">
+                    <span className="bg-linen/95 px-2 py-1">
+                      <span className="block font-serif text-[18px] font-semibold leading-[1.1] lg:text-[22px]">{o.label}</span>
+                      {o.sub && <span className="block text-[12px] leading-tight text-ash">{o.sub}</span>}
+                    </span>
+                  </span>
                   {on && (
-                    <span className="absolute right-3 top-3 z-10 flex h-7 w-7 items-center justify-center bg-night text-linen">
+                    <span className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center bg-night text-linen">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="draw" aria-hidden="true">
                         <path pathLength={1} d="m5 12 5 5L20 7" style={{ animationDuration: "200ms" }} />
                       </svg>
@@ -231,15 +353,49 @@ export function Finder({ index, mysteryBox, tiles = {} }: { index: ScentIndexEnt
         </ul>
       </div>
 
-      <div className="mt-10 flex items-center justify-between border-t border-dune pt-6">
-        <button type="button" className="btn btn-ghost" onClick={back} disabled={step === 0}>
-          <Icon name="arrow-left" size={16} /> Back
-        </button>
-        <button type="button" className="btn" onClick={next} disabled={chosen.length === 0}>
+      {showNext && (
+        <button type="button" className="btn btn-block mt-5 lg:mt-8 lg:w-auto" onClick={advance} disabled={chosen.length === 0}>
           {step === total - 1 ? "See my matches" : "Next"} <Icon name="arrow-right" size={16} className="btn-arrow" />
         </button>
-      </div>
-      <p className="mt-6 text-[12px] text-ash">Your answers only shape the matches. Nothing is saved unless you share the link.</p>
+      )}
+      <p className="mt-5 text-[12px] text-ash">No sign-up. Your answers only shape your matches.</p>
     </section>
+  );
+}
+
+/** One match, decided without a click: line and audience, name, inspired-by, notes, why it matched, and its price on the Add button. */
+function MatchCard({ match, position }: { match: Match; position: number }) {
+  const e = match.entry;
+  const product = { productId: e.productId, handle: e.handle, title: e.title, image: e.image, lineLabel: e.lineLabel, world: e.world };
+  const select = () =>
+    track({ name: "select_item", list: "finder", index: position, item: { productId: e.productId, variantId: e.bottle?.numericId ?? e.productId, name: e.title, price: parseFloat(e.price.amount), variant: e.bottle?.label, category: e.lineLabel } });
+  return (
+    <article className="grid grid-cols-[112px_minmax(0,1fr)] gap-4 md:grid-cols-1 md:gap-0">
+      <Link href={`/products/${e.handle}`} onClick={select} tabIndex={-1} aria-hidden="true" className="relative block self-start">
+        <ProductImage src={e.image} alt="" world={e.world} sizes="(min-width: 768px) 30vw, 112px" className="aspect-[4/5] w-full" />
+        {position === 0 && <span className="badge absolute left-2 top-2">Best match</span>}
+      </Link>
+      <div className="flex min-w-0 flex-col md:pt-4">
+        {e.line && <p className="text-[12px] text-ash">{lineWithAudience(e.line)}</p>}
+        <h2 className="font-serif text-[24px] font-semibold leading-[1.1] md:text-[28px]">
+          <Link href={`/products/${e.handle}`} onClick={select} className="relative hover:text-sea before:absolute before:inset-x-0 before:-inset-y-2 before:content-['']">
+            {e.title}
+          </Link>
+        </h2>
+        {e.inspiredBy && (
+          <p className="mt-1 text-[14px] leading-snug">
+            Inspired by <span className="font-semibold">{e.inspiredBy}</span>
+            <span className="text-ash"> · our own composition</span>
+          </p>
+        )}
+        {e.notesShort.length > 0 && <p className="mt-1 text-[14px] leading-snug text-ash">{joinNotes(e.notesShort)}</p>}
+        {match.reasons.length > 0 && <p className="mt-1 text-[12px] leading-snug text-gold-text">Matched on {match.reasons.join(", ")}</p>}
+        {e.bottle && (
+          <div className="mt-3">
+            <AddToBagButton variant={e.bottle} product={product} size="sm" block label={`Add ${e.bottle.label} · ${formatMoney(e.bottle.price)}`} />
+          </div>
+        )}
+      </div>
+    </article>
   );
 }

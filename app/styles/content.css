@@ -1,1 +1,19 @@
 /* Styles owned by the content workstream. Tailwind utilities first; only what utilities cannot express goes here. */
+@layer components {
+  /*
+   * The Arabic lines on /help. The site's fonts have no Arabic, so this asks
+   * for the phone's own Arabic face by name rather than loading a webfont for
+   * a handful of lines; letter-spacing stays at 0 so the letters keep joining.
+   */
+  .help-ar {
+    font-family: "SF Arabic", "Geeza Pro", "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe UI", Tahoma, sans-serif;
+    letter-spacing: 0;
+  }
+
+  /*
+   * Sticky-bar contract for the tale's bar on phones: while it shows, the page
+   * ends above it so the footer stays reachable, and focus never lands under it.
+   */
+  body:has(.tale-bar) { padding-bottom: var(--sticky-bar-h, 0px); }
+  html:has(.tale-bar) { scroll-padding-bottom: var(--sticky-bar-h, 0px); }
+}
