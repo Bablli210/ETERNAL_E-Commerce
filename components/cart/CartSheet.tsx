@@ -157,7 +157,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
 
     // 2. The mystery box, the low-commitment way to choose the next bottle.
     if (box?.bottle?.availableForSale && !handles.has(BOX) && !spent.has(BOX)) {
-      return { key: BOX, eyebrow: "For your next bottle", entry: box, variant: box.bottle, note: "Three 5 ml scents, packed as a surprise", image: box.image ?? boxImage };
+      return { key: BOX, eyebrow: "Find your next scent", entry: box, variant: box.bottle, note: "Three 5 ml scents, chosen by the house", image: box.image ?? boxImage };
     }
 
     // 3. One more bottle from the line of the first bottle in the bag.
