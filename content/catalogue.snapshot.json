@@ -1,6 +1,6 @@
 {
   "source": "Shopify Admin API, store eternal-10199.myshopify.com",
-  "capturedAt": "2026-09-18T16:00:00Z",
+  "capturedAt": "2026-10-04T12:00:00Z",
   "products": [
     {
       "id": "gid://shopify/Product/9554999738627",
@@ -11,6 +11,7 @@
         "55ml",
         "aquatic",
         "citrus",
+        "eterno",
         "for him"
       ],
       "vendor": "eternal",
@@ -159,7 +160,10 @@
       "handle": "aurora",
       "title": "Aurora",
       "description": "",
-      "tags": [],
+      "tags": [
+        "eterna",
+        "for her"
+      ],
       "vendor": "eternal",
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:46Z",
@@ -197,7 +201,10 @@
       "handle": "bloom",
       "title": "Bloom",
       "description": "",
-      "tags": [],
+      "tags": [
+        "eterna",
+        "for her"
+      ],
       "vendor": "eternal",
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:44Z",
@@ -288,6 +295,7 @@
       "description": "Mango, pineapple, coconut, white rum and bergamot over coconut milk, white flowers and marine, base of musk, sandalwood, amber and vetiver.",
       "tags": [
         "55ml",
+        "eternal",
         "sweet",
         "tropical",
         "unisex"
@@ -336,7 +344,10 @@
       "handle": "ciel",
       "title": "Ciel",
       "description": "",
-      "tags": [],
+      "tags": [
+        "eterno",
+        "for him"
+      ],
       "vendor": "eternal",
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:49Z",
@@ -428,6 +439,7 @@
       "tags": [
         "55ml",
         "citrus",
+        "eterno",
         "for him"
       ],
       "vendor": "eternal",
@@ -628,6 +640,7 @@
       "tags": [
         "55ml",
         "amber",
+        "eternal",
         "unisex"
       ],
       "vendor": "eternal",
@@ -729,6 +742,7 @@
         "55ml",
         "aquatic",
         "citrus",
+        "eternal",
         "unisex"
       ],
       "vendor": "eternal",
@@ -777,7 +791,7 @@
       "description": "Apple blossom and marine bergamot with green rhubarb and mojito accord, over sandalwood and driftwood.",
       "tags": [
         "55ml",
-        "eterna",
+        "eterno",
         "for him",
         "fresh",
         "fruity"
@@ -879,6 +893,7 @@
       "description": "Bergamot and magnolia with orange blossom and ambrette, white musk base.",
       "tags": [
         "55ml",
+        "eternal",
         "floral",
         "musky",
         "unisex"
@@ -1131,7 +1146,10 @@
       "handle": "mango-eclipse",
       "title": "Mango Eclipse",
       "description": "",
-      "tags": [],
+      "tags": [
+        "eternal",
+        "unisex"
+      ],
       "vendor": "eternal",
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:54Z",
@@ -1311,6 +1329,7 @@
       "description": "Neroli and petitgrain with smoky black tea, white musk base.",
       "tags": [
         "55ml",
+        "eternal",
         "floral",
         "smoky",
         "unisex"
@@ -1362,6 +1381,7 @@
       "tags": [
         "55ml",
         "citrus",
+        "eterno",
         "for him"
       ],
       "vendor": "eternal",
@@ -1408,7 +1428,10 @@
       "handle": "paradox",
       "title": "Paradox",
       "description": "",
-      "tags": [],
+      "tags": [
+        "eterna",
+        "for her"
+      ],
       "vendor": "eternal",
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:48Z",
@@ -1702,6 +1725,7 @@
       "tags": [
         "55ml",
         "citrus",
+        "eterno",
         "for him",
         "fresh"
       ],
@@ -1749,7 +1773,10 @@
       "handle": "smoked-aura",
       "title": "Smoked Aura",
       "description": "",
-      "tags": [],
+      "tags": [
+        "eterno",
+        "for him"
+      ],
       "vendor": "eternal",
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:51Z",
@@ -1838,7 +1865,10 @@
       "handle": "ultra-smoke",
       "title": "Ultra Smoke",
       "description": "",
-      "tags": [],
+      "tags": [
+        "eterno",
+        "for him"
+      ],
       "vendor": "eternal",
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:53Z",
