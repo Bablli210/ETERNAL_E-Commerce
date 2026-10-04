@@ -175,12 +175,13 @@ function PromiseList({ entry, kind }: { entry: ScentIndexEntry; kind: "bottle" |
   const included = facts.deliveryIncluded === true && kind === "bottle";
   const otherMethods = facts.paymentMethods.filter((m) => !/cash/i.test(m));
   const rows: PromiseRow[] = [];
-  if (included || facts.deliveryTime || facts.deliveryCutoff) {
-    rows.push({ key: "delivery", icon: "truck", text: included ? "Delivery included" : "Delivery", detail: [facts.deliveryTime, facts.deliveryCutoff].filter(Boolean).join(". "), href: "/help#delivery" });
+  if (included || facts.freeDeliveryOver || facts.deliveryTime || facts.deliveryCutoff) {
+    const text = included ? "Delivery included" : facts.freeDeliveryOver ? `Free delivery over ${facts.freeDeliveryOver}` : "Delivery";
+    rows.push({ key: "delivery", icon: "truck", text, detail: [facts.deliveryTime, facts.deliveryCutoff].filter(Boolean).join(". "), href: "/help#delivery" });
   }
   rows.push({ key: "cod", icon: "shield", text: "Cash on delivery", detail: [facts.codFee, otherMethods.length ? `or ${otherMethods.join(", ")}` : null].filter(Boolean).join(" · "), href: "/help#cod" });
   if (facts.freeSamples) rows.push({ key: "samples", icon: "plus", text: facts.freeSamples });
-  if (facts.returnsPolicy) rows.push({ key: "returns", icon: "refresh", text: facts.returnsPolicy, detail: facts.returnsWindow, href: "/help#returns" });
+  if (facts.returnsPolicy) rows.push({ key: "returns", icon: "refresh", text: facts.returnsPolicy, detail: facts.returnsWindow && `within ${facts.returnsWindow}`, href: "/help#returns" });
   if (facts.whatsapp) {
     const text = encodeURIComponent(`Hello eternal, I have a question about ${entry.title}.`);
     rows.push({ key: "whatsapp", icon: "whatsapp", text: "Questions? Ask us on WhatsApp", detail: facts.whatsappHours, href: `https://wa.me/${facts.whatsapp}?text=${text}`, external: true });

@@ -69,10 +69,16 @@ export default async function HelpPage() {
       id: "delivery",
       nav: "Delivery",
       title: "Delivery",
-      ar: facts.deliveryIncluded === true ? "التوصيل مشمول مع كل زجاجة." : "تظهر تكلفة التوصيل عند إتمام الطلب، قبل تأكيده.",
+      ar:
+        facts.deliveryIncluded === true
+          ? "التوصيل مشمول مع كل زجاجة."
+          : site.freeShippingThreshold !== null
+            ? `التوصيل مجاني للطلبات فوق ${site.freeShippingThreshold.toLocaleString("en-US")} جنيه، وتظهر أي تكلفة توصيل عند إتمام الطلب، قبل تأكيده.`
+            : "تظهر تكلفة التوصيل عند إتمام الطلب، قبل تأكيده.",
       body: (
         <>
           {facts.deliveryIncluded === true && <p>Delivery is included on every bottle.</p>}
+          {facts.deliveryIncluded !== true && facts.freeDeliveryOver && <p>Delivery is free on orders over {facts.freeDeliveryOver}.</p>}
           {facts.deliveryTime && <p>{sentence(`Delivery time: ${facts.deliveryTime}`)}</p>}
           {facts.deliveryCutoff && <p>{sentence(facts.deliveryCutoff)}</p>}
           <p>Any delivery cost for your address is shown at checkout, before you place the order.</p>
@@ -86,7 +92,7 @@ export default async function HelpPage() {
       ar: cod ? "يمكنك الدفع نقدًا عند استلام طلبك." : undefined,
       body: cod ? (
         <p>
-          Choose cash on delivery at checkout and pay the courier in cash when your order arrives.{facts.codFee ? ` ${sentence(facts.codFee)}` : ""}
+          Choose cash on delivery at checkout and pay the courier in cash when your order arrives.{facts.codLine ? ` ${sentence(facts.codLine)}` : ""}
         </p>
       ) : (
         <p>Cash on delivery is not offered at the moment. The ways to pay are shown at checkout.</p>

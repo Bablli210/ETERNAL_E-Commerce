@@ -159,7 +159,7 @@ export function ProofStrip() {
   const items = [
     `Eau de parfum, ${ml(site.bottleSizeMl)}`,
     facts.paymentMethods.includes("Cash on delivery") && "Cash on delivery",
-    facts.deliveryIncluded === true && "Delivery included",
+    facts.deliveryIncluded === true ? "Delivery included" : facts.freeDeliveryOver && `Free delivery over ${facts.freeDeliveryOver}`,
     facts.deliveryTime && `Delivery ${facts.deliveryTime}`,
     facts.returnsPolicy,
     facts.longevityClaim,
@@ -429,7 +429,7 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
   );
 }
 
-/** "Bottled in Cairo" as it reads mid-sentence. */
+/** "Made in Egypt" as it reads mid-sentence. */
 const lowerFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
 
 /** The house film loads only on tap; ad landings drop it (ad-drop, see home.css). */

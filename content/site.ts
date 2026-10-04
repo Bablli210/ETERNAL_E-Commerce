@@ -14,29 +14,36 @@ export const site = {
   locale: "en-EG",
 
   /** One confirmed offer for the bar above the header, matched to the running ads. */
-  announcement: "[Two free 5 ml samples with every order]",
+  announcement: "Free delivery on orders over EGP 2,000",
   /** The free-samples promise, shown in the hero, buy box and bag. */
   freeSamples: "[Two free 5 ml samples with every order]",
   /** How the 5 ml sample price comes back. Shown once 5 ml variants and credit codes exist. */
   sampleCredit: "[Its price comes off your 55 ml within 60 days]",
 
   /**
-   * Delivery on bottles: true = included on every bottle (the playbook's
-   * launch recommendation), false = charged at checkout, null = not decided
-   * (nothing is said about delivery cost).
+   * Delivery on bottles: true = included on every bottle, false = charged at
+   * checkout below the free-delivery threshold, null = not decided (nothing
+   * is said about delivery cost).
    */
-  deliveryIncluded: null as boolean | null,
-  /** Free-shipping threshold in EGP for bags without a bottle. null hides the bag meter. */
-  freeShippingThreshold: null as number | null,
-  /** e.g. "1–2 days in Cairo & Giza, 2–4 days elsewhere". */
-  deliveryTime: "[Delivery time]",
-  returnsPolicy: "[Returns policy]",
-  returnsWindow: "[n days]",
+  deliveryIncluded: false as boolean | null,
+  /**
+   * Free delivery from this bag subtotal, in EGP. It must match the free rate
+   * in Shopify's shipping settings (minimum order price 2,000). null hides the
+   * bag meter and every free-delivery line.
+   */
+  freeShippingThreshold: 2000 as number | null,
+  /** Couriers deliver Sunday to Thursday; Friday and Saturday are off. */
+  deliveryTime: "within 2 working days, Sunday to Thursday",
+  /** Unopened bottles only, so a return can be resold. */
+  returnsPolicy: "Returns on sealed bottles",
+  /** Egypt's consumer protection law gives 14 days from delivery. Reads after "within". */
+  returnsWindow: "14 days of delivery",
   longevityClaim: "[Longevity on skin, from a wear test]",
-  /** Where the bottles are filled, only if literally true (playbook 4.7), e.g. "Bottled in Cairo". The home page's house section names it once confirmed. */
-  origin: "[Bottled in Cairo]",
+  /** Where the bottles are made, only if literally true (playbook 4.7). The home page's house section names it. */
+  origin: "Made in Egypt",
   firstOrderOffer: "[First-order offer]",
-  codFee: "[Cash-on-delivery fee]",
+  /** Reads after "Cash on delivery ·" on product pages, and as "… for cash on delivery" elsewhere. */
+  codFee: "No extra fee",
 
   /** e.g. "Order by 2 pm for next-day delivery in Cairo & Giza". Shown under the buy button. */
   deliveryCutoff: "[Delivery cut-off]",
@@ -51,7 +58,7 @@ export const site = {
   /** The address that answers shoppers' questions, e.g. "hello@eternal.example". /help offers it under "Talk to us" once confirmed. */
   contactEmail: "[Contact email]",
   /** International format without +, e.g. "201001234567". null hides WhatsApp buttons. */
-  whatsapp: null as string | null,
+  whatsapp: "201116766614" as string | null,
   instagram: "https://instagram.com/",
   tiktok: "https://tiktok.com/",
 

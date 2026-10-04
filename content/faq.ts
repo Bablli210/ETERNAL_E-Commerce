@@ -44,7 +44,8 @@ export function faqEntries({ samples }: { samples: boolean }): FaqEntry[] {
       q: "How does cash on delivery work?",
       a: [
         codLive ? "Choose cash on delivery at checkout and pay the courier in cash when your order arrives." : "The ways to pay for your order are shown at checkout.",
-        facts.codFee ? sentence(facts.codFee) : "Everything you pay, including delivery, is shown at checkout before you place the order.",
+        codLive && facts.codLine ? sentence(facts.codLine) : "Everything you pay, including delivery, is shown at checkout before you place the order.",
+        facts.deliveryIncluded !== true && facts.freeDeliveryOver && `Delivery is free on orders over ${facts.freeDeliveryOver}.`,
         facts.deliveryTime && sentence(`Delivery: ${facts.deliveryTime}`),
       ]
         .filter(Boolean)
@@ -68,8 +69,8 @@ export function faqEntries({ samples }: { samples: boolean }): FaqEntry[] {
     {
       id: "returns",
       q: "Can I return a bottle?",
-      a: returns ?? "Returns and exchanges follow our refund policy. The details, and how to start one, are under Returns and exchanges.",
-      links: returns ? undefined : [returnsHelp],
+      a: returns ? `${returns} The details, and how to start one, are under Returns and exchanges.` : "Returns and exchanges follow our refund policy. The details, and how to start one, are under Returns and exchanges.",
+      links: [returnsHelp],
     },
     {
       id: "choose",

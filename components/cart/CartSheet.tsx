@@ -31,7 +31,7 @@ const lineName = (label: string | null) => (label && label in lines ? lineWithAu
  * in the footer is a line less of the bag.
  */
 const methods = facts.paymentMethods;
-const payLine = facts.codFee;
+const payLine = methods.some((m) => /cash/i.test(m)) ? facts.codLine : null;
 
 const FOCUSABLE = "a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex]";
 const BAG_BUTTON = '[data-bag-button], header button[aria-label^="Bag"]';
@@ -134,7 +134,9 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
   const away = threshold !== null ? Math.max(0, threshold - cart.subtotal) : null;
   const deliveryIncluded = (facts.deliveryIncluded === true && hasBottle) || away === 0;
   const deliveryLine = deliveryIncluded
-    ? "Delivery included"
+    ? away === 0
+      ? "Free delivery"
+      : "Delivery included"
     : facts.deliveryIncluded === true
       ? "Delivery is added at checkout. Add any bottle and it's included."
       : "Delivery is added at checkout";
@@ -157,7 +159,9 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
 
     // 2. The mystery box, the low-commitment way to choose the next bottle.
     if (box?.bottle?.availableForSale && !handles.has(BOX) && !spent.has(BOX)) {
-      return { key: BOX, eyebrow: "Find your next scent", entry: box, variant: box.bottle, note: "Three 5 ml scents, chosen by the house", image: box.image ?? boxImage };
+      // When the box is what stands between this bag and free delivery, the note says so.
+      const freeWith = away !== null && away > 0 && parseFloat(box.bottle.price.amount) >= away;
+      return { key: BOX, eyebrow: "Find your next scent", entry: box, variant: box.bottle, note: `Three 5 ml scents, chosen by the house${freeWith ? " · gets you free delivery" : ""}`, image: box.image ?? boxImage };
     }
 
     // 3. One more bottle from the line of the first bottle in the bag.
@@ -168,7 +172,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
     const e = index.find((x) => sameLine(x) && (x.isBestseller || x.isPick)) ?? index.find(sameLine);
     if (!e?.bottle) return null;
     return { key: e.handle, eyebrow: `More from ${lineName(e.lineLabel)}`, entry: e, variant: e.bottle, note: [e.notesShort.slice(0, 3).join(", "), e.bottle.label].filter(Boolean).join(" · "), image: e.image };
-  }, [quiet, cart.lines, spent, byHandle, recent, index, box, boxImage]);
+  }, [quiet, cart.lines, spent, byHandle, recent, index, box, boxImage, away]);
 
   const settle = (key: string) => {
     setSpent((prev) => new Set(prev).add(key));
@@ -412,7 +416,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
               {facts.deliveryTime && (
                 <p className="mt-1 flex items-center justify-center gap-1.5 text-center text-[12px] text-ash">
                   <Icon name="clock" size={14} className="shrink-0" />
-                  <span>Arrives in {facts.deliveryTime}</span>
+                  <span>Delivery {facts.deliveryTime}</span>
                 </p>
               )}
               {waHref && (

@@ -1,4 +1,5 @@
 import { site } from "@/content/site";
+import { formatMoney } from "@/lib/format";
 
 /**
  * The placeholder gate. Facts the owner has not confirmed are written in
@@ -22,9 +23,13 @@ export const facts = {
   longevityClaim: confirmed(site.longevityClaim),
   firstOrderOffer: confirmed(site.firstOrderOffer),
   codFee: confirmed(site.codFee),
+  /** The fee as a sentence on its own: "No extra fee for cash on delivery". */
+  codLine: isConfirmed(site.codFee) ? `${site.codFee.trim()} for cash on delivery` : null,
   freeSamples: confirmed(site.freeSamples),
   sampleCredit: confirmed(site.sampleCredit),
   freeShippingThreshold: site.freeShippingThreshold,
+  /** "EGP 2,000", for "Free delivery over EGP 2,000". */
+  freeDeliveryOver: site.freeShippingThreshold !== null ? formatMoney({ amount: site.freeShippingThreshold, currencyCode: site.currency }) : null,
   deliveryIncluded: site.deliveryIncluded,
   whatsapp: site.whatsapp,
   paymentMethods: site.paymentMethods.filter(isConfirmed),
@@ -47,7 +52,7 @@ const NOTES: Record<string, string> = {
   returnsWindow: "e.g. \"14 days\" (at least the legal minimum).",
   longevityClaim: "From a wear test, e.g. \"7–8 hours on skin\".",
   firstOrderOffer: "Shown in the newsletter band; null hides it.",
-  codFee: "The cash-on-delivery fee, or \"No fee for cash on delivery\".",
+  codFee: "The cash-on-delivery fee as it reads after \"Cash on delivery ·\", e.g. \"No extra fee\" or \"EGP 20 fee\".",
   freeSamples: "e.g. \"Two free 5 ml samples with every bottle\".",
   sampleCredit: "e.g. \"Its price comes off your 55 ml within 60 days\".",
   paymentMethods: "Only the methods that are live at checkout.",
