@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>mango eclipse — exploded</title>
+<link rel="stylesheet" href="../../../reel/fonts/fonts.css">
+<style>
+  :root {
+    --amber: #dc7c04;       /* the purée in the campaign still, sampled */
+    --amber-hi: #ea9016;
+    --amber-lo: #c26802;
+    --night: #171614;
+    --ink: #2a1503;         /* night warmed toward the amber, for hairlines and small type */
+    --linen: #f3efe7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--amber); }
+  .stage {
+    position: relative; overflow: hidden;
+    width: var(--w); height: var(--h);
+    background:
+      radial-gradient(58% 44% at var(--glow-x) var(--glow-y), var(--amber-hi) 0%, rgba(234, 144, 22, 0) 100%),
+      radial-gradient(125% 95% at 50% 50%, var(--amber) 55%, var(--amber-lo) 100%);
+    font-family: "Instrument Sans", system-ui, sans-serif;
+    color: var(--night);
+  }
+  /* Film grain, so the flat backdrop sits with the photographed parts. */
+  .grain { position: absolute; inset: 0; width: 100%; height: 100%; opacity: .16; mix-blend-mode: multiply; pointer-events: none; z-index: 0; }
+  .part { position: absolute; transform-origin: 50% 50%; }
+  .part img { display: block; width: 100%; height: auto; }
+  svg.lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .axis { stroke: var(--ink); stroke-opacity: .45; stroke-width: 1.25; stroke-dasharray: 1 7; stroke-linecap: round; fill: none; }
+  .lead { stroke: var(--ink); stroke-opacity: .85; stroke-width: 1.25; fill: none; }
+  .dot { fill: var(--linen); stroke: var(--ink); stroke-width: 1.25; }
+  .label { position: absolute; width: max-content; z-index: 30; }
+  .label .no { font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+  .label .name { font-family: "Cormorant Garamond", Georgia, serif; font-weight: 500; font-size: 46px; line-height: 1; letter-spacing: -.01em; margin-top: 8px; }
+  .label.right { text-align: right; }
+  .label .name:first-child { margin-top: 0; }
+  .signoff { position: absolute; z-index: 30; }
+  .signoff .no { font-size: 13px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--ink); }
+  .signoff .line { font-family: "Cormorant Garamond", Georgia, serif; font-style: italic; font-weight: 500; font-size: 26px; line-height: 1.1; margin-top: 6px; }
+  .clean .label, .clean .signoff, .clean .labels { display: none; }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <svg class="grain" aria-hidden="true">
+    <filter id="g"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 .35  0 0 0 0 .18  0 0 0 0 0  0 0 0 .9 0"/></filter>
+    <rect width="100%" height="100%" filter="url(#g)"/>
+  </svg>
+</div>
+<script>
+/*
+ * Every part is cut from the campaign still (public/images/hero-mango-eclipse.jpg),
+ * so its light, grain and colour match. A part's x and y are its centre in CSS px,
+ * `w` its rendered width, `r` its rotation, `d` how far it floats (sets the shadow)
+ * and `z` its stacking order. Leader lines run from the label to a point on the part.
+ */
+const formats = {
+  // 4:5 — the product page's notes still (products/<handle>-3) and the Instagram feed.
+  portrait: {
+    w: 1088, h: 1360, glow: ["52%", "52%"],
+    parts: [
+      // top: the mango, with cubes breaking off it
+      { src: "mango",     x: 612, y: 230, w: 372, r: 14,  d: 3, z: 3 },
+      { src: "cube5",     x: 396, y: 128, w: 88,  r: -22, d: 4, z: 4 },
+      { src: "cube6",     x: 874, y: 104, w: 76,  r: 31,  d: 2, z: 2 },
+      { src: "cube4",     x: 858, y: 372, w: 68,  r: 12,  d: 2, z: 2 },
+      { src: "cube2",     x: 410, y: 382, w: 56,  r: 48,  d: 1, z: 1 },
+      // the bottle, taken apart along its axis
+      { src: "cap",       x: 551, y: 514, w: 212, r: 0,   d: 3, z: 6 },
+      { src: "glass",     x: 544, y: 808, w: 322, r: 0,   d: 3, z: 6 },
+      // heart: jasmine and rose around the glass
+      { src: "jasmineA",  x: 846, y: 584, w: 148, r: 18,  d: 4, z: 8 },
+      { src: "petal3",    x: 862, y: 932, w: 150, r: -28, d: 3, z: 7 },
+      { src: "jasmineC",  x: 268, y: 640, w: 128, r: -12, d: 3, z: 7 },
+      { src: "petal2",    x: 300, y: 980, w: 168, r: 8,   d: 4, z: 8 },
+      { src: "petal1",    x: 300, y: 478, w: 120, r: 26,  d: 1, z: 2 },
+      { src: "jasmineB1", x: 758, y: 1036, w: 84, r: 40,  d: 1, z: 2 },
+      // base: the honeycomb under it all
+      { src: "honeycomb", x: 560, y: 1160, w: 300, r: -6, d: 2, z: 5 },
+      { src: "petal4",    x: 846, y: 1222, w: 96,  r: 64, d: 1, z: 2 },
+    ],
+    axis: [[547, 24], [547, 1336]],
+    labels: [
+      { no: "01 · Top",   name: "Mango",   x: 72,   y: 206,  side: "left",  lines: [[[214, 262], [472, 252]]] },
+      { no: "02 · Heart", name: "Jasmine", x: 1016, y: 708,  side: "right", lines: [[[880, 700], [858, 640]]] },
+      { no: "02 · Heart", name: "Rose",    x: 1016, y: 790,  side: "right", lines: [[[946, 846], [890, 900]]], hideNo: true },
+      { no: "03 · Base",  name: "Honey",   x: 72,   y: 1110, side: "left",  lines: [[[214, 1164], [452, 1150]]] },
+    ],
+    signoff: { x: 72, y: 66, no: "Mango eclipse", line: "The notes, taken apart." },
+  },
+  // 16:9 — the campaign still's own frame: the home hero from 1024 px, or a landscape post.
+  wide: {
+    w: 1920, h: 1080, glow: ["50%", "50%"],
+    parts: [
+      { src: "mango",     x: 1000, y: 186, w: 292, r: 14,  d: 3, z: 3 },
+      { src: "cube5",     x: 800,  y: 104, w: 72,  r: -22, d: 4, z: 4 },
+      { src: "cube6",     x: 1236, y: 86,  w: 60,  r: 31,  d: 2, z: 2 },
+      { src: "cube4",     x: 1226, y: 300, w: 54,  r: 12,  d: 2, z: 2 },
+      { src: "cube2",     x: 812,  y: 318, w: 46,  r: 48,  d: 1, z: 1 },
+      { src: "cube5",     x: 1432, y: 176, w: 44,  r: 62,  d: 1, z: 1 },
+      { src: "cube4",     x: 590,  y: 236, w: 40,  r: -40, d: 1, z: 1 },
+      { src: "cap",       x: 966,  y: 414, w: 166, r: 0,   d: 3, z: 6 },
+      { src: "glass",     x: 960,  y: 644, w: 252, r: 0,   d: 3, z: 6 },
+      { src: "jasmineA",  x: 1238, y: 520, w: 122, r: 18,  d: 4, z: 8 },
+      { src: "petal3",    x: 1262, y: 770, w: 124, r: -28, d: 3, z: 7 },
+      { src: "jasmineC",  x: 690,  y: 566, w: 106, r: -12, d: 3, z: 7 },
+      { src: "petal2",    x: 676,  y: 792, w: 128, r: 8,   d: 4, z: 8 },
+      { src: "petal1",    x: 724,  y: 392, w: 96,  r: 26,  d: 1, z: 2 },
+      { src: "jasmineB1", x: 1512, y: 884, w: 70,  r: 40,  d: 1, z: 2 },
+      { src: "petal4",    x: 470,  y: 640, w: 76,  r: 120, d: 1, z: 2 },
+      { src: "honeycomb", x: 974,  y: 912, w: 236, r: -6,  d: 2, z: 5 },
+    ],
+    axis: [[963, 16], [963, 1064]],
+    labels: [
+      { no: "01 · Top",   name: "Mango",   x: 180,  y: 150, side: "left",  lines: [[[322, 206], [868, 196]]] },
+      { no: "02 · Heart", name: "Jasmine", x: 1740, y: 470, side: "right", lines: [[[1590, 524], [1290, 524]]] },
+      { no: "02 · Heart", name: "Rose",    x: 1740, y: 552, side: "right", lines: [[[1630, 580], [1530, 580], [1300, 752]]], hideNo: true },
+      { no: "03 · Base",  name: "Honey",   x: 180,  y: 860, side: "left",  lines: [[[322, 916], [876, 906]]] },
+    ],
+    signoff: { x: 1740, y: 960, align: "right", no: "Mango eclipse", line: "The notes, taken apart." },
+  },
+};
+
+const params = new URLSearchParams(location.search);
+const fmt = formats[params.get("format") || "portrait"];
+const stage = document.getElementById("stage");
+stage.style.setProperty("--w", fmt.w + "px");
+stage.style.setProperty("--h", fmt.h + "px");
+stage.style.setProperty("--glow-x", fmt.glow[0]);
+stage.style.setProperty("--glow-y", fmt.glow[1]);
+if (params.has("clean")) stage.classList.add("clean");
+
+const NS = "http://www.w3.org/2000/svg";
+const svgLayer = (cls, z) => {
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("class", `lines ${cls}`);
+  svg.style.zIndex = z;
+  stage.appendChild(svg);
+  return svg;
+};
+const polyline = (svg, pts, cls) => {
+  const pl = document.createElementNS(NS, "polyline");
+  pl.setAttribute("points", pts.map((p) => p.join(",")).join(" "));
+  pl.setAttribute("class", cls);
+  svg.appendChild(pl);
+};
+const dot = (svg, [x, y]) => {
+  const c = document.createElementNS(NS, "circle");
+  c.setAttribute("cx", x); c.setAttribute("cy", y); c.setAttribute("r", 4.5); c.setAttribute("class", "dot");
+  svg.appendChild(c);
+};
+
+// The assembly axis sits behind every part.
+polyline(svgLayer("axis-layer", 1), fmt.axis, "axis");
+
+const loads = [];
+for (const p of fmt.parts) {
+  const el = document.createElement("div");
+  el.className = "part";
+  const img = new Image();
+  img.src = `parts/${p.src}.png`;
+  img.alt = "";
+  loads.push(img.decode());
+  el.style.left = p.x + "px";
+  el.style.top = p.y + "px";
+  el.style.width = p.w + "px";
+  el.style.zIndex = 2 + p.z;
+  el.style.transform = `translate(-50%, -50%) rotate(${p.r}deg)`;
+  // The higher a part floats, the further and softer its shadow falls.
+  el.style.filter = `drop-shadow(0 ${6 + p.d * 7}px ${8 + p.d * 7}px rgba(92, 38, 0, ${0.22 + p.d * 0.03}))`;
+  el.appendChild(img);
+  stage.appendChild(el);
+}
+
+const leads = svgLayer("labels", 29);
+for (const l of fmt.labels) {
+  const el = document.createElement("div");
+  el.className = `label ${l.side}`;
+  el.innerHTML = (l.hideNo ? "" : `<p class="no">${l.no}</p>`) + `<p class="name">${l.name}</p>`;
+  el.style.top = l.y + "px";
+  if (l.side === "left") el.style.left = l.x + "px"; else el.style.right = (fmt.w - l.x) + "px";
+  stage.appendChild(el);
+  for (const pts of l.lines) { polyline(leads, pts, "lead"); dot(leads, pts[pts.length - 1]); }
+}
+
+const so = document.createElement("div");
+so.className = "signoff";
+if (fmt.signoff.align === "right") { so.style.right = (fmt.w - fmt.signoff.x) + "px"; so.style.textAlign = "right"; }
+else so.style.left = fmt.signoff.x + "px";
+so.style.top = fmt.signoff.y + "px";
+so.innerHTML = `<p class="no">${fmt.signoff.no}</p><p class="line">${fmt.signoff.line}</p>`;
+stage.appendChild(so);
+
+Promise.all(loads).then(() => document.fonts.ready).then(() => { document.body.dataset.ready = "1"; });
+</script>
+</body>
+</html>

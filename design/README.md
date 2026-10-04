@@ -25,3 +25,8 @@ Rows on the canvas, left to right (desktop board · mobile board · notes board)
 
 The storefront in the repository root implements these boards. When a board changes,
 re-export it here so the code and the design stay in one place.
+
+## Exploded stills
+
+`exploded/<handle>/` takes a campaign still apart into a labelled notes diagram, built from
+the still's own pixels. See [`exploded/mango-eclipse`](exploded/mango-eclipse/README.md).
