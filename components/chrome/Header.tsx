@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { nav } from "@/content/site";
 import type { LineKey } from "@/content/taxonomy";
 import { facts } from "@/lib/facts";
@@ -38,12 +38,13 @@ export function Header({
   const lastY = useRef(0);
   const closeTimer = useRef<number | null>(null);
 
-  // D3: the bag icon ticks once when a line is added.
+  // D3: the bag icon ticks once when a line is added. Reading the stored bag on a page load is not an add, so a
+  // higher count ticks only when the bag had already been read before it.
   const [tick, setTick] = useState(false);
-  const [seenCount, setSeenCount] = useState(cart.count);
-  if (seenCount !== cart.count) {
-    setSeenCount(cart.count);
-    if (cart.count > seenCount && cart.ready) setTick(true);
+  const [seen, setSeen] = useState({ count: cart.count, ready: cart.ready });
+  if (seen.count !== cart.count || seen.ready !== cart.ready) {
+    setSeen({ count: cart.count, ready: cart.ready });
+    if (seen.ready && cart.ready && cart.count > seen.count) setTick(true);
   }
   useEffect(() => {
     if (!tick) return;
@@ -102,6 +103,10 @@ export function Header({
   }, []);
   const closeSearch = useCallback(() => setSearch(false), []);
   const closeMobile = useCallback(() => setMobile(false), []);
+  // While search is open the bar behind it is inert (useModal), so a tap on it lands here: it closes the search, as the backdrop does.
+  const closeSearchOutside = (e: MouseEvent) => {
+    if (!(e.target instanceof Element && e.target.closest('[role="dialog"]'))) setSearch(false);
+  };
 
   // What the phone menu says about each line and the box, from the catalogue itself.
   const counts = useMemo(() => {
@@ -118,11 +123,13 @@ export function Header({
 
   return (
     <>
-      {search && <button type="button" tabIndex={-1} aria-hidden="true" onClick={closeSearch} className="fade-enter fixed inset-0 z-[55] bg-night/40" />}
+      {/* data-modal-keep: the backdrop sits outside the search panel, and must stay live while the rest of the page goes inert. */}
+      {search && <button type="button" tabIndex={-1} aria-hidden="true" data-modal-keep onClick={closeSearch} className="fade-enter fixed inset-0 z-[55] bg-night/40" />}
       <div
         className={`fixed inset-x-0 top-0 z-[60] transition-transform duration-[240ms] ease-[var(--ease-standard)] ${hidden ? "-translate-y-full" : "translate-y-0"}`}
         style={{ ["--chrome-h" as string]: chromeH }}
         onMouseLeave={scheduleClose}
+        onClick={search ? closeSearchOutside : undefined}
       >
         {facts.announcement && (
           <div

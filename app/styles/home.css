@@ -2,3 +2,6 @@
 
 /* Home variants used as ad landings drop the brand-only sections (playbook 4.2). MotionScript sets data-ad before paint. */
 html[data-ad] .ad-drop { display: none; }
+
+/* Ad landings and in-app visits read the headline at once: no word-by-word rise (playbook 7.1, 0 ms of curtain or fade). */
+html[data-ad] .hero-word { animation: none; opacity: 1; transform: none; }

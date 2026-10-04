@@ -7,8 +7,8 @@
 export const site = {
   name: "eternal",
   tagline: "Some things are never meant to fade.",
-  description:
-    "Fine eaux de parfum in three lines — eterna for her, eterno for him, eternal for both — composed to last on skin and in memory. Bottled in Cairo.",
+  /** The meta and link-preview description on every page, so it states nothing still waiting for the owner. */
+  description: "Eaux de parfum in three lines: eterna for her, eterno for him, eternal unisex. A perfume house from Cairo.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://eternal-storefront.vercel.app",
   currency: "EGP",
   locale: "en-EG",
@@ -33,6 +33,8 @@ export const site = {
   returnsPolicy: "[Returns policy]",
   returnsWindow: "[n days]",
   longevityClaim: "[Longevity on skin, from a wear test]",
+  /** Where the bottles are filled, only if literally true (playbook 4.7), e.g. "Bottled in Cairo". The home page's house section names it once confirmed. */
+  origin: "[Bottled in Cairo]",
   firstOrderOffer: "[First-order offer]",
   codFee: "[Cash-on-delivery fee]",
 
@@ -46,6 +48,8 @@ export const site = {
   taxId: "[Tax id]",
   address: "[Registered address, Cairo]",
 
+  /** The address that answers shoppers' questions, e.g. "hello@eternal.example". /help offers it under "Talk to us" once confirmed. */
+  contactEmail: "[Contact email]",
   /** International format without +, e.g. "201001234567". null hides WhatsApp buttons. */
   whatsapp: null as string | null,
   instagram: "https://instagram.com/",

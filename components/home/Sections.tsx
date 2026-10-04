@@ -8,7 +8,7 @@ import { Icon } from "@/components/ui/Icon";
 import { ProductCard } from "@/components/product/ProductCard";
 import { AddToBagButton } from "@/components/cart/AddToBagButton";
 import { site } from "@/content/site";
-import { facts } from "@/lib/facts";
+import { confirmed, facts } from "@/lib/facts";
 import { lines, moodOrder, moods, type LineKey } from "@/content/taxonomy";
 import { tales } from "@/content/tales";
 import type { Scent, ScentIndexEntry } from "@/lib/catalogue";
@@ -22,7 +22,7 @@ import { SelectList, type ListItem } from "./SelectList";
 const LINE_ORDER: LineKey[] = ["eterna", "eterno", "eternal"];
 
 /** The three line names differ by one letter, so the audience always travels with them. */
-const FOR: Record<LineKey, string> = { eterna: "for her", eterno: "for him", eternal: "for both" };
+const FOR: Record<LineKey, string> = { eterna: "for her", eterno: "for him", eternal: "unisex" };
 
 /** "55 ml" that never breaks between the number and the unit. */
 const ml = (n: number) => `${n} ml`;
@@ -67,7 +67,9 @@ export function Hero({ scent, fromPrice, samplePrice }: { scent: ScentIndexEntry
   ].filter(Boolean);
   return (
     <ParallaxSection id="hero" className="grain relative grid min-h-[75svh] grid-rows-[1fr_auto] overflow-hidden text-linen lg:min-h-[92svh]" style={{ backgroundColor: bg }}>
-      <div className="hero-film relative col-start-1 row-start-1 -mb-24 lg:row-end-3 lg:mb-0">
+      {/* Phone: the film's box hangs off the section, not off the copy's grid row, so it keeps its size while the fonts
+          arrive and the copy reflows, and the poster's first paint is never smaller than the clip that follows it. */}
+      <div className="hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3">
         <Film
           name="home-hero"
           label="Hero film — bottle on wet stone, Mediterranean light, 6-second loop; poster still as fallback"
@@ -132,7 +134,7 @@ export function Hero({ scent, fromPrice, samplePrice }: { scent: ScentIndexEntry
           </h1>
           {/* A short phone (Instagram's browser, small Androids) drops this line so the bottle stays clear of the copy. */}
           <p className="mt-3 max-w-[46ch] text-[15px] leading-normal text-dune max-lg:[@media(max-height:760px)]:hidden lg:mt-6 lg:text-[17px]">
-            Eaux de parfum from Cairo, in three lines: eterna for her, eterno for him, eternal for both.
+            Eaux de parfum from Cairo, in three lines: eterna for her, eterno for him, eternal unisex.
           </p>
           {offer.length > 0 && <p className="tnum mt-2 text-[13px] font-semibold tracking-[0.02em] text-linen">{offer.join(" · ")}</p>}
           <div className="mt-5 flex flex-wrap items-center gap-x-6 lg:mt-8">
@@ -426,8 +428,13 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
   );
 }
 
+/** "Bottled in Cairo" as it reads mid-sentence. */
+const lowerFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
+
 /** The house film loads only on tap; ad landings drop it (ad-drop, see home.css). */
 export function HouseFilm() {
+  // Where the bottles are filled is the owner's to confirm (playbook 4.7); until then the line leaves it out.
+  const origin = confirmed(site.origin);
   return (
     <section className="ad-drop grain bg-night text-linen">
       <div className="wrap grid gap-8 py-12 lg:grid-cols-[1.3fr_1fr] lg:items-center lg:gap-12 lg:py-30">
@@ -440,7 +447,7 @@ export function HouseFilm() {
           <Eyebrow className="text-[12px] !text-dune">The house</Eyebrow>
           <h2 className="display-l mt-3">Composed to be remembered.</h2>
           <p className="mt-5 max-w-[50ch] text-[16px] leading-relaxed text-dune lg:text-[17px]">
-            We start from the fragrances people already love and compose our own reading of each one, bottled in Cairo and told through a tale. Inspired by, never imitated.
+            We start from the fragrances people already love and compose our own reading of each one, {origin ? `${lowerFirst(origin)} and ` : ""}told through a tale. Inspired by, never imitated.
           </p>
           <Link href="/house" className="btn btn-outline-light mt-7">
             Our story

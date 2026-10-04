@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { faqEntries } from "@/content/faq";
-import { facts } from "@/lib/facts";
+import { confirmed, facts } from "@/lib/facts";
+import { site } from "@/content/site";
 import { getCatalogue } from "@/lib/catalogue";
 import { checkoutDomain } from "@/lib/shopify/client";
 import { Accordion, Eyebrow } from "@/components/ui/Primitives";
@@ -61,6 +62,7 @@ export default async function HelpPage() {
   const methods = facts.paymentMethods.map((m) => (/cash/i.test(m) ? m.toLowerCase() : m));
   const returns = facts.returnsPolicy ? sentence(facts.returnsWindow ? `${facts.returnsPolicy}, within ${facts.returnsWindow}` : facts.returnsPolicy) : null;
   const wa = facts.whatsapp;
+  const email = confirmed(site.contactEmail);
 
   const topics: Topic[] = [
     {
@@ -123,22 +125,37 @@ export default async function HelpPage() {
         </>
       ),
     },
-    {
-      id: "whatsapp",
-      nav: wa ? "WhatsApp" : "Talk to us",
-      title: wa ? "WhatsApp" : "Talk to us",
-      ar: wa ? "راسلنا على واتساب." : undefined,
-      body: wa ? (
-        <>
-          <p>Message us on WhatsApp about a scent or an order.{facts.whatsappHours ? ` ${sentence(`Hours: ${facts.whatsappHours}`)}` : ""}</p>
-          <WhatsAppLink number={wa} text="Hello eternal, I have a question." from="help" className="btn btn-secondary mt-3 w-full sm:w-auto">
-            <Icon name="whatsapp" size={18} /> Message us on WhatsApp
-          </WhatsAppLink>
-        </>
-      ) : (
-        <p>For anything about an order, reply to your order confirmation email and it reaches us.</p>
-      ),
-    },
+    // Talk to us: only a channel that is confirmed. With neither an email nor WhatsApp the section is left out, rather than promise a conversation.
+    ...(email || wa
+      ? [
+          {
+            id: "whatsapp",
+            nav: email ? "Talk to us" : "WhatsApp",
+            title: email ? "Talk to us" : "WhatsApp",
+            ar: wa ? "راسلنا على واتساب." : undefined,
+            body: (
+              <>
+                {email && (
+                  <>
+                    <p>Questions before you order, or about an order: email us and we will answer.</p>
+                    <a href={`mailto:${email}`} className="btn btn-secondary mt-1 w-full sm:w-auto">
+                      Email us
+                    </a>
+                  </>
+                )}
+                {wa && (
+                  <>
+                    <p className={email ? "mt-3" : undefined}>Message us on WhatsApp about a scent or an order.{facts.whatsappHours ? ` ${sentence(`Hours: ${facts.whatsappHours}`)}` : ""}</p>
+                    <WhatsAppLink number={wa} text="Hello eternal, I have a question." from="help" className="btn btn-secondary mt-1 w-full sm:w-auto">
+                      <Icon name="whatsapp" size={18} /> Message us on WhatsApp
+                    </WhatsAppLink>
+                  </>
+                )}
+              </>
+            ),
+          },
+        ]
+      : []),
     {
       id: "privacy",
       nav: "Privacy",
