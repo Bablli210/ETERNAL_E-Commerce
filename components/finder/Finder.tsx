@@ -459,9 +459,9 @@ function MatchCard({ match, position }: { match: Match; position: number }) {
   const select = () =>
     track({ name: "select_item", list: "finder", index: position, item: { productId: e.productId, variantId: e.bottle?.numericId ?? e.productId, name: e.title, price: parseFloat(e.price.amount), variant: e.bottle?.label, category: e.lineLabel } });
   return (
-    <article className="grid grid-cols-[112px_minmax(0,1fr)] gap-4 md:grid-cols-1 md:gap-0">
+    <article className="group grid grid-cols-[112px_minmax(0,1fr)] gap-4 md:grid-cols-1 md:gap-0">
       <Link href={`/products/${e.handle}`} onClick={select} tabIndex={-1} aria-hidden="true" className="relative block self-start">
-        <ProductImage src={e.image} alt="" world={e.world} sizes="(min-width: 768px) 30vw, 112px" className="aspect-[4/5] w-full" />
+        <ProductImage src={e.image} hoverSrc={e.hoverImage} alt="" world={e.world} sizes="(min-width: 768px) 30vw, 112px" className="aspect-[4/5] w-full" />
         {position === 0 && <span className="badge absolute left-2 top-2">Best match</span>}
       </Link>
       <div className="flex min-w-0 flex-col md:pt-4">

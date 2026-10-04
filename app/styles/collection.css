@@ -12,6 +12,15 @@
     /* The notes still shows on hover (and keyboard focus) whether motion is on or off; the motion block only adds the crossfade. */
     .group:hover .img-hover, .group:focus-within .img-hover { opacity: 1; }
   }
+  /*
+   * Touch screens have no hover, so there a card shows its notes still while it rests mid-screen:
+   * CardFocus marks it .is-near a screen ahead (so the lazy still loads) and .is-centered after a
+   * short dwell in the middle band. Only with motion allowed; otherwise the packshot simply stays.
+   */
+  @media (hover: none) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (prefers-reduced-motion: no-preference) {
+    html:not([data-motion="off"]) .is-near .pimg-hover { display: contents; }
+    html:not([data-motion="off"]) .is-centered .img-hover { opacity: 1; transition-duration: 700ms; }
+  }
   @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     html:not([data-motion="off"]) .pimg-lift { transition: transform var(--dur-l) var(--ease-standard); }
     html:not([data-motion="off"]) .group:hover .pimg-lift { transform: scale(1.03); }
