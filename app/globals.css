@@ -37,11 +37,10 @@
   /* Phones get a 56 px header so the first screen keeps more of the product; desktop keeps 72 px. */
   --header-h: 56px;
   --announce-h: 32px;
-  /* Where sticky bars under the header pin: 0 while the header is slid away on scroll down (Header sets data-chrome-hidden). */
+  /* Where sticky bars under the header pin: the header stays on screen while scrolling. */
   --chrome-top: var(--header-h);
 }
 @media (min-width: 1024px) { :root { --header-h: 72px; } }
-html[data-chrome-hidden] { --chrome-top: 0px; }
 
 /* Next turns smooth scrolling off during route changes only because layout.tsx sets data-scroll-behavior="smooth". */
 html {

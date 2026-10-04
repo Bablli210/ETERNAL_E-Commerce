@@ -32,28 +32,15 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
 
   /*
    * The bar shows whenever the main button is not fully on screen, above or
-   * below it. Above, the header covers the top of the screen until it slides
-   * away on scroll down (data-chrome-hidden); the observer is rebuilt each time
-   * it moves, so a button in full view under a hidden header never has a twin.
+   * below it. Above, the pinned header covers the top of the screen.
    */
   useEffect(() => {
     const el = mainRef.current;
     if (!el) return;
-    const root = document.documentElement;
-    let io: IntersectionObserver | null = null;
-    const observe = () => {
-      io?.disconnect();
-      const top = parseFloat(getComputedStyle(root).getPropertyValue("--chrome-top")) || 0;
-      io = new IntersectionObserver(([e]) => setSticky(e.intersectionRatio < 1), { threshold: [0, 1], rootMargin: `-${top}px 0px 0px 0px` });
-      io.observe(el);
-    };
-    observe();
-    const mo = new MutationObserver(observe);
-    mo.observe(root, { attributes: true, attributeFilter: ["data-chrome-hidden"] });
-    return () => {
-      mo.disconnect();
-      io?.disconnect();
-    };
+    const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--chrome-top")) || 0;
+    const io = new IntersectionObserver(([e]) => setSticky(e.intersectionRatio < 1), { threshold: [0, 1], rootMargin: `-${top}px 0px 0px 0px` });
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   // Sticky-bar contract: --sticky-bar-h holds the bar's height while it shows, so floating buttons sit above it.

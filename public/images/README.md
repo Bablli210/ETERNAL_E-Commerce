@@ -38,8 +38,8 @@ yet shows its colour world and the e∞ mark on every card.
 
 | File | Used for |
 | --- | --- |
-| `home-hero` | Hero background, 16:9. Also the poster for `videos/home-hero` |
-| `home-hero-mobile` | Hero background on phones. Falls back to `home-hero`. Also the poster for `videos/home-hero-mobile` |
+| `home-hero` | The first hero film's poster (16:9), kept with `videos/home-hero`; the home page now opens on the campaign heroes below |
+| `home-hero-mobile` | The phone crop of that poster, kept with `videos/home-hero-mobile` |
 | `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles |
 | `finder-band` | Scent finder band |
 | `tale-featured` | Featured tale still. Used when the tale has no `tale-<slug>-card` |
@@ -51,11 +51,14 @@ yet shows its colour world and the e∞ mark on every card.
 
 | File | Used for |
 | --- | --- |
-| `hero-<handle>` | A scent's wide campaign still, 2400 × 1357, for a landing built around that scent |
-| `hero-<handle>-mobile` | The same still cropped for a phone, 1059 × 1520 |
+| `hero-<handle>` | A scent's wide campaign still (16:9 or wider), the home hero from 1024 px |
+| `hero-<handle>-mobile` | The same still cut 1.2:1 around the bottle, the home hero on a phone |
 
-Installed for `linen`, `mango-eclipse` and `vintage-vanilla`. No page places
-them yet.
+The home page opens on one of these at random per visit; `?hero=<handle>`
+pins one. The rotation is the list in `content/heroes.ts` (with each
+still's background colour and alt text): add a still there and here to add it.
+Installed for `vintage-vanilla`, `linen`, `mango-eclipse`, `neroli-code` and
+`raw-seduction`.
 
 ## Scent finder
 

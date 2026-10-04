@@ -118,4 +118,12 @@ export const scents: Record<string, ScentContent> = {
   "mystery-box": { notesShort: [] },
   "hundred-whispers": { pick: true, notesShort: ["Peach", "coconut", "tuberose"] },
   "vintage-vanilla": { pick: true },
+  // Untagged in Shopify; the owner gave each one's line (Oct 2026). Notes and tags still to come.
+  aurora: { line: "eterna" },
+  bloom: { line: "eterna" },
+  paradox: { line: "eterna" },
+  ciel: { line: "eterno" },
+  "smoked-aura": { line: "eterno" },
+  "ultra-smoke": { line: "eterno" },
+  "mango-eclipse": { line: "eternal" },
 };

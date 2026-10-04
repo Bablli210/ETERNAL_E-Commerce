@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Eyebrow, Price } from "@/components/ui/Primitives";
 import { Figure } from "@/components/ui/Figure";
-import { Film } from "@/components/ui/Film";
 import { Icon } from "@/components/ui/Icon";
 import { ProductCard } from "@/components/product/ProductCard";
 import { AddToBagButton } from "@/components/cart/AddToBagButton";
@@ -17,6 +16,8 @@ import { formatMoney, joinNotes, sentenceCase } from "@/lib/format";
 import { siteVideo } from "@/lib/site-videos";
 import { Parallax, ParallaxSection } from "@/components/motion/Parallax";
 import { HouseFilmPlayer } from "./HouseFilmPlayer";
+import { HeroStill } from "./HeroStill";
+import type { Hero as HeroDef } from "@/content/heroes";
 import { SelectList, type ListItem } from "./SelectList";
 
 const LINE_ORDER: LineKey[] = ["eterna", "eterno", "eternal"];
@@ -51,14 +52,15 @@ function HomeHead({ title, sub, action, className = "" }: { title: ReactNode; su
 }
 
 /**
- * The first screen (playbook 3.4): the film's own bottle named and one tap
- * away, the house in one line, the price floor, one primary action and the
- * finder as a quiet second. On a phone the film sits above the copy, so the
+ * The first screen (playbook 3.4): one campaign still, its scent named and
+ * one tap away, the house in one line, the price floor, one primary action
+ * and the finder as a quiet second. Which still shows is chosen per visit
+ * (content/heroes.ts). On a phone the still sits above the copy, so the
  * bottle is never under the headline.
  */
-export function Hero({ scent, fromPrice, samplePrice }: { scent: ScentIndexEntry | null; fromPrice: Money | null; samplePrice: Money | null }) {
+export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; scent: ScentIndexEntry | null; fromPrice: Money | null; samplePrice: Money | null }) {
   const words = site.tagline.split(" ");
-  const bg = scent?.world.dark ? scent.world.bg : "#171614";
+  const bg = hero.bg;
   // Only figures the catalogue or the owner has confirmed; nothing here is a placeholder.
   const offer = [
     fromPrice && `${ml(site.bottleSizeMl)} from ${formatMoney(fromPrice)}`,
@@ -67,40 +69,17 @@ export function Hero({ scent, fromPrice, samplePrice }: { scent: ScentIndexEntry
   ].filter(Boolean);
   return (
     <ParallaxSection id="hero" className="grain relative grid min-h-[75svh] grid-rows-[1fr_auto] overflow-hidden text-linen lg:min-h-[92svh]" style={{ backgroundColor: bg }}>
-      {/* Phone: the film's box hangs off the section, not off the copy's grid row, so it keeps its size while the fonts
-          arrive and the copy reflows, and the poster's first paint is never smaller than the clip that follows it. */}
-      <div className="hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3">
-        <Film
-          name="home-hero"
-          label="Hero film — bottle on wet stone, Mediterranean light, 6-second loop; poster still as fallback"
-          dark
-          priority
-          startWhenIdle
-          sizes="100vw"
-          media="(min-width: 1024px)"
-          className="absolute inset-0 hidden lg:block"
-          placeholderClassName="slot-corner !border-0 opacity-60"
-          style={{ backgroundColor: bg }}
-        />
-        <Film
-          name={["home-hero-mobile", "home-hero"]}
-          label="Hero film — mobile crop"
-          dark
-          priority
-          startWhenIdle
-          sizes="100vw"
-          media="(max-width: 1023.98px)"
-          className="absolute inset-0 lg:hidden"
-          imageClassName="object-[50%_55%]"
-          placeholderClassName="slot-corner !border-0 opacity-60"
-          style={{ backgroundColor: bg }}
-        />
-        {/* Phone: the film fades into the band the copy sits on. Desktop: the copy sits on the film. */}
+      {/* Phone: the still's box hangs off the section, not off the copy's grid row, so it keeps its size while the fonts
+          arrive and the copy reflows. */}
+      <div data-hero={hero.handle} className="hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3">
+        <HeroStill hero={hero} className="absolute inset-0" />
+        {/* Phone: the still fades into the band the copy sits on. Desktop: the copy sits on the still. */}
         <div aria-hidden="true" className="absolute inset-0 lg:hidden" style={{ backgroundImage: `linear-gradient(to top, ${bg} 6%, transparent 42%), linear-gradient(to bottom, rgba(23, 22, 20, 0.45), transparent 22%)` }} />
-        <div aria-hidden="true" className="absolute inset-0 hidden bg-gradient-to-t from-night/70 via-night/10 to-night/30 lg:block" />
+        {/* Desktop: every still keeps its bottle right of centre, so the copy holds the left half on a shade of its own. */}
+        <div aria-hidden="true" className="absolute inset-0 hidden lg:block" style={{ backgroundImage: "linear-gradient(to right, rgba(23, 22, 20, 0.78) 0%, rgba(23, 22, 20, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(23, 22, 20, 0.35), transparent 20%)" }} />
       </div>
       <div className="wrap relative col-start-1 row-start-2 pb-6 lg:pb-24">
-        <div className="hero-drift max-w-[820px]">
+        <div className="hero-drift max-w-[820px] lg:max-w-[min(540px,40vw)]">
           {scent && (
             <SelectList list="home_hero" items={[listItem(scent)]}>
               <Link href={`/products/${scent.handle}`} data-card={scent.handle} className="inline-flex min-h-11 items-center gap-x-2 text-[13px] tracking-[0.02em] text-dune">
@@ -119,7 +98,7 @@ export function Hero({ scent, fromPrice, samplePrice }: { scent: ScentIndexEntry
               </Link>
             </SelectList>
           )}
-          <h1 className="display-xl mt-1 max-sm:text-[min(44px,11.2vw)]">
+          <h1 className="display-xl mt-1 max-sm:text-[min(44px,11.2vw)] lg:text-[clamp(56px,5.2vw,84px)]">
             {/* The space sits between the spans, not inside them: a non-breaking space
                 kept the headline on one unbreakable line whenever the words were plain
                 inline (reduced motion), so it overflowed instead of wrapping. */}

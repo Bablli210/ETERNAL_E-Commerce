@@ -31,11 +31,9 @@ export function Header({
   const pathname = usePathname();
   const cart = useCart();
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [menu, setMenu] = useState(false);
   const [search, setSearch] = useState(false);
   const [mobile, setMobile] = useState(false);
-  const lastY = useRef(0);
   const closeTimer = useRef<number | null>(null);
 
   // D3: the bag icon ticks once when a line is added. Reading the stored bag on a page load is not an add, so a
@@ -56,8 +54,6 @@ export function Header({
     const onScroll = () => {
       const y = window.scrollY;
       setScrolled(y > 120);
-      setHidden(y > 400 && y > lastY.current && !menu && !search);
-      lastY.current = y;
     };
     const raf = window.requestAnimationFrame(onScroll);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -65,12 +61,7 @@ export function Header({
       window.cancelAnimationFrame(raf);
       window.removeEventListener("scroll", onScroll);
     };
-  }, [menu, search]);
-
-  // Sticky bars under the header follow it out of view (globals.css turns this into --chrome-top).
-  useEffect(() => {
-    document.documentElement.toggleAttribute("data-chrome-hidden", hidden);
-  }, [hidden]);
+  }, []);
 
   // Route change closes every panel (state adjusted during render, per React's guidance).
   const [seenPath, setSeenPath] = useState(pathname);
@@ -115,7 +106,8 @@ export function Header({
   }, [index]);
   const box = useMemo(() => index.find((e) => e.kind === "set" && e.handle === "mystery-box") ?? null, [index]);
 
-  const isHome = pathname === "/";
+  // "/" is served from /home/<hero> (proxy.ts), so the prerendered header must read that path as home too.
+  const isHome = pathname === "/" || pathname.startsWith("/home/");
   const transparent = isHome && !scrolled && !menu && !search;
   const showAnnouncement = Boolean(facts.announcement) && !scrolled;
   // How far down the header ends right now, for the search panel's height.
@@ -126,7 +118,7 @@ export function Header({
       {/* data-modal-keep: the backdrop sits outside the search panel, and must stay live while the rest of the page goes inert. */}
       {search && <button type="button" tabIndex={-1} aria-hidden="true" data-modal-keep onClick={closeSearch} className="fade-enter fixed inset-0 z-[55] bg-night/40" />}
       <div
-        className={`fixed inset-x-0 top-0 z-[60] transition-transform duration-[240ms] ease-[var(--ease-standard)] ${hidden ? "-translate-y-full" : "translate-y-0"}`}
+        className="fixed inset-x-0 top-0 z-[60]"
         style={{ ["--chrome-h" as string]: chromeH }}
         onMouseLeave={scheduleClose}
         onClick={search ? closeSearchOutside : undefined}

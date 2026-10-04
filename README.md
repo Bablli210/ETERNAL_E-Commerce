@@ -54,6 +54,7 @@ phone, inside Instagram's browser, so every landing page sells on its first scre
 | Ad | Link it to |
 | --- | --- |
 | One scent | `/products/<handle>` |
+| The home page, opening on the bottle the ad shows | `/?hero=<handle>` (vintage-vanilla, linen, mango-eclipse, neroli-code, raw-seduction); without it the home page opens on one of the five at random |
 | A carousel of scents | `/shop?h=handle-a,handle-b,handle-c` (only those, in that order) |
 | A line | `/shop/her`, `/shop/him`, `/shop/unisex` |
 | "Find your scent" | `/finder` |
