@@ -1,24 +1,21 @@
-"use client";
-
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { ImageSlot } from "@/components/ui/Primitives";
+import { Mark } from "@/components/ui/Wordmark";
 import type { World } from "@/lib/catalogue";
 
 /**
- * A packshot on its colour world. G7: it fades in from the colour world once
- * loaded, so there are never grey boxes; a priority image skips the fade and
- * paints visible from the server HTML, because an image at opacity 0 does not
- * count as painted and LCP would wait for hydration. H4: with a second frame,
- * hovering crossfades to it. Falls back to a labelled slot when there is no
- * image yet.
+ * A packshot on its colour world, painted visible straight from the server
+ * HTML. Nothing waits for hydration: an image held at opacity 0 does not
+ * count as painted, which kept collection LCP at 4.5 s. `priority` (the first
+ * row of a grid) loads eagerly at high fetch priority. H4: on devices that
+ * hover, a second frame crossfades in; touch screens never display it, so
+ * phones do not download it and a tap cannot leave it stuck on. A product
+ * without a picture yet shows its colour world and the e∞ mark.
  */
 export function ProductImage({
   src,
   hoverSrc = null,
   alt,
   world,
-  label = "Bottle on colour world",
   sizes = "(min-width: 1024px) 25vw, 50vw",
   priority = false,
   fit = "cover",
@@ -28,31 +25,29 @@ export function ProductImage({
   hoverSrc?: string | null;
   alt: string;
   world: World;
+  /** @deprecated Ignored: a product without a picture shows the mark, never a label. */
   label?: string;
   sizes?: string;
   priority?: boolean;
   fit?: "cover" | "contain";
   className?: string;
 }) {
-  const img = useRef<HTMLImageElement>(null);
-  const [loaded, setLoaded] = useState(false);
-  useEffect(() => {
-    // Images cached before hydration never fire onLoad; check them once mounted.
-    if (img.current?.complete && img.current.naturalWidth > 0) {
-      const t = window.setTimeout(() => setLoaded(true), 0);
-      return () => window.clearTimeout(t);
-    }
-  }, []);
   const fitClass = fit === "cover" ? "object-cover" : "object-contain";
   return (
     <div className={`relative overflow-hidden ${className}`} style={{ backgroundColor: world.bg }}>
       {src ? (
         <>
-          <Image ref={img} src={src} alt={alt} fill sizes={sizes} preload={priority} onLoad={() => setLoaded(true)} className={`${priority ? "" : `img-fade ${loaded ? "is-loaded" : ""}`} hover-lift ${fitClass}`} />
-          {hoverSrc && <Image src={hoverSrc} alt="" fill sizes={sizes} className={`img-hover ${fitClass}`} aria-hidden="true" />}
+          <Image src={src} alt={alt} fill sizes={sizes} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} className={`pimg-lift ${fitClass}`} />
+          {hoverSrc && (
+            <span className="pimg-hover" aria-hidden="true">
+              <Image src={hoverSrc} alt="" fill sizes={sizes} className={`img-hover ${fitClass}`} />
+            </span>
+          )}
         </>
       ) : (
-        <ImageSlot label={label} dark={world.dark} className="absolute inset-0" style={{ backgroundColor: world.bg }} />
+        <div className="absolute inset-0 flex items-center justify-center" style={{ color: world.accent }} {...(alt ? { role: "img", "aria-label": alt } : { "aria-hidden": true })}>
+          <Mark className="h-auto w-[36%] opacity-45" />
+        </div>
       )}
     </div>
   );

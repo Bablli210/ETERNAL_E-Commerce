@@ -5,7 +5,7 @@ import { scents as editorial, type NoteStage } from "@/content/scents";
 import { families, familyOrder, moods, moodOrder, lines, collectionBySlug, type CollectionDef, type FamilyKey, type LineKey, type MoodKey } from "@/content/taxonomy";
 import { taleForHandle } from "@/content/tales";
 import { shopifyConfigured } from "./shopify/client";
-import { fetchAllProducts, fetchBestsellingHandles } from "./shopify/queries";
+import { fetchAllProducts } from "./shopify/queries";
 import type { CatalogueSnapshot, Money, ShopifyImage, ShopifyProduct } from "./shopify/types";
 import { numericId } from "./format";
 import { siteImage } from "./site-images";
@@ -57,7 +57,10 @@ export type Scent = {
   sillage: number | null;
   wear: { time?: string; season?: string; occasion?: string; projection?: string } | null;
   alsoTry: string[];
+  /** Earned from real sales only; see BESTSELLER_MIN_UNITS. */
   isBestseller: boolean;
+  /** The house's own pick (`bestseller: true` in content/scents.ts): an order for "Where to start", never shown as a sales claim. */
+  isPick: boolean;
   isNew: boolean;
   lowStock: number | null;
 };
@@ -75,15 +78,6 @@ const getRawProducts = cache(async (): Promise<{ products: ShopifyProduct[]; liv
     }
   }
   return { products: snapshot.products, live: false };
-});
-
-const getBestsellingOrder = cache(async (live: boolean): Promise<string[] | null> => {
-  if (!live) return null;
-  try {
-    return await fetchBestsellingHandles(12);
-  } catch {
-    return null;
-  }
 });
 
 const meta = (p: ShopifyProduct, key: string): string | null => {
@@ -142,7 +136,7 @@ const lineFromTags = (tags: string[]): LineKey | null => {
   return null;
 };
 
-const STOP = new Set(["a", "an", "the", "of", "on", "over", "with", "and", "into", "onto", "base", "notes", "note", "accord", "eau", "de", "parfum", "ml", "then", "resting", "open", "opening", "closing", "settling", "resolving", "lift", "fold", "melt", "luminous", "sparkling", "soft", "white", "dry", "sharp", "aromatic", "signature", "fresh", "woody", "sweet", "elusive", "whisper-warm", "powdery", "same", "every", "boat", "comes", "home"]);
+const STOP = new Set(["a", "an", "the", "of", "on", "over", "with", "and", "into", "onto", "base", "notes", "note", "accord", "eau", "de", "parfum", "ml", "then", "resting", "open", "opening", "closing", "settling", "resolving", "lift", "fold", "melt", "luminous", "sparkling", "soft", "white", "dry", "sharp", "aromatic", "signature", "fresh", "woody", "sweet", "elusive", "whisper-warm", "powdery", "same", "every", "boat", "comes", "home", "luminous floral"]);
 
 /** Three notes for a card when no metafield or editorial list exists. */
 const notesFromDescription = (description: string): string[] => {
@@ -151,7 +145,8 @@ const notesFromDescription = (description: string): string[] => {
     .replace(/\(.*?\)/g, " ")
     .replace(/[—:.;]/g, ",")
     .replace(/\b(resting on|base of|over|with|and|onto|into|open|opening|closing|settling on|resolving to|lift into|melt into|fold into)\b/g, ",");
-  const parts = cleaned.split(",").map((s) => s.trim()).filter((s) => s && !STOP.has(s) && s.split(" ").length <= 3 && !/\d/.test(s));
+  // "A luminous floral: bergamot…" describes the scent; only what follows is a note.
+  const parts = cleaned.split(",").map((s) => s.trim().replace(/^(a|an|the) /, "")).filter((s) => s && !STOP.has(s) && s.split(" ").length <= 3 && !/\d/.test(s));
   const uniq: string[] = [];
   for (const p of parts) if (!uniq.includes(p)) uniq.push(p);
   return uniq.slice(0, 3).map((s, i) => (i === 0 ? s.charAt(0).toUpperCase() + s.slice(1) : s));
@@ -167,7 +162,19 @@ const variantKind = (title: string, handle: string): Variant["kind"] => {
 
 const NEW_SINCE = Date.parse("2026-08-15T00:00:00Z");
 
-function enrich(p: ShopifyProduct, bestselling: string[] | null): Scent {
+/**
+ * "Bestseller" is earned from real orders only (playbook 5.6): at least this
+ * many units in the last 30 days, read from the custom.units_sold_30d
+ * metafield that a daily job writes from Shopify's sales. Until that feed
+ * exists no scent carries the badge. A hand-set flag or Shopify's
+ * BEST_SELLING sort, which ranks unsold products too, never earns it.
+ */
+const BESTSELLER_MIN_UNITS = 10;
+
+/** What each local frame shows (public/images/products/<handle>, -2, -3, -4), for its alt text. */
+const FRAME_ALT = ["bottle", "bottle in a scene", "among its notes", "in its box"];
+
+function enrich(p: ShopifyProduct): Scent {
   const ed = editorial[p.handle] ?? {};
   const tags = p.tags.map((t) => t.toLowerCase());
   const kind: Scent["kind"] = p.handle === "mystery-box" || p.handle === "discovery-set" ? "set" : "scent";
@@ -233,8 +240,10 @@ function enrich(p: ShopifyProduct, bestselling: string[] | null): Scent {
       continue;
     }
     const local = localFrames[i];
-    if (local) images.push({ url: local, altText: `${p.title} — frame ${i + 1}`, width: null, height: null });
+    if (local) images.push({ url: local, altText: `${p.title} ${FRAME_ALT[i]}`, width: null, height: null });
   }
+  // Cards cross-fade to the notes still on hover; never to the frame they already show.
+  const hover = siteImage(`products/${p.handle}-hover`) ?? siteImage(`products/${p.handle}-3`) ?? images[1]?.url ?? null;
 
   const notesShort = metaList(p, "notes_short") ?? ed.notesShort ?? notesFromDescription(p.description);
 
@@ -252,7 +261,7 @@ function enrich(p: ShopifyProduct, bestselling: string[] | null): Scent {
   const tale = ed.tale ? taleForHandle(p.handle) : taleForHandle(p.handle);
   const story = metaParagraphs(p, "story") ?? (tale?.complete ? tale.paragraphs : null);
 
-  const isBestseller = bestselling ? bestselling.includes(p.handle) : Boolean(ed.bestseller);
+  const isBestseller = (metaNumber(p, "units_sold_30d") ?? 0) >= BESTSELLER_MIN_UNITS;
   const lowStockQty = bottle?.quantityAvailable;
 
   return {
@@ -265,7 +274,7 @@ function enrich(p: ShopifyProduct, bestselling: string[] | null): Scent {
     availableForSale: p.availableForSale && variants.some((v) => v.availableForSale),
     images,
     image: images[0] ?? null,
-    hoverImage: siteImage(`products/${p.handle}-hover`) ?? images[1]?.url ?? null,
+    hoverImage: hover && hover !== images[0]?.url ? hover : null,
     price: bottle?.price ?? p.priceRange.minVariantPrice,
     variants,
     bottle,
@@ -292,6 +301,7 @@ function enrich(p: ShopifyProduct, bestselling: string[] | null): Scent {
         : ed.wear ?? null,
     alsoTry: ed.alsoTry ?? [],
     isBestseller,
+    isPick: Boolean(ed.bestseller),
     isNew: Date.parse(p.createdAt) >= NEW_SINCE && kind === "scent",
     lowStock: typeof lowStockQty === "number" && lowStockQty > 0 && lowStockQty <= 5 ? lowStockQty : null,
   };
@@ -299,8 +309,7 @@ function enrich(p: ShopifyProduct, bestselling: string[] | null): Scent {
 
 export const getCatalogue = cache(async (): Promise<{ all: Scent[]; scents: Scent[]; live: boolean }> => {
   const { products, live } = await getRawProducts();
-  const bestselling = await getBestsellingOrder(live);
-  const all = products.map((p) => enrich(p, bestselling)).sort((a, b) => a.title.localeCompare(b.title));
+  const all = products.map(enrich).sort((a, b) => a.title.localeCompare(b.title));
   return { all, scents: all.filter((s) => s.kind === "scent"), live };
 });
 
@@ -309,14 +318,18 @@ export async function getScent(handle: string): Promise<Scent | null> {
   return all.find((s) => s.handle === handle) ?? null;
 }
 
+/**
+ * The house's picks, for "Where to start", the menu and the search overlay:
+ * scents that really sell first, then the editorial picks, never padded with
+ * the rest of the catalogue. An order, not a claim: only `isBestseller` may
+ * be labelled as selling.
+ */
 export async function getBestsellers(limit = 8): Promise<Scent[]> {
-  const { scents, live } = await getCatalogue();
-  const order = await getBestsellingOrder(live);
-  const picked = scents.filter((s) => s.isBestseller);
-  const sorted = order ? [...picked].sort((a, b) => order.indexOf(a.handle) - order.indexOf(b.handle)) : picked;
-  if (sorted.length >= limit) return sorted.slice(0, limit);
-  const rest = scents.filter((s) => !s.isBestseller && s.image);
-  return [...sorted, ...rest].slice(0, limit);
+  const { scents } = await getCatalogue();
+  return scents
+    .filter((s) => s.isBestseller || s.isPick)
+    .sort((a, b) => Number(b.isBestseller) - Number(a.isBestseller))
+    .slice(0, limit);
 }
 
 export async function getNewArrivals(limit = 12): Promise<Scent[]> {
@@ -354,13 +367,22 @@ export async function getCollection(slug: string): Promise<{ def: CollectionDef;
   return { def, scents: [...withImage, ...without] };
 }
 
+/**
+ * Scents to suggest beside this one: its editorial "also try" first, then the
+ * closest by line, family and mood. Real sellers and the house's picks break
+ * ties, so a product with no line and no tags yet (a new arrival before it is
+ * tagged) gets the house's picks instead of the first names in the alphabet.
+ */
 export async function getRelated(scent: Scent, limit = 4): Promise<Scent[]> {
   const { scents } = await getCatalogue();
   const byHandle = new Map(scents.map((s) => [s.handle, s]));
   const picked: Scent[] = scent.alsoTry.map((h) => byHandle.get(h)).filter((s): s is Scent => Boolean(s));
+  const shared = <T>(a: T[], b: T[]) => a.filter((x) => b.includes(x)).length;
+  const score = (s: Scent) =>
+    (scent.line && s.line === scent.line ? 3 : 0) + 2 * shared(s.families, scent.families) + shared(s.moods, scent.moods) + (s.isBestseller ? 1 : 0) + (s.isPick ? 0.5 : 0);
   const pool = scents
     .filter((s) => s.handle !== scent.handle && !picked.includes(s) && s.image)
-    .map((s) => ({ s, score: (s.line === scent.line ? 2 : 0) + s.families.filter((f) => scent.families.includes(f)).length }))
+    .map((s) => ({ s, score: score(s) }))
     .sort((a, b) => b.score - a.score)
     .map((x) => x.s);
   return [...picked, ...pool].slice(0, limit);
@@ -381,7 +403,7 @@ export async function getLineCounts(): Promise<Record<LineKey, number>> {
   };
 }
 
-/** Slim, serialisable index for the client-side search overlay and finder. */
+/** Slim, serialisable index for the client-side search overlay, grids and finder. */
 export type ScentIndexEntry = {
   /** Shopify product id, numeric. */
   productId: string;
@@ -393,12 +415,14 @@ export type ScentIndexEntry = {
   notesShort: string[];
   tags: string[];
   families: FamilyKey[];
+  moods: MoodKey[];
   price: Money;
   image: string | null;
   hoverImage: string | null;
   world: World;
   kind: Scent["kind"];
   isBestseller: boolean;
+  isPick: boolean;
   isNew: boolean;
   bottle: Pick<Variant, "id" | "numericId" | "label" | "price" | "availableForSale"> | null;
   sample: Pick<Variant, "id" | "numericId" | "label" | "price" | "availableForSale"> | null;
@@ -414,12 +438,14 @@ export const toIndexEntry = (s: Scent): ScentIndexEntry => ({
   notesShort: s.notesShort,
   tags: s.tags,
   families: s.families,
+  moods: s.moods,
   price: s.price,
   image: s.image?.url ?? null,
   hoverImage: s.hoverImage,
   world: s.world,
   kind: s.kind,
   isBestseller: s.isBestseller,
+  isPick: s.isPick,
   isNew: s.isNew,
   bottle: s.bottle ? { id: s.bottle.id, numericId: s.bottle.numericId, label: s.bottle.label, price: s.bottle.price, availableForSale: s.bottle.availableForSale } : null,
   sample: s.sample ? { id: s.sample.id, numericId: s.sample.numericId, label: s.sample.label, price: s.sample.price, availableForSale: s.sample.availableForSale } : null,

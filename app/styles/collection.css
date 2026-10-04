@@ -1,1 +1,37 @@
 /* Styles owned by the collection workstream. Tailwind utilities first; only what utilities cannot express goes here. */
+@layer components {
+  /*
+   * H4 on cards, for devices that really hover. Touch screens never display
+   * the second frame, so its lazy image is never fetched, and a tap cannot
+   * leave the crossfade or the zoom stuck on (iOS can also spend the first tap
+   * on a hover change and swallow the navigation).
+   */
+  .pimg-hover { display: none; }
+  @media (hover: hover) and (pointer: fine) {
+    .pimg-hover { display: contents; }
+  }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    html:not([data-motion="off"]) .pimg-lift { transition: transform var(--dur-l) var(--ease-standard); }
+    html:not([data-motion="off"]) .group:hover .pimg-lift { transform: scale(1.03); }
+  }
+
+  /* The card's name link covers the whole card; its buttons sit above it. */
+  .card-link::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+  .card-link:focus-visible { outline: none; }
+  .card-link:focus-visible::after { outline: 2px solid var(--color-night); outline-offset: 4px; }
+
+  /* "Try 5 ml": a text link under the Add button, still a 44 px target. */
+  .card-actions .btn.card-try {
+    height: 44px; padding: 0; justify-content: flex-start; border-color: transparent; background: transparent; color: var(--color-night);
+    font-size: 13px; letter-spacing: 0.02em; text-decoration: underline; text-decoration-color: var(--color-dune); text-underline-offset: 4px;
+  }
+  .card-actions .btn.card-try:hover { background: transparent; color: var(--color-sea); }
+
+  /*
+   * Sticky-bar contract, as on the product page: while the floating filter
+   * button shows, --sticky-bar-h holds its footprint, so the page ends above
+   * it and the toast and WhatsApp button rise over it.
+   */
+  body:has(.shop-float) { padding-bottom: var(--sticky-bar-h, 0px); }
+  html:has(.shop-float) { scroll-padding-bottom: var(--sticky-bar-h, 0px); }
+}

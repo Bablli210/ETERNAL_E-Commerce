@@ -1,8 +1,9 @@
 # Site images
 
 Drop image files in here and the site picks them up. Nothing else is needed:
-no code change, no import, no configuration. A slot with no file keeps showing
-its labelled placeholder, so files can arrive in any order and in batches.
+no code change, no import, no configuration. A slot with no file shows
+nothing to customers (a quiet surface in its colour, or the e∞ mark on a
+product's colour world), so files can arrive in any order and in batches.
 
 Names below are **without an extension**. Deliver `.jpg`, `.png`, `.webp` or
 `.avif` — whichever you have. Next.js converts and resizes on the way out, so
@@ -13,19 +14,25 @@ Prompts and sizes for every one of these: see the image brief document.
 ## Product images — `public/images/products/`
 
 Only needed for products whose images are not in Shopify. A Shopify product
-image always wins over a local file of the same name.
+image always wins over a local file of the same frame.
 
 | File | Used for |
 | --- | --- |
-| `products/<handle>` | Packshot, gallery frame 1, every card |
-| `products/<handle>-2` | Gallery frame 2, the bottle in a scene |
-| `products/<handle>-3` | Gallery frame 3, the notes flatlay |
-| `products/<handle>-4` | Gallery frame 4, packaging |
-| `products/<handle>-hover` | Card hover crossfade. Falls back to frame 2 |
-| `products/<handle>-note-1` … `-note-3` | The three notes-pyramid stills |
+| `products/<handle>` | The packshot: gallery frame 1 and every product card |
+| `products/<handle>-2` | Gallery frame 2, the lifestyle frame: the bottle in a scene |
+| `products/<handle>-3` | Gallery frame 3, the notes sculpture: the bottle among its notes. Also the "How it smells" still on the product page, and the frame a card crossfades to on hover |
+| `products/<handle>-4` | Gallery frame 4, the packaging |
+| `products/<handle>-hover` | Only to override the card's hover frame (desktop only). Without it the card uses `-3`, then frame 2 |
 
 `<handle>` is the Shopify product handle, the name in the product URL:
-`shadow-of-the-sea`, not `Shadow of the Sea`.
+`shadow-of-the-sea`, not `Shadow of the Sea`. A product with no packshot
+yet shows its colour world and the e∞ mark on every card.
+
+## Collection pages
+
+| File | Used for |
+| --- | --- |
+| `collection-her`, `collection-him`, `collection-unisex` | The band at the top of `/shop/her`, `/shop/him` and `/shop/unisex`, behind the line's name and the search. 2400 × 1029 (7:3): keep the left half dark and empty for the type, the subject right of centre. It is about 160 px tall on a phone, so the subject must read small |
 
 ## Home page
 
@@ -35,11 +42,20 @@ image always wins over a local file of the same name.
 | `home-hero-mobile` | Hero background on phones. Falls back to `home-hero`. Also the poster for `videos/home-hero-mobile` |
 | `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles |
 | `finder-band` | Scent finder band |
-| `tale-featured` | Featured tale still. Falls back to that scent's `tale-<slug>` |
+| `tale-featured` | Featured tale still. Used when the tale has no `tale-<slug>-card` |
 | `mood-sea-air`, `mood-golden-hour`, `mood-after-dark`, `mood-fresh-linen`, `mood-warm-skin`, `mood-wild-garden` | The six mood tiles |
-| `discovery-set` | Discovery set, home and every collection page |
-| `mystery-box` | Mystery box card. A Shopify image for the product wins |
+| `mystery-box` | The wide mystery box still. "Try before you commit" falls back to it while the box has no packshot; `products/mystery-box` is that packshot, used there, in the collection grid and in the bag |
 | `house-film-poster` | House film poster, home and the house page |
+
+## Campaign heroes
+
+| File | Used for |
+| --- | --- |
+| `hero-<handle>` | A scent's wide campaign still, 2400 × 1357, for a landing built around that scent |
+| `hero-<handle>-mobile` | The same still cropped for a phone, 1059 × 1520 |
+
+Installed for `linen`, `mango-eclipse` and `vintage-vanilla`. No page places
+them yet.
 
 ## Scent finder
 
@@ -58,11 +74,15 @@ finder-strength-soft      finder-strength-present  finder-strength-loud
 
 | File | Used for |
 | --- | --- |
-| `tale-<slug>` | Tale hero, its card on the tales index and the home teaser |
+| `tale-<slug>` | The tale's wide still (7:3): its hero, its card on the tales index and its band on the product page |
+| `tale-<slug>-card` | A 4:3 crop of the same still, 1600 × 1195, for the home page's featured tale and tales teaser. Falls back to `tale-<slug>` |
 | `house-step-1`, `house-step-2`, `house-step-3` | How we compose |
 | `house-founder` | Founder portrait |
 
-Tale slugs: `shadow-of-the-sea`, `wayne`, `enzo-1898`, `forbidden-apple`, `mercury`.
+Tale slugs on the site: `shadow-of-the-sea`, `wayne`, `enzo-1898`,
+`forbidden-apple`, `mercury`. Stills for `divina`, `hundred-whispers`,
+`mystique`, `tonic-club` and `vintage-vanilla` are installed for the tales
+still to be written.
 
 ## Sharing
 
@@ -70,10 +90,9 @@ Tale slugs: `shadow-of-the-sea`, `wayne`, `enzo-1898`, `forbidden-apple`, `mercu
 | --- | --- |
 | `og-image` | The 1200x630 card shown when a link is shared |
 
-## Textures
+## Not placed yet
 
-`texture-wet-stone`, `texture-sand-ridges`, `texture-linen-weave`,
-`texture-frosted-glass`, `texture-plaster`, `texture-sea-surface`.
-
-Installed and available, not referenced by any section yet. The design
-direction calls for them as section grounds at 20% opacity.
+`discovery-set`, and the textures `texture-wet-stone`, `texture-sand-ridges`,
+`texture-linen-weave`, `texture-frosted-glass`, `texture-plaster`,
+`texture-sea-surface`. The design direction calls for the textures as section
+grounds at 20% opacity.
