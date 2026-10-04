@@ -14,8 +14,8 @@ export function HeroStill({ hero, className = "" }: { hero: Hero; className?: st
   const phone = siteImage(`hero-${hero.handle}-mobile`) ?? wide;
   if (!phone) return null;
   const common = { alt: hero.alt, fill: true } as const;
-  // On a phone the 1.2:1 crop covers a box a little taller than wide (the hero's image row), so it renders about 112% of the screen width.
-  const { props: phoneProps } = getImageProps({ ...common, src: phone, sizes: "(min-width: 1024px) 100vw, 112vw" });
+  // On a phone the 1.2:1 crop fills a box a little taller than wide, so it renders about 130% of the screen width.
+  const { props: phoneProps } = getImageProps({ ...common, src: phone, sizes: "(min-width: 1024px) 100vw, 130vw" });
   const desktop = wide ? getImageProps({ ...common, src: wide, sizes: "100vw" }).props : null;
   const PHONE = desktop ? "(max-width: 1023.98px)" : undefined;
   preload(phoneProps.src, { as: "image", imageSrcSet: phoneProps.srcSet, imageSizes: phoneProps.sizes, fetchPriority: "high", media: PHONE });

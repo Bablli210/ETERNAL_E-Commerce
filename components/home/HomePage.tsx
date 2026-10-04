@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FeaturedTale, Hero, HouseFilm, LineTiles, MoodTiles, TalesTeaser, TryBeforeYouCommit, WhereToStart } from "@/components/home/Sections";
+import { FeaturedTale, Hero, HouseFilm, LineTiles, MoodTiles, ProofStrip, TalesTeaser, TryBeforeYouCommit, WhereToStart } from "@/components/home/Sections";
 import { getBestsellers, getCatalogue, getFeaturedScent, getLineCounts, getScent, toIndexEntry, type Scent } from "@/lib/catalogue";
 import type { Money } from "@/lib/shopify/types";
 import type { Hero as HeroDef } from "@/content/heroes";
@@ -67,6 +67,7 @@ export async function HomePage({ hero }: { hero: HeroDef }) {
       {/* "<" escaped, so no string in the data can close the tag. */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(houseLd).replace(/</g, "\\u003c") }} />
       <Hero hero={hero} scent={heroScent ? toIndexEntry(heroScent) : null} fromPrice={fromPrice} samplePrice={samplePrice} />
+      <ProofStrip />
       <LineTiles counts={counts} total={scents.length} />
       <WhereToStart entries={onePerLineFirst(picks, 4).map(toIndexEntry)} total={scents.length} />
       <TryBeforeYouCommit mysteryBox={mysteryBox ? toIndexEntry(mysteryBox) : null} everySampled={everySampled} />

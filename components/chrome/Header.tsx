@@ -106,7 +106,9 @@ export function Header({
   }, [index]);
   const box = useMemo(() => index.find((e) => e.kind === "set" && e.handle === "mystery-box") ?? null, [index]);
 
-  // The header is a solid bar on every page, the home page included: the hero's still is a cell of its own beneath it (DESIGN.md §4).
+  // "/" is served from /home/<hero> (proxy.ts), so the prerendered header must read that path as home too.
+  const isHome = pathname === "/" || pathname.startsWith("/home/");
+  const transparent = isHome && !scrolled && !menu && !search;
   const showAnnouncement = Boolean(facts.announcement) && !scrolled;
   // How far down the header ends right now, for the search panel's height.
   const chromeH = showAnnouncement ? "calc(var(--header-h) + var(--announce-h))" : "var(--header-h)";
@@ -130,7 +132,9 @@ export function Header({
           </div>
         )}
         <header
-          className="relative h-[var(--header-h)] border-b border-dune bg-linen text-night"
+          className={`relative h-[var(--header-h)] border-b transition-colors duration-200 ${
+            transparent ? "border-transparent bg-transparent text-linen" : "border-dune bg-linen text-night"
+          }`}
         >
           <div className="wrap grid h-full grid-cols-[1fr_auto_1fr] items-center max-lg:px-2">
             <nav aria-label="Primary" className="hidden items-center gap-7 lg:flex">
@@ -157,7 +161,7 @@ export function Header({
               <Icon name="menu" size={22} />
             </button>
 
-            <Wordmark className="justify-self-center" />
+            <Wordmark inverted={transparent} className="justify-self-center" />
 
             <div className="flex items-center justify-end sm:gap-3">
               <button
@@ -193,8 +197,8 @@ export function Header({
           {search && <SearchOverlay index={index} taleIndex={taleIndex} popular={popular} onClose={closeSearch} />}
         </header>
       </div>
-      {/* Reserve the chrome's height, so every page starts below it. */}
-      <div aria-hidden="true" className={facts.announcement ? "h-[calc(var(--header-h)+var(--announce-h))]" : "h-[var(--header-h)]"} />
+      {/* Reserve the chrome's height on every page but the home hero, which runs under it. */}
+      {!isHome && <div aria-hidden="true" className={facts.announcement ? "h-[calc(var(--header-h)+var(--announce-h))]" : "h-[var(--header-h)]"} />}
       {mobile && <MobileMenu onClose={closeMobile} counts={counts} box={box} />}
     </>
   );

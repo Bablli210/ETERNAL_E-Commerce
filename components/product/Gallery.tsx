@@ -22,7 +22,7 @@ function frameAlt(scent: Scent, url: string, altText: string | null): string {
 export function Gallery({ scent }: { scent: Scent }) {
   const imgs = scent.images.slice(0, 4);
   const solo = imgs.length < 2;
-  const frameClass = `pdp-frame ${solo ? "pdp-frame-solo" : ""} relative overflow-hidden lg:aspect-[4/5] lg:h-auto lg:w-full lg:bg-linen`;
+  const frameClass = `pdp-frame ${solo ? "pdp-frame-solo" : ""} relative overflow-hidden lg:aspect-[4/5] lg:h-auto lg:w-full`;
   const sizes = solo ? "(min-width: 1024px) 50vw, calc(100vw - 40px)" : "(min-width: 1024px) 50vw, calc(100vw - 64px)";
   const frames = imgs.length
     ? imgs.map((img, i) => (
@@ -39,7 +39,7 @@ export function Gallery({ scent }: { scent: Scent }) {
     <div className="-mx-5 lg:mx-0">
       <SnapRow
         items={frames}
-        className="scroll-px-5 gap-2.5 px-5 lg:flex-col lg:gap-px lg:overflow-visible lg:bg-dune lg:px-0"
+        className="scroll-px-5 gap-2.5 px-5 lg:flex-col lg:gap-4 lg:overflow-visible lg:px-0"
         label={`${scent.title} images`}
         counter
         counterClassName="right-14 lg:hidden"

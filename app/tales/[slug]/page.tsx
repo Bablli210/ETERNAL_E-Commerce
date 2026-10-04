@@ -57,8 +57,7 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
       {siteImage(`tale-${tale.slug}`) && (
         <div className="relative">
           <Figure name={`tale-${tale.slug}`} label="" alt={describe(tale.heroArt)} priority sizes="100vw" className="aspect-[7/3] w-full bg-night" />
-          {/* A flat veil, not a gradient (DESIGN.md), so the name reads on any still. */}
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-night/30 px-5">
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-[radial-gradient(ellipse_at_center,rgb(23_22_20/0.42),rgb(23_22_20/0.12)_60%,transparent_85%)] px-5">
             <p className="tale-name serif whitespace-nowrap text-center leading-none font-medium text-linen [text-shadow:0_2px_24px_rgb(23_22_20/0.45)]" style={{ fontSize: `clamp(34px, ${Math.min(12, 150 / name.length).toFixed(1)}vw, 168px)` }}>
               {name}
             </p>
@@ -66,10 +65,8 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
         </div>
       )}
 
-      {/* Two cells: the tale, and the scent in it beside a rule (DESIGN.md §4). */}
-      <article className={`row cells ${entry && product ? "lg:grid-cols-[minmax(0,1fr)_400px]" : ""}`}>
-        <div className="cell pb-14 lg:py-20">
-        <div id="tale-body" className="mx-auto w-full max-w-[640px]">
+      <article className="wrap grid gap-10 pb-14 pt-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-20 lg:py-20">
+        <div id="tale-body" className="mx-auto w-full max-w-[640px] lg:mx-0">
           <p className="text-[12px] tracking-[0.02em] text-ash">
             A tale from {lineWithAudience(tale.line)} · {tale.readTime}
           </p>
@@ -98,38 +95,36 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
             <Icon name="arrow-left" size={14} /> <span className="lnk lnk-quiet">All tales</span>
           </Link>
         </div>
-        </div>
 
         {entry && product && (
-          <div className="cell">
-            <aside id="tale-buy" className="lg:sticky lg:top-28" aria-label="The scent in this tale">
-              <BuyCard entry={entry} product={product} box={boxEntry} />
-            </aside>
-          </div>
+          <aside id="tale-buy" className="lg:sticky lg:top-28 lg:self-start" aria-label="The scent in this tale">
+            <BuyCard entry={entry} product={product} box={boxEntry} />
+          </aside>
         )}
       </article>
 
       {entry?.bottle && product && <TaleBar titleId="tale-title" cardId="tale-buy" variant={entry.bottle} product={product} note={`${entry.bottle.label} · ${formatMoney(entry.bottle.price)}`} />}
 
-      {/* The next tales and the finder, a cell each. */}
-      <section className="row">
-        <ul className="cells md:grid-cols-2 lg:grid-cols-3">
-          {others.map((t, i) => (
-            <li key={t.slug} data-reveal style={{ ["--i" as string]: i }}>
-              <Link href={`/tales/${t.slug}`} className="group flex h-full flex-col">
-                <TaleStill slug={t.slug} label={t.heroArt} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
-                <span className="cell flex-1 border-t border-dune">
-                  <Eyebrow>Next tale</Eyebrow>
-                  <span className="mt-2 block text-[12px] text-ash">{lineWithAudience(t.line)}</span>
-                  <span className="serif mt-1 block text-[24px] leading-[1.15] group-hover:text-sea">{t.signature}</span>
-                </span>
-              </Link>
-            </li>
-          ))}
-          <li className={others.length === 1 ? "lg:col-span-2" : others.length === 0 ? "md:col-span-2 lg:col-span-3" : "md:col-span-2 lg:col-span-1"}>
-            <FinderBand className="h-full" />
-          </li>
-        </ul>
+      <section className="border-t border-dune">
+        <div className={`wrap grid gap-10 py-14 lg:py-24 ${others.length ? "lg:grid-cols-[2fr_1fr]" : ""}`}>
+          {others.length > 0 && (
+            <div>
+              <Eyebrow>Next tale</Eyebrow>
+              <ul className="mt-6 grid gap-8 md:grid-cols-2">
+                {others.map((t, i) => (
+                  <li key={t.slug} data-reveal style={{ ["--i" as string]: i }}>
+                    <Link href={`/tales/${t.slug}`} className="group flex flex-col">
+                      <TaleStill slug={t.slug} label={t.heroArt} sizes="(min-width: 768px) 33vw, 100vw" />
+                      <p className="mt-4 text-[12px] text-ash">{lineWithAudience(t.line)}</p>
+                      <p className="serif mt-1 text-[24px] leading-[1.15] group-hover:text-sea">{t.signature}</p>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <FinderBand className="self-end" />
+        </div>
       </section>
     </>
   );
@@ -138,7 +133,7 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
 /** The end of every tale: the scent itself, with its price on the button. Until 5 ml variants exist, the mystery box is the smaller step. */
 function BuyCard({ entry, product, box }: { entry: ScentIndexEntry; product: BagProduct; box: ScentIndexEntry | null }) {
   return (
-    <div>
+    <div className="border border-dune bg-paper p-5">
       <Eyebrow>The scent in this tale</Eyebrow>
       <Link href={`/products/${entry.handle}`} className="group mt-4 grid grid-cols-[96px_minmax(0,1fr)] gap-4 lg:block">
         <ProductImage src={entry.image} alt="" world={entry.world} sizes="(min-width: 1024px) 320px, 96px" className="aspect-square w-full" />

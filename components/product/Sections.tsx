@@ -28,15 +28,11 @@ const tapArea = "before:absolute before:inset-x-0 before:-inset-y-3 before:conte
 
 export function Differs({ scent, index }: { scent: Scent; index: string }) {
   return (
-    <section className="row">
-      <div className="cells lg:grid-cols-[1fr_2fr]">
-        <div className="cell">
-          <SectionHead index={index} title={`How it differs from ${scent.inspiredBy}`} stacked />
-        </div>
-        <div className="cell">
-          <p className="body-l max-w-[60ch]">{confirmed(scent.comparison)}</p>
-          <p className="mt-4 text-[12px] text-ash">Our own composition. Not affiliated with the original house.</p>
-        </div>
+    <section className="section border-t border-dune">
+      <div className="wrap">
+        <SectionHead index={index} title={`How it differs from ${scent.inspiredBy}`} />
+        <p className="body-l mt-6 max-w-[60ch]">{confirmed(scent.comparison)}</p>
+        <p className="mt-4 text-[12px] text-ash">Our own composition. Not affiliated with the original house.</p>
       </div>
     </section>
   );
@@ -70,14 +66,11 @@ export function WearIt({ scent, index }: { scent: Scent; index: string }) {
     ["Projection", scent.wear?.projection, "wave"],
   ].filter(([, v]) => v);
   return (
-    <section className="row">
-      <div className="cells lg:grid-cols-[1fr_2fr]">
-        <div className="cell">
-          <SectionHead index={index} title="Wear it" stacked />
-        </div>
-        <div className="cell">
+    <section className="section border-t border-dune">
+      <div className="wrap">
+        <SectionHead index={index} title="Wear it" />
         {wear.length > 0 && (
-          <dl className="grid grid-cols-2 gap-6 lg:grid-cols-4" data-reveal>
+          <dl className="mt-10 grid grid-cols-2 gap-6 lg:grid-cols-4" data-reveal>
             {wear.map(([k, v, icon]) => (
               <div key={k} className="flex gap-3">
                 <Icon name={icon as "clock"} size={20} className="mt-0.5 shrink-0 text-gold" />
@@ -96,7 +89,6 @@ export function WearIt({ scent, index }: { scent: Scent; index: string }) {
           </div>
         )}
         <p className="mt-6 text-[13px] text-ash">Estimates until our wear tests are in.</p>
-        </div>
       </div>
     </section>
   );
@@ -149,20 +141,18 @@ export function FaqSection({
   const items = [...lead, ...faq];
   if (!items.length) return null;
   return (
-    <section className="row">
-      <div className="cells lg:grid-cols-[1fr_2fr]">
-        <div className="cell" data-reveal>
+    <section className="section border-t border-dune">
+      <div className="wrap grid gap-10 lg:grid-cols-[1fr_1.4fr]">
+        <div data-reveal>
           {index && <span className="tnum serif mb-3 block text-[20px] text-gold">{index}</span>}
           <h2 className="display-l">{title}</h2>
           <Link href="/help" className={`lnk mt-6 ${tapArea}`}>
             All questions <Icon name="arrow-right" size={16} />
           </Link>
         </div>
-        <div className="cell">
-          <FaqTrack>
-            <Accordion items={items} />
-          </FaqTrack>
-        </div>
+        <FaqTrack>
+          <Accordion items={items} />
+        </FaqTrack>
       </div>
     </section>
   );
@@ -181,23 +171,21 @@ function pairReason(a: Scent, b: Scent): string | null {
 export function Pairing({ scent, pair, index }: { scent: Scent; pair: Scent; index: string }) {
   const a = toIndexEntry(scent), b = toIndexEntry(pair);
   return (
-    <section className="row">
-      <div className="cells md:grid-cols-2 lg:grid-cols-[1fr_1fr_1fr_1fr]" data-reveal>
-        <div className="cell md:col-span-2 lg:col-span-1">
-          <SectionHead index={index} title={`Pair it with ${pair.title}`} sub={pairReason(scent, pair) ?? undefined} stacked />
-        </div>
-        <div className="cell flex items-center">
+    <section className="section border-t border-dune bg-sand/40">
+      <div className="wrap">
+        <SectionHead index={index} title={`Pair it with ${pair.title}`} sub={pairReason(scent, pair) ?? undefined} />
+        <div className="mt-10 grid gap-6 bg-paper p-5 md:grid-cols-[1fr_1fr_auto] md:items-center md:p-8" data-reveal>
           <MiniCard entry={a} />
-        </div>
-        <Link href={`/products/${b.handle}`} className="group cell flex items-center">
-          <MiniCard entry={b} />
-        </Link>
-        <div className="cell flex flex-col justify-center gap-3 md:col-span-2 lg:col-span-1 lg:items-end">
+          <Link href={`/products/${b.handle}`} className="group">
+            <MiniCard entry={b} />
+          </Link>
+          <div className="flex flex-col gap-3 border-t border-dune pt-5 md:items-end md:border-t-0 md:pt-0">
             <p className="flex items-baseline justify-between gap-3 md:flex-col md:items-end md:gap-1">
               <span className="text-[13px] text-ash">Together</span>
               <span className="tnum text-[22px] font-medium">{formatMoney({ amount: parseFloat(scent.price.amount) + parseFloat(pair.price.amount), currencyCode: scent.price.currencyCode })}</span>
             </p>
-          <AddPairButton a={a} b={b} />
+            <AddPairButton a={a} b={b} />
+          </div>
         </div>
       </div>
     </section>
@@ -224,11 +212,10 @@ export function TaleExcerpt({ scent, index }: { scent: Scent; index: string }) {
   if (!tale || !scent.story?.length) return null;
   const still = siteImage(`tale-${tale.slug}`);
   return (
-    <section className="row">
-      <div className={`cells ${still ? "lg:grid-cols-[1.2fr_1fr]" : ""}`}>
-        {/* The still runs to the rules; the tale sits in the cell beside it. */}
-        {still && <Figure name={`tale-${tale.slug}`} label="" sizes="(min-width: 1024px) 55vw, 100vw" className="aspect-[7/3] lg:aspect-auto lg:h-full lg:min-h-[420px]" data-reveal />}
-        <div className="cell max-w-[64ch] lg:max-w-none" data-reveal>
+    <section className="section border-t border-dune">
+      <div className="wrap">
+        {still && <Figure name={`tale-${tale.slug}`} label="" sizes="(min-width: 1440px) 1280px, 100vw" className="-mx-5 aspect-[7/3] lg:mx-0" data-reveal />}
+        <div className="mt-10 max-w-[64ch]" data-reveal>
           <span className="tnum serif mb-3 block text-[20px] text-gold">{index}</span>
           <Eyebrow>The tale</Eyebrow>
           <h2 className="display-l mt-3">{tale.title}</h2>
@@ -252,18 +239,18 @@ export function BoxContents({ index, sampleMl, bottleMl }: { index: string; samp
     ["Then, your bottle", `When one of them stays with you, its ${bottleMl} ml bottle is in the shop.`],
   ];
   return (
-    <section className="row">
-      <div className="cells md:grid-cols-4">
-        <div className="cell">
-          <SectionHead index={index} title="What is inside" stacked />
-        </div>
+    <section className="section border-t border-dune">
+      <div className="wrap">
+        <SectionHead index={index} title="What is inside" />
+        <ol className="mt-10 grid gap-8 md:grid-cols-3">
           {items.map(([title, copy], i) => (
-            <div key={title} className="cell" data-reveal style={{ ["--i" as string]: i }}>
+            <li key={title} className="border-t border-dune pt-5" data-reveal style={{ ["--i" as string]: i }}>
               <p className="tnum text-[12px] font-semibold tracking-[0.08em] text-gold-text">0{i + 1}</p>
               <h3 className="display-m mt-1">{title}</h3>
               <p className="mt-2 max-w-[40ch] text-[16px] leading-relaxed text-ash">{copy}</p>
-            </div>
+            </li>
           ))}
+        </ol>
       </div>
     </section>
   );

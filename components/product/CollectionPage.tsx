@@ -29,8 +29,7 @@ export async function CollectionPage({ def, scents, initial }: { def: Collection
 
   return (
     <>
-      {/* The head in the frame's padding; the grid below runs to the rules as a row of product cells. */}
-      <section className="wrap">
+      <section className="wrap pb-16 lg:pb-24">
         {/* On a phone the header's way back is enough; the band or the title starts right under it. */}
         <nav aria-label="Breadcrumb" className="hidden pb-6 pt-8 text-[12px] text-ash lg:block">
           <ol className="flex flex-wrap gap-1">

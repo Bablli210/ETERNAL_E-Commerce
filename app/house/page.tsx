@@ -52,8 +52,7 @@ export default async function HousePage() {
 
   return (
     <>
-      {/* Every band a row of cells (DESIGN.md §4): words in padded cells, pictures running to the rules. */}
-      <section className="cell">
+      <section className="wrap pt-6 lg:pt-16">
         <Eyebrow>The house</Eyebrow>
         <h1 className="display-xl mt-3 max-w-[16ch]">{site.tagline}</h1>
         <p className="mt-5 max-w-[56ch] text-[17px] leading-relaxed lg:mt-8 lg:text-[19px]">
@@ -67,24 +66,24 @@ export default async function HousePage() {
             Take the scent finder
           </Link>
         </div>
+        {/* The film plays here once it exists; until then the poster is a still, with nothing to press. */}
+        {film ? (
+          <HouseFilmPlayer sources={film} poster={poster} className="relative mt-10 block aspect-video w-full overflow-hidden bg-night lg:mt-16" />
+        ) : (
+          siteImage("house-film-poster") && <div className="relative mt-10 aspect-video w-full overflow-hidden bg-sand lg:mt-16">{poster}</div>
+        )}
       </section>
-      {/* The film plays here once it exists; until then the poster is a still, with nothing to press. */}
-      {film ? (
-        <HouseFilmPlayer sources={film} poster={poster} className="row relative block aspect-video w-full overflow-hidden bg-night" />
-      ) : (
-        siteImage("house-film-poster") && <div className="row relative aspect-video w-full overflow-hidden bg-sand">{poster}</div>
-      )}
 
-      <section className="row">
-        <div className="cells lg:grid-cols-[1fr_1.2fr]">
-          <div className="cell">
+      <section className="section">
+        <div className="wrap grid gap-8 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
+          <div>
             <h2 className="display-l">What “inspired by” means</h2>
             <p className="mt-4 max-w-[52ch] text-[16px] leading-relaxed text-ash lg:text-[17px]">
               Some of our scents start from a fragrance you may already know. Where one does, its page names the original, so you know what to expect before you smell it. Each is our own composition, and we are not affiliated with the houses
               behind the originals.
             </p>
           </div>
-          <div className="cell">
+          <div className="lg:pt-2">
             {inspired.length > 0 && (
               <ul className="divide-y divide-dune border-y border-dune">
                 {inspired.map((s) => (
@@ -111,12 +110,11 @@ export default async function HousePage() {
         </div>
       </section>
 
-      <section className="row">
-        <div className="cell">
+      <section className="section border-t border-dune">
+        <div className="wrap">
           <h2 className="display-l">Three lines, one house</h2>
           <p className="mt-3 max-w-[52ch] text-[16px] leading-relaxed text-ash lg:text-[17px]">Each line is made for someone, and eternal is for sharing.</p>
-        </div>
-          <ul className="row cells md:grid-cols-3">
+          <ul className="mt-8 grid gap-8 md:grid-cols-3 md:gap-6 lg:mt-12">
             {LINE_ORDER.map((k, i) => {
               const l = lines[k];
               return (
@@ -124,8 +122,7 @@ export default async function HousePage() {
                   <Link href={`/shop/${l.slug}`} className="group block">
                     {/* The collection banners are 7:3 stills: shown whole, never cropped into a taller box. */}
                     <Figure name={`collection-${l.slug}`} label="" sizes="(min-width: 768px) 33vw, 100vw" className="aspect-[7/3] w-full" style={{ backgroundColor: l.tone }} />
-                    <span className="cell block border-t border-dune">
-                    <span className="flex items-baseline justify-between gap-3">
+                    <span className="mt-3 flex items-baseline justify-between gap-3">
                       <span className="font-serif text-[28px] font-semibold leading-none group-hover:text-sea">{lineWithAudience(k)}</span>
                       <span className="shrink-0 text-[13px] text-ash">{counts[k]} scents</span>
                     </span>
@@ -133,19 +130,19 @@ export default async function HousePage() {
                     <span className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold">
                       <span className="lnk">Shop {l.audience === "Unisex" ? "unisex" : `for ${l.audience.toLowerCase()}`}</span> <Icon name="arrow-right" size={14} />
                     </span>
-                    </span>
                   </Link>
                 </li>
               );
             })}
           </ul>
+        </div>
       </section>
 
       {founderNote && founderName && founderPhoto && (
-        <section className="row grain bg-night text-linen">
-          <div className="cells lg:grid-cols-[1fr_2fr] [--rule:rgb(243_239_231/0.16)]">
-            <Figure name="house-founder" label="" alt={founderName} sizes="(min-width: 1024px) 33vw, 100vw" className="aspect-[4/5] w-full" />
-            <div className="cell flex flex-col justify-center bg-night">
+        <section className="grain bg-night text-linen">
+          <div className="wrap section grid gap-10 lg:grid-cols-[1fr_2fr] lg:items-center">
+            <Figure name="house-founder" label="" alt={founderName} sizes="(min-width: 1024px) 320px, 100vw" className="aspect-[4/5] w-full max-w-[320px]" />
+            <div>
               <Eyebrow className="!text-dune">A note from the founder</Eyebrow>
               <p className="signature mt-4 max-w-[46ch] text-dune">{founderNote}</p>
               <p className="mt-4 text-[14px] text-dune">{founderName}</p>
@@ -157,10 +154,10 @@ export default async function HousePage() {
         </section>
       )}
 
-      <section className="row">
-        <div className="cells lg:grid-cols-[1fr_1.2fr]">
-          <Figure name="house-step-3" label="" sizes="(min-width: 1024px) 45vw, 100vw" className="aspect-[4/3] w-full lg:aspect-auto lg:min-h-full" />
-          <div className="cell">
+      <section className="section border-t border-dune">
+        <div className="wrap grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-center lg:gap-20">
+          <Figure name="house-step-3" label="" sizes="(min-width: 1024px) 40vw, 100vw" className="aspect-[4/3] w-full" />
+          <div>
             <h2 className="display-l">Where to start</h2>
             <ol className="mt-6 divide-y divide-dune border-y border-dune">
               <li className="py-4">

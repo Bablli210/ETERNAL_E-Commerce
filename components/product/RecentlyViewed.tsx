@@ -25,15 +25,15 @@ export function RecentlyViewed({ current, index }: { current: string; index: Sce
   }, [current]);
   if (!items.length) return null;
   return (
-    <section className="row">
-      <h2 className="eyebrow cell font-sans text-ash">Recently viewed</h2>
-      {/* A row of cells under its label; the rules part the scents. */}
-      <ul className="row cells grid-cols-2 md:grid-cols-4">
+    <section className="border-t border-dune py-12">
+      <div className="wrap">
+        <h2 className="eyebrow mb-6 font-sans text-ash">Recently viewed</h2>
+        <ul className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {items.map((e, i) => (
             <li key={e.handle} className="min-w-0">
               <Link
                 href={`/products/${e.handle}`}
-                className="group cell flex items-center gap-3"
+                className="group flex items-center gap-3"
                 onClick={() => e.bottle && track({ name: "select_item", list: "recently_viewed", index: i, item: { productId: e.productId, variantId: e.bottle.numericId, name: e.title, price: parseFloat(e.price.amount) } })}
               >
                 <ProductImage src={e.image} alt="" world={e.world} sizes="68px" className="h-[68px] w-[68px] shrink-0" />
@@ -44,7 +44,8 @@ export function RecentlyViewed({ current, index }: { current: string; index: Sce
               </Link>
             </li>
           ))}
-      </ul>
+        </ul>
+      </div>
     </section>
   );
 }

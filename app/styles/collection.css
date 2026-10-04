@@ -32,7 +32,7 @@
 
   /* "Try 5 ml": a text link under the Add button, still a 44 px target. */
   .card-actions .btn.card-try {
-    height: 44px; padding: 0; justify-content: center; border-color: transparent; background: transparent; color: var(--color-night);
+    height: 44px; padding: 0; justify-content: flex-start; border-color: transparent; background: transparent; color: var(--color-night);
     font-size: 13px; letter-spacing: 0.02em; text-decoration: underline; text-decoration-color: var(--color-dune); text-underline-offset: 4px;
   }
   .card-actions .btn.card-try:hover { background: transparent; color: var(--color-sea); }

@@ -23,7 +23,6 @@ export function SectionHead({
   sub,
   action,
   dark = false,
-  stacked = false,
   className = "",
 }: {
   index?: string;
@@ -31,19 +30,17 @@ export function SectionHead({
   sub?: ReactNode;
   action?: { label: string; href: string };
   dark?: boolean;
-  /** In a title cell (DESIGN.md §4): the action sits under the title, never beside it. */
-  stacked?: boolean;
   className?: string;
 }) {
   return (
-    <div className={`flex flex-col gap-6 ${stacked ? "" : "md:flex-row md:items-end md:justify-between"} ${className}`} data-reveal>
+    <div className={`flex flex-col gap-6 md:flex-row md:items-end md:justify-between ${className}`} data-reveal>
       <div className="max-w-[640px]">
         {index && <span className={`tnum serif mb-3 block text-[20px] ${dark ? "text-dune" : "text-gold-text"}`}>{index}</span>}
         <h2 className={`display-l ${dark ? "text-linen" : "text-night"}`}>{title}</h2>
         {sub && <p className={`body-l mt-4 max-w-[52ch] ${dark ? "text-dune" : "text-ash"}`}>{sub}</p>}
       </div>
       {action && (
-        <Link href={action.href} className={`-my-3 inline-flex min-h-11 shrink-0 items-center gap-1.5 self-start text-[13px] font-semibold ${stacked ? "" : "md:self-auto"} ${dark ? "text-linen" : "text-night"}`}>
+        <Link href={action.href} className={`-my-3 inline-flex min-h-11 shrink-0 items-center gap-1.5 self-start text-[13px] font-semibold md:self-auto ${dark ? "text-linen" : "text-night"}`}>
           <span className="lnk">{action.label}</span>
           <Icon name="arrow-right" size={16} />
         </Link>

@@ -30,22 +30,17 @@ const legal = [
   facts.address,
 ].filter(Boolean);
 
-/** Two cells on the dark band, parted by a rule drawn in light ink so it reads on Night. */
 export function JoinBand({ shopDomain }: { shopDomain: string }) {
   return (
-    <section className="row grain bg-night text-linen">
-      <div className="cells lg:grid-cols-2 [--rule:rgb(243_239_231/0.16)]" data-reveal>
-        <div className="cell bg-night">
+    <section className="grain bg-night text-linen">
+      <div className="wrap section grid gap-8 lg:grid-cols-2 lg:items-center lg:gap-10" data-reveal>
+        <div>
           <h2 className="display-l">Join the house</h2>
           <p className="body-l mt-4 max-w-[46ch] text-dune">
             First access to new scents and the tales behind them{facts.firstOrderOffer ? `, plus ${facts.firstOrderOffer} on your first order` : ""}.
           </p>
         </div>
-        <div className="cell flex items-center bg-night">
-          <div className="w-full">
-            <JoinForm shopDomain={shopDomain} />
-          </div>
-        </div>
+        <JoinForm shopDomain={shopDomain} />
       </div>
     </section>
   );
@@ -53,12 +48,11 @@ export function JoinBand({ shopDomain }: { shopDomain: string }) {
 
 export function Footer({ shopDomain }: { shopDomain: string }) {
   return (
-    // The footer sits in the frame too: the join band, then cells for the house and each column of links.
-    <div className="frame">
+    <>
       <JoinBand shopDomain={shopDomain} />
-      <footer className="row bg-linen text-night">
-        <div className="cells grid-cols-2 lg:grid-cols-[1.2fr_repeat(3,1fr)]">
-          <div className="cell col-span-2 flex flex-col gap-3 lg:col-span-1">
+      <footer className="border-t border-dune bg-linen text-night">
+        <div className="wrap grid grid-cols-2 gap-x-6 gap-y-10 py-14 lg:grid-cols-[1.2fr_repeat(3,1fr)] lg:gap-12 lg:py-16">
+          <div className="col-span-2 flex flex-col gap-3 lg:col-span-1">
             <Wordmark />
             <p className="signature max-w-[24ch] text-ash">{site.tagline}</p>
             {socials.length > 0 && (
@@ -81,7 +75,7 @@ export function Footer({ shopDomain }: { shopDomain: string }) {
             </WhatsAppLink>
           </div>
           {footerColumns.map((col) => (
-            <div key={col.title} className="cell">
+            <div key={col.title}>
               <p className="eyebrow mb-1 text-ash">{col.title}</p>
               <ul className="flex flex-col">
                 {col.links.map((l) => (
@@ -95,11 +89,11 @@ export function Footer({ shopDomain }: { shopDomain: string }) {
             </div>
           ))}
         </div>
-        <div className="row cell flex flex-col gap-5">
+        <div className="wrap flex flex-col gap-5 border-t border-dune py-6">
           {facts.paymentMethods.length > 0 && (
             <ul className="flex flex-wrap gap-2" aria-label="Payment methods">
               {facts.paymentMethods.map((m) => (
-                <li key={m} className="inline-flex h-8 items-center border border-dune bg-paper px-3 text-[12px] font-semibold tracking-[0.02em] text-night">
+                <li key={m} className="inline-flex h-8 items-center rounded-[3px] border border-dune bg-paper px-3 text-[12px] font-semibold tracking-[0.02em] text-night">
                   {m}
                 </li>
               ))}
@@ -139,6 +133,6 @@ export function Footer({ shopDomain }: { shopDomain: string }) {
           </div>
         </div>
       </footer>
-    </div>
+    </>
   );
 }

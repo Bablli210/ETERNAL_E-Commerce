@@ -252,15 +252,14 @@ export function Finder({
       );
     const waText = () => encodeURIComponent(`Hello eternal, my finder matches are ${matches.map((m) => m.entry.title).join(", ")}. ${resultsUrl()}`);
     return (
-      <section key="results" className="wrap pt-6 lg:pt-16">
+      <section key="results" className="wrap pb-12 pt-6 lg:py-16">
         <p className="eyebrow text-ash">Your matches</p>
         <h1 className="mt-2 font-serif text-[32px] font-semibold leading-[1.08] lg:text-[clamp(36px,4vw,56px)]">Three to start with</h1>
         <p className="mt-2 max-w-[60ch] text-[14px] leading-snug text-ash lg:text-[16px]">
           From {scents} scents, for {summary.join(" · ")}.
         </p>
 
-        {/* The three matches as product cells, then a row of cells for the next steps (DESIGN.md §4). */}
-        <ol className="bleed row cells mt-6 md:mt-10 md:grid-cols-3">
+        <ol className="mt-6 grid gap-6 md:mt-10 md:grid-cols-3 md:gap-x-6">
           {matches.map((m, i) => (
             <li key={m.entry.handle}>
               <MatchCard match={m} position={i} />
@@ -268,9 +267,9 @@ export function Finder({
           ))}
         </ol>
 
-        <div className="bleed row cells md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        <div className="mt-8 grid gap-4 md:mt-12 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-start md:gap-6">
           {trio ? (
-            <div className="cell">
+            <div className="bg-paper p-5">
               <p className="text-[14px]">Not sure yet? Wear all three first.</p>
               <button type="button" className="btn btn-block mt-3" onClick={addTrio}>
                 Try all 3 as {matches[0].entry.sample!.label} · {formatMoney({ amount: trioPrice, currencyCode: matches[0].entry.sample!.price.currencyCode })}
@@ -279,7 +278,7 @@ export function Finder({
             </div>
           ) : (
             mysteryBox?.bottle && (
-              <div className="cell grid grid-cols-[72px_minmax(0,1fr)] gap-4">
+              <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-4 bg-paper p-4">
                 <div className="relative aspect-square overflow-hidden" style={boxImage ? undefined : { backgroundColor: mysteryBox.world.bg }}>
                   {boxImage && <Image src={boxImage} alt="" fill sizes="72px" className="object-cover" />}
                 </div>
@@ -306,7 +305,7 @@ export function Finder({
             )
           )}
 
-          <div className="cell flex flex-col gap-3">
+          <div className="flex flex-col gap-3">
             {facts.whatsapp && (
               <a
                 href={`https://wa.me/${facts.whatsapp}?text=${waText()}`}
@@ -377,7 +376,7 @@ export function Finder({
         <h1 className="mt-4 font-serif text-[30px] font-semibold leading-[1.1] lg:mt-3 lg:text-[clamp(36px,4vw,56px)]">{q.title}</h1>
         <p className="mt-2 text-[15px] leading-snug text-ash lg:text-[17px]">{q.help}</p>
 
-        <ul className={`bleed row cells mt-5 lg:mt-10 ${cols}`} role="group" aria-label={q.title}>
+        <ul className={`mt-5 grid gap-2 lg:mt-10 lg:gap-4 ${cols}`} role="group" aria-label={q.title}>
           {q.options.map((o) => {
             const on = chosen.includes(o.id);
             const src = tiles[`${q.id}-${o.id}`];
@@ -460,12 +459,12 @@ function MatchCard({ match, position }: { match: Match; position: number }) {
   const select = () =>
     track({ name: "select_item", list: "finder", index: position, item: { productId: e.productId, variantId: e.bottle?.numericId ?? e.productId, name: e.title, price: parseFloat(e.price.amount), variant: e.bottle?.label, category: e.lineLabel } });
   return (
-    <article className="group grid h-full grid-cols-[112px_minmax(0,1fr)] md:grid-cols-1">
+    <article className="group grid grid-cols-[112px_minmax(0,1fr)] gap-4 md:grid-cols-1 md:gap-0">
       <Link href={`/products/${e.handle}`} onClick={select} tabIndex={-1} aria-hidden="true" className="relative block self-start">
         <ProductImage src={e.image} hoverSrc={e.hoverImage} alt="" world={e.world} sizes="(min-width: 768px) 30vw, 112px" className="aspect-square w-full" />
         {position === 0 && <span className="badge absolute left-2 top-2">Best match</span>}
       </Link>
-      <div className="cell flex min-w-0 flex-col">
+      <div className="flex min-w-0 flex-col md:pt-4">
         {e.line && <p className="text-[12px] text-ash">{lineWithAudience(e.line)}</p>}
         <h2 className="font-serif text-[24px] font-semibold leading-[1.1] md:text-[28px]">
           <Link href={`/products/${e.handle}`} onClick={select} className="relative hover:text-sea before:absolute before:inset-x-0 before:-inset-y-2 before:content-['']">
@@ -481,7 +480,7 @@ function MatchCard({ match, position }: { match: Match; position: number }) {
         {e.notesShort.length > 0 && <p className="mt-1 text-[14px] leading-snug text-ash">{joinNotes(e.notesShort)}</p>}
         {match.reasons.length > 0 && <p className="mt-1 text-[12px] leading-snug text-gold-text">Matched on {match.reasons.join(", ")}</p>}
         {e.bottle && (
-          <div className="mt-auto pt-3">
+          <div className="mt-3">
             <AddToBagButton variant={e.bottle} product={product} size="sm" block label={`Add ${e.bottle.label} · ${formatMoney(e.bottle.price)}`} />
           </div>
         )}
