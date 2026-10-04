@@ -132,7 +132,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   const size = isSet ? `${sizeLabel(bottleLabel)} · eaux de parfum` : `${bottleLabel} eau de parfum`;
   const eyebrow = line ? `${lineWithAudience(line)} · ${size}` : size;
   const chips = notes.map((note) => (
-    <span key={note} className="inline-flex h-8 items-center rounded-full border border-dune bg-paper px-3 text-[12px] font-medium whitespace-nowrap">
+    <span key={note} className="inline-flex h-8 items-center border border-dune bg-paper px-3 text-[12px] font-medium whitespace-nowrap">
       {sentenceCase(note)}
     </span>
   ));
@@ -144,7 +144,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       {scent.bottle && (
         <TrackView item={{ productId: entry.productId, variantId: scent.bottle.numericId, name: scent.title, price: parseFloat(scent.bottle.price.amount), variant: scent.bottle.label, category: scent.lineLabel }} />
       )}
-      <nav aria-label="Breadcrumb" className="wrap hidden pt-6 text-[12px] text-ash md:block">
+      <nav aria-label="Breadcrumb" className="wrap hidden py-4 text-[12px] text-ash md:block">
         <ol className="flex flex-wrap gap-1">
           {crumbs.map((c, i) => (
             <li key={c.href} className="flex gap-1">
@@ -163,8 +163,10 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
         </ol>
       </nav>
 
+      {/* Phone: the gallery, then the buy box, sized together so Add to bag is on the first screen (pdp.css).
+          From lg: two cells, the frames running to the rules and the buy box in a cell beside them (DESIGN.md §4). */}
       <section
-        className="pdp-hero wrap grid grid-cols-[minmax(0,1fr)] pt-3 pb-14 md:pt-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16 lg:pt-8"
+        className="pdp-hero wrap grid grid-cols-[minmax(0,1fr)] pt-3 pb-14 md:pt-6 md:border-t md:border-dune lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:p-0"
         data-announce={facts.announcement ? "" : undefined}
         data-hook={scent.inspiredBy || isSet ? "" : undefined}
         data-chips={chips.length ? "" : undefined}
@@ -172,7 +174,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
         data-long={scent.title.length > 14 ? "" : undefined}
       >
         <Gallery scent={scent} />
-        <div className="mt-4 lg:sticky lg:top-28 lg:mt-0 lg:self-start">
+        <div className="lg:border-l lg:border-dune lg:p-[var(--cell-pad)]">
+        <div className="mt-4 lg:sticky lg:top-28 lg:mt-0">
           <p className="text-[13px] leading-[18px] text-ash">{eyebrow}</p>
           <div className="mt-1 flex items-baseline justify-between gap-4 lg:mt-3 lg:block">
             <h1 className="min-w-0 text-[32px] leading-[1.1] font-semibold lg:text-[clamp(36px,4vw,56px)]">{scent.title}</h1>
@@ -208,7 +211,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
             </ul>
           )}
           {mysteryBox?.bottle && !scent.sample && (
-            <Link href="/products/mystery-box" className="mt-6 flex items-center gap-3 bg-paper px-4 py-3.5 text-[14px] hover:text-sea">
+            <Link href="/products/mystery-box" className="mt-6 flex items-center gap-3 border-y border-dune py-3.5 text-[14px] hover:text-sea">
               <span className="min-w-0 flex-1">
                 Not ready for a bottle?{" "}
                 <span className="text-ash">
@@ -218,6 +221,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               <Icon name="chevron-right" size={16} className="shrink-0 text-ash" />
             </Link>
           )}
+        </div>
         </div>
       </section>
 
@@ -229,16 +233,17 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       {order.includes("tale") && <TaleExcerpt scent={scent} index={n("tale")} />}
 
       {alsoLike.length > 0 && (
-        <section className="section border-t border-dune">
-          <div className="wrap">
-            <SectionHead title="You may also like" action={line && linePage ? { label: `All ${lineWithAudience(line)}`, href: linePage } : { label: "All scents", href: "/shop" }} />
-            <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-6">
-              {alsoLike.map((r, i) => (
-                <div key={r.handle} data-reveal style={{ ["--i" as string]: i }}>
-                  <ProductCard entry={toIndexEntry(r)} />
-                </div>
-              ))}
+        // A product row (DESIGN.md §4): the title cell, then a cell per scent.
+        <section className="row">
+          <div className="cells grid-cols-2 lg:grid-cols-5">
+            <div className="cell col-span-2 lg:col-span-1">
+              <SectionHead title="You may also like" action={line && linePage ? { label: `All ${lineWithAudience(line)}`, href: linePage } : { label: "All scents", href: "/shop" }} stacked />
             </div>
+            {alsoLike.map((r, i) => (
+              <div key={r.handle} data-reveal style={{ ["--i" as string]: i }}>
+                <ProductCard entry={toIndexEntry(r)} sizes="(min-width: 1024px) 20vw, 50vw" />
+              </div>
+            ))}
           </div>
         </section>
       )}

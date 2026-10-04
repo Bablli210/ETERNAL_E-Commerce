@@ -39,8 +39,11 @@
   --announce-h: 32px;
   /* Where sticky bars under the header pin: the header stays on screen while scrolling. */
   --chrome-top: var(--header-h);
+  /* The grid (DESIGN.md §4): every divider, and the padding inside a text cell. */
+  --rule: var(--color-dune);
+  --cell-pad: 20px;
 }
-@media (min-width: 1024px) { :root { --header-h: 72px; } }
+@media (min-width: 1024px) { :root { --header-h: 72px; --cell-pad: 32px; } }
 
 /* Next turns smooth scrolling off during route changes only because layout.tsx sets data-scroll-behavior="smooth". */
 html {
@@ -82,8 +85,34 @@ input, select, textarea { font-size: 16px; }
 .ui { font-size: 13px; letter-spacing: 0.04em; font-weight: 500; }
 .tnum { font-variant-numeric: tabular-nums; }
 
-.wrap { margin-inline: auto; width: 100%; max-width: 1440px; padding-inline: 20px; }
-@media (min-width: 1024px) { .wrap { padding-inline: 80px; } }
+/* Text that is not in a cell still lines up with the cells' padding (DESIGN.md §4). */
+.wrap { margin-inline: auto; width: 100%; max-width: 1440px; padding-inline: var(--cell-pad); }
+
+/*
+ * DESIGN.md §1 and §4 — the page is a frame of cells divided by 1 px rules.
+ * No gutters, gaps, cards, radius, shadows or gradients: the rules are the structure.
+ *
+ * .frame   1440 px, centred, a rule down each side from lg (none on a phone).
+ * .row     a band of cells; a rule above it parts it from the band before.
+ * .cells   a grid whose cells are parted by 1 px rules: each cell's 1 px outline
+ *          fills the 1 px gap around it, so neighbours share one line, the outer
+ *          edge lands on the row's and the frame's own rules, and an empty slot in
+ *          a short last row stays plain ground.
+ * .cell    the padding a text cell carries (20 px phone, 32 px from lg). An image
+ *          cell carries none: its picture runs to the rules.
+ * .cell-text  title at the top, .cell-foot at the bottom; the space between is intended.
+ */
+.frame { width: 100%; max-width: 1440px; margin-inline: auto; }
+@media (min-width: 1024px) { .frame { border-inline: 1px solid var(--rule); } }
+.row { border-top: 1px solid var(--rule); }
+.cells { display: grid; gap: 1px; }
+.cells > * { min-width: 0; outline: 1px solid var(--rule); }
+/* A cell that is itself a link keeps its keyboard ring, drawn inside so a neighbour cannot cover it. */
+.cells > :focus-visible { outline: 2px solid var(--color-gold-text); outline-offset: -2px; }
+.cell { padding: var(--cell-pad); }
+/* A band inside .wrap that runs out to the frame's rules, like a row of its own. */
+.bleed { margin-inline: calc(var(--cell-pad) * -1); }
+.cell-text { display: flex; flex-direction: column; justify-content: space-between; gap: 32px; }
 
 /* One vertical rhythm for every content section: 56 px on a phone, 96 px from lg (the home page's own bands match it on desktop). */
 .section { padding-block: 56px; }
@@ -142,10 +171,10 @@ input, select, textarea { font-size: 16px; }
 .lnk:hover::after { transform: scaleX(1); }
 .lnk-quiet { box-shadow: none; }
 
-/* Chips — the one rounded element on the site. */
+/* Chips — square like everything else (DESIGN.md: no radius). */
 .chip {
   display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px;
-  border: 1px solid var(--color-dune); border-radius: 999px; background: var(--color-paper);
+  border: 1px solid var(--color-dune); border-radius: 0; background: var(--color-paper);
   font-size: 12px; font-weight: 500; color: var(--color-night); white-space: nowrap; cursor: pointer;
   transition: background-color 160ms var(--ease-standard), color 160ms var(--ease-standard), border-color 160ms var(--ease-standard);
 }
@@ -169,11 +198,10 @@ input, select, textarea { font-size: 16px; }
 .slot {
   position: relative; display: flex; align-items: center; justify-content: center; text-align: center;
   background-color: var(--color-sand);
-  background-image: repeating-linear-gradient(135deg, rgba(23, 22, 20, 0.05) 0 1px, transparent 1px 14px);
   color: var(--color-ash); font-size: 12px; line-height: 1.4; padding: 16px; overflow: hidden;
   border: 1px solid rgba(23, 22, 20, 0.08);
 }
-.slot-dark { background-color: #2b2a28; background-image: repeating-linear-gradient(135deg, rgba(243, 239, 231, 0.06) 0 1px, transparent 1px 14px); color: var(--color-dune); border-color: rgba(243, 239, 231, 0.1); }
+.slot-dark { background-color: #2b2a28; color: var(--color-dune); border-color: rgba(243, 239, 231, 0.1); }
 .slot > span { max-width: 26ch; }
 .slot-corner { align-items: flex-start; justify-content: flex-end; text-align: right; padding: 12px 14px; }
 .slot-corner > span { font-size: 10px; letter-spacing: 0.04em; opacity: 0.7; }
@@ -199,7 +227,7 @@ input, select, textarea { font-size: 16px; }
 }
 
 /* Meters — Golden hour fill on a Dune track; fills when revealed. */
-.meter { height: 6px; background: var(--color-dune); border-radius: 3px; overflow: hidden; }
+.meter { height: 6px; background: var(--color-dune); overflow: hidden; }
 .meter > i { display: block; height: 100%; background: var(--color-gold); width: 0; }
 .is-in .meter > i, .meter.is-in > i { width: var(--v); }
 
@@ -225,8 +253,8 @@ input, select, textarea { font-size: 16px; }
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* Sticky bars are the one exception to the no-shadow rule. */
-.float-shadow { box-shadow: 0 -8px 24px rgba(23, 22, 20, 0.08); }
+/* Sticky bars sit on a rule like every other edge (DESIGN.md: no shadows); the class stays as their hook. */
+.float-shadow { box-shadow: none; }
 
 .reading { font-family: var(--font-serif); font-size: 20px; line-height: 1.55; }
 .reading p + p { margin-top: 1.25em; }

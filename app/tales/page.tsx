@@ -18,30 +18,33 @@ export default async function TalesPage() {
   const scents = await Promise.all(tales.map((t) => getScent(t.handle)));
   return (
     <>
-      <section className="wrap pt-6 lg:pt-16">
+      <section className="cell">
         <Eyebrow>Tales</Eyebrow>
         <h1 className="display-l mt-3">The story behind the bottle.</h1>
         <p className="mt-3 max-w-[56ch] text-[16px] leading-relaxed text-ash lg:text-[17px]">Some of our scents come with a tale. Read it first, then smell what it describes.</p>
       </section>
-      <section className="wrap py-10 lg:py-16">
-        <ul className="grid gap-x-6 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+      {/* A cell per tale: the still runs to the rules, the words sit under it; the finder takes the last cell. */}
+      <section className="row">
+        <ul className="cells md:grid-cols-2 lg:grid-cols-3">
           {tales.map((t, i) => {
             const scent = scents[i];
             return (
               <li key={t.slug} className="flex flex-col" data-reveal={i > 0 ? "" : undefined} style={{ ["--i" as string]: i }}>
-                <Link href={`/tales/${t.slug}`} className="group flex flex-col">
+                <Link href={`/tales/${t.slug}`} className="group flex flex-1 flex-col">
                   <TaleStill slug={t.slug} label={t.heroArt} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
-                  <p className="mt-4 text-[12px] tracking-[0.02em] text-ash">
-                    {lineWithAudience(t.line)} · {t.readTime}
-                  </p>
-                  <h2 className="serif mt-1 text-[28px] leading-[1.1] group-hover:text-sea">{t.title}</h2>
-                  <p className="mt-2 line-clamp-3 text-[15px] leading-relaxed text-ash">{t.paragraphs[0]}</p>
-                  <span className="mt-2 inline-flex min-h-11 items-center gap-1.5 self-start text-[13px] font-semibold">
-                    <span className="lnk">Read the tale</span> <Icon name="arrow-right" size={14} />
+                  <span className="cell flex flex-1 flex-col border-t border-dune">
+                    <span className="text-[12px] tracking-[0.02em] text-ash">
+                      {lineWithAudience(t.line)} · {t.readTime}
+                    </span>
+                    <h2 className="serif mt-1 text-[28px] leading-[1.1] group-hover:text-sea">{t.title}</h2>
+                    <span className="mt-2 line-clamp-3 text-[15px] leading-relaxed text-ash">{t.paragraphs[0]}</span>
+                    <span className="mt-auto inline-flex min-h-11 items-center gap-1.5 self-start pt-2 text-[13px] font-semibold">
+                      <span className="lnk">Read the tale</span> <Icon name="arrow-right" size={14} />
+                    </span>
                   </span>
                 </Link>
                 {scent && (
-                  <Link href={`/products/${scent.handle}`} className="mt-2 flex min-h-12 items-center justify-between gap-3 border-y border-dune py-2 text-[14px] hover:text-sea">
+                  <Link href={`/products/${scent.handle}`} className="flex min-h-12 items-center justify-between gap-3 border-t border-dune px-[var(--cell-pad)] py-2 text-[14px] hover:text-sea">
                     <span className="min-w-0">
                       The scent: <span className="font-semibold">{scent.title}</span>
                       <span className="text-ash">
@@ -55,10 +58,10 @@ export default async function TalesPage() {
               </li>
             );
           })}
+          <li className={tales.length % 3 === 2 ? "lg:col-span-1" : tales.length % 3 === 1 ? "lg:col-span-2" : "md:col-span-2 lg:col-span-3"}>
+            <FinderBand className="h-full" />
+          </li>
         </ul>
-      </section>
-      <section className="wrap pb-14 lg:pb-24">
-        <FinderBand />
       </section>
     </>
   );

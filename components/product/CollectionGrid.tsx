@@ -137,12 +137,12 @@ function BoxTile({ box }: { box: ScentIndexEntry }) {
   if (!box.bottle) return null;
   const product = { productId: box.productId, handle: box.handle, title: box.title, image: box.image, lineLabel: box.lineLabel, world: box.world };
   return (
-    <aside aria-label="The mystery box" className="col-span-2 grid grid-cols-[40%_1fr] gap-x-4 bg-paper p-3 lg:grid-cols-[42%_1fr] lg:gap-x-8 lg:p-6">
-      {/* The picture repeats the "What’s inside" link for a thumb, not for a screen reader or the tab order. */}
-      <Link href={`/products/${box.handle}`} aria-hidden="true" tabIndex={-1} className="block min-h-[176px]">
+    <aside aria-label="The mystery box" className="col-span-2 grid grid-cols-[40%_1fr] lg:grid-cols-[42%_1fr]">
+      {/* The picture repeats the "What’s inside" link for a thumb, not for a screen reader or the tab order. Image to the rules, the words in a cell beside it. */}
+      <Link href={`/products/${box.handle}`} aria-hidden="true" tabIndex={-1} className="block min-h-[176px] border-r border-dune">
         <ProductImage src={box.image} alt="" world={box.world} sizes="(min-width: 1024px) 20vw, 40vw" className="h-full w-full" />
       </Link>
-      <div className="flex flex-col py-1">
+      <div className="cell flex flex-col">
         <p className="eyebrow text-[12px] text-ash">Not sure yet?</p>
         <p className="serif mt-2 text-[22px] font-semibold leading-[1.1] lg:text-[32px]">
           Three scents to try, <span className="whitespace-nowrap">{formatMoney(box.price)}</span>
@@ -164,7 +164,7 @@ function BoxTile({ box }: { box: ScentIndexEntry }) {
 /** A search that finds nothing still leads somewhere: the three lines and the finder. */
 function NoMatch({ query, lineCounts }: { query: string; lineCounts: Record<LineKey, number> }) {
   return (
-    <div className="mt-6 max-w-[560px]">
+    <div className="mt-6 max-w-[560px] pb-12">
       <p className="serif text-[26px] leading-tight">Nothing matches “{query}” yet.</p>
       <p className="mt-2 text-[15px] text-ash">Not every scent lists its original yet. Start from a line, or let the finder choose for you.</p>
       <ul className="mt-6 border-t border-dune">
@@ -467,10 +467,11 @@ export function CollectionGrid({
   return (
     <div>
       {banner && !selection ? (
-        <div className="relative -mx-5 overflow-hidden bg-night text-linen lg:mx-0">
+        <div className="bleed relative overflow-hidden bg-night text-linen">
           <div className="absolute inset-0">{banner}</div>
-          <div className="absolute inset-0 bg-gradient-to-r from-night/60 via-night/20 to-transparent" aria-hidden="true" />
-          <div className="relative flex min-h-[160px] flex-col justify-between gap-3 px-5 py-3.5 lg:min-h-[400px] lg:p-10">
+          {/* A flat veil, not a gradient (DESIGN.md), so the title reads on any still. */}
+          <div className="absolute inset-0 bg-night/40" aria-hidden="true" />
+          <div className="cell relative flex min-h-[160px] flex-col justify-between gap-3 lg:min-h-[400px]">
             <div>
               {eyebrow && <p className="eyebrow text-[12px] text-linen/80">{eyebrow}</p>}
               <div className="mt-1 flex flex-wrap items-baseline gap-x-3">
@@ -541,12 +542,12 @@ export function CollectionGrid({
                 “{query.trim()}” isn’t in {where}.
               </p>
               <p className="mt-1 text-[15px] text-ash">Elsewhere in the house:</p>
-              <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
+              <div className="bleed row cells mt-6 grid-cols-2 lg:mt-8 lg:grid-cols-4">
                 {elsewhere.slice(0, 6).map((e, i) => (
                   <ProductCard key={e.handle} entry={e} priority={i < 2} sizes={CARD_SIZES} list="search" index={i} badge={badges ? undefined : false} />
                 ))}
               </div>
-              <div className="mt-12 flex justify-center">
+              <div className="bleed row cell flex justify-center">
                 <Link href={houseSearch} className="btn btn-secondary btn-block lg:w-auto">
                   {elsewhere.length > 6 ? `See all ${plural(elsewhere.length)}` : "Search every scent"} for “{query.trim()}”
                 </Link>
@@ -564,7 +565,7 @@ export function CollectionGrid({
           </div>
         )
       ) : (
-        <div ref={gridRef} className="mt-4 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
+        <div ref={gridRef} className="bleed row cells mt-4 grid-cols-2 lg:mt-8 lg:grid-cols-4">
           {shown.map((e, i) => (
             <Fragment key={e.handle}>
               <ProductCard entry={e} priority={i < 2} sizes={CARD_SIZES} list={listName} index={i} badge={badges ? undefined : false} />
@@ -575,7 +576,7 @@ export function CollectionGrid({
       )}
 
       {shown.length < filtered.length && (
-        <div className="mt-12 flex flex-col items-center gap-3">
+        <div className="bleed row cell flex flex-col items-center gap-3">
           <p className="tnum text-[13px] text-ash">
             Showing {shown.length} of {filtered.length}
           </p>
@@ -585,7 +586,7 @@ export function CollectionGrid({
         </div>
       )}
       {shown.length > 0 && elsewhere.length > 0 && (
-        <div className="mt-12 flex justify-center">
+        <div className="bleed row cell flex justify-center">
           <Link href={houseSearch} className="btn btn-secondary btn-block gap-2 lg:w-auto">
             {elsewhere.length} more for “{query.trim()}” outside {where}
             <Icon name="arrow-right" size={16} />
@@ -593,7 +594,7 @@ export function CollectionGrid({
         </div>
       )}
       {selection && (
-        <div className="mt-12 flex justify-center">
+        <div className="bleed row cell flex justify-center">
           <button type="button" className="btn btn-block lg:w-auto" onClick={seeAll}>
             See all {entries.length} scents
           </button>
@@ -602,7 +603,7 @@ export function CollectionGrid({
 
       {showFloat && (
         <div ref={floatRef} className="shop-float pointer-events-none fixed inset-x-0 bottom-0 z-[40] flex justify-center pb-[calc(16px+env(safe-area-inset-bottom))] lg:hidden">
-          <button type="button" aria-haspopup="dialog" onClick={openSheet} className="bar-enter float-shadow pointer-events-auto flex h-12 items-center gap-2 rounded-full bg-night px-6 text-[13px] font-semibold tracking-[0.04em] text-linen">
+          <button type="button" aria-haspopup="dialog" onClick={openSheet} className="bar-enter float-shadow pointer-events-auto flex h-12 items-center gap-2 bg-night px-6 text-[13px] font-semibold tracking-[0.04em] text-linen">
             <FilterIcon />
             Filter &amp; sort{activeCount ? ` · ${activeCount}` : ""}
           </button>

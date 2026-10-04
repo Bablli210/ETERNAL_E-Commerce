@@ -16,7 +16,7 @@ export function MotionToggle({ className = "" }: { className?: string }) {
   };
   return (
     <button type="button" onClick={toggle} aria-pressed={!off} className={`inline-flex items-center gap-2 hover:text-night ${className}`} disabled={!ready}>
-      <span className={`inline-block h-2 w-2 rounded-full ${off ? "bg-dune" : "bg-gold"}`} aria-hidden="true" />
+      <span className={`inline-block h-2 w-2 ${off ? "bg-dune" : "bg-gold"}`} aria-hidden="true" />
       Motion {off ? "off" : "on"}
     </button>
   );

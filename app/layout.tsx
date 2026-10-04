@@ -85,7 +85,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             Skip to content
           </a>
           <Header index={index} featured={featured} taleIndex={taleIndex} popular={bestsellers.map(toIndexEntry)} />
-          <main id="main">
+          {/* The frame (DESIGN.md §4): 1440 px with a rule down each side; every section inside is a row of cells. */}
+          <main id="main" className="frame">
             <PageFade>{children}</PageFade>
           </main>
           <Footer shopDomain={checkoutDomain} />
