@@ -13,13 +13,16 @@
     .group:hover .img-hover, .group:focus-within .img-hover { opacity: 1; }
   }
   /*
-   * Touch screens have no hover, so there a card shows its notes still while it rests mid-screen:
-   * CardFocus marks it .is-near a screen ahead (so the lazy still loads) and .is-centered after a
-   * short dwell in the middle band. Only with motion allowed; otherwise the packshot simply stays.
+   * Touch screens have no hover: a small button on each card turns that card, and only that card,
+   * to its notes still (CardNotes sets .notes-on). The still is fetched only once it is asked for.
    */
-  @media (hover: none) and (prefers-reduced-motion: no-preference), (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-    html:not([data-motion="off"]) .is-near .pimg-hover { display: contents; }
-    html:not([data-motion="off"]) .is-centered .img-hover { opacity: 1; transition-duration: 700ms; }
+  .notes-toggle { display: none; }
+  @media (hover: none), (pointer: coarse) {
+    .notes-on .pimg-hover { display: contents; }
+    .group.notes-on .img-hover { opacity: 1; }
+    .notes-toggle { position: absolute; right: 4px; bottom: 4px; z-index: 3; display: flex; width: 44px; height: 44px; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: var(--color-night); }
+    .notes-toggle > span { display: flex; width: 32px; height: 32px; align-items: center; justify-content: center; border-radius: 9999px; background: rgb(250 248 243 / 0.92); box-shadow: 0 1px 4px rgb(23 22 20 / 0.18); }
+    .notes-on .notes-toggle > span { background: var(--color-night); color: var(--color-linen); }
   }
   @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
     html:not([data-motion="off"]) .pimg-lift { transition: transform var(--dur-l) var(--ease-standard); }

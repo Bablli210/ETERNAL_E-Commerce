@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Mark } from "@/components/ui/Wordmark";
+import { Icon } from "@/components/ui/Icon";
 import type { World } from "@/lib/catalogue";
 
 /**
@@ -7,9 +8,11 @@ import type { World } from "@/lib/catalogue";
  * HTML. Nothing waits for hydration: an image held at opacity 0 does not
  * count as painted, which kept collection LCP at 4.5 s. `priority` (the first
  * row of a grid) loads eagerly at high fetch priority. H4: on devices that
- * hover, a second frame crossfades in; touch screens never display it, so
- * phones do not download it and a tap cannot leave it stuck on. A product
- * without a picture yet shows its colour world and the eternal mark.
+ * hover, the notes still crossfades in under the pointer, card by card. Touch
+ * screens have no hover, so with `notesToggle` a small button on the image
+ * turns that one card to its notes still (CardNotes); the still downloads only
+ * when asked for. A product without a picture yet shows its colour world and
+ * the eternal mark.
  */
 export function ProductImage({
   src,
@@ -20,6 +23,7 @@ export function ProductImage({
   priority = false,
   fit = "cover",
   className = "",
+  notesToggle = false,
 }: {
   src: string | null;
   hoverSrc?: string | null;
@@ -31,6 +35,8 @@ export function ProductImage({
   priority?: boolean;
   fit?: "cover" | "contain";
   className?: string;
+  /** A touch-screen button that shows this card's notes still. Only where the image is not inside a link. */
+  notesToggle?: boolean;
 }) {
   const fitClass = fit === "cover" ? "object-cover" : "object-contain";
   return (
@@ -42,6 +48,13 @@ export function ProductImage({
             <span className="pimg-hover" aria-hidden="true">
               <Image src={hoverSrc} alt="" fill sizes={sizes} className={`img-hover ${fitClass}`} />
             </span>
+          )}
+          {hoverSrc && notesToggle && (
+            <button type="button" className="notes-toggle" data-notes-toggle aria-pressed="false" aria-label="Show the notes">
+              <span>
+                <Icon name="leaf" size={16} />
+              </span>
+            </button>
           )}
         </>
       ) : (

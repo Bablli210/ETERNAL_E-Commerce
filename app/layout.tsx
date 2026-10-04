@@ -12,7 +12,7 @@ import { Header } from "@/components/chrome/Header";
 import { Footer } from "@/components/chrome/Footer";
 import { WhatsAppFloat } from "@/components/chrome/WhatsAppFloat";
 import { RevealObserver } from "@/components/ui/RevealObserver";
-import { CardFocus } from "@/components/ui/CardFocus";
+import { CardNotes } from "@/components/ui/CardNotes";
 import { Toast } from "@/components/cart/Toast";
 import { MotionScript } from "@/components/motion/MotionScript";
 import { Loader } from "@/components/motion/Loader";
@@ -85,7 +85,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Toast />
           <WhatsAppFloat />
           <RevealObserver />
-          <CardFocus />
+          <CardNotes />
         </CartProvider>
         <Analytics />
       </body>

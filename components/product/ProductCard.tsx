@@ -45,7 +45,7 @@ export function ProductCard({
     <article className={`group relative flex h-full flex-col ${className}`} data-card={entry.handle}>
       <div className="relative">
         {/* The link names the product, so the picture stays silent. */}
-        <ProductImage src={entry.image} hoverSrc={entry.hoverImage} alt="" world={entry.world} sizes={sizes} priority={priority} className="aspect-[4/5] w-full" />
+        <ProductImage src={entry.image} hoverSrc={entry.hoverImage} alt="" world={entry.world} sizes={sizes} priority={priority} className="aspect-[4/5] w-full" notesToggle />
         {showBadge && <span className={`badge absolute left-3 top-3 text-[12px] ${showBadge === "New" ? "badge-gold" : ""}`}>{showBadge}</span>}
         {reason && <span className="absolute bottom-3 left-3 bg-linen/90 px-2 py-1 text-[12px] text-night">{reason}</span>}
       </div>
