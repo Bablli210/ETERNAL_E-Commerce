@@ -36,21 +36,56 @@ content/scents.ts  (colour worlds, inspired-by, tales, notes) ────┘
   `app/api/checkout/route.ts`, which creates a Storefront cart and redirects to its
   `checkoutUrl` when a token is configured, or falls back to a Shopify cart permalink
   (`https://<store>/cart/<variant>:<qty>,…`) which needs no credentials.
-- Facts the boards mark in `[square brackets]` (delivery time, returns, offers, WhatsApp
-  number, free-shipping threshold) live in `content/site.ts` and render as written until
-  they are confirmed.
+- Facts the owner has not confirmed (delivery time, returns, COD fee, offers, WhatsApp
+  number, company details) stay in `[square brackets]` in `content/site.ts` and
+  `content/house.ts`. `lib/facts.ts` reads a bracketed value as missing, so the line, chip
+  or section that needs it renders nothing: customers never see a placeholder. Replace the
+  bracketed text with the confirmed wording and it switches on everywhere.
+  `/launch-checklist` (unlinked, noindex) lists every fact, tale, image and product field
+  still waiting, and `npm run build` warns if a bracket reaches a prerendered page
+  (`STRICT_PLACEHOLDERS=1` makes it fail, for the launch build).
+
+## Built for Instagram ad traffic
+
+The plan of record is [`docs/cro-playbook.md`](docs/cro-playbook.md), with the research
+behind it in `docs/research/`. In short: most visitors arrive from an Instagram ad, on a
+phone, inside Instagram's browser, so every landing page sells on its first screen.
+
+| Ad | Link it to |
+| --- | --- |
+| One scent | `/products/<handle>` |
+| A carousel of scents | `/shop?h=handle-a,handle-b,handle-c` (only those, in that order) |
+| A line | `/shop/her`, `/shop/him`, `/shop/unisex` |
+| "Find your scent" | `/finder` |
+| Low-risk first order | `/products/mystery-box` |
+| A search for an original | `/shop?q=<name>` |
+
+Add `utm_source`, `utm_medium`, `utm_campaign` and `utm_content` to every ad link, and
+`discount=CODE` when the ad carries a code. The campaign, Meta's click id (`_fbc`, set as a
+first-party cookie by `proxy.ts`), the in-app flag and the finder's answers travel to
+Shopify checkout as order attributes, and the code is applied at checkout.
+
+**Measurement.** `lib/client/analytics.ts` sends view_item, select_item, add_to_cart,
+begin_checkout (a custom `CheckoutClick` for Meta), search, the finder steps and Web Vitals
+to the data layer, the Meta Pixel and GA4. Set `NEXT_PUBLIC_META_PIXEL_ID` and
+`NEXT_PUBLIC_GA4_ID` to the same IDs Shopify's Facebook & Instagram and Google channels use,
+so Purchase (fired by Shopify on checkout) joins the same funnel. `META_CAPI_TOKEN` with
+`NEXT_PUBLIC_META_CAPI=1` adds server copies of ViewContent and AddToCart
+(`app/api/meta`), deduplicated by event id. See `.env.example`.
 
 ## Routes
 
 | Route | Board |
 | --- | --- |
-| `/` | Home — hero, proof strip, three lines, bestsellers, finder entry, featured tale, moods, discovery set and mystery box, house film, tales |
-| `/shop`, `/shop/[collection]` | Collection — family chips, search by the original, filters, load more, discovery band, FAQ. Collections: `her`, `him`, `unisex`, `bestsellers`, `new`, six families, six moods |
-| `/products/[handle]` | Product page — gallery, buy box with sticky add-to-bag bar, notes pyramid, tale excerpt, wear it, inspired-by, FAQ, pair, you may also like, recently viewed |
-| `/finder` | Scent finder — five questions, tag-overlap ranking, three matches, shareable results |
-| `/tales`, `/tales/[slug]` | Tales — reading column with the sticky shoppable card |
-| `/house` | The house — manifesto, film, how we compose, founder note |
-| `/help` | Delivery, returns, tracking, FAQ |
+| `/` | Home — hero with the featured scent and its price, proof strip, the three lines side by side, where to start, try before you commit (mystery box, finder), moods, featured tale, house film |
+| `/shop`, `/shop/[collection]` | Collection — one-row head (line banners on her/him/unisex), line and family chips, filter sheet, search by the original, 24 then all, mystery box tile, state in the URL (`?q=`, `?h=`, filters, sort). Collections: `her`, `him`, `unisex`, `bestsellers` ("Where to start"), `new`, six families, six moods |
+| `/products/[handle]` | Product page — first screen with gallery, name and price, inspired-by, notes and Add to bag; sticky bar; promise list; how it differs, how it smells, wear it, FAQ, pairing, tale, you may also like, recently viewed |
+| `/bag?items=<variant>:<qty>,…` | Rebuilds the bag from a link (retargeting, "send my bag") |
+| `/finder` | Scent finder — five questions with the state in the URL, three matches with Add, the mystery box when 5 ml samples do not exist yet |
+| `/tales`, `/tales/[slug]` | Tales — published (complete) tales only, each ending with its scent |
+| `/house` | The house — manifesto, film, how we compose, founder note once confirmed |
+| `/help` | Delivery, cash on delivery, payments, returns, tracking, WhatsApp, policies |
+| `/launch-checklist` | Everything still waiting on the owner (unlinked, noindex) |
 
 ## Running locally
 
@@ -83,5 +118,8 @@ products into `content/catalogue.snapshot.json`.
 - **Line tags** on the seven products created on 19 August (Aurora, Bloom, Ciel, Mango
   Eclipse, Paradox, Smoked Aura, Ultra Smoke), plus family tags, descriptions and packshots.
 - **Metafields** listed above, starting with `inspired_by`, `color_world` and `signature_line`.
-- A **discovery set** product; the mystery box already exists.
+- **`inspired_by`** for every scent: only 3 of 42 have it, and it is the strongest hook for
+  ad visitors, search and the cards. **`custom.units_sold_30d`** from a daily job, the only
+  source of the Bestseller badge (playbook 5.6).
+- A **discovery set** product, if one is wanted; the mystery box already exists.
 - Reviews (Judge.me), Arabic (Translate & Adapt), Shop Pay button, WhatsApp number.
