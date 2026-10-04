@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CollectionPage } from "@/components/product/CollectionPage";
+import { parseGridState } from "@/components/product/grid-state";
 import { collections, lines, type LineKey } from "@/content/taxonomy";
 import { getCollection } from "@/lib/catalogue";
 
-export const revalidate = 300;
+/*
+ * Rendered per request, like /shop: the grid's state lives in the URL
+ * (?family=, ?q=, ?all=1), and the first paint must already be that grid, so a
+ * hard Back from a product lands on the same cards at the same height. The
+ * static params still validate the slug.
+ */
 export const dynamicParams = false;
 
 export function generateStaticParams() {
@@ -20,9 +26,9 @@ export async function generateMetadata({ params }: { params: Promise<{ collectio
   return { title, description: def.descriptor, alternates: { canonical: `/shop/${def.slug}` } };
 }
 
-export default async function CollectionRoute({ params }: { params: Promise<{ collection: string }> }) {
-  const { collection } = await params;
+export default async function CollectionRoute({ params, searchParams }: { params: Promise<{ collection: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const [{ collection }, query] = await Promise.all([params, searchParams]);
   const col = await getCollection(collection);
   if (!col) notFound();
-  return <CollectionPage def={col.def} scents={col.scents} />;
+  return <CollectionPage def={col.def} scents={col.scents} initial={parseGridState(query)} />;
 }

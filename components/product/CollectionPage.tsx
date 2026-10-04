@@ -3,9 +3,10 @@ import Link from "next/link";
 import { CollectionGrid } from "@/components/product/CollectionGrid";
 import { FaqSection } from "@/components/product/Sections";
 import { lines, type CollectionDef, type LineKey } from "@/content/taxonomy";
-import { getLineCounts, getScent, toIndexEntry, type Scent } from "@/lib/catalogue";
+import { getLineCounts, getScent, getScentIndex, toIndexEntry, type Scent } from "@/lib/catalogue";
 import { siteImage } from "@/lib/site-images";
 import type { GridState } from "./grid-state";
+import { lineWithAudience } from "./line";
 
 /** Who each line is for, above its name on its own page. */
 const FOR: Record<LineKey, string> = { eterna: "For her", eterno: "For him", eternal: "For both" };
@@ -18,7 +19,10 @@ const FOR: Record<LineKey, string> = { eterna: "For her", eterno: "For him", ete
  * low-risk first order; the FAQ answers what stops a first purchase.
  */
 export async function CollectionPage({ def, scents, initial }: { def: CollectionDef; scents: Scent[]; initial?: GridState }) {
-  const [box, lineCounts] = await Promise.all([getScent("mystery-box"), getLineCounts()]);
+  // The house index is the layout's own array (cached per request): the grid's entries are its very objects, so the page sends each scent once.
+  const [box, lineCounts, house] = await Promise.all([getScent("mystery-box"), getLineCounts(), getScentIndex()]);
+  const byHandle = new Map(house.map((e) => [e.handle, e]));
+  const entries = scents.map((s) => byHandle.get(s.handle) ?? toIndexEntry(s));
   const line = def.kind === "line" ? (def.key as LineKey) : null;
   const still = line ? siteImage(`collection-${def.slug}`) : null;
   const crumbs = [{ label: "Home", href: "/" }, { label: "Shop", href: "/shop" }, ...(def.slug !== "all" ? [{ label: line ? `${FOR[line]} · ${lines[line].label}` : def.title, href: `/shop/${def.slug}` }] : [])];
@@ -38,9 +42,11 @@ export async function CollectionPage({ def, scents, initial }: { def: Collection
           </ol>
         </nav>
         <CollectionGrid
-          entries={scents.map(toIndexEntry)}
+          entries={entries}
+          house={house}
           list={def.slug}
           title={def.title}
+          scope={line ? lineWithAudience(line) : def.title}
           descriptor={def.descriptor}
           eyebrow={line ? FOR[line] : undefined}
           banner={still ? <Image src={still} alt="" fill sizes="(min-width: 1440px) 1280px, 100vw" preload fetchPriority="high" className="object-cover object-[72%_50%]" /> : undefined}

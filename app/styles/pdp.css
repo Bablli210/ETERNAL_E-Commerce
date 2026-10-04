@@ -6,7 +6,7 @@
    * button is on screen without a scroll on any phone 640 px tall or more
    * (12 px is the gap above the frame). It stays between 240 px and 4:5. The
    * page marks which optional rows it renders (data-hook, data-chips,
-   * data-size); each adds its height here.
+   * data-size, data-long); each adds its height here.
    */
   @media (max-width: 1023px) {
     .pdp-hero {
@@ -29,6 +29,24 @@
     }
     .pdp-frame-solo { --pdp-w: calc(100vw - 40px); }
   }
+
+  /*
+   * Under 390 px a long name (Shadow of the Sea, Hundred Whispers, Forbidden
+   * Apple) wraps to a second line beside the price. The page marks such names
+   * (data-long) and the frame gives that line's 35 px back, so Add to bag stays
+   * on the first screen and the sticky bar never opens over the note chips.
+   */
+  @media (max-width: 389px) {
+    .pdp-hero[data-long] { --pdp-info: 189px; }
+  }
+
+  /*
+   * A swipe right on the first gallery frame must not turn into Chrome's
+   * overscroll Back and leave the product. Product pages only, so the system's
+   * edge-back gesture keeps working elsewhere; vertical scroll is untouched.
+   */
+  html:has(.pdp-hero),
+  html:has(.pdp-hero) body { overscroll-behavior-x: none; }
 
   /* Bottles sit low in the lifestyle and notes stills; a cropped frame keeps them. */
   .pdp-frame img { object-position: 50% 62%; }

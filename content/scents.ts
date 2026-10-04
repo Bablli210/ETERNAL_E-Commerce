@@ -43,13 +43,14 @@ export const scents: Record<string, ScentContent> = {
     pick: true,
     inspiredBy: "Acqua di Giò Elixir",
     comparison:
-      "Ours keeps the bergamot opening but leans into the incense and resin, so the drydown is smokier and sits closer to the skin. [Replace with the perfumer’s note.]",
+      "Ours keeps the bergamot opening but leans into the incense and ambery woods, so the drydown is smokier and sits closer to the skin. [Replace with the perfumer’s note.]",
     signature: "You can smell the ones the sea decided to give back.",
-    notesShort: ["Bergamot", "incense", "tonka bean"],
+    // The Shopify description is the product truth: marine notes and bergamot; rosemary, clary sage and geranium; patchouli, incense and ambery woods.
+    notesShort: ["Bergamot", "rosemary", "incense"],
     notes: [
-      { stage: "Top", name: "Bergamot", copy: "Sea-bright citrus — the same as every boat comes home with.", art: "Bergamot on wet stone" },
-      { stage: "Heart", name: "Incense & resin", copy: "Smoke with no fire behind it. Resin, dark and warm, like a temple nobody remembered building.", art: "Resin tears and smoke" },
-      { stage: "Base", name: "Patchouli & tonka bean", copy: "Deep in the collar, in the skin — as if the island had pressed itself into you and hadn’t finished letting go.", art: "Tonka beans and patchouli leaf" },
+      { stage: "Top", name: "Marine notes & bergamot", copy: "Sea-bright citrus — the same as every boat comes home with.", art: "Bergamot on wet stone" },
+      { stage: "Heart", name: "Rosemary, clary sage & geranium", copy: "Herbs from the cliffs above the water: green, aromatic, salted by the spray.", art: "Rosemary, sage and geranium leaf" },
+      { stage: "Base", name: "Patchouli, incense & ambery woods", copy: "Smoke with no fire behind it, deep in the collar — as if the island had pressed itself into you and hadn’t finished letting go.", art: "Incense smoke and patchouli leaf" },
     ],
     colorWorld: { bg: "#0F2B3C", accent: "#C9D8DE", dark: true, source: "proposed" },
     longevity: 8,
@@ -115,6 +116,6 @@ export const scents: Record<string, ScentContent> = {
   carbon: { notesShort: ["Bergamot", "Sichuan pepper", "cedar"] },
   /** Three scents in one box: no line and no notes of its own. */
   "mystery-box": { notesShort: [] },
-  "hundred-whispers": { pick: true },
+  "hundred-whispers": { pick: true, notesShort: ["Peach", "coconut", "tuberose"] },
   "vintage-vanilla": { pick: true },
 };

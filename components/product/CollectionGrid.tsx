@@ -30,8 +30,15 @@ const price = (e: ScentIndexEntry) => parseFloat(e.price.amount);
 /** The house's order: real sellers, then its picks; products still without a picture go last. */
 const rank = (e: ScentIndexEntry) => (e.isBestseller ? 4 : 0) + (e.isPick ? 2 : 0) + (e.image ? 1 : 0);
 
+/** A carousel ad's scents, in its order; handles that no longer exist are skipped. */
+const pickHandles = (entries: ScentIndexEntry[], h: string[]) => h.map((x) => entries.find((e) => e.handle === x)).filter((e): e is ScentIndexEntry => Boolean(e));
+
 function applyFilters(entries: ScentIndexEntry[], s: GridState, query: string): ScentIndexEntry[] {
-  if (s.h.length) return s.h.map((h) => entries.find((e) => e.handle === h)).filter((e): e is ScentIndexEntry => Boolean(e));
+  if (s.h.length) {
+    const picked = pickHandles(entries, s.h);
+    // A carousel link whose scents are all gone (renamed, unpublished) lands on the whole grid, never an empty page.
+    if (picked.length) return picked;
+  }
   const { line, family, mood } = s;
   const searching = query.trim().length >= 2;
   let list = searching ? searchIndex(entries, query, 100).map((r) => r.entry) : entries;
@@ -190,8 +197,10 @@ function NoMatch({ query, lineCounts }: { query: string; lineCounts: Record<Line
  */
 export function CollectionGrid({
   entries,
+  house,
   list,
   title,
+  scope = title,
   descriptor,
   eyebrow,
   banner,
@@ -201,15 +210,19 @@ export function CollectionGrid({
   badges = true,
 }: {
   entries: ScentIndexEntry[];
+  /** The whole catalogue, so a search on a line, family or mood page also finds the scents outside it. */
+  house?: ScentIndexEntry[];
   /** The list name analytics reports: the collection's slug. */
   list: string;
   title: string;
+  /** What this page holds, as a search result names it: "eterna · for her", "Woody". */
+  scope?: string;
   descriptor: string;
   /** On a line page, who the line is for, above its name. */
   eyebrow?: string;
   /** On a line page, its still, shown behind the title as a short band. */
   banner?: ReactNode;
-  /** The state the server rendered from the URL (/shop); static pages render the default. */
+  /** The state the server rendered from the URL; every collection page renders per request. */
   initial?: GridState;
   /** The mystery box, offered inside the grid as the low-risk first order. */
   promo?: ScentIndexEntry | null;
@@ -230,17 +243,29 @@ export function CollectionGrid({
   const chipsRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
   const floatRef = useRef<HTMLDivElement>(null);
+  const filterRef = useRef<HTMLButtonElement>(null);
   const positions = useRef<Map<string, DOMRect> | null>(null);
   const sentList = useRef("");
+  /** The grid's query when the sheet opened, so closing it re-anchors the results only if they changed. */
+  const sheetFrom = useRef("");
 
   const filtered = useMemo(() => applyFilters(entries, url, query), [entries, url, query]);
-  const shown = useMemo(() => (url.all || url.h.length ? filtered : filtered.slice(0, PAGE)), [filtered, url.all, url.h.length]);
+  const selection = useMemo(() => pickHandles(entries, url.h).length > 0, [entries, url.h]);
+  const shown = useMemo(() => (url.all || selection ? filtered : filtered.slice(0, PAGE)), [filtered, url.all, selection]);
   const searching = query.trim().length >= 2;
-  const selection = url.h.length > 0;
   const listName = selection ? "ad_selection" : searching ? "search" : list;
 
+  // A search never stops at the page's edge: the matches outside this page or its filters, from the whole house.
+  const elsewhere = useMemo(() => {
+    if (!searching || selection || !house) return [];
+    const here = new Set(filtered.map((e) => e.handle));
+    return searchIndex(house.filter((e) => e.kind === "scent" && !here.has(e.handle)), query, 100).map((r) => r.entry);
+  }, [house, searching, selection, filtered, query]);
+  const houseSearch = `/shop?q=${encodeURIComponent(query.trim())}`;
+
   const apply = (patch: Partial<GridState>) => {
-    const next = { ...url, q: query.trim(), ...patch };
+    // A carousel link with no live scents is dropped from the URL at the first change.
+    const next = { ...url, q: query.trim(), ...(selection ? {} : { h: [] }), ...patch };
     written.current = next.q;
     writeUrl(next);
   };
@@ -277,8 +302,8 @@ export function CollectionGrid({
     return () => window.clearTimeout(t);
   }, [query, url]);
 
-  // ...and is counted once the visitor pauses, with how many scents it found.
-  const results = filtered.length;
+  // ...and is counted once the visitor pauses, with how many scents it found in the whole house.
+  const results = filtered.length + elsewhere.length;
   useEffect(() => {
     const term = query.trim();
     if (!term || term === initial.q) return;
@@ -405,6 +430,10 @@ export function CollectionGrid({
     reportFilters(parseGridState(new URLSearchParams(window.location.search)));
     chipsRef.current?.scrollTo({ left: 0 });
   };
+  const openSheet = () => {
+    sheetFrom.current = search;
+    setSheet(true);
+  };
   const showResults = () => {
     setSheet(false);
     reportFilters(url);
@@ -413,17 +442,27 @@ export function CollectionGrid({
     if (!row) return;
     const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--header-h")) || 0;
     const top = row.getBoundingClientRect().top + window.scrollY - header - 8;
-    if (window.scrollY > top) window.scrollTo({ top });
+    if (window.scrollY <= top) return;
+    window.scrollTo({ top });
+    // The floating button that opened the sheet leaves with the scroll: focus moves to the row's Filter button, not the page.
+    window.requestAnimationFrame(() => filterRef.current?.focus({ preventScroll: true }));
   };
+  // X, the backdrop and Escape: once the sheet changed the grid, they land on the results like "Show N"; otherwise the page stays put.
+  const closeSheet = () => (search !== sheetFrom.current ? showResults() : setSheet(false));
   const seeAll = () => {
     apply({ h: [] });
     window.scrollTo({ top: 0 });
   };
 
   const plural = (n: number) => `${n} ${n === 1 ? "scent" : "scents"}`;
-  const heading = searching ? `Results for “${query.trim()}”` : selection ? "Selected scents" : title;
+  // Away from /shop a search keeps the page's name, so it reads as a search of this page.
+  const heading = searching ? (list === "all" ? `Results for “${query.trim()}”` : `${title} · “${query.trim()}”`) : selection ? "Selected scents" : title;
   const sortLabel = sorts.find((s) => s.key === url.sort)?.label;
-  const field = <SearchField value={query} onChange={setQuery} onSubmit={() => query.trim() && reportSearch(query, filtered.length)} dark={Boolean(banner)} />;
+  const field = <SearchField value={query} onChange={setQuery} onSubmit={() => query.trim() && reportSearch(query, results)} dark={Boolean(banner)} />;
+  // What a search on this page could not see: the page itself, or the filters on /shop.
+  const where = list === "all" ? "these filters" : scope;
+  // The count never reads as "0 scents" when the house has the scent.
+  const found = `${filtered.length} here · ${elsewhere.length} elsewhere`;
 
   return (
     <div>
@@ -437,7 +476,7 @@ export function CollectionGrid({
               <div className="mt-1 flex flex-wrap items-baseline gap-x-3">
                 <h1 className="serif text-[40px] font-semibold leading-none lg:text-[64px]">{title}</h1>
                 <p className="tnum text-[13px] text-linen/80" aria-live="polite">
-                  {searching ? `${plural(filtered.length)} for “${query.trim()}”` : plural(filtered.length)}
+                  {elsewhere.length ? found : searching ? `${plural(filtered.length)} for “${query.trim()}”` : plural(filtered.length)}
                 </p>
               </div>
               <p className="mt-3 hidden max-w-[44ch] text-[17px] leading-relaxed text-linen/80 lg:block">{descriptor}</p>
@@ -450,7 +489,7 @@ export function CollectionGrid({
           <div className="flex items-baseline justify-between gap-4">
             <h1 className="serif min-w-0 truncate py-0.5 text-[32px] font-semibold leading-[1.15] lg:text-[56px]">{heading}</h1>
             <p className="tnum shrink-0 text-[13px] text-ash" aria-live="polite">
-              {plural(filtered.length)}
+              {elsewhere.length ? found : plural(filtered.length)}
             </p>
           </div>
           {!searching && !selection && <p className="mt-2 hidden max-w-[56ch] text-[17px] leading-relaxed text-ash lg:block">{descriptor}</p>}
@@ -460,22 +499,23 @@ export function CollectionGrid({
 
       {hasRow && (
         <div ref={rowRef} className="mt-2 flex items-center gap-2 lg:mt-6 lg:items-start">
-          <button type="button" className="btn btn-secondary btn-sm shrink-0 gap-2 px-4" aria-haspopup="dialog" aria-expanded={sheet} onClick={() => setSheet(true)}>
+          <button ref={filterRef} type="button" className="btn btn-secondary btn-sm shrink-0 gap-2 px-4" aria-haspopup="dialog" aria-expanded={sheet} onClick={openSheet}>
             <FilterIcon />
             Filter{activeCount ? ` · ${activeCount}` : ""}
           </button>
           <div ref={chipsRef} className="no-scrollbar -mr-5 flex min-w-0 flex-1 gap-2 overflow-x-auto pr-5 lg:mr-0 lg:flex-wrap lg:pr-0" role="group" aria-label="Quick filters">
+            {/* Clear all leads, beside the Filter count it resets, so it is always on screen; then the applied chips, then those still on offer. */}
+            {activeCount > 1 && (
+              <button type="button" className="lnk lnk-quiet h-11 shrink-0 px-2 text-ash" onClick={() => apply({ line: null, family: null, mood: null })}>
+                Clear all
+              </button>
+            )}
             {quick.map((o) => (
               <button key={o.key} type="button" className="chip h-11 shrink-0 text-[13px]" aria-pressed={o.active} onClick={() => toggleChip(o)}>
                 {o.label}
                 {o.active ? <Icon name="close" size={14} /> : o.count !== undefined && <span className="tnum text-ash">{o.count}</span>}
               </button>
             ))}
-            {activeCount > 1 && (
-              <button type="button" className="lnk lnk-quiet h-11 shrink-0 px-2 text-ash" onClick={() => apply({ line: null, family: null, mood: null })}>
-                Clear all
-              </button>
-            )}
           </div>
           <label className="relative hidden h-11 shrink-0 cursor-pointer items-center gap-2 border border-dune bg-paper px-4 text-[13px] lg:flex">
             <span className="text-ash">Sort</span>
@@ -494,11 +534,31 @@ export function CollectionGrid({
 
       {shown.length === 0 ? (
         searching ? (
-          <NoMatch query={query.trim()} lineCounts={lineCounts} />
+          elsewhere.length ? (
+            // Not on this page is not "doesn't exist": show where it is in the house.
+            <div className="mt-6">
+              <p className="serif text-[26px] leading-tight">
+                “{query.trim()}” isn’t in {where}.
+              </p>
+              <p className="mt-1 text-[15px] text-ash">Elsewhere in the house:</p>
+              <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
+                {elsewhere.slice(0, 6).map((e, i) => (
+                  <ProductCard key={e.handle} entry={e} priority={i < 2} sizes={CARD_SIZES} list="search" index={i} badge={badges ? undefined : false} />
+                ))}
+              </div>
+              <div className="mt-12 flex justify-center">
+                <Link href={houseSearch} className="btn btn-secondary btn-block lg:w-auto">
+                  {elsewhere.length > 6 ? `See all ${plural(elsewhere.length)}` : "Search every scent"} for “{query.trim()}”
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <NoMatch query={query.trim()} lineCounts={lineCounts} />
+          )
         ) : (
           <div className="py-16 text-center">
             <p className="serif text-[26px]">Nothing matches these filters.</p>
-            <button type="button" className="btn btn-secondary mt-6" onClick={() => apply({ line: null, family: null, mood: null })}>
+            <button type="button" className="btn btn-secondary mt-6" onClick={() => apply({ line: null, family: null, mood: null, h: [] })}>
               Clear filters
             </button>
           </div>
@@ -524,6 +584,14 @@ export function CollectionGrid({
           </button>
         </div>
       )}
+      {shown.length > 0 && elsewhere.length > 0 && (
+        <div className="mt-12 flex justify-center">
+          <Link href={houseSearch} className="btn btn-secondary btn-block gap-2 lg:w-auto">
+            {elsewhere.length} more for “{query.trim()}” outside {where}
+            <Icon name="arrow-right" size={16} />
+          </Link>
+        </div>
+      )}
       {selection && (
         <div className="mt-12 flex justify-center">
           <button type="button" className="btn btn-block lg:w-auto" onClick={seeAll}>
@@ -534,14 +602,24 @@ export function CollectionGrid({
 
       {showFloat && (
         <div ref={floatRef} className="shop-float pointer-events-none fixed inset-x-0 bottom-0 z-[40] flex justify-center pb-[calc(16px+env(safe-area-inset-bottom))] lg:hidden">
-          <button type="button" aria-haspopup="dialog" onClick={() => setSheet(true)} className="bar-enter float-shadow pointer-events-auto flex h-12 items-center gap-2 rounded-full bg-night px-6 text-[13px] font-semibold tracking-[0.04em] text-linen">
+          <button type="button" aria-haspopup="dialog" onClick={openSheet} className="bar-enter float-shadow pointer-events-auto flex h-12 items-center gap-2 rounded-full bg-night px-6 text-[13px] font-semibold tracking-[0.04em] text-linen">
             <FilterIcon />
             Filter &amp; sort{activeCount ? ` · ${activeCount}` : ""}
           </button>
         </div>
       )}
 
-      {sheet && <FilterSheet groups={groups} count={filtered.length} canClear={activeCount > 0} onClear={() => apply({ line: null, family: null, mood: null })} onShow={showResults} onClose={() => setSheet(false)} />}
+      {sheet && (
+        <FilterSheet
+          groups={groups}
+          count={filtered.length}
+          // Clear resets the sort too, so it also works when a sort is all that was chosen.
+          canClear={activeCount > 0 || url.sort !== "recommended"}
+          onClear={() => apply({ line: null, family: null, mood: null, sort: "recommended" })}
+          onShow={showResults}
+          onClose={closeSheet}
+        />
+      )}
     </div>
   );
 }

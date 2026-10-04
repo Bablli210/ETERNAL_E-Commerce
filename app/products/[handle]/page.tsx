@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import snapshot from "@/content/catalogue.snapshot.json";
 import { site } from "@/content/site";
 import { families, lines } from "@/content/taxonomy";
 import { getRelated, getScent, getScentIndex, getCatalogue, toIndexEntry, type Scent } from "@/lib/catalogue";
 import { facts } from "@/lib/facts";
-import { sentenceCase } from "@/lib/format";
+import { sentenceCase, sizeLabel } from "@/lib/format";
 import { siteImage } from "@/lib/site-images";
 import { Gallery } from "@/components/product/Gallery";
 import { BuyBox } from "@/components/product/BuyBox";
@@ -35,9 +35,18 @@ const box = {
 const describe = (s: Scent) => (s.kind === "set" ? box.description : s.description.trim() || s.signature || site.description);
 const absolute = (url: string) => new URL(url, site.url).href;
 
+/** A mis-cased link from a bio or an ad (/products/WAYNE) lands on the product, not a 404. */
+async function findScent(handle: string): Promise<Scent | null> {
+  const scent = await getScent(handle);
+  if (scent) return scent;
+  const lower = handle.toLowerCase();
+  if (lower !== handle && (await getScent(lower))) permanentRedirect(`/products/${lower}`);
+  return null;
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }): Promise<Metadata> {
   const { handle } = await params;
-  const scent = await getScent(handle);
+  const scent = await findScent(handle);
   if (!scent) return {};
   const description = describe(scent).slice(0, 160);
   const image = scent.image?.url ?? siteImage("og-image");
@@ -45,14 +54,22 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
     title: scent.kind === "scent" && scent.line ? `${scent.title} — ${lineWithAudience(scent.line, ", ")}` : scent.title,
     description,
     alternates: { canonical: `/products/${scent.handle}` },
-    // The page's openGraph replaces the layout's, so it always carries an image for link previews in DMs and WhatsApp.
-    openGraph: { title: scent.title, description, images: image ? [{ url: image }] : undefined, type: "website" },
+    // The page's openGraph replaces the layout's, so it carries the brand, locale, address and an image for link previews in DMs and WhatsApp.
+    openGraph: {
+      siteName: site.name,
+      locale: "en_EG",
+      url: `/products/${scent.handle}`,
+      title: `${scent.title} — ${site.name}`,
+      description,
+      images: image ? [{ url: image }] : undefined,
+      type: "website",
+    },
   };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
-  const scent = await getScent(handle);
+  const scent = await findScent(handle);
   if (!scent) notFound();
   const isSet = scent.kind === "set";
   const [related, index, { live }, mysteryBox] = await Promise.all([getRelated(scent, 5), getScentIndex(), getCatalogue(), isSet ? null : getScent("mystery-box")]);
@@ -72,6 +89,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   ).filter(Boolean);
   const n = (key: string) => String(order.indexOf(key) + 1).padStart(2, "0");
   const faqIds = isSet ? ["longevity", "cod", "returns"] : [...(scent.inspiredBy ? ["originals"] : []), "longevity", "wrong", "cod", "returns", "choose"];
+  // The box sells vials, not a bottle: its returns question says so.
+  const faqQuestions = isSet ? { returns: "Can I return the box?" } : undefined;
 
   const crumbs = [
     { name: "Home", href: "/" },
@@ -85,7 +104,9 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       "@type": "Product",
       name: scent.title,
       description: describe(scent),
-      image: scent.images.map((i) => absolute(i.url)),
+      // An empty image list reads as a missing image to merchant listings; leave it out until the product has one.
+      ...(scent.images.length ? { image: scent.images.map((i) => absolute(i.url)) } : {}),
+      url: absolute(`/products/${scent.handle}`),
       brand: { "@type": "Brand", name: "eternal" },
       offers: scent.variants.map((v) => ({
         "@type": "Offer",
@@ -104,8 +125,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
     },
   ];
 
-  const sizeLabel = scent.bottle?.label ?? `${site.bottleSizeMl} ml`;
-  const size = isSet ? `${sizeLabel.replace(/\s*x\s*/i, " × ")} · eaux de parfum` : `${sizeLabel} eau de parfum`;
+  const bottleLabel = scent.bottle?.label ?? `${site.bottleSizeMl} ml`;
+  const size = isSet ? `${sizeLabel(bottleLabel)} · eaux de parfum` : `${bottleLabel} eau de parfum`;
   const eyebrow = line ? `${lineWithAudience(line)} · ${size}` : size;
   const chips = notes.map((note) => (
     <span key={note} className="inline-flex h-8 items-center rounded-full border border-dune bg-paper px-3 text-[12px] font-medium whitespace-nowrap">
@@ -115,7 +136,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      {/* "<" escaped, so a "</script>" inside a Shopify description cannot close the tag. */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       {scent.bottle && (
         <TrackView item={{ productId: entry.productId, variantId: scent.bottle.numericId, name: scent.title, price: parseFloat(scent.bottle.price.amount), variant: scent.bottle.label, category: scent.lineLabel }} />
       )}
@@ -144,6 +166,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
         data-hook={scent.inspiredBy || isSet ? "" : undefined}
         data-chips={chips.length ? "" : undefined}
         data-size={scent.sample ? "" : undefined}
+        data-long={scent.title.length > 14 ? "" : undefined}
       >
         <Gallery scent={scent} />
         <div className="mt-4 lg:sticky lg:top-28 lg:mt-0 lg:self-start">
@@ -206,7 +229,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       {order.includes("differs") && <Differs scent={scent} index={n("differs")} />}
       {order.includes("notes") && <NotesPyramid scent={scent} index={n("notes")} />}
       {order.includes("wear") && <WearIt scent={scent} index={n("wear")} />}
-      <FaqSection ids={faqIds} samples={Boolean(scent.sample)} index={n("faq")} />
+      <FaqSection ids={faqIds} questions={faqQuestions} samples={Boolean(scent.sample)} index={n("faq")} current={`/products/${scent.handle}`} />
       {pair && <Pairing scent={scent} pair={pair} index={n("pair")} />}
       {order.includes("tale") && <TaleExcerpt scent={scent} index={n("tale")} />}
 
