@@ -34,6 +34,18 @@ export class StorefrontError extends Error {
   }
 }
 
+type GqlError = { message?: string; extensions?: { code?: string } };
+
+/**
+ * A field the token's permissions do not cover (stock levels without the
+ * Headless channel's inventory permission) comes back null with an
+ * ACCESS_DENIED error, and the rest of the answer is complete. Only those
+ * errors are tolerated; anything else still fails the call.
+ */
+const onlyDenied = (errors: unknown) =>
+  Array.isArray(errors) && errors.length > 0 && (errors as GqlError[]).every((e) => e?.extensions?.code === "ACCESS_DENIED" || /^Access denied for \w+ field/.test(e?.message ?? ""));
+let deniedWarned = false;
+
 /** A GraphQL document whose operation is a mutation (cartCreate and the like). */
 const MUTATION = /^\s*mutation\b/m;
 
@@ -62,7 +74,13 @@ export async function storefront<T>(
   });
   if (!res.ok) throw new StorefrontError(`Storefront API ${res.status} ${res.statusText}`);
   const json = (await res.json()) as { data?: T; errors?: unknown };
-  if (json.errors) throw new StorefrontError("Storefront API returned errors", json.errors);
+  if (json.errors) {
+    if (!(json.data && onlyDenied(json.errors))) throw new StorefrontError("Storefront API returned errors", json.errors);
+    if (!deniedWarned) {
+      deniedWarned = true;
+      console.warn("[storefront] The token's permissions leave some fields out (null); the rest of the answer is used:", (json.errors as GqlError[]).map((e) => e.message).filter((m, i, a) => a.indexOf(m) === i));
+    }
+  }
   if (!json.data) throw new StorefrontError("Storefront API returned no data");
   return json.data;
 }
