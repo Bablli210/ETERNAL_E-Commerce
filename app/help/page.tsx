@@ -4,7 +4,7 @@ import Link from "next/link";
 import { faqEntries } from "@/content/faq";
 import { facts } from "@/lib/facts";
 import { getCatalogue } from "@/lib/catalogue";
-import { storeDomain } from "@/lib/shopify/client";
+import { checkoutDomain } from "@/lib/shopify/client";
 import { Accordion, Eyebrow } from "@/components/ui/Primitives";
 import { Icon } from "@/components/ui/Icon";
 import { FaqTrack } from "@/components/product/FaqTrack";
@@ -24,7 +24,7 @@ const sentence = (s: string) => `${s.replace(/[.\s]+$/, "")}.`;
 /** "Visa, Mastercard or cash on delivery". */
 const orList = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(", ")} or ${items.at(-1)}` : (items[0] ?? ""));
 
-const policy = (path: string) => `https://${storeDomain}/policies/${path}`;
+const policy = (path: string) => `https://${checkoutDomain}/policies/${path}`;
 
 /** A text link with a 44 px tap area; external ones open the store's own page. */
 function Way({ href, children }: { href: string; children: ReactNode }) {
@@ -119,7 +119,7 @@ export default async function HelpPage() {
       body: (
         <>
           <p>Your order number shows as soon as you place the order, and the confirmation goes to the email you give at checkout. To see where an order is, sign in to your account.</p>
-          <Way href={`https://${storeDomain}/account`}>Sign in to your account</Way>
+          <Way href={`https://${checkoutDomain}/account`}>Sign in to your account</Way>
         </>
       ),
     },

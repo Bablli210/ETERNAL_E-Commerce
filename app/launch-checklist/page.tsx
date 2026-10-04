@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getCatalogue } from "@/lib/catalogue";
-import { pendingFacts } from "@/lib/facts";
+import { isConfirmed, pendingFacts } from "@/lib/facts";
+import { house } from "@/content/house";
 import { siteImage } from "@/lib/site-images";
 import { allTales } from "@/content/tales";
 import { Eyebrow } from "@/components/ui/Primitives";
@@ -20,7 +21,12 @@ const SITE_IMAGES = ["home-hero", "home-hero-mobile", "line-eterna", "line-etern
  */
 export default async function LaunchChecklist() {
   const { all } = await getCatalogue();
-  const facts = pendingFacts();
+  const facts = [
+    ...pendingFacts(),
+    ...Object.entries(house)
+      .filter(([, v]) => !isConfirmed(v))
+      .map(([key, value]) => ({ key: `house.${key}`, value, note: "In content/house.ts. The founder section on /house shows once both lines are real and house-founder is a photograph of the founder." })),
+  ];
   const tales = allTales.filter((t) => !t.complete);
   const products = all
     .map((s) => ({
@@ -45,7 +51,7 @@ export default async function LaunchChecklist() {
       <h1 className="display-l mt-3">Launch checklist</h1>
       <p className="mt-4 text-ash">Each item below is hidden on the site until it exists, so customers never see a placeholder. Supply it and it switches on by itself.</p>
 
-      <Section title={`Facts to confirm (${facts.length})`} note="In content/site.ts. Replace the bracketed text with the confirmed wording.">
+      <Section title={`Facts to confirm (${facts.length})`} note="In content/site.ts (and content/house.ts). Replace the bracketed text with the confirmed wording.">
         {facts.map((f) => (
           <li key={f.key + f.value}>
             <code className="text-[13px]">{f.key}</code> — <span className="text-ash">{f.value}</span>

@@ -76,7 +76,7 @@ export const footerColumns = [
       { label: "Unisex · eternal", href: "/shop/unisex" },
       { label: "Mystery box", href: "/products/mystery-box" },
       { label: "Find your scent", href: "/finder" },
-      { label: "Bestsellers", href: "/shop/bestsellers" },
+      { label: "Where to start", href: "/shop/bestsellers" },
       { label: "New", href: "/shop/new" },
     ],
   },

@@ -59,7 +59,7 @@ export type Scent = {
   alsoTry: string[];
   /** Earned from real sales only; see BESTSELLER_MIN_UNITS. */
   isBestseller: boolean;
-  /** The house's own pick (`bestseller: true` in content/scents.ts): an order for "Where to start", never shown as a sales claim. */
+  /** The house's own pick (`pick: true` in content/scents.ts): an order for "Where to start", never shown as a sales claim. */
   isPick: boolean;
   isNew: boolean;
   lowStock: number | null;
@@ -301,7 +301,7 @@ function enrich(p: ShopifyProduct): Scent {
         : ed.wear ?? null,
     alsoTry: ed.alsoTry ?? [],
     isBestseller,
-    isPick: Boolean(ed.bestseller),
+    isPick: Boolean(ed.pick),
     isNew: Date.parse(p.createdAt) >= NEW_SINCE && kind === "scent",
     lowStock: typeof lowStockQty === "number" && lowStockQty > 0 && lowStockQty <= 5 ? lowStockQty : null,
   };

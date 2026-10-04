@@ -36,7 +36,7 @@ export function RecentlyViewed({ current, index }: { current: string; index: Sce
                 className="group flex items-center gap-3"
                 onClick={() => e.bottle && track({ name: "select_item", list: "recently_viewed", index: i, item: { productId: e.productId, variantId: e.bottle.numericId, name: e.title, price: parseFloat(e.price.amount) } })}
               >
-                <ProductImage src={e.image} alt="" label="" world={e.world} sizes="68px" className="h-[84px] w-[68px] shrink-0" />
+                <ProductImage src={e.image} alt="" world={e.world} sizes="68px" className="h-[84px] w-[68px] shrink-0" />
                 <div className="min-w-0">
                   <p className="display-m !text-[18px] group-hover:text-sea">{e.title}</p>
                   <Price money={e.price} className="text-[13px] text-ash" />

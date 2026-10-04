@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { shopifyConfigured, storeDomain } from "@/lib/shopify/client";
+import { checkoutDomain, shopifyConfigured } from "@/lib/shopify/client";
 import { createCheckout } from "@/lib/shopify/queries";
 import { numericId } from "@/lib/format";
 
@@ -61,6 +61,6 @@ export async function POST(req: Request) {
   if (source) query.set("ref", source);
   if (discount) query.set("discount", discount);
   const qs = query.toString();
-  const permalink = `https://${storeDomain}/cart/${lines.map((l) => `${numericId(l.variantId)}:${l.quantity}`).join(",")}${qs ? `?${qs}` : ""}`;
+  const permalink = `https://${checkoutDomain}/cart/${lines.map((l) => `${numericId(l.variantId)}:${l.quantity}`).join(",")}${qs ? `?${qs}` : ""}`;
   return NextResponse.json({ url: permalink, mode: "permalink" });
 }

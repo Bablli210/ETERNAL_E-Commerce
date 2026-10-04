@@ -131,7 +131,7 @@ function PromiseList({ entry, kind }: { entry: ScentIndexEntry; kind: "bottle" |
   if (included || facts.deliveryTime || facts.deliveryCutoff) {
     rows.push({ key: "delivery", icon: "truck", text: included ? "Delivery included" : "Delivery", detail: [facts.deliveryTime, facts.deliveryCutoff].filter(Boolean).join(". "), href: "/help#delivery" });
   }
-  rows.push({ key: "cod", icon: "shield", text: "Cash on delivery", detail: [facts.codFee, otherMethods.length ? `or ${otherMethods.join(", ")}` : null].filter(Boolean).join(" · "), href: "/help#delivery" });
+  rows.push({ key: "cod", icon: "shield", text: "Cash on delivery", detail: [facts.codFee, otherMethods.length ? `or ${otherMethods.join(", ")}` : null].filter(Boolean).join(" · "), href: "/help#cod" });
   if (facts.freeSamples) rows.push({ key: "samples", icon: "plus", text: facts.freeSamples });
   if (facts.returnsPolicy) rows.push({ key: "returns", icon: "refresh", text: facts.returnsPolicy, detail: facts.returnsWindow, href: "/help#returns" });
   if (facts.whatsapp) {

@@ -3,7 +3,7 @@ import { Accordion, Eyebrow, Meter, Price, SectionHead } from "@/components/ui/P
 import { Figure } from "@/components/ui/Figure";
 import { Icon } from "@/components/ui/Icon";
 import { toIndexEntry, type Scent } from "@/lib/catalogue";
-import { faq } from "@/content/faq";
+import { faqEntries } from "@/content/faq";
 import { taleBySlug } from "@/content/tales";
 import { families } from "@/content/taxonomy";
 import { confirmed } from "@/lib/facts";
@@ -113,8 +113,28 @@ export function WearIt({ scent, index }: { scent: Scent; index: string }) {
   );
 }
 
-export function FaqSection({ ids, title = "Good to know", index }: { ids: string[]; title?: string; index?: string }) {
-  const items = faq.filter((f) => ids.includes(f.id)).map((f) => ({ id: f.id, q: f.q, a: f.a }));
+export function FaqSection({ ids, samples = false, title = "Good to know", index }: { ids: string[]; samples?: boolean; title?: string; index?: string }) {
+  const items = faqEntries({ samples })
+    .filter((f) => ids.includes(f.id))
+    .sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id))
+    .map((f) => ({
+      id: f.id,
+      q: f.q,
+      a: f.links?.length ? (
+        <>
+          {f.a}
+          <span className="mt-3 flex flex-wrap gap-x-5 gap-y-1">
+            {f.links.map((l) => (
+              <Link key={l.href} href={l.href} className={`lnk ${tapArea}`}>
+                {l.label}
+              </Link>
+            ))}
+          </span>
+        </>
+      ) : (
+        f.a
+      ),
+    }));
   if (!items.length) return null;
   return (
     <section className="section border-t border-dune">

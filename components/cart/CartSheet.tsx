@@ -160,7 +160,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
     if (!cart.lines.some((l) => l.kind === "bottle")) {
       const sampled = cart.lines.filter((l) => l.kind === "sample").map((l) => byHandle.get(l.handle));
       const viewed = recent.map((h) => byHandle.get(h));
-      const e = [...sampled, ...viewed].find(ok) ?? index.find((x) => ok(x) && x.image && x.isBestseller) ?? index.find((x) => ok(x) && x.image);
+      const e = [...sampled, ...viewed].find(ok) ?? index.find((x) => ok(x) && x.image && (x.isBestseller || x.isPick)) ?? index.find((x) => ok(x) && x.image);
       if (!e?.bottle) return null;
       return { key: e.handle, eyebrow: "Make it a bottle", entry: e, variant: e.bottle, note: [e.bottle.label, lineName(e.lineLabel)].filter(Boolean).join(" · "), image: e.image };
     }
@@ -175,7 +175,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
     const line = first ? byHandle.get(first.handle)?.line : null;
     if (!line) return null;
     const sameLine = (x: ScentIndexEntry) => ok(x) && x.line === line && !handles.has(x.handle) && Boolean(x.image);
-    const e = index.find((x) => sameLine(x) && x.isBestseller) ?? index.find(sameLine);
+    const e = index.find((x) => sameLine(x) && (x.isBestseller || x.isPick)) ?? index.find(sameLine);
     if (!e?.bottle) return null;
     return { key: e.handle, eyebrow: `More from ${lineName(e.lineLabel)}`, entry: e, variant: e.bottle, note: [e.notesShort.slice(0, 3).join(", "), e.bottle.label].filter(Boolean).join(" · "), image: e.image };
   }, [quiet, cart.lines, spent, byHandle, recent, index, box, boxImage]);

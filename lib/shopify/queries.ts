@@ -22,6 +22,8 @@ export const productMetafieldKeys = [
   "time_of_day",
   "scent_family",
   "mood_words",
+  /** Units sold in the last 30 days, written by a daily job; the only source of the Bestseller badge. */
+  "units_sold_30d",
 ] as const;
 
 const identifiers = productMetafieldKeys.map((key) => `{namespace: "custom", key: "${key}"}`).join(", ");
@@ -89,20 +91,6 @@ export async function fetchAllProducts(): Promise<ShopifyProduct[]> {
     after = data.products.pageInfo.hasNextPage ? data.products.pageInfo.endCursor : null;
   } while (after);
   return out;
-}
-
-/** Handles in Shopify's best-selling order, for the bestsellers collection. */
-export async function fetchBestsellingHandles(first = 12): Promise<string[]> {
-  const data: { products: { nodes: { handle: string }[] } } = await storefront(
-    /* GraphQL */ `
-      query Bestselling($first: Int!) {
-        products(first: $first, sortKey: BEST_SELLING) { nodes { handle } }
-      }
-    `,
-    { first },
-    { tags: ["products"] },
-  );
-  return data.products.nodes.map((n) => n.handle);
 }
 
 export type CheckoutLine = { merchandiseId: string; quantity: number };

@@ -1,5 +1,5 @@
 import type { ScentIndexEntry } from "@/lib/catalogue";
-import { storeDomain } from "@/lib/shopify/client";
+import { checkoutDomain } from "@/lib/shopify/client";
 import { siteImage } from "@/lib/site-images";
 import { CartSheet } from "./CartSheet";
 
@@ -9,5 +9,5 @@ import { CartSheet } from "./CartSheet";
  * mystery box still for a box line that has no Shopify image.
  */
 export function CartDrawer({ index }: { index: ScentIndexEntry[] }) {
-  return <CartSheet index={index} checkoutOrigin={`https://${storeDomain}`} boxImage={siteImage(["products/mystery-box", "mystery-box"])} />;
+  return <CartSheet index={index} checkoutOrigin={`https://${checkoutDomain}`} boxImage={siteImage(["products/mystery-box", "mystery-box"])} />;
 }

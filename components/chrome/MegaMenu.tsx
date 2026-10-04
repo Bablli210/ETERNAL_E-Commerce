@@ -29,7 +29,7 @@ const lists = [
     links: [
       { label: "Find your scent", href: "/finder" },
       { label: `Mystery box · 3 × ${site.sampleSizeMl} ml`, href: "/products/mystery-box" },
-      { label: "Bestsellers", href: "/shop/bestsellers" },
+      { label: "Where to start", href: "/shop/bestsellers" },
       { label: "New arrivals", href: "/shop/new" },
     ],
   },

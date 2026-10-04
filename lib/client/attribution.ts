@@ -1,5 +1,7 @@
 "use client";
 
+import { QUIZ_PROFILE_KEY } from "@/lib/finder";
+
 /**
  * Where a visitor came from, kept so the order can be attributed to the ad
  * that sent them. The landing URL's UTM and click-id parameters are stored
@@ -58,6 +60,13 @@ export function lastTouch() {
 export function checkoutAttributes(): { key: string; value: string }[] {
   const out: { key: string; value: string }[] = [];
   // Meta's _fbp/_fbc and GA's client id are read from cookies by the checkout route itself.
+  // The finder's answers, so orders can be read by taste profile.
+  try {
+    const quiz = window.localStorage.getItem(QUIZ_PROFILE_KEY);
+    if (quiz) out.push({ key: "quiz_profile", value: quiz.slice(0, 200) });
+  } catch {
+    /* blocked storage */
+  }
   if (/Instagram|FBAN|FBAV/i.test(navigator.userAgent)) out.push({ key: "in_app", value: /Instagram/i.test(navigator.userAgent) ? "instagram" : "facebook" });
   const last = lastTouch();
   const first = read(FIRST, 30 * DAY);

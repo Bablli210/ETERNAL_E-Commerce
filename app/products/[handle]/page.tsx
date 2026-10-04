@@ -71,7 +71,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       : [sectionReady.differs(scent) && "differs", hasNotes && "notes", sectionReady.wear(scent) && "wear", "faq", pair && "pair", sectionReady.tale(scent) && "tale"]
   ).filter(Boolean);
   const n = (key: string) => String(order.indexOf(key) + 1).padStart(2, "0");
-  const faqIds = isSet ? ["longevity", "cod", "returns"] : ["longevity", ...(scent.inspiredBy ? ["originals"] : []), "cod", "returns", ...(scent.sample ? ["wrong"] : [])];
+  const faqIds = isSet ? ["longevity", "cod", "returns"] : [...(scent.inspiredBy ? ["originals"] : []), "longevity", "wrong", "cod", "returns", "choose"];
 
   const crumbs = [
     { name: "Home", href: "/" },
@@ -206,7 +206,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       {order.includes("differs") && <Differs scent={scent} index={n("differs")} />}
       {order.includes("notes") && <NotesPyramid scent={scent} index={n("notes")} />}
       {order.includes("wear") && <WearIt scent={scent} index={n("wear")} />}
-      <FaqSection ids={faqIds} index={n("faq")} />
+      <FaqSection ids={faqIds} samples={Boolean(scent.sample)} index={n("faq")} />
       {pair && <Pairing scent={scent} pair={pair} index={n("pair")} />}
       {order.includes("tale") && <TaleExcerpt scent={scent} index={n("tale")} />}
 

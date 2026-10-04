@@ -29,13 +29,18 @@ export type ScentContent = {
   wear?: { time?: string; season?: string; occasion?: string; projection?: string };
   tale?: string; // slug in content/tales.ts
   alsoTry?: string[]; // handles
-  /** Only from real sales (playbook 5.6), never by hand; the live catalogue uses Shopify's best-selling order. */
-  bestseller?: boolean;
+  /**
+   * The house's own pick: orders "Where to start" and the menu's picks. It is
+   * an editorial choice, never shown as a sales claim; a Bestseller badge comes
+   * only from real sales (playbook 5.6).
+   */
+  pick?: boolean;
   featured?: boolean;
 };
 
 export const scents: Record<string, ScentContent> = {
   "shadow-of-the-sea": {
+    pick: true,
     inspiredBy: "Acqua di Giò Elixir",
     comparison:
       "Ours keeps the bergamot opening but leans into the incense and resin, so the drydown is smokier and sits closer to the skin. [Replace with the perfumer’s note.]",
@@ -55,10 +60,12 @@ export const scents: Record<string, ScentContent> = {
     featured: true,
   },
   destiny: {
+    pick: true,
     colorWorld: { bg: "#A9C4E4", accent: "#3F6FA8", dark: false, source: "packshot" },
     notesShort: ["Orange blossom", "tuberose", "vanilla"],
   },
   "caribbean-punch": {
+    pick: true,
     colorWorld: { bg: "#F0E3CC", accent: "#D9843A", dark: false, source: "packshot" },
     notesShort: ["Mango", "coconut", "sandalwood"],
   },
@@ -70,6 +77,7 @@ export const scents: Record<string, ScentContent> = {
     tale: "forbidden-apple",
   },
   wayne: {
+    pick: true,
     signature: "Don’t be the man she notices. Be the man she asks about.",
     colorWorld: { bg: "#2B2A28", accent: "#B97A2B", dark: true, source: "proposed" },
     notesShort: ["Bergamot", "lavender", "incense"],
@@ -82,11 +90,13 @@ export const scents: Record<string, ScentContent> = {
     tale: "mercury",
   },
   sapphire: {
+    pick: true,
     inspiredBy: "Blue Talisman",
     colorWorld: { bg: "#1B3F8F", accent: "#DCE6F5", dark: true, source: "proposed" },
     notesShort: ["Pear", "ginger", "white musk"],
   },
   "enzo-1898": {
+    pick: true,
     signature: "He looks like money was never the problem.",
     colorWorld: { bg: "#2F5A4E", accent: "#6B3A2B", dark: true, source: "proposed" },
     notesShort: ["Mandarin", "cedarwood", "white musk"],
@@ -105,4 +115,6 @@ export const scents: Record<string, ScentContent> = {
   carbon: { notesShort: ["Bergamot", "Sichuan pepper", "cedar"] },
   /** Three scents in one box: no line and no notes of its own. */
   "mystery-box": { notesShort: [] },
+  "hundred-whispers": { pick: true },
+  "vintage-vanilla": { pick: true },
 };
