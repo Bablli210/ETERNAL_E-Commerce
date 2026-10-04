@@ -6,6 +6,30 @@ html[data-ad] .ad-drop { display: none; }
 /* Ad landings and in-app visits read the headline at once: no word-by-word rise (playbook 7.1, 0 ms of curtain or fade). */
 html[data-ad] .hero-word { animation: none; opacity: 1; transform: none; }
 
+/*
+ * The proof marquee (ProofStrip), phones and tablets: two copies of the row
+ * slide left by one copy's width, about 35 px a second, and hold still under a
+ * finger or the pointer. With reduced motion, and on desktop where the row
+ * fits, it is one still row that scrolls by hand if it must.
+ */
+@keyframes proof-slide { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: no-preference) and (max-width: 1023.98px) {
+  html:not([data-motion="off"]) .proof-track { animation: proof-slide 32s linear infinite; }
+  html:not([data-motion="off"]) .proof:is(:hover, :active, :focus-within) .proof-track { animation-play-state: paused; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .proof { overflow-x: auto; }
+  .proof-set[aria-hidden] { display: none; }
+}
+html[data-motion="off"] .proof { overflow-x: auto; }
+html[data-motion="off"] .proof-set[aria-hidden] { display: none; }
+@media (min-width: 1024px) {
+  .proof { overflow-x: auto; }
+  .proof-track { margin-inline: auto; }
+  .proof-set[aria-hidden] { display: none; }
+  .proof-set li:last-child .proof-dot { display: none; }
+}
+
 /* The lines (LineShowcase): the hovered or focused name in full ink, its still on the right. */
 @layer components {
   .line-name { color: var(--color-stone); }

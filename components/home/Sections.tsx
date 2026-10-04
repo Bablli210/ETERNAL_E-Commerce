@@ -69,8 +69,9 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
     samplePrice && `${ml(site.sampleSizeMl)} from ${formatMoney(samplePrice)}`,
     facts.freeSamples,
   ].filter(Boolean);
+  // Phone: the hero and the proof marquee under it (48 px and its hairline) fill the first screen exactly; nothing of the next section shows.
   return (
-    <ParallaxSection id="hero" className="grain relative grid min-h-[75svh] grid-rows-[1fr_auto] overflow-hidden text-linen lg:min-h-[92svh]" style={{ backgroundColor: bg }}>
+    <ParallaxSection id="hero" className="grain relative grid min-h-[calc(100svh-49px)] grid-rows-[1fr_auto] overflow-hidden text-linen lg:min-h-[92svh]" style={{ backgroundColor: bg }}>
       {/* Phone: the still's box hangs off the section, not off the copy's grid row, so it keeps its size while the fonts
           arrive and the copy reflows. */}
       <div data-hero={hero.handle} className="hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3">
@@ -135,7 +136,13 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
   );
 }
 
-/** One row of confirmed facts. Each unconfirmed fact simply is not there; nothing waits in brackets. */
+/**
+ * The confirmed facts as a marquee along the foot of the first screen. Each
+ * unconfirmed fact simply is not there; nothing waits in brackets. The row is
+ * written twice and slides by one copy's width, so the loop has no seam; the
+ * copy is hidden from screen readers. It stands still for reduced motion
+ * (then it scrolls by hand) and on desktop, where the one row fits.
+ */
 export function ProofStrip() {
   const items = [
     `Eau de parfum, ${ml(site.bottleSizeMl)}`,
@@ -145,20 +152,24 @@ export function ProofStrip() {
     facts.returnsPolicy,
     facts.longevityClaim,
   ].filter((v): v is string => Boolean(v));
+  const row = (copy: boolean) => (
+    <ul className="proof-set flex shrink-0 items-center" aria-hidden={copy || undefined}>
+      {items.map((f) => (
+        <li key={f} className="flex h-12 items-center whitespace-nowrap">
+          {f}
+          <span aria-hidden="true" className="proof-dot px-4 text-stone">
+            ·
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
   return (
-    <section id="proof" aria-label="Why order from eternal" className="no-scrollbar overflow-x-auto border-b border-dune bg-paper">
-      <ul className="mx-auto flex w-max items-center px-5 text-[13px] font-medium">
-        {items.map((f, i) => (
-          <li key={f} className="flex h-12 items-center whitespace-nowrap">
-            {i > 0 && (
-              <span aria-hidden="true" className="px-3 text-stone">
-                ·
-              </span>
-            )}
-            {f}
-          </li>
-        ))}
-      </ul>
+    <section id="proof" aria-label="Why order from eternal" className="proof no-scrollbar overflow-hidden border-b border-dune bg-paper text-[13px] font-medium">
+      <div className="proof-track flex w-max">
+        {row(false)}
+        {row(true)}
+      </div>
     </section>
   );
 }
@@ -167,7 +178,7 @@ export function ProofStrip() {
  * The three lines: their names on the left, one high-noon still on the right
  * that turns to whichever line is hovered (LineShowcase). On a phone the
  * section carries no visible heading, so the names sit straight under the
- * proof strip and each is one tap from its line.
+ * proof marquee and each is one tap from its line.
  */
 export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; total: number }) {
   const items: LineShowcaseItem[] = LINE_ORDER.map((k) => ({
