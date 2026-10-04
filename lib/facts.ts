@@ -34,6 +34,8 @@ export const facts = {
   companyRegistration: confirmed(site.companyRegistration),
   taxId: confirmed(site.taxId),
   address: confirmed(site.address),
+  origin: confirmed(site.origin),
+  contactEmail: confirmed(site.contactEmail),
 } as const;
 
 export type PendingFact = { key: string; value: string; note: string };
@@ -52,6 +54,8 @@ const NOTES: Record<string, string> = {
   deliveryCutoff: "The courier's daily cut-off, e.g. \"Order by 2 pm for next-day delivery in Cairo & Giza\".",
   whatsappHours: "When WhatsApp is answered.",
   legalName: "Shown in the footer with the registration number, tax id and address.",
+  origin: "Where the bottles are filled, only if literally true (playbook 4.7), e.g. \"Bottled in Cairo\".",
+  contactEmail: "The address customers can write to; /help offers it under Talk to us.",
 };
 
 /** Every site fact still in brackets, for /launch-checklist and the build check. */

@@ -110,6 +110,14 @@ same checks Vercel does.
 Without the token the site keeps running on the snapshot; refresh it by re-exporting the
 products into `content/catalogue.snapshot.json`.
 
+3. Point the order status page's **Continue shopping** link at `https://<site>/?ordered=1`:
+   it empties the bag of the order just placed.
+4. The footer's newsletter form posts through `/api/join` to the store's customer form, and
+   only says "You're on the list" (and sends a Lead) when Shopify accepts the email. Send one
+   test sign-up after launch and check it arrives as a subscriber tagged `newsletter`.
+5. `/launch-checklist` shows which keys are set (pixel, GA4, Storefront token, checkout
+   domain) and what is still missing.
+
 ## What the boards need from Shopify next
 
 - **5 ml sample variants** on every scent (a `Size` option with `55 ml` and `5 ml`). The

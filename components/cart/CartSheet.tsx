@@ -6,14 +6,15 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
 import { preconnect } from "react-dom";
 import { MAX_QTY, sizeLabel, useCart, type CartLine } from "./CartProvider";
-import { inertOutside } from "./inertOutside";
+import { inertOutside } from "@/lib/client/inertOutside";
 import { Icon } from "@/components/ui/Icon";
 import { Mark } from "@/components/ui/Wordmark";
 import { Price } from "@/components/ui/Primitives";
 import { formatMoney } from "@/lib/format";
 import { facts } from "@/lib/facts";
 import type { ScentIndexEntry } from "@/lib/catalogue";
-import type { LineKey } from "@/content/taxonomy";
+import { lines, type LineKey } from "@/content/taxonomy";
+import { lineWithAudience } from "@/components/product/line";
 import { parseJSON, RECENT_KEY, useStoredRaw } from "@/lib/client/storage";
 import { motionAllowed } from "@/lib/motion";
 import { track } from "@/lib/client/analytics";
@@ -22,8 +23,7 @@ import { discountCode } from "@/lib/client/attribution";
 const BOX = "mystery-box";
 
 /** The three line names differ by one letter, so the audience always travels with them. */
-const AUDIENCE: Record<LineKey, string> = { eterna: "for her", eterno: "for him", eternal: "for both" };
-const lineName = (label: string | null) => (label && label in AUDIENCE ? `${label}, ${AUDIENCE[label as LineKey]}` : label);
+const lineName = (label: string | null) => (label && label in lines ? lineWithAudience(label as LineKey) : label);
 
 /**
  * The confirmed payment methods, listed once under Checkout. Above it, only a

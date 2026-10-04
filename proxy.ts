@@ -23,7 +23,15 @@ export function proxy(request: NextRequest) {
   });
   if (!fbclid && !utm.length) return NextResponse.next();
 
-  const res = NextResponse.next();
+  // A product link typed with capitals in an ad lands on the lowercase page with its campaign intact
+  // (the page's own redirect cannot keep the query).
+  const lower = url.pathname.startsWith("/products/") ? url.pathname.toLowerCase() : url.pathname;
+  let res = NextResponse.next();
+  if (lower !== url.pathname) {
+    const to = url.clone();
+    to.pathname = lower;
+    res = NextResponse.redirect(to, 308);
+  }
   const base = { path: "/", sameSite: "lax" as const, secure: url.protocol === "https:", domain: process.env.COOKIE_DOMAIN || undefined };
   if (fbclid) {
     // Keep the original timestamp when the same click lands again.

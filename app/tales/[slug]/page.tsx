@@ -136,9 +136,9 @@ function BuyCard({ entry, product, box }: { entry: ScentIndexEntry; product: Bag
         </div>
       </Link>
       <div className="mt-5 flex flex-col gap-2">
-        {entry.bottle && <AddToBagButton variant={entry.bottle} product={product} block label={`Add ${entry.bottle.label} · ${formatMoney(entry.bottle.price)}`} />}
+        {entry.bottle && <AddToBagButton variant={entry.bottle} product={product} source="tale" block label={`Add ${entry.bottle.label} · ${formatMoney(entry.bottle.price)}`} />}
         {entry.sample ? (
-          <AddToBagButton variant={entry.sample} product={product} kind="sample" look="secondary" block label={`Try ${entry.sample.label} · ${formatMoney(entry.sample.price)}`} />
+          <AddToBagButton variant={entry.sample} product={product} source="tale" kind="sample" look="secondary" block label={`Try ${entry.sample.label} · ${formatMoney(entry.sample.price)}`} />
         ) : (
           box?.bottle && (
             <Link href={`/products/${box.handle}`} className="flex min-h-12 items-center gap-3 bg-linen px-4 py-3 text-[14px] hover:text-sea">

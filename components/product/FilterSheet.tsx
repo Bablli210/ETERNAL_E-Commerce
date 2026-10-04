@@ -17,7 +17,7 @@ export type FilterGroup = { title: string; options: FilterOption[] };
 export function FilterSheet({ groups, count, canClear, onClear, onShow, onClose }: { groups: FilterGroup[]; count: number; canClear: boolean; onClear: () => void; onShow: () => void; onClose: () => void }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
-  useModal(dialogRef, closeRef);
+  useModal(dialogRef, closeRef, onClose);
 
   const onEscape = useEffectEvent((e: KeyboardEvent) => e.key === "Escape" && onClose());
   useEffect(() => {

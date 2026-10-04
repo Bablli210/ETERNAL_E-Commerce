@@ -274,6 +274,7 @@ export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryB
               </div>
               <div className="col-span-2 mt-3 flex flex-col lg:mt-6">
                 <AddToBagButton
+                  source="home"
                   variant={box.bottle}
                   product={{ productId: box.productId, handle: box.handle, title: box.title, image: box.image, lineLabel: box.lineLabel, world: box.world }}
                   kind="set"

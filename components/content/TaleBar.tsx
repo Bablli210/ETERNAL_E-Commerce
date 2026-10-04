@@ -60,7 +60,7 @@ export function TaleBar({ titleId, cardId, variant, product, note }: { titleId: 
           <p className="truncate font-serif text-[20px] font-semibold leading-tight">{product.title}</p>
           <p className="truncate text-[12px] text-ash">{note}</p>
         </Link>
-        <AddToBagButton variant={variant} product={product} className="h-12 shrink-0 px-5" label="Add to bag" />
+        <AddToBagButton variant={variant} product={product} source="tale" className="h-12 shrink-0 px-5" label="Add to bag" />
       </div>
     </div>
   );

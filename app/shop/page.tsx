@@ -15,7 +15,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
   const base: Metadata = { alternates: { canonical: "/shop" } };
   if (s.q) return { ...base, title: `Results for “${s.q}”`, robots: { index: false, follow: true } };
   if (s.h.length) return { ...base, title: "Selected scents", robots: { index: false, follow: true } };
-  return { ...base, title: "Shop all scents", description: "Every scent in the house, across the three lines: eterna for her, eterno for him and eternal for both." };
+  return { ...base, title: "Shop all scents", description: "Every scent in the house, across the three lines: eterna for her, eterno for him and eternal unisex." };
 }
 
 export default async function ShopPage({ searchParams }: { searchParams: SearchParams }) {

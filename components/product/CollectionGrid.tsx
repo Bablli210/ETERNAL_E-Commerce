@@ -151,7 +151,7 @@ function BoxTile({ box }: { box: ScentIndexEntry }) {
           Three {site.sampleSizeMl} ml eaux de parfum, chosen by the house. Wear them, then choose your bottle.
         </p>
         <div className="mt-auto flex flex-col pt-4 lg:max-w-[280px]">
-          <AddToBagButton variant={box.bottle} product={product} kind="set" size="sm" block label="Add the box" />
+          <AddToBagButton variant={box.bottle} product={product} source="grid_box" kind="set" size="sm" block label="Add the box" />
           <Link href={`/products/${box.handle}`} className="mt-1 flex min-h-11 items-center self-start">
             <span className="lnk">What’s inside</span>
           </Link>

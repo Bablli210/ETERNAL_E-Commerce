@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, type MouseEvent, type RefObject } from "react";
+import { inertOutside } from "@/lib/client/inertOutside";
 
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
@@ -32,24 +33,6 @@ export function afterPanelBack(fn: () => void) {
   };
   window.addEventListener("popstate", run);
   const fallback = window.setTimeout(run, 500);
-}
-
-/**
- * Makes everything outside the dialog inert, so Tab, a screen reader's swipe
- * cursor and taps stay inside it. An element marked data-modal-keep stays
- * live: the search panel's backdrop, which sits outside the panel.
- */
-function inertOutside(el: HTMLElement) {
-  const changed: HTMLElement[] = [];
-  for (let node: HTMLElement | null = el; node && node !== document.body; node = node.parentElement) {
-    for (const sibling of Array.from(node.parentElement?.children ?? [])) {
-      if (sibling !== node && sibling instanceof HTMLElement && !sibling.inert && !sibling.hasAttribute("data-modal-keep")) {
-        sibling.inert = true;
-        changed.push(sibling);
-      }
-    }
-  }
-  return () => changed.forEach((s) => (s.inert = false));
 }
 
 /**

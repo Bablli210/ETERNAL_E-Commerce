@@ -51,8 +51,11 @@ function parseItems(raw: string, index: ScentIndexEntry[]): { lines: CartLine[];
  * and the way out of Instagram's in-app browser, whose storage Safari and
  * Chrome cannot see. The bag opens over a short page that leads on to /shop.
  */
-export default async function BagPage({ searchParams }: { searchParams: Promise<{ items?: string | string[] }> }) {
-  const { items } = await searchParams;
+export default async function BagPage({ searchParams }: { searchParams: Promise<{ items?: string | string[]; source?: string | string[] }> }) {
+  const { items, source } = await searchParams;
+  // A buy button tapped before the page could run its script arrives here with its source (pdp, sticky, pairing).
+  const from = [source].flat()[0];
+  const addSource = from && /^[a-z_]{2,24}$/.test(from) ? from : undefined;
   const { lines, missed } = parseItems([items ?? []].flat().join(","), await getScentIndex());
   const gone = missed === 1 ? "One scent from the link isn't available." : missed > 1 ? `${missed} scents from the link aren't available.` : "";
   // Only a link whose scents all missed says so; plain /bag, with no items, just opens the bag as it is.
@@ -64,7 +67,7 @@ export default async function BagPage({ searchParams }: { searchParams: Promise<
 
   return (
     <section className="wrap flex min-h-[60vh] flex-col items-center justify-center py-20 text-center">
-      <BagRestore lines={lines} />
+      <BagRestore lines={lines} source={addSource} />
       <Mark size={72} className="text-night" />
       <h1 className="display-l mt-8">{lines.length ? "Your bag is ready." : "Your bag"}</h1>
       <p className="mt-3 max-w-[38ch] text-[16px] leading-relaxed text-ash">{copy}</p>

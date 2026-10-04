@@ -11,13 +11,13 @@ type BagHistoryState = { eternalRestored?: boolean; eternalBag?: boolean };
  * the entry marked and leaves the bag as the shopper has since changed it, so
  * a removed bottle doesn't come back.
  */
-export function BagRestore({ lines }: { lines: CartLine[] }) {
+export function BagRestore({ lines, source }: { lines: CartLine[]; source?: string }) {
   const { restore } = useCart();
   useEffect(() => {
     const st = (window.history.state ?? {}) as BagHistoryState;
     if (st.eternalRestored || st.eternalBag) return;
     window.history.replaceState({ ...st, eternalRestored: true }, "");
-    restore(lines);
-  }, [restore, lines]);
+    restore(lines, source);
+  }, [restore, lines, source]);
   return null;
 }

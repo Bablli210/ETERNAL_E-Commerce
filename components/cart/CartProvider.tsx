@@ -47,7 +47,8 @@ type CartContextValue = {
   add: (line: Omit<CartLine, "qty">, qty?: number, opts?: { openDrawer?: boolean; toast?: boolean; source?: string }) => boolean;
   addMany: (lines: Omit<CartLine, "qty">[], opts?: { source?: string }) => void;
   /** Sets these lines to exactly these quantities, keeps the rest of the bag, and opens the drawer (the /bag link). */
-  restore: (lines: CartLine[]) => void;
+  /** source: the add_to_cart source for what the link adds (default bag_link). */
+  restore: (lines: CartLine[], source?: string) => void;
   /** Brings stored lines up to date with the live catalogue: price, title, image, availability. */
   reconcile: (index: ScentIndexEntry[]) => void;
   remove: (variantId: string) => void;
@@ -255,7 +256,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [reveal],
   );
 
-  const restore = useCallback<CartContextValue["restore"]>((items) => {
+  const restore = useCallback<CartContextValue["restore"]>((items, source = "bag_link") => {
     if (items.length) {
       // What the link adds on top of the bag counts as an add, so a retargeting checkout has its add step in the funnel.
       const added: AnalyticsItem[] = [];
@@ -271,7 +272,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         }
         return next;
       });
-      if (added.length) track({ name: "add_to_cart", items: added, source: "bag_link" });
+      if (added.length) track({ name: "add_to_cart", items: added, source });
     }
     setOpen(true);
   }, []);
