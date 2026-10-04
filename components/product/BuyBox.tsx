@@ -180,7 +180,7 @@ function PromiseList({ entry, kind }: { entry: ScentIndexEntry; kind: "bottle" |
     rows.push({ key: "delivery", icon: "truck", text, detail: [facts.deliveryTime, facts.deliveryCutoff].filter(Boolean).join(". "), href: "/help#delivery" });
   }
   rows.push({ key: "cod", icon: "shield", text: "Cash on delivery", detail: [facts.codFee, otherMethods.length ? `or ${otherMethods.join(", ")}` : null].filter(Boolean).join(" · "), href: "/help#cod" });
-  if (facts.freeSamples) rows.push({ key: "samples", icon: "plus", text: facts.freeSamples });
+  if (facts.freeSamples && kind === "bottle") rows.push({ key: "samples", icon: "plus", text: facts.freeSamples, detail: "to try another scent" });
   if (facts.returnsPolicy) rows.push({ key: "returns", icon: "refresh", text: facts.returnsPolicy, detail: facts.returnsWindow && `within ${facts.returnsWindow}`, href: "/help#returns" });
   if (facts.whatsapp) {
     const text = encodeURIComponent(`Hello eternal, I have a question about ${entry.title}.`);

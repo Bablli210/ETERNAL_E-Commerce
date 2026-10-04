@@ -130,6 +130,8 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
 
   const payable = useMemo(() => cart.lines.filter((l) => !l.soldOut), [cart.lines]);
   const hasBottle = payable.some((l) => l.kind === "bottle");
+  /** One free 5 ml ships with each bottle. */
+  const bottles = payable.reduce((n, l) => (l.kind === "bottle" ? n + l.qty : n), 0);
   const threshold = facts.freeShippingThreshold;
   const away = threshold !== null ? Math.max(0, threshold - cart.subtotal) : null;
   const deliveryIncluded = (facts.deliveryIncluded === true && hasBottle) || away === 0;
@@ -320,13 +322,13 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
                     </li>
                   );
                 })}
-                {facts.freeSamples && (
+                {facts.freeSamples && bottles > 0 && (
                   <li className="flex items-center gap-4 border-b border-dune py-4">
                     <span className="flex h-11 w-[76px] shrink-0 items-center justify-center bg-sand text-night">
                       <Mark size={36} />
                     </span>
-                    <p className="min-w-0 flex-1 text-[14px]">{facts.freeSamples}</p>
-                    <span className="shrink-0 text-[13px] font-semibold">Included</span>
+                    <p className="min-w-0 flex-1 text-[14px]">{bottles === 1 ? "A 5 ml of another scent to try" : `${bottles} × 5 ml of other scents to try`}</p>
+                    <span className="shrink-0 text-[13px] font-semibold">Free</span>
                   </li>
                 )}
               </ul>

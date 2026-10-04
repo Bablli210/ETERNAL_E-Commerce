@@ -15,8 +15,12 @@ export const site = {
 
   /** One confirmed offer for the bar above the header, matched to the running ads. */
   announcement: "Free delivery on orders over EGP 2,000",
-  /** The free-samples promise, shown in the hero, buy box and bag. */
-  freeSamples: "[Two free 5 ml samples with every order]",
+  /**
+   * The free 5 ml that ships with each bottle, so the customer tries another
+   * scent. Shown in the hero, on a bottle's buy box and in the bag (one per
+   * bottle in it).
+   */
+  freeSamples: "A free 5 ml with every bottle",
   /** How the 5 ml sample price comes back. Shown once 5 ml variants and credit codes exist. */
   sampleCredit: "[Its price comes off your 55 ml within 60 days]",
 

@@ -53,7 +53,7 @@ const NOTES: Record<string, string> = {
   longevityClaim: "From a wear test, e.g. \"7–8 hours on skin\".",
   firstOrderOffer: "Shown in the newsletter band; null hides it.",
   codFee: "The cash-on-delivery fee as it reads after \"Cash on delivery ·\", e.g. \"No extra fee\" or \"EGP 20 fee\".",
-  freeSamples: "e.g. \"Two free 5 ml samples with every bottle\".",
+  freeSamples: "The free 5 ml that ships with each bottle, e.g. \"A free 5 ml with every bottle\".",
   sampleCredit: "e.g. \"Its price comes off your 55 ml within 60 days\".",
   paymentMethods: "Only the methods that are live at checkout.",
   deliveryCutoff: "The courier's daily cut-off, e.g. \"Order by 2 pm for next-day delivery in Cairo & Giza\".",
