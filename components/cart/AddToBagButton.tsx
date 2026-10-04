@@ -16,6 +16,7 @@ export function AddToBagButton({
   size = "md",
   block = false,
   extra = [],
+  source = "card",
   className = "",
 }: {
   variant: BagVariant;
@@ -27,6 +28,8 @@ export function AddToBagButton({
   block?: boolean;
   /** Extra lines added with the main one, e.g. the 5 ml sample too. */
   extra?: { variant: BagVariant; kind: CartLine["kind"] }[];
+  /** Where the button sits, for the add_to_cart event: card (the default), finder, home, tale… */
+  source?: string;
   className?: string;
 }) {
   const { add } = useCart();
@@ -53,9 +56,11 @@ export function AddToBagButton({
   const onClick = () => {
     // A second tap while it reads "Added" is a double tap, not a second bottle.
     if (added) return;
-    add(toLine(variant, kind), 1, { openDrawer: extra.length === 0 });
-    for (const e of extra) add(toLine(e.variant, e.kind), 1, { openDrawer: false });
+    let any = add(toLine(variant, kind), 1, { openDrawer: extra.length === 0, source });
+    for (const e of extra) any = add(toLine(e.variant, e.kind), 1, { openDrawer: false, source }) || any;
     if (extra.length) add(toLine(variant, kind), 0);
+    // At the bag's cap nothing went in: the bag opens and says why, and the button doesn't claim "Added".
+    if (!any) return;
     setAdded(true);
     timer.current = window.setTimeout(() => setAdded(false), 1400);
   };

@@ -55,15 +55,19 @@ export default async function BagPage({ searchParams }: { searchParams: Promise<
   const { items } = await searchParams;
   const { lines, missed } = parseItems([items ?? []].flat().join(","), await getScentIndex());
   const gone = missed === 1 ? "One scent from the link isn't available." : missed > 1 ? `${missed} scents from the link aren't available.` : "";
+  // Only a link whose scents all missed says so; plain /bag, with no items, just opens the bag as it is.
+  const copy = lines.length
+    ? `The scents from your link are in your bag. ${gone}`.trim()
+    : missed > 0
+      ? "Nothing from this link could go in the bag. The collection is one tap away."
+      : "Everything you’ve added is in your bag. The collection is one tap away.";
 
   return (
     <section className="wrap flex min-h-[60vh] flex-col items-center justify-center py-20 text-center">
       <BagRestore lines={lines} />
       <Mark size={72} className="text-night" />
       <h1 className="display-l mt-8">{lines.length ? "Your bag is ready." : "Your bag"}</h1>
-      <p className="mt-3 max-w-[38ch] text-[16px] leading-relaxed text-ash">
-        {lines.length ? `The scents from your link are in your bag. ${gone}`.trim() : "Nothing from this link could go in the bag. The collection is one tap away."}
-      </p>
+      <p className="mt-3 max-w-[38ch] text-[16px] leading-relaxed text-ash">{copy}</p>
       <Link href="/shop" className="btn mt-8">
         Shop the collection
       </Link>

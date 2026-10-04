@@ -26,12 +26,23 @@ export class StorefrontError extends Error {
   }
 }
 
+/** A GraphQL document whose operation is a mutation (cartCreate and the like). */
+const MUTATION = /^\s*mutation\b/m;
+
+/**
+ * Every Storefront call is an HTTP POST, and Next caches a POST that carries
+ * next.revalidate, keyed on its body. That is right for product queries
+ * (cached, tagged "products") and never right for a mutation: a cached
+ * cartCreate hands the next shopper with the same bag the same cart. So a
+ * mutation, or revalidate 0, always goes out with cache: "no-store".
+ */
 export async function storefront<T>(
   query: string,
   variables: Record<string, unknown> = {},
   { revalidate = 300, tags }: { revalidate?: number | false; tags?: string[] } = {},
 ): Promise<T> {
   if (!token) throw new StorefrontError("SHOPIFY_STOREFRONT_ACCESS_TOKEN is not set");
+  const fresh = revalidate === 0 || MUTATION.test(query);
   const res = await fetch(`https://${storeDomain}/api/${apiVersion}/graphql.json`, {
     method: "POST",
     headers: {
@@ -39,7 +50,7 @@ export async function storefront<T>(
       "X-Shopify-Storefront-Access-Token": token,
     },
     body: JSON.stringify({ query, variables }),
-    next: { revalidate, tags },
+    ...(fresh ? { cache: "no-store" as const } : { next: { revalidate, tags } }),
   });
   if (!res.ok) throw new StorefrontError(`Storefront API ${res.status} ${res.statusText}`);
   const json = (await res.json()) as { data?: T; errors?: unknown };
