@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCart } from "./CartProvider";
 
-/** G10 · "Added to bag" when the drawer stays closed: slides up 16 px, stays 3 s, slides out. */
+/** G10 · "Added to bag" when the drawer stays closed: slides up 16 px, stays 3 s, slides out. Sits above any sticky bar. */
 export function Toast() {
   const { toast, openDrawer, dismissToast } = useCart();
   const [leaving, setLeaving] = useState(false);
@@ -24,12 +24,12 @@ export function Toast() {
   }, [toast, dismissToast]);
   if (!toast) return null;
   return (
-    <div role="status" aria-live="polite" className={`${leaving ? "toast-exit" : "toast-enter"} fixed inset-x-4 bottom-24 z-[70] mx-auto flex max-w-[440px] items-center justify-between gap-4 bg-night px-4 py-3 text-[13px] text-linen lg:bottom-8`}>
+    <div role="status" aria-live="polite" className={`${leaving ? "toast-exit" : "toast-enter"} cart-toast fixed inset-x-4 z-[70] mx-auto flex max-w-[440px] items-center justify-between gap-4 bg-night py-1 pl-4 pr-1 text-[14px] text-linen`}>
       <span className="truncate">
         Added to bag · {toast.title} {toast.label}
       </span>
-      <button type="button" className="lnk lnk-quiet shrink-0 text-linen" onClick={openDrawer}>
-        View
+      <button type="button" className="lnk lnk-quiet h-11 shrink-0 px-3 text-linen" onClick={openDrawer}>
+        View bag
       </button>
     </div>
   );

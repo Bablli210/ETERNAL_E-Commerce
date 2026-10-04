@@ -51,6 +51,8 @@ export function AddToBagButton({
   });
 
   const onClick = () => {
+    // A second tap while it reads "Added" is a double tap, not a second bottle.
+    if (added) return;
     add(toLine(variant, kind), 1, { openDrawer: extra.length === 0 });
     for (const e of extra) add(toLine(e.variant, e.kind), 1, { openDrawer: false });
     if (extra.length) add(toLine(variant, kind), 0);

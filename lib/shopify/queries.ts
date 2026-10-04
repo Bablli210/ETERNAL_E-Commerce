@@ -107,12 +107,16 @@ export async function fetchBestsellingHandles(first = 12): Promise<string[]> {
 
 export type CheckoutLine = { merchandiseId: string; quantity: number };
 
-/** Creates a Storefront cart from the local bag and returns Shopify's checkout URL. */
+/**
+ * Creates a Storefront cart from the local bag and returns Shopify's checkout
+ * URL. The buyer's country is set to Egypt, so checkout opens with Egypt
+ * already selected.
+ */
 export async function createCheckout(lines: CheckoutLine[], attributes: { key: string; value: string }[] = []): Promise<string> {
   const data: { cartCreate: { cart: { checkoutUrl: string } | null; userErrors: { message: string }[] } } = await storefront(
     /* GraphQL */ `
       mutation CreateCart($lines: [CartLineInput!]!, $attributes: [AttributeInput!]) {
-        cartCreate(input: { lines: $lines, attributes: $attributes }) {
+        cartCreate(input: { lines: $lines, attributes: $attributes, buyerIdentity: { countryCode: EG } }) {
           cart { id checkoutUrl }
           userErrors { field message }
         }
