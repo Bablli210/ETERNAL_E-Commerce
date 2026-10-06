@@ -183,8 +183,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               {isSet ? (
                 <p className="text-[15px] leading-[22px]">{box.hook}</p>
               ) : (
-                <p className="text-[15px] leading-[22px]">
-                  Inspired by <strong className="font-semibold">{scent.inspiredBy}</strong>
+                <p className="text-[14px] leading-6 text-ash">
+                  Inspired by <strong className="serif text-[20px] font-semibold text-night">{scent.inspiredBy}</strong>
                 </p>
               )}
               <p className="text-[12px] leading-[18px] text-ash">{isSet ? box.hookSub : "Our own composition, not affiliated with its house."}</p>

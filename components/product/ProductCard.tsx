@@ -57,7 +57,11 @@ export function ProductCard({
             {entry.title}
           </CardLink>
         </h3>
-        {entry.inspiredBy && <p className="text-[13px] leading-snug text-night">Inspired by {entry.inspiredBy}</p>}
+        {entry.inspiredBy && (
+          <p className="text-[13px] leading-snug text-ash">
+            Inspired by <span className="font-semibold text-night">{entry.inspiredBy}</span>
+          </p>
+        )}
         {entry.notesShort.length > 0 && <p className="line-clamp-2 text-[13px] leading-snug text-ash">{joinNotes(entry.notesShort.slice(0, 3))}</p>}
         <Price money={entry.price} className="mt-1 whitespace-nowrap text-[15px] font-medium" />
         <div className="card-actions relative z-[2] mt-auto flex flex-col pt-3">

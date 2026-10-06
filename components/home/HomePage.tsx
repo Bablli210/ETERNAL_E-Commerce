@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FeaturedTale, Hero, HouseFilm, LineTiles, ProofStrip, ScentTiles, TalesTeaser, TryBeforeYouCommit, WhereToStart } from "@/components/home/Sections";
+import { FeaturedTale, Hero, LineTiles, ProofStrip, ScentTiles, TalesTeaser, TryBeforeYouCommit, WhereToStart } from "@/components/home/Sections";
 import { getBestsellers, getCatalogue, getFeaturedScent, getLineCounts, getScent, toIndexEntry, type Scent } from "@/lib/catalogue";
 import type { Money } from "@/lib/shopify/types";
 import type { Hero as HeroDef } from "@/content/heroes";
@@ -73,7 +73,7 @@ export async function HomePage({ hero }: { hero: HeroDef }) {
       <TryBeforeYouCommit mysteryBox={mysteryBox ? toIndexEntry(mysteryBox) : null} everySampled={everySampled} />
       <ScentTiles />
       <FeaturedTale scent={featured} />
-      <HouseFilm />
+      {/* The house film section is off the home page for now, at the owner's request; HouseFilm stays in Sections.tsx to bring back. */}
       <TalesTeaser exclude={featured?.taleSlug ?? null} />
     </>
   );

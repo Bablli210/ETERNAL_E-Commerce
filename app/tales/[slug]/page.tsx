@@ -106,11 +106,12 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
       {entry?.bottle && product && <TaleBar titleId="tale-title" cardId="tale-buy" variant={entry.bottle} product={product} note={`${entry.bottle.label} · ${formatMoney(entry.bottle.price)}`} />}
 
       <section className="border-t border-dune">
-        <div className={`wrap grid gap-10 py-14 lg:py-24 ${others.length ? "lg:grid-cols-[2fr_1fr]" : ""}`}>
+        {/* Desktop: the finder band sits in the tales' row, its top level with the stills and its foot with the last line. */}
+        <div className={`wrap grid gap-y-6 py-14 lg:gap-x-10 lg:py-24 ${others.length ? "lg:grid-cols-[2fr_1fr] lg:grid-rows-[auto_1fr]" : ""}`}>
           {others.length > 0 && (
-            <div>
-              <Eyebrow>Next tale</Eyebrow>
-              <ul className="mt-6 grid gap-8 md:grid-cols-2">
+            <>
+              <Eyebrow className="lg:col-start-1 lg:row-start-1">Next tale</Eyebrow>
+              <ul className="grid gap-8 md:grid-cols-2 lg:col-start-1 lg:row-start-2">
                 {others.map((t) => (
                   <li key={t.slug}>
                     <Link href={`/tales/${t.slug}`} className="group flex flex-col">
@@ -121,9 +122,9 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
                   </li>
                 ))}
               </ul>
-            </div>
+            </>
           )}
-          <FinderBand className="self-end" />
+          <FinderBand className={others.length ? "max-lg:mt-4 lg:col-start-2 lg:row-start-2 lg:justify-between" : ""} />
         </div>
       </section>
     </>

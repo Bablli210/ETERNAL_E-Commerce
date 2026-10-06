@@ -326,6 +326,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
                 {cart.lines.map((l) => {
                   const href = `/products/${l.handle}`;
                   const label = [sizeLabel(l.variantLabel), l.kind === "set" ? null : lineName(l.lineLabel)].filter(Boolean).join(" · ");
+                  const original = l.kind === "set" ? null : byHandle.get(l.handle)?.inspiredBy;
                   return (
                     <li key={l.variantId} className={`line-row ${removing.has(l.variantId) ? "removing" : ""} ${cart.lastAdded === l.variantId ? "line-new" : ""}`}>
                       <div className="flex gap-4 overflow-hidden border-b border-dune py-4">
@@ -345,6 +346,11 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
                             )}
                           </div>
                           <p className="mt-1 text-[13px] text-ash">{label}</p>
+                          {original && (
+                            <p className="text-[13px] text-ash">
+                              Inspired by <span className="font-semibold text-night">{original}</span>
+                            </p>
+                          )}
                           {l.qty > 1 && !l.soldOut && <p className="tnum text-[13px] text-ash">{formatMoney(l.price)} each</p>}
                           {l.kind === "sample" && facts.sampleCredit && <p className="text-[13px] text-ash">{facts.sampleCredit}</p>}
                           <div className="mt-auto flex items-center justify-between pt-2">

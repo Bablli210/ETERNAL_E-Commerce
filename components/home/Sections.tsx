@@ -99,6 +99,11 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
                 <span className="tnum whitespace-nowrap">{formatMoney(scent.price)}</span>
                 <Icon name="arrow-right" size={14} className="text-linen" />
               </Link>
+              {scent.inspiredBy && (
+                <p className="-mt-2 mb-1 text-[13px] tracking-[0.02em] text-dune">
+                  Inspired by <span className="font-semibold text-linen">{scent.inspiredBy}</span>
+                </p>
+              )}
             </SelectList>
           )}
           <h1 className="display-xl mt-1 max-sm:text-[min(44px,11.2vw)] lg:text-[clamp(56px,5.2vw,84px)]">
