@@ -3,8 +3,8 @@ import { Fragment } from "react";
 import { footerColumns, site } from "@/content/site";
 import { facts } from "@/lib/facts";
 import { Icon } from "@/components/ui/Icon";
-import { Wordmark } from "@/components/ui/Wordmark";
 import { MotionToggle } from "@/components/motion/MotionToggle";
+import { FooterBrand } from "./FooterBrand";
 import { JoinForm } from "./JoinForm";
 import { WhatsAppLink } from "./WhatsAppLink";
 
@@ -46,15 +46,41 @@ export function JoinBand({ shopDomain }: { shopDomain: string }) {
   );
 }
 
+type Column = (typeof footerColumns)[number];
+
+/** The house sits above Help, the two in one column against the right edge of the page. */
+const shopColumn = footerColumns.find((c) => c.title === "Shop") ?? null;
+const rightColumns = ["The house", "Help"].map((t) => footerColumns.find((c) => c.title === t)).filter((c): c is Column => Boolean(c));
+
+function FooterColumn({ col, right = false, className = "" }: { col: Column; right?: boolean; className?: string }) {
+  return (
+    <div className={className}>
+      <p className="eyebrow mb-1 text-ash">{col.title}</p>
+      <ul className="flex flex-col">
+        {col.links.map((l) => (
+          <li key={l.href + l.label}>
+            <Link href={l.href} className={`flex min-h-11 items-center text-[14px] hover:text-sea lg:min-h-9 ${right ? "justify-end" : ""}`}>
+              {l.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function Footer({ shopDomain }: { shopDomain: string }) {
   return (
     <>
       <JoinBand shopDomain={shopDomain} />
       <footer className="border-t border-dune bg-linen text-night">
-        <div className="wrap grid grid-cols-2 gap-x-6 gap-y-10 py-14 lg:grid-cols-[1.2fr_repeat(3,1fr)] lg:gap-12 lg:py-16">
-          <div className="col-span-2 flex flex-col gap-3 lg:col-span-1">
-            <Wordmark />
-            <p className="signature max-w-[24ch] text-ash">{site.tagline}</p>
+        {/*
+          Desktop: the brand top left with WhatsApp at the foot of the same column, Shop in the middle, and The house over
+          Help in one column set flush right. Phone: brand, then Shop beside The house and Help, then WhatsApp.
+        */}
+        <div className="wrap grid grid-cols-2 gap-x-6 gap-y-10 py-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_auto] lg:grid-rows-[auto_1fr] lg:gap-x-12 lg:gap-y-8 lg:py-16">
+          <div className="col-span-2 flex flex-col gap-3 lg:col-span-1 lg:col-start-1 lg:row-start-1">
+            <FooterBrand tagline={site.tagline} />
             {socials.length > 0 && (
               <ul className="flex gap-5 text-[13px]">
                 {socials.map((s) => (
@@ -66,28 +92,24 @@ export function Footer({ shopDomain }: { shopDomain: string }) {
                 ))}
               </ul>
             )}
-            <WhatsAppLink label="footer" text="Hello eternal, I have a question about a scent." className="inline-flex min-h-11 items-center gap-3 self-start text-[14px]">
-              <Icon name="whatsapp" size={20} className="shrink-0" />
-              <span>
-                <span className="block font-medium">Chat with us on WhatsApp</span>
-                {facts.whatsappHours && <span className="block text-[12px] text-ash">{facts.whatsappHours}</span>}
-              </span>
-            </WhatsAppLink>
           </div>
-          {footerColumns.map((col) => (
-            <div key={col.title}>
-              <p className="eyebrow mb-1 text-ash">{col.title}</p>
-              <ul className="flex flex-col">
-                {col.links.map((l) => (
-                  <li key={l.href + l.label}>
-                    <Link href={l.href} className="flex min-h-11 items-center text-[14px] hover:text-sea lg:min-h-9">
-                      {l.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {shopColumn && <FooterColumn col={shopColumn} className="lg:col-start-2 lg:row-span-2 lg:row-start-1" />}
+          <div className="flex flex-col gap-8 text-right lg:col-start-3 lg:row-span-2 lg:row-start-1 lg:justify-self-end">
+            {rightColumns.map((col) => (
+              <FooterColumn key={col.title} col={col} right />
+            ))}
+          </div>
+          <WhatsAppLink
+            label="footer"
+            text="Hello eternal, I have a question about a scent."
+            className="col-span-2 inline-flex min-h-11 items-center gap-3 self-end justify-self-start text-[14px] lg:col-span-1 lg:col-start-1 lg:row-start-2"
+          >
+            <Icon name="whatsapp" size={20} className="shrink-0" />
+            <span>
+              <span className="block font-medium">Chat with us on WhatsApp</span>
+              {facts.whatsappHours && <span className="block text-[12px] text-ash">{facts.whatsappHours}</span>}
+            </span>
+          </WhatsAppLink>
         </div>
         <div className="wrap flex flex-col gap-5 border-t border-dune py-6">
           {facts.paymentMethods.length > 0 && (

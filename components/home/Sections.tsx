@@ -8,13 +8,13 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { AddToBagButton } from "@/components/cart/AddToBagButton";
 import { site } from "@/content/site";
 import { confirmed, facts } from "@/lib/facts";
-import { lines, moodOrder, moods, type LineKey } from "@/content/taxonomy";
+import { families, familyOrder, lines, type FamilyKey, type LineKey } from "@/content/taxonomy";
 import { tales } from "@/content/tales";
 import type { Scent, ScentIndexEntry } from "@/lib/catalogue";
 import type { Money } from "@/lib/shopify/types";
 import { formatMoney, joinNotes, sentenceCase } from "@/lib/format";
 import { siteVideo } from "@/lib/site-videos";
-import { Parallax, ParallaxSection } from "@/components/motion/Parallax";
+import { ParallaxSection } from "@/components/motion/Parallax";
 import { HouseFilmPlayer } from "./HouseFilmPlayer";
 import { HeroStill } from "./HeroStill";
 import type { Hero as HeroDef } from "@/content/heroes";
@@ -116,7 +116,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
           </h1>
           {/* A short phone (Instagram's browser, small Androids) drops this line so the bottle stays clear of the copy. */}
           <p className="mt-3 max-w-[46ch] text-[15px] leading-normal text-dune max-lg:[@media(max-height:760px)]:hidden lg:mt-6 lg:text-[17px]">
-            Eaux de parfum from Cairo, in three lines: eterna for her, eterno for him, eternal unisex.
+            eaux de parfum from Cairo, in three lines: eterna for her, eterno for him, eternal unisex.
           </p>
           {offer.length > 0 && <p className="tnum mt-2 text-[13px] font-semibold tracking-[0.02em] text-linen">{offer.join(" · ")}</p>}
           <div className="mt-5 flex flex-wrap items-center gap-x-6 lg:mt-8">
@@ -189,6 +189,8 @@ export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; 
     blurb: lines[k].blurb,
     href: `/shop/${lines[k].slug}`,
     src: siteImage(`line-${k}`),
+    // The line's own logotype (public/images/logo-<line>.svg or .png); the name is set in type until it exists.
+    logo: siteImage(`logo-${k}`),
     tone: lines[k].tone,
   }));
   return (
@@ -212,9 +214,12 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
       <div className="wrap">
         <HomeHead title="Where to start" sub="The house’s picks for a first bottle." />
         <SelectList list="home_where_to_start" items={entries.map(listItem)} className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-12 lg:grid-cols-4 lg:gap-x-6">
-          {entries.map((e) => (
-            <ProductCard key={e.handle} entry={e} badge={e.isNew ? "New" : false} />
-          ))}
+          {entries.map((e) => {
+            // The scent among its notes leads; the bottle comes in on hover.
+            const notes = siteImage(`products/${e.handle}-3`);
+            const card = notes && notes !== e.image ? { ...e, image: notes, hoverImage: e.image } : e;
+            return <ProductCard key={e.handle} entry={card} badge={e.isNew ? "New" : false} />;
+          })}
         </SelectList>
         <Link href="/shop" className="btn btn-secondary btn-block mt-8 lg:mt-12 lg:w-auto">
           See all {total} scents
@@ -285,32 +290,44 @@ export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryB
   );
 }
 
-export function MoodTiles() {
+/**
+ * Shop by scent: the six families, each with an ingredient still. A
+ * family-<key> image wins once it exists; until then each borrows the closest
+ * ingredient still the house has (woody, which has none, the notes still of a
+ * woody scent).
+ */
+const FAMILY_STILL: Record<FamilyKey, string[]> = {
+  fresh: ["family-fresh", "mood-golden-hour"],
+  woody: ["family-woody", "products/raw-seduction-3"],
+  "amber-spice": ["family-amber-spice", "mood-after-dark"],
+  floral: ["family-floral", "mood-wild-garden"],
+  gourmand: ["family-gourmand", "mood-warm-skin"],
+  aquatic: ["family-aquatic", "mood-sea-air"],
+};
+
+export function ScentTiles() {
   return (
     <section className="py-10 lg:py-24">
       <div className="wrap">
-        <HomeHead title="Shop by mood" sub="For when you know the feeling but not the notes." />
+        <HomeHead title="Shop by scent" sub="Start from the notes you already love." />
         <ul className="mt-6 grid grid-cols-3 gap-x-2 gap-y-5 lg:mt-12 lg:gap-x-6 lg:gap-y-10">
-          {moodOrder.map((k, i) => {
-            const m = moods[k];
-            const dark = k === "after-dark";
+          {familyOrder.map((k) => {
+            const f = families[k];
             return (
-              <li key={k} data-reveal style={{ ["--i" as string]: i }}>
+              <li key={k}>
                 <Link href={`/shop/${k}`} className="group block">
-                  <div className="relative aspect-square overflow-hidden lg:aspect-[4/3]" style={{ backgroundColor: m.wash }}>
+                  <div className="relative aspect-square overflow-hidden lg:aspect-[4/3]" style={{ backgroundColor: f.world.bg }}>
                     <Figure
-                      name={`mood-${k}`}
-                      label={m.art}
-                      dark={dark}
+                      name={FAMILY_STILL[k]}
+                      label={`${f.label} — ingredient still`}
                       sizes="33vw"
                       className="absolute inset-0"
                       imageClassName="hover-lift"
                       placeholderClassName="slot-corner !border-0 opacity-80"
-                      style={{ backgroundColor: m.wash }}
+                      style={{ backgroundColor: f.world.bg }}
                     />
-                    <span className="wash absolute inset-0" style={{ backgroundColor: dark ? "#F3EFE7" : m.wash === "#E9E4D3" ? "#9E9382" : m.wash }} aria-hidden="true" />
                   </div>
-                  <span className="u-draw serif mt-2 inline-block text-[19px] leading-tight lg:mt-3 lg:text-[28px]">{m.label}</span>
+                  <span className="u-draw serif mt-2 inline-block text-[19px] leading-tight lg:mt-3 lg:text-[28px]">{f.label}</span>
                 </Link>
               </li>
             );
@@ -338,48 +355,42 @@ function excerptOf(text: string, max = 240): string[] {
 export function FeaturedTale({ scent }: { scent: Scent | null }) {
   const tale = scent?.taleSlug ? tales.find((t) => t.slug === scent.taleSlug) : null;
   if (!scent || !tale) return null;
-  // H5: the excerpt's sentences fade in one after another, the signature line last.
   const sentences = excerptOf(scent.story?.[0] ?? tale.paragraphs[0]);
   const bg = scent.world.dark ? scent.world.bg : "#163a4e";
   return (
     <section className="grain watermark relative overflow-hidden text-linen" style={{ backgroundColor: bg }}>
-      <div className="wrap relative grid gap-8 py-12 lg:grid-cols-2 lg:items-center lg:gap-12 lg:py-24">
-        <Parallax factor={0.15} className="overflow-hidden" data-reveal>
-          <div className="parallax-y -my-[8%]">
-            <Figure
-              name={[`tale-${tale.slug}-card`, "tale-featured", `tale-${tale.slug}`]}
-              label={`${scent.title} in its tale — the bottle in the scene, 4:3`}
-              dark
-              sizes="(min-width: 1024px) 50vw, 100vw"
-              className="aspect-[4/3] w-full"
-              style={{ backgroundColor: bg }}
-            />
-          </div>
-        </Parallax>
-        <div style={{ ["--stagger" as string]: "80ms" }}>
+      {/* Desktop: the still fills its half of the row, so it starts at the text's first line and ends at its last. Nothing fades in. */}
+      <div className="wrap relative grid gap-8 py-12 lg:grid-cols-2 lg:gap-12 lg:py-24">
+        <Figure
+          name={[`tale-${tale.slug}-card`, "tale-featured", `tale-${tale.slug}`]}
+          label={`${scent.title} in its tale — the bottle in the scene, 4:3`}
+          dark
+          sizes="(min-width: 1024px) 50vw, 100vw"
+          className="aspect-[4/3] w-full lg:aspect-auto lg:h-full"
+          style={{ backgroundColor: bg }}
+        />
+        <div>
           {scent.line && (
-            <p className="text-[13px] tracking-[0.02em] text-dune" data-reveal>
+            <p className="text-[13px] tracking-[0.02em] text-dune">
               A tale from {lines[scent.line].label}, {FOR[scent.line]}
             </p>
           )}
-          <h2 className="display-l mt-3" data-reveal style={{ ["--i" as string]: 1 }}>
+          <h2 className="display-l mt-3">
             {tale.title}
           </h2>
           {sentences.length > 0 && (
             <p className="mt-5 max-w-[56ch] text-[16px] leading-relaxed text-dune lg:text-[17px]">
               {sentences.map((line, i) => (
-                <span key={i} className="inline" data-reveal style={{ ["--i" as string]: i + 2 }}>
-                  {line}
-                </span>
+                <span key={i}>{line}</span>
               ))}
             </p>
           )}
           {scent.signature && (
-            <p className="signature mt-5 text-linen" data-reveal style={{ ["--i" as string]: sentences.length + 2 }}>
+            <p className="signature mt-5 text-linen">
               “{scent.signature}”
             </p>
           )}
-          <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-linen/20 pt-5 text-[14px] lg:grid-cols-3" data-reveal style={{ ["--i" as string]: sentences.length + 3 }}>
+          <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-linen/20 pt-5 text-[14px] lg:grid-cols-3">
             <div className="max-lg:hidden">
               <dt className="eyebrow text-[12px] text-dune">The scent</dt>
               <dd className="mt-1">{scent.title}</dd>
@@ -395,7 +406,7 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
               </div>
             )}
           </dl>
-          <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-1" data-reveal style={{ ["--i" as string]: sentences.length + 4 }}>
+          <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-1">
             <Link href={`/products/${scent.handle}`} className="btn btn-light">
               Shop {scent.title} · {formatMoney(scent.price)}
             </Link>
@@ -448,10 +459,10 @@ export function TalesTeaser({ exclude }: { exclude: string | null }) {
       <div className="wrap">
         <HomeHead title="Tales" action={{ label: "All tales", href: "/tales" }} />
         <ul className="mt-6 grid gap-8 md:grid-cols-3 lg:mt-12">
-          {picks.map((t, i) => (
-            <li key={t.slug} data-reveal style={{ ["--i" as string]: i }}>
+          {picks.map((t) => (
+            <li key={t.slug}>
               <Link href={`/tales/${t.slug}`} className="group flex flex-col">
-                <Figure name={[`tale-${t.slug}-card`, `tale-${t.slug}`]} label={t.heroArt} sizes="(min-width: 768px) 33vw, 100vw" className="t3-img aspect-[4/3] w-full" />
+                <Figure name={[`tale-${t.slug}-card`, `tale-${t.slug}`]} label={t.heroArt} sizes="(min-width: 768px) 33vw, 100vw" className="aspect-[4/3] w-full" />
                 <span className="mt-4 text-[13px] tracking-[0.02em] text-ash">
                   {lines[t.line].label}, {FOR[t.line]}
                 </span>

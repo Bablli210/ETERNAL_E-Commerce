@@ -176,11 +176,6 @@
       .t2-bar { transform: translateY(100%); transition: transform var(--dur-m) var(--ease-emphasized); }
       .t2-bar.is-in { transform: none; }
 
-      /* T3 · next tale: the image reveals behind the title. */
-      @media (hover: hover) {
-        .t3-img { opacity: 0.4; transition: opacity 300ms var(--ease-standard); }
-        .group:hover .t3-img { opacity: 1; }
-      }
 
       /* C1 · prices tick to the new value. */
       .tick-in { animation: m-tick-in var(--dur-xs) var(--ease-standard); }

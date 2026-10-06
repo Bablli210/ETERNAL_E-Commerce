@@ -111,8 +111,8 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
             <div>
               <Eyebrow>Next tale</Eyebrow>
               <ul className="mt-6 grid gap-8 md:grid-cols-2">
-                {others.map((t, i) => (
-                  <li key={t.slug} data-reveal style={{ ["--i" as string]: i }}>
+                {others.map((t) => (
+                  <li key={t.slug}>
                     <Link href={`/tales/${t.slug}`} className="group flex flex-col">
                       <TaleStill slug={t.slug} label={t.heroArt} sizes="(min-width: 768px) 33vw, 100vw" />
                       <p className="mt-4 text-[12px] text-ash">{lineWithAudience(t.line)}</p>

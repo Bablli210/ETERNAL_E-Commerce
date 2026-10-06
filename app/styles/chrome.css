@@ -30,3 +30,7 @@ html:has(.pdp-hero):not(:has(.pdp-bar)) .wa-float,
   visibility: hidden;
   opacity: 0;
 }
+
+/* Header nav: the line under a title rests on the header's bottom edge; it marks the current section and shows on hover. */
+.nav-link { transition: border-color 150ms var(--ease-standard), opacity 150ms var(--ease-standard); }
+.nav-link:hover { border-bottom-color: currentColor; }

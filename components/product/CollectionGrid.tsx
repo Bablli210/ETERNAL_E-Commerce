@@ -397,7 +397,8 @@ export function CollectionGrid({
     };
   }, [showFloat]);
 
-  /* Chips: line, then family (with counts), mood in the sheet. A chip that
+  /* Chips: line, then scent family (with counts). Moods are no longer offered;
+     one arriving in an old link still shows as an applied chip to clear. A chip that
      would empty the grid or change nothing (every scent shown already
      matches it, like Floral on the floral page) is not offered; an applied
      one always is. */
@@ -410,7 +411,7 @@ export function CollectionGrid({
   const isOption = (o: FilterOption | null): o is FilterOption => o !== null;
   const lineOptions = (label: (k: LineKey) => string) => LINE_ORDER.map((k) => offer(Boolean(url.line), url.line === k, { line: k }, { line: null }, k, label(k), false)).filter(isOption);
   const familyOptions = familyOrder.map((k: FamilyKey) => offer(Boolean(url.family), url.family === k, { family: k }, { family: null }, k, families[k].label, true)).filter(isOption);
-  const moodOptions = moodOrder.map((k: MoodKey) => offer(Boolean(url.mood), url.mood === k, { mood: k }, { mood: null }, k, moods[k].label, true)).filter(isOption);
+  const moodOptions = moodOrder.filter((k) => k === url.mood).map((k: MoodKey) => offer(true, true, { mood: k }, { mood: null }, k, moods[k].label, false)).filter(isOption);
   const quickLines = lineOptions((k) => LINE_CHIP[k]);
   const applied = [...quickLines, ...familyOptions, ...moodOptions].filter((o) => o.active);
   const quick = [...applied, ...quickLines.filter((o) => !o.active), ...familyOptions.filter((o) => !o.active)];
@@ -420,7 +421,6 @@ export function CollectionGrid({
     { title: "Sort", options: sorts.map((s) => ({ key: s.key, label: s.label, active: url.sort === s.key, onToggle: () => apply({ sort: s.key }) })) },
     { title: "Line", options: lineOptions((k) => lineWithAudience(k)) },
     { title: "Scent", options: familyOptions },
-    { title: "Mood", options: moodOptions },
   ];
 
   const reportFilters = (s: GridState) => track({ name: "ui", action: "filter_apply", label: `${s.line ?? ""}|${s.family ?? ""}|${s.mood ?? ""}|${s.sort}` });
@@ -602,7 +602,7 @@ export function CollectionGrid({
 
       {showFloat && (
         <div ref={floatRef} className="shop-float pointer-events-none fixed inset-x-0 bottom-0 z-[40] flex justify-center pb-[calc(16px+env(safe-area-inset-bottom))] lg:hidden">
-          <button type="button" aria-haspopup="dialog" onClick={openSheet} className="bar-enter float-shadow pointer-events-auto flex h-12 items-center gap-2 rounded-full bg-night px-6 text-[13px] font-semibold tracking-[0.04em] text-linen">
+          <button type="button" aria-haspopup="dialog" onClick={openSheet} className="bar-enter float-shadow pointer-events-auto flex h-12 items-center gap-2 bg-night px-6 text-[13px] font-semibold tracking-[0.04em] text-linen">
             <FilterIcon />
             Filter &amp; sort{activeCount ? ` · ${activeCount}` : ""}
           </button>

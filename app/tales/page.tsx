@@ -28,7 +28,7 @@ export default async function TalesPage() {
           {tales.map((t, i) => {
             const scent = scents[i];
             return (
-              <li key={t.slug} className="flex flex-col" data-reveal={i > 0 ? "" : undefined} style={{ ["--i" as string]: i }}>
+              <li key={t.slug} className="flex flex-col">
                 <Link href={`/tales/${t.slug}`} className="group flex flex-col">
                   <TaleStill slug={t.slug} label={t.heroArt} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
                   <p className="mt-4 text-[12px] tracking-[0.02em] text-ash">

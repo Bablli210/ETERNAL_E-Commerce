@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { FeaturedTale, Hero, HouseFilm, LineTiles, MoodTiles, ProofStrip, TalesTeaser, TryBeforeYouCommit, WhereToStart } from "@/components/home/Sections";
+import { FeaturedTale, Hero, HouseFilm, LineTiles, ProofStrip, ScentTiles, TalesTeaser, TryBeforeYouCommit, WhereToStart } from "@/components/home/Sections";
 import { getBestsellers, getCatalogue, getFeaturedScent, getLineCounts, getScent, toIndexEntry, type Scent } from "@/lib/catalogue";
 import type { Money } from "@/lib/shopify/types";
 import type { Hero as HeroDef } from "@/content/heroes";
@@ -71,7 +71,7 @@ export async function HomePage({ hero }: { hero: HeroDef }) {
       <LineTiles counts={counts} total={scents.length} />
       <WhereToStart entries={onePerLineFirst(picks, 4).map(toIndexEntry)} total={scents.length} />
       <TryBeforeYouCommit mysteryBox={mysteryBox ? toIndexEntry(mysteryBox) : null} everySampled={everySampled} />
-      <MoodTiles />
+      <ScentTiles />
       <FeaturedTale scent={featured} />
       <HouseFilm />
       <TalesTeaser exclude={featured?.taleSlug ?? null} />

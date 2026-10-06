@@ -85,7 +85,20 @@ export const collections: CollectionDef[] = [
   { slug: "bestsellers", kind: "bestsellers", title: "Where to start", descriptor: "The house’s picks for a first bottle, across the three lines." },
   { slug: "new", kind: "new", title: "New arrivals", descriptor: "The latest compositions to join the house." },
   ...familyOrder.map((k) => ({ slug: k, kind: "family" as const, key: k, title: families[k].label, descriptor: families[k].descriptor })),
-  ...moodOrder.map((k) => ({ slug: k, kind: "mood" as const, key: k, title: moods[k].label, descriptor: moods[k].descriptor })),
 ];
+
+/**
+ * The house shops by scent, not by mood: the old mood pages forward to the
+ * nearest scent family (next.config.ts), so links already shared still land.
+ * Moods stay as tags the finder matches on.
+ */
+export const moodToFamily: Record<MoodKey, FamilyKey> = {
+  "sea-air": "aquatic",
+  "golden-hour": "fresh",
+  "after-dark": "amber-spice",
+  "fresh-linen": "floral",
+  "warm-skin": "gourmand",
+  "wild-garden": "floral",
+};
 
 export const collectionBySlug = (slug: string) => collections.find((c) => c.slug === slug);

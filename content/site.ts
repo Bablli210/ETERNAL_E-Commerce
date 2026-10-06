@@ -8,7 +8,7 @@ export const site = {
   name: "eternal",
   tagline: "Some things are never meant to fade.",
   /** The meta and link-preview description on every page, so it states nothing still waiting for the owner. */
-  description: "Eaux de parfum in three lines: eterna for her, eterno for him, eternal unisex. A perfume house from Cairo.",
+  description: "eaux de parfum in three lines: eterna for her, eterno for him, eternal unisex. A perfume house from Cairo.",
   /**
    * The address in canonical links, the sitemap and link previews. Set
    * NEXT_PUBLIC_SITE_URL once the custom domain is live; until then each

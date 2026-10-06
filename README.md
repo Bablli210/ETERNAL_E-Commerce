@@ -99,6 +99,19 @@ npm run dev
 `npm run build` must pass before pushing; `npm run lint` and `npm run typecheck` run the
 same checks Vercel does.
 
+## The house typeface
+
+Headings are set in **The Seasons** once it is available; Cormorant Garamond is
+the fallback until then (`lib/brand-font.ts`). Either route works, and nothing
+loads until one is in place:
+
+- Self-hosted: put the licensed web-font files in `public/fonts/the-seasons/`,
+  named by weight and style, e.g. `the-seasons-regular.woff2`,
+  `the-seasons-bold.woff2`, `the-seasons-light-italic.woff2`. The regular
+  weight is preloaded; an italic face also sets the signature lines.
+- Adobe Fonts: add The Seasons to a web project and set its kit ID in
+  `NEXT_PUBLIC_ADOBE_FONTS_KIT`, then redeploy.
+
 ## Connecting the live Shopify store
 
 1. In Shopify admin, add the **Headless** sales channel (or create a custom app with the

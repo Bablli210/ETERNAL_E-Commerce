@@ -32,10 +32,23 @@ html[data-motion="off"] .proof-set[aria-hidden] { display: none; }
 
 /* The lines (LineShowcase): the hovered or focused name in full ink, its still on the right. */
 @layer components {
-  .line-name { color: var(--color-stone); }
-  .line-name[data-on] { color: var(--color-night); }
+  .line-name { color: var(--color-stone); border-color: var(--color-dune); }
+  .line-name[data-on] { color: var(--color-night); border-color: var(--color-night); }
+  .line-logo { opacity: 0.45; }
+  .line-name[data-on] .line-logo { opacity: 1; }
   .line-arrow { opacity: 0; }
   .line-name[data-on] .line-arrow { opacity: 1; }
   .line-still { opacity: 0; }
   .line-still[data-on] { opacity: 1; }
+}
+/* Hover: the name eases right as its rule darkens, and the still settles in with a slight zoom. */
+@media (prefers-reduced-motion: no-preference) {
+  html:not([data-motion="off"]) .line-name { transition: color 200ms var(--ease-standard), border-color 200ms var(--ease-standard); }
+  html:not([data-motion="off"]) .line-text,
+  html:not([data-motion="off"]) .line-logo,
+  html:not([data-motion="off"]) .line-arrow { transition: transform 300ms var(--ease-standard), opacity 300ms var(--ease-standard); }
+  html:not([data-motion="off"]) .line-name[data-on] .line-text { transform: translateX(8px); }
+  html:not([data-motion="off"]) .line-name[data-on] .line-arrow { transform: translateX(4px); }
+  html:not([data-motion="off"]) .line-still { transform: scale(1.04); transition: opacity 500ms var(--ease-standard), transform 900ms var(--ease-standard); }
+  html:not([data-motion="off"]) .line-still[data-on] { transform: scale(1); }
 }

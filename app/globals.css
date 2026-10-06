@@ -145,7 +145,7 @@ input, select, textarea { font-size: 16px; }
 /* Chips — the one rounded element on the site. */
 .chip {
   display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px;
-  border: 1px solid var(--color-dune); border-radius: 999px; background: var(--color-paper);
+  border: 1px solid var(--color-dune); border-radius: 0; background: var(--color-paper);
   font-size: 12px; font-weight: 500; color: var(--color-night); white-space: nowrap; cursor: pointer;
   transition: background-color 160ms var(--ease-standard), color 160ms var(--ease-standard), border-color 160ms var(--ease-standard);
 }

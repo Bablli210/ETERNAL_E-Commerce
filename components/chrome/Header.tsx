@@ -137,18 +137,19 @@ export function Header({
           }`}
         >
           <div className="wrap grid h-full grid-cols-[1fr_auto_1fr] items-center max-lg:px-2">
-            <nav aria-label="Primary" className="hidden items-center gap-7 lg:flex">
+            {/* The links run the header's full height, so the active and hover line sits on its bottom edge. */}
+            <nav aria-label="Primary" className="hidden gap-7 self-stretch lg:flex">
               {nav.map((item) => {
                 const isShop = item.href === "/shop";
                 const active = pathname === item.href || pathname.startsWith(item.href + "/") || (isShop && pathname.startsWith("/products"));
                 return (
-                  <div key={item.href} className="relative" onMouseEnter={isShop ? openMenu : undefined}>
+                  <div key={item.href} className="relative flex" onMouseEnter={isShop ? openMenu : undefined}>
                     <Link
                       href={item.href}
                       aria-expanded={isShop ? menu : undefined}
                       aria-haspopup={isShop ? "true" : undefined}
                       onFocus={isShop ? openMenu : undefined}
-                      className={`ui inline-flex h-11 items-center gap-1 border-b ${active ? "border-current" : "border-transparent"} hover:opacity-70`}
+                      className={`ui nav-link inline-flex h-[calc(100%+1px)] items-center gap-1 border-b ${active ? "border-current" : "border-transparent"}`}
                     >
                       {item.label}
                       {isShop && <Icon name="chevron-down" size={14} />}
