@@ -21,10 +21,10 @@ export type LineShowcaseItem = {
 
 /**
  * "The lines": the three names on the left, each drawn as its line's logotype
- * from the brand kit, and one still on the right. The list
- * runs exactly the still's height: eterna's rule is level with the still's
- * top edge and eternal's last line with its bottom, with no rule under it.
- * Hovering or focusing a name darkens its rule, nudges it right and brings in
+ * from the brand kit, and one still on the right. The list runs exactly the
+ * still's height in three equal rows, each name under its own rule and one more
+ * rule under eternal, so the four rules are evenly spaced from the still's top
+ * edge to its bottom. Hovering or focusing a name darkens its rule, nudges it right and brings in
  * that line's still; each name is the link to its line, so a tap on a phone
  * goes straight there. Every still is in the page from the start, so the swap
  * never waits on a download.
@@ -34,15 +34,15 @@ export function LineShowcase({ items }: { items: LineShowcaseItem[] }) {
   const current = items[active];
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-4 sm:gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-20">
-      <ul className="flex flex-col justify-between">
+      <ul className="grid grid-rows-3 border-b border-dune">
         {items.map((it, i) => (
-          <li key={it.key}>
+          <li key={it.key} className="min-h-0">
             <Link
               href={it.href}
               onMouseEnter={() => setActive(i)}
               onFocus={() => setActive(i)}
               data-on={i === active ? "" : undefined}
-              className={`line-name group flex items-center justify-between gap-3 border-t pt-4 lg:pt-8 ${i < items.length - 1 ? "pb-4 lg:pb-8" : ""}`}
+              className="line-name group flex h-full items-start justify-between gap-3 border-t py-4 lg:py-8"
             >
               <span className="line-text min-w-0">
                 {/* The t is the name's height; eternal's l rises above it, as in the logotype. */}
@@ -54,7 +54,8 @@ export function LineShowcase({ items }: { items: LineShowcaseItem[] }) {
                   {it.count} scents<span className="hidden lg:inline"> · {it.blurb}</span>
                 </span>
               </span>
-              <Icon name="arrow-right" size={28} aria-hidden="true" className="line-arrow hidden shrink-0 lg:block" />
+              {/* Level with the middle of the name, as each row's content sits at its top. */}
+              <Icon name="arrow-right" size={28} aria-hidden="true" className="line-arrow hidden shrink-0 lg:mt-[calc(clamp(56px,6vw,96px)/2_-_14px)] lg:block" />
             </Link>
           </li>
         ))}

@@ -214,7 +214,7 @@ export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; 
 export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; total: number }) {
   if (!entries.length) return null;
   return (
-    <section className="border-t border-dune pb-10 pt-7 lg:py-24">
+    <section className="pb-10 pt-7 lg:py-24">
       <div className="wrap">
         <HomeHead title="Where to start" sub="The house’s picks for a first bottle." />
         <SelectList list="home_where_to_start" items={entries.map(listItem)} className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-12 lg:grid-cols-4 lg:gap-x-6">
