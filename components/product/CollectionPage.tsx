@@ -2,12 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { CollectionGrid } from "@/components/product/CollectionGrid";
 import { FaqSection } from "@/components/product/Sections";
-import type { CollectionDef, LineKey } from "@/content/taxonomy";
+import { lines, type CollectionDef, type LineKey } from "@/content/taxonomy";
 import { getLineCounts, getScent, getScentIndex, toIndexEntry, type Scent } from "@/lib/catalogue";
 import { siteImage } from "@/lib/site-images";
 import type { GridState } from "./grid-state";
 import { lineWithAudience } from "./line";
-import { LineName } from "@/components/ui/LineName";
 
 /** Who each line is for, above its name on its own page. */
 const FOR: Record<LineKey, string> = { eterna: "For her", eterno: "For him", eternal: "For both" };
@@ -30,7 +29,7 @@ export async function CollectionPage({ def, scents, initial }: { def: Collection
     { label: "Home", href: "/" as string },
     { label: "Shop", href: "/shop" },
     ...(def.slug !== "all"
-      ? [{ label: line ? (<>{FOR[line]} · <LineName line={line} /></>) : def.title, href: `/shop/${def.slug}` }]
+      ? [{ label: line ? `${FOR[line]} · ${lines[line].label}` : def.title, href: `/shop/${def.slug}` }]
       : []),
   ];
 

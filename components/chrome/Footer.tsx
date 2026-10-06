@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { footerColumns, site } from "@/content/site";
+import { lines } from "@/content/taxonomy";
 import { facts } from "@/lib/facts";
 import { Icon } from "@/components/ui/Icon";
-import { LineName } from "@/components/ui/LineName";
 import { MotionToggle } from "@/components/motion/MotionToggle";
 import { FooterBrand } from "./FooterBrand";
 import { JoinForm } from "./JoinForm";
@@ -53,17 +53,19 @@ type Column = (typeof footerColumns)[number];
 const shopColumn = footerColumns.find((c) => c.title === "Shop") ?? null;
 const rightColumns = ["The house", "Help"].map((t) => footerColumns.find((c) => c.title === t)).filter((c): c is Column => Boolean(c));
 
-function FooterColumn({ col, right = false, className = "" }: { col: Column; right?: boolean; className?: string }) {
+/** right: links flush right; "lg": flush right from desktop, flush left on a phone where the column sits on the left. */
+function FooterColumn({ col, right = false, className = "" }: { col: Column; right?: boolean | "lg"; className?: string }) {
+  const end = right === true ? "justify-end" : right === "lg" ? "lg:justify-end" : "";
   return (
     <div className={className}>
       <p className="eyebrow mb-1 text-ash">{col.title}</p>
       <ul className="flex flex-col">
         {col.links.map((l) => (
           <li key={l.href + l.label}>
-            <Link href={l.href} className={`flex min-h-11 items-center text-[14px] hover:text-sea lg:min-h-9 ${right ? "justify-end" : ""}`}>
+            <Link href={l.href} className={`flex min-h-11 items-center text-[14px] hover:text-sea lg:min-h-9 ${end}`}>
               {"line" in l ? (
                 <span>
-                  {l.label} <span aria-hidden="true">·</span> <LineName line={l.line} size="1.15em" />
+                  {l.label} · {lines[l.line].label}
                 </span>
               ) : (
                 l.label
@@ -82,8 +84,8 @@ export function Footer({ shopDomain }: { shopDomain: string }) {
       <JoinBand shopDomain={shopDomain} />
       <footer className="border-t border-dune bg-linen text-night">
         {/*
-          Desktop: the brand top left with WhatsApp at the foot of the same column, Shop in the middle, and The house over
-          Help in one column set flush right. Phone: brand, then Shop beside The house and Help, then WhatsApp.
+          Desktop: the brand top left with WhatsApp at the foot of the same column; on the right, Shop and then The house
+          over Help, both set flush right. Phone: brand, then Shop beside The house and Help, then WhatsApp.
         */}
         <div className="wrap grid grid-cols-2 gap-x-6 gap-y-10 py-14 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_auto] lg:grid-rows-[auto_1fr] lg:gap-x-12 lg:gap-y-8 lg:py-16">
           <div className="col-span-2 flex flex-col gap-3 lg:col-span-1 lg:col-start-1 lg:row-start-1">
@@ -100,7 +102,7 @@ export function Footer({ shopDomain }: { shopDomain: string }) {
               </ul>
             )}
           </div>
-          {shopColumn && <FooterColumn col={shopColumn} className="lg:col-start-2 lg:row-span-2 lg:row-start-1" />}
+          {shopColumn && <FooterColumn col={shopColumn} right="lg" className="lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:justify-self-end lg:text-right" />}
           <div className="flex flex-col gap-8 text-right lg:col-start-3 lg:row-span-2 lg:row-start-1 lg:justify-self-end">
             {rightColumns.map((col) => (
               <FooterColumn key={col.title} col={col} right />

@@ -9,7 +9,6 @@ import { facts } from "@/lib/facts";
 import { formatMoney } from "@/lib/format";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { Icon } from "@/components/ui/Icon";
-import { LineName } from "@/components/ui/LineName";
 import { Wordmark } from "@/components/ui/Wordmark";
 import { useModal } from "./useModal";
 import { WhatsAppLink } from "./WhatsAppLink";
@@ -73,7 +72,7 @@ export function MobileMenu({ onClose, counts, box }: { onClose: () => void; coun
                 thumb={<Image src={`/images/line-${key}.jpg`} alt="" fill sizes="44px" className="object-cover" />}
                 title={
                   <>
-                    {label} <span aria-hidden="true">·</span> <LineName line={key} size="22px" />
+                    {label} · {lines[key].label}
                   </>
                 }
                 sub={`${counts[key]} scents · ${lines[key].blurb}`}

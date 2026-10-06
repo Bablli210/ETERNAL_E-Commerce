@@ -23,7 +23,6 @@ import { LineShowcase, type LineShowcaseItem } from "./LineShowcase";
 import { siteImage } from "@/lib/site-images";
 import { InspiredBy } from "@/components/product/InspiredBy";
 import { LineLabel } from "@/components/product/LineLabel";
-import { LineName } from "@/components/ui/LineName";
 
 const LINE_ORDER: LineKey[] = ["eterna", "eterno", "eternal"];
 
@@ -122,7 +121,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
           </h1>
           {/* A short phone (Instagram's browser, small Androids) drops this line so the bottle stays clear of the copy. */}
           <p className="mt-3 max-w-[46ch] text-[15px] leading-normal text-dune max-lg:[@media(max-height:760px)]:hidden lg:mt-6 lg:text-[17px]">
-            eaux de parfum from Cairo, in three lines: <LineName line="eterna" /> for her, <LineName line="eterno" /> for him, <LineName line="eternal" /> unisex.
+            eaux de parfum from Cairo, in three lines: eterna for her, eterno for him, eternal unisex.
           </p>
           {offer.length > 0 && <p className="tnum mt-2 text-[13px] font-semibold tracking-[0.02em] text-linen">{offer.join(" · ")}</p>}
           <div className="mt-5 flex flex-wrap items-center gap-x-6 lg:mt-8">

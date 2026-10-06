@@ -12,7 +12,7 @@ Shopify store, which stays the source of truth for products, prices, inventory a
   Deep sea) as `@theme` variables in `app/globals.css`.
 - The brand kit's faces, self-hosted through `next/font` (`app/fonts.ts`): **The Seasons** for
   titles and names, **Cabinet Grotesk** for subtitles and **General Sans** for body text. The
-  line names and the house wordmark are the kit's logotypes, drawn as SVG (`LineName`, `Wordmark`).
+  line logotypes (as titles) and the house wordmark are the kit's, drawn as SVG (`LineName`, `Wordmark`).
 - **Shopify Storefront API** for the catalogue and checkout, with a committed snapshot of
   the live catalogue as a fallback so the site builds and deploys without any credentials.
 
@@ -119,10 +119,11 @@ evaluation only, and without curly quotes, dashes, `·`, `×` or accented letter
 draws in its place. Before launch, buy the web licence, replace the two files, update the paths and
 set `SEASONS_IS_DEMO` to `false`. `/launch-checklist` shows it until then.
 
-The line names (eterna, eterno, eternal) and the house wordmark are the kit's logotypes, traced to
+The line logotypes (eterna, eterno, eternal) and the house wordmark are the kit's logotypes, traced to
 SVG in `components/ui/brand-paths.ts` and placed once per page by `BrandSprite`. `LineName` draws a
-line's name at the size of the text around it, in its colour; `Wordmark` and `Logotype` draw the house
-mark. The icon (the e∞ mark) is in `components/ui/mark-path.ts`.
+line's logotype where it stands as a title (Three lines on the home page, each line page's title);
+beside its audience ("eterno · for him") a line's name is plain text (`LineLabel`). `Wordmark` and
+`Logotype` draw the house mark. The icon (the e∞ mark) is in `components/ui/mark-path.ts`.
 
 ## Connecting the live Shopify store
 

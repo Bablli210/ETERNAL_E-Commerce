@@ -7,11 +7,11 @@ import { afterPanelBack } from "@/components/chrome/useModal";
 import { MARK_ASPECT, MARK_FILL, MARK_LINE, MARK_LINE_WIDTH, MARK_VIEWBOX } from "./mark-path";
 import { LOGO_BOX } from "./logo-box";
 
-/** The eternal logotype (BrandSprite), sized by its height; the width follows. */
+/** The eternal logotype (BrandSprite). Size it by one side (h-… w-auto, or w-… h-auto); the other follows. */
 export function Logotype({ className = "" }: { className?: string }) {
   const { w, h } = LOGO_BOX.eternal;
   return (
-    <svg aria-hidden="true" focusable="false" viewBox={`0 0 ${w} ${h}`} className={`block w-auto ${className}`} style={{ aspectRatio: `${w} / ${h}` }}>
+    <svg aria-hidden="true" focusable="false" viewBox={`0 0 ${w} ${h}`} className={`block ${className}`} style={{ aspectRatio: `${w} / ${h}` }}>
       <use href="#brand-eternal" />
     </svg>
   );
@@ -47,7 +47,7 @@ export function Wordmark({
   };
   return (
     <Link href={href} prefetch={false} replace={replace} onClick={click} aria-label="eternal — home" className={`inline-flex min-h-11 items-center ${inverted ? "text-linen" : "text-night"} ${className}`}>
-      <Logotype className="h-[28px] lg:h-[35px]" />
+      <Logotype className="h-[28px] w-auto lg:h-[35px]" />
     </Link>
   );
 }

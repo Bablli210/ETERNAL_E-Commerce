@@ -44,9 +44,10 @@ export function FooterBrand({ tagline }: { tagline: string }) {
   }, []);
 
   return (
-    <div className="flex flex-col items-center gap-[0.9em] self-start text-night" style={{ fontSize: 14 }}>
-      <Link ref={logo} href="/" prefetch={false} aria-label="eternal — home" className="block">
-        <Logotype className="h-[64px] lg:h-[76px]" />
+    // The logotype is 330 px wide on a phone (or the column, if narrower) and 440 px from desktop.
+    <div className="flex w-full max-w-[330px] flex-col items-center gap-4 self-start text-night lg:max-w-[440px] lg:gap-5">
+      <Link ref={logo} href="/" prefetch={false} aria-label="eternal — home" className="block w-full">
+        <Logotype className="h-auto w-full" />
       </Link>
       <p ref={line} className="subtitle whitespace-nowrap text-center uppercase leading-none tracking-[0.02em]" style={{ fontSize: 11 }}>
         {tagline.replace(/\.$/, "")}

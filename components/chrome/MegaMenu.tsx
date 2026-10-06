@@ -4,11 +4,10 @@ import Link from "next/link";
 import { ProductImage } from "@/components/product/ProductImage";
 import { Eyebrow, Price } from "@/components/ui/Primitives";
 import { site } from "@/content/site";
-import { familyOrder, families } from "@/content/taxonomy";
+import { familyOrder, families, lines } from "@/content/taxonomy";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { InspiredBy } from "@/components/product/InspiredBy";
 import { LineLabel } from "@/components/product/LineLabel";
-import { LineName } from "@/components/ui/LineName";
 
 export type FeaturedTiles = { bestseller: ScentIndexEntry | null; newIn: ScentIndexEntry | null };
 
@@ -50,7 +49,7 @@ export function MegaMenu({ featured, onEnter, onLeave }: { featured: FeaturedTil
                   <Link href={lk.href} className="text-[14px] hover:text-sea">
                     {"line" in lk && lk.line ? (
                       <>
-                        {lk.label} <span aria-hidden="true">·</span> <LineName line={lk.line} size="1.15em" />
+                        {lk.label} · {lines[lk.line].label}
                       </>
                     ) : (
                       lk.label

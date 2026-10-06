@@ -8,7 +8,6 @@ import { formatMoney } from "@/lib/format";
 import { NotFoundSearch } from "@/components/content/NotFoundSearch";
 import { WhatsAppLink } from "@/components/content/WhatsAppLink";
 import { Mark } from "@/components/ui/Wordmark";
-import { LineName } from "@/components/ui/LineName";
 import { Icon } from "@/components/ui/Icon";
 
 export const metadata: Metadata = { title: "Page not found" };
@@ -56,7 +55,7 @@ export default async function NotFound() {
             <li key={l.key}>
               <Link href={`/shop/${lines[l.key].slug}`} className={ROW}>
                 <span className="min-w-0 flex-1 font-semibold">
-                  {l.label} <span aria-hidden="true">·</span> <LineName line={l.key} size="1.15em" />
+                  {l.label} · {lines[l.key].label}
                 </span>
                 {chevron}
               </Link>
