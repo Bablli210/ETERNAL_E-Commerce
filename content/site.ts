@@ -92,14 +92,14 @@ export const nav = [
   { label: "Tales", href: "/tales" },
 ] as const;
 
-/** The line names differ by one letter, so each one travels with its audience. */
+/** The line names differ by one letter, so each one travels with its audience; `line` draws the name as its logotype after the label. */
 export const footerColumns = [
   {
     title: "Shop",
     links: [
-      { label: "For her · eterna", href: "/shop/her" },
-      { label: "For him · eterno", href: "/shop/him" },
-      { label: "Unisex · eternal", href: "/shop/unisex" },
+      { label: "For her", line: "eterna", href: "/shop/her" },
+      { label: "For him", line: "eterno", href: "/shop/him" },
+      { label: "Unisex", line: "eternal", href: "/shop/unisex" },
       { label: "Mystery box", href: "/products/mystery-box" },
       { label: "Find your scent", href: "/finder" },
       { label: "Where to start", href: "/shop/bestsellers" },

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useMemo, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { preconnect } from "react-dom";
 import { MAX_QTY, sampleNames, sizeLabel, useCart, type CartLine } from "./CartProvider";
 import { inertOutside } from "@/lib/client/inertOutside";
@@ -15,6 +15,8 @@ import { facts } from "@/lib/facts";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { lines, type LineKey } from "@/content/taxonomy";
 import { lineWithAudience } from "@/components/product/line";
+import { InspiredBy } from "@/components/product/InspiredBy";
+import { LineLabel } from "@/components/product/LineLabel";
 import { parseJSON, RECENT_KEY, useStoredRaw } from "@/lib/client/storage";
 import { motionAllowed } from "@/lib/motion";
 import { track } from "@/lib/client/analytics";
@@ -23,7 +25,8 @@ import { discountCode } from "@/lib/client/attribution";
 const BOX = "mystery-box";
 
 /** The three line names differ by one letter, so the audience always travels with them. */
-const lineName = (label: string | null) => (label && label in lines ? lineWithAudience(label as LineKey) : label);
+/** A bag line's line, with the name drawn as its logotype. */
+const lineName = (label: string | null): ReactNode => (label && label in lines ? <LineLabel line={label as LineKey} /> : label);
 
 /**
  * The confirmed payment methods, listed once under Checkout. Above it, only a
@@ -91,7 +94,7 @@ function SamplePicker({ slot, of, value, groups, onPick }: { slot: number; of: n
   );
 }
 
-type Suggestion = { key: string; eyebrow: string; entry: ScentIndexEntry; variant: NonNullable<ScentIndexEntry["bottle"]>; note: string; image: string | null };
+type Suggestion = { key: string; eyebrow: ReactNode; entry: ScentIndexEntry; variant: NonNullable<ScentIndexEntry["bottle"]>; note: ReactNode; image: string | null };
 
 function Thumb({ src, world, sizes, mark }: { src: string | null; world: CartLine["world"]; sizes: string; mark: number }) {
   if (src) return <Image src={src} alt="" fill sizes={sizes} className="object-cover" />;
@@ -205,7 +208,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
       const viewed = recent.map((h) => byHandle.get(h));
       const e = [...sampled, ...viewed].find(ok) ?? index.find((x) => ok(x) && x.image && (x.isBestseller || x.isPick)) ?? index.find((x) => ok(x) && x.image);
       if (!e?.bottle) return null;
-      return { key: e.handle, eyebrow: "Make it a bottle", entry: e, variant: e.bottle, note: [e.bottle.label, lineName(e.lineLabel)].filter(Boolean).join(" · "), image: e.image };
+      return { key: e.handle, eyebrow: "Make it a bottle", entry: e, variant: e.bottle, note: e.lineLabel ? <>{e.bottle.label} · {lineName(e.lineLabel)}</> : e.bottle.label, image: e.image };
     }
 
     // 2. The mystery box, the low-commitment way to choose the next bottle.
@@ -222,7 +225,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
     const sameLine = (x: ScentIndexEntry) => ok(x) && x.line === line && !handles.has(x.handle) && Boolean(x.image);
     const e = index.find((x) => sameLine(x) && (x.isBestseller || x.isPick)) ?? index.find(sameLine);
     if (!e?.bottle) return null;
-    return { key: e.handle, eyebrow: `More from ${lineName(e.lineLabel)}`, entry: e, variant: e.bottle, note: [e.notesShort.slice(0, 3).join(", "), e.bottle.label].filter(Boolean).join(" · "), image: e.image };
+    return { key: e.handle, eyebrow: <>More from {lineName(e.lineLabel)}</>, entry: e, variant: e.bottle, note: [e.notesShort.slice(0, 3).join(", "), e.bottle.label].filter(Boolean).join(" · "), image: e.image };
   }, [quiet, cart.lines, spent, byHandle, recent, index, box, boxImage, away]);
 
   const settle = (key: string) => {
@@ -325,7 +328,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
               <ul>
                 {cart.lines.map((l) => {
                   const href = `/products/${l.handle}`;
-                  const label = [sizeLabel(l.variantLabel), l.kind === "set" ? null : lineName(l.lineLabel)].filter(Boolean).join(" · ");
+                  const label = l.kind !== "set" && l.lineLabel ? <>{sizeLabel(l.variantLabel)} · {lineName(l.lineLabel)}</> : sizeLabel(l.variantLabel);
                   const original = l.kind === "set" ? null : byHandle.get(l.handle)?.inspiredBy;
                   return (
                     <li key={l.variantId} className={`line-row ${removing.has(l.variantId) ? "removing" : ""} ${cart.lastAdded === l.variantId ? "line-new" : ""}`}>
@@ -346,11 +349,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
                             )}
                           </div>
                           <p className="mt-1 text-[13px] text-ash">{label}</p>
-                          {original && (
-                            <p className="text-[13px] text-ash">
-                              Inspired by <span className="font-semibold text-night">{original}</span>
-                            </p>
-                          )}
+                          {original && <InspiredBy name={original} className="text-[13px] text-ash" />}
                           {l.qty > 1 && !l.soldOut && <p className="tnum text-[13px] text-ash">{formatMoney(l.price)} each</p>}
                           {l.kind === "sample" && facts.sampleCredit && <p className="text-[13px] text-ash">{facts.sampleCredit}</p>}
                           <div className="mt-auto flex items-center justify-between pt-2">
@@ -405,6 +404,7 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
                   <div className="min-w-0 flex-1">
                     <p className="text-[12px] font-semibold tracking-[0.02em] text-ash">{suggestion.eyebrow}</p>
                     <p className="mt-0.5 text-[15px] font-semibold leading-snug">{suggestion.entry.title}</p>
+                    {suggestion.entry.inspiredBy && <InspiredBy name={suggestion.entry.inspiredBy} className="text-[12px] text-ash" />}
                     <p className="text-[13px] leading-snug text-ash">{suggestion.note}</p>
                     <div className="mt-2 flex items-center justify-between gap-2">
                       <Price money={suggestion.variant.price} className="text-[14px] font-medium" />

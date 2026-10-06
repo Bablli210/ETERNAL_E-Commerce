@@ -2,11 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { CollectionGrid } from "@/components/product/CollectionGrid";
 import { FaqSection } from "@/components/product/Sections";
-import { lines, type CollectionDef, type LineKey } from "@/content/taxonomy";
+import type { CollectionDef, LineKey } from "@/content/taxonomy";
 import { getLineCounts, getScent, getScentIndex, toIndexEntry, type Scent } from "@/lib/catalogue";
 import { siteImage } from "@/lib/site-images";
 import type { GridState } from "./grid-state";
 import { lineWithAudience } from "./line";
+import { LineName } from "@/components/ui/LineName";
 
 /** Who each line is for, above its name on its own page. */
 const FOR: Record<LineKey, string> = { eterna: "For her", eterno: "For him", eternal: "For both" };
@@ -25,7 +26,13 @@ export async function CollectionPage({ def, scents, initial }: { def: Collection
   const entries = scents.map((s) => byHandle.get(s.handle) ?? toIndexEntry(s));
   const line = def.kind === "line" ? (def.key as LineKey) : null;
   const still = line ? siteImage(`collection-${def.slug}`) : null;
-  const crumbs = [{ label: "Home", href: "/" }, { label: "Shop", href: "/shop" }, ...(def.slug !== "all" ? [{ label: line ? `${FOR[line]} · ${lines[line].label}` : def.title, href: `/shop/${def.slug}` }] : [])];
+  const crumbs = [
+    { label: "Home", href: "/" as string },
+    { label: "Shop", href: "/shop" },
+    ...(def.slug !== "all"
+      ? [{ label: line ? (<>{FOR[line]} · <LineName line={line} /></>) : def.title, href: `/shop/${def.slug}` }]
+      : []),
+  ];
 
   return (
     <>
@@ -46,6 +53,7 @@ export async function CollectionPage({ def, scents, initial }: { def: Collection
           house={house}
           list={def.slug}
           title={def.title}
+          line={line}
           scope={line ? lineWithAudience(line) : def.title}
           descriptor={def.descriptor}
           eyebrow={line ? FOR[line] : undefined}

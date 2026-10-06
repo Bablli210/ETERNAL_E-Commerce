@@ -28,7 +28,7 @@ export function SectionHead({
   index?: string;
   title: ReactNode;
   sub?: ReactNode;
-  action?: { label: string; href: string };
+  action?: { label: ReactNode; href: string };
   dark?: boolean;
   className?: string;
 }) {

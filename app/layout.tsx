@@ -1,14 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import { site } from "@/content/site";
 import { tales } from "@/content/tales";
 import { getBestsellers, getNewArrivals, getScentIndex, toIndexEntry } from "@/lib/catalogue";
 import { checkoutDomain } from "@/lib/shopify/client";
 import { siteImage } from "@/lib/site-images";
-import { brandFont } from "@/lib/brand-font";
-import { preload } from "react-dom";
-import type { CSSProperties } from "react";
+import { fontVariables } from "./fonts";
+import { BrandSprite } from "@/components/ui/BrandSprite";
 import { CartProvider } from "@/components/cart/CartProvider";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { Header } from "@/components/chrome/Header";
@@ -20,41 +18,6 @@ import { MotionScript } from "@/components/motion/MotionScript";
 import { Loader } from "@/components/motion/Loader";
 import { PageFade } from "@/components/motion/PageFade";
 import { Analytics } from "@/components/analytics/Analytics";
-
-/*
- * display "optional": the fonts are preloaded, so they are almost always in
- * time; a slow first visit keeps the fallback for that page view instead of
- * reflowing the hero under the visitor (the fallbacks, Times New Roman and
- * Arial, are missing on Android, so their metric adjustment does nothing there).
- */
-const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal"],
-  variable: "--font-cormorant",
-  display: "optional",
-});
-
-/*
- * The italic sets only the signature lines, which are never on the first
- * screen, so it is not preloaded: it stays off the network while the hero
- * downloads and swaps in out of view.
- */
-const cormorantItalic = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["500"],
-  style: ["italic"],
-  variable: "--font-cormorant-italic",
-  display: "swap",
-  preload: false,
-});
-
-const instrument = Instrument_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-instrument",
-  display: "optional",
-});
 
 const ogImage = siteImage("og-image");
 
@@ -91,18 +54,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   };
   const taleIndex = tales.map((t) => ({ slug: t.slug, title: t.title, handle: t.handle, line: t.line }));
 
-  // The Seasons, once its files or Adobe kit are in place (lib/brand-font.ts), leads the serif stack; Cormorant stays as its fallback.
-  const brand = brandFont();
-  if (brand?.preload) preload(brand.preload, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
-  const serifStack = brand ? ({ ["--font-serif" as string]: `${brand.family}, var(--font-cormorant), "Cormorant Garamond", Georgia, serif` } as CSSProperties) : undefined;
-  const brandCss = brand ? `${brand.css}${brand.italic ? `.signature{font-family:${brand.family},var(--font-cormorant-italic),var(--font-serif);}` : ""}` : "";
-
   return (
     // data-scroll-behavior: Next 16 suspends the smooth scrolling (globals.css) during route changes only with this opt-in; without it a new page lands part-way down.
-    <html lang="en" data-scroll-behavior="smooth" className={`${cormorant.variable} ${cormorantItalic.variable} ${instrument.variable}`} style={serifStack}>
+    <html lang="en" data-scroll-behavior="smooth" className={fontVariables}>
       <body>
-        {brand?.stylesheet && <link rel="stylesheet" href={brand.stylesheet} precedence="default" />}
-        {brandCss && <style dangerouslySetInnerHTML={{ __html: brandCss }} />}
+        <BrandSprite />
         <MotionScript />
         <Loader />
         <CartProvider>

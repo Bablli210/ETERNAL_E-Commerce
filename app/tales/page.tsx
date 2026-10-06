@@ -4,7 +4,7 @@ import { siteImage } from "@/lib/site-images";
 import Link from "next/link";
 import { tales } from "@/content/tales";
 import { getScent } from "@/lib/catalogue";
-import { lineWithAudience } from "@/components/product/line";
+import { LineLabel } from "@/components/product/LineLabel";
 import { FinderBand } from "@/components/content/FinderBand";
 import { TaleStill } from "@/components/content/TaleStill";
 import { Eyebrow, Price } from "@/components/ui/Primitives";
@@ -32,7 +32,7 @@ export default async function TalesPage() {
                 <Link href={`/tales/${t.slug}`} className="group flex flex-col">
                   <TaleStill slug={t.slug} label={t.heroArt} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
                   <p className="mt-4 text-[12px] tracking-[0.02em] text-ash">
-                    {lineWithAudience(t.line)} · {t.readTime}
+                    <LineLabel line={t.line} /> · {t.readTime}
                   </p>
                   <h2 className="serif mt-1 text-[28px] leading-[1.1] group-hover:text-sea">{t.title}</h2>
                   <p className="mt-2 line-clamp-3 text-[15px] leading-relaxed text-ash">{t.paragraphs[0]}</p>

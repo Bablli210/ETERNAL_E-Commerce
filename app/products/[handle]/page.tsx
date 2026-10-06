@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import snapshot from "@/content/catalogue.snapshot.json";
 import { site } from "@/content/site";
-import { families, lines } from "@/content/taxonomy";
+import { families, lines, type LineKey } from "@/content/taxonomy";
 import { getRelated, getScent, getScentIndex, getCatalogue, toIndexEntry, type Scent } from "@/lib/catalogue";
 import { facts } from "@/lib/facts";
 import { joinNotes, sentenceCase, sizeLabel } from "@/lib/format";
@@ -14,12 +14,20 @@ import { BoxContents, Differs, FaqSection, notesAnswer, Pairing, sectionReady, T
 import { ProductCard } from "@/components/product/ProductCard";
 import { RecentlyViewed } from "@/components/product/RecentlyViewed";
 import { lineWithAudience } from "@/components/product/line";
+import { LineLabel } from "@/components/product/LineLabel";
+import { InspiredBy } from "@/components/product/InspiredBy";
 import { TrackView } from "@/components/analytics/TrackView";
 import { Price, SectionHead } from "@/components/ui/Primitives";
 import { Icon } from "@/components/ui/Icon";
 
 export const revalidate = 300;
 export const dynamicParams = true;
+
+/**
+ * Longest original that fits on one line after "INSPIRED BY" on a 360 px phone, in The Seasons at 20 px.
+ * A longer one wraps, and the page marks it (data-hook-long) so the gallery frame gives that line back.
+ */
+const ORIGINAL_ONE_LINE = 22;
 
 export function generateStaticParams() {
   return snapshot.products.map((p) => ({ handle: p.handle }));
@@ -95,10 +103,10 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   // The box sells vials, not a bottle: its returns question says so.
   const faqQuestions = isSet ? { returns: "Can I return the box?" } : undefined;
 
-  const crumbs = [
+  const crumbs: { name: string; href: string; line?: LineKey }[] = [
     { name: "Home", href: "/" },
     { name: "Shop", href: "/shop" },
-    ...(line && linePage ? [{ name: lineWithAudience(line), href: linePage }] : []),
+    ...(line && linePage ? [{ name: lineWithAudience(line), href: linePage, line }] : []),
     { name: scent.title, href: `/products/${scent.handle}` },
   ];
   const jsonLd = [
@@ -130,7 +138,13 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
   const bottleLabel = scent.bottle?.label ?? `${site.bottleSizeMl} ml`;
   const size = isSet ? `${sizeLabel(bottleLabel)} · eaux de parfum` : `${bottleLabel} eau de parfum`;
-  const eyebrow = line ? `${lineWithAudience(line)} · ${size}` : size;
+  const eyebrow = line ? (
+    <>
+      <LineLabel line={line} /> · {size}
+    </>
+  ) : (
+    size
+  );
   const chips = notes.map((note) => (
     <span key={note} className="inline-flex h-8 items-center rounded-full border border-dune bg-paper px-3 text-[12px] font-medium whitespace-nowrap">
       {sentenceCase(note)}
@@ -151,7 +165,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               {i > 0 && <span aria-hidden="true">/</span>}
               {i < crumbs.length - 1 ? (
                 <Link href={c.href} className="hover:text-night">
-                  {c.name}
+                  {c.line ? <LineLabel line={c.line} /> : c.name}
                 </Link>
               ) : (
                 <span aria-current="page" className="text-night">
@@ -167,6 +181,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
         className="pdp-hero wrap grid grid-cols-[minmax(0,1fr)] pt-3 pb-14 md:pt-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16 lg:pt-8"
         data-announce={facts.announcement ? "" : undefined}
         data-hook={scent.inspiredBy || isSet ? "" : undefined}
+        data-hook-long={!isSet && (scent.inspiredBy?.length ?? 0) > ORIGINAL_ONE_LINE ? "" : undefined}
         data-chips={chips.length ? "" : undefined}
         data-size={scent.sample ? "" : undefined}
         data-long={scent.title.length > 14 ? "" : undefined}
@@ -175,7 +190,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
         <div className="mt-4 lg:sticky lg:top-28 lg:mt-0 lg:self-start">
           <p className="text-[13px] leading-[18px] text-ash">{eyebrow}</p>
           <div className="mt-1 flex items-baseline justify-between gap-4 lg:mt-3 lg:block">
-            <h1 className="min-w-0 text-[32px] leading-[1.1] font-semibold lg:text-[clamp(36px,4vw,56px)]">{scent.title}</h1>
+            <h1 className="min-w-0 text-[28px] leading-[1.1] font-semibold lg:text-[clamp(36px,4vw,56px)]">{scent.title}</h1>
             <Price money={scent.price} className="shrink-0 text-[20px] font-medium lg:mt-4 lg:block lg:text-[22px]" />
           </div>
           {(scent.inspiredBy || isSet) && (
@@ -183,9 +198,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               {isSet ? (
                 <p className="text-[15px] leading-[22px]">{box.hook}</p>
               ) : (
-                <p className="text-[14px] leading-6 text-ash">
-                  Inspired by <strong className="serif text-[20px] font-semibold text-night">{scent.inspiredBy}</strong>
-                </p>
+                <InspiredBy name={scent.inspiredBy ?? ""} className="text-[14px] leading-6 text-ash" nameClassName="text-[20px]" />
               )}
               <p className="text-[12px] leading-[18px] text-ash">{isSet ? box.hookSub : "Our own composition, not affiliated with its house."}</p>
             </div>
@@ -231,7 +244,18 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       {alsoLike.length > 0 && (
         <section className="section border-t border-dune">
           <div className="wrap">
-            <SectionHead title="You may also like" action={line && linePage ? { label: `All ${lineWithAudience(line)}`, href: linePage } : { label: "All scents", href: "/shop" }} />
+            <SectionHead title="You may also like" action={
+                line && linePage
+                  ? {
+                      label: (
+                        <>
+                          All <LineLabel line={line} />
+                        </>
+                      ),
+                      href: linePage,
+                    }
+                  : { label: "All scents", href: "/shop" }
+              } />
             <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-6">
               {alsoLike.map((r, i) => (
                 <div key={r.handle} data-reveal style={{ ["--i" as string]: i }}>

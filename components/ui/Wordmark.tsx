@@ -5,9 +5,21 @@ import type { MouseEvent } from "react";
 import { motionAllowed } from "@/lib/motion";
 import { afterPanelBack } from "@/components/chrome/useModal";
 import { MARK_ASPECT, MARK_FILL, MARK_LINE, MARK_LINE_WIDTH, MARK_VIEWBOX } from "./mark-path";
+import { LOGO_BOX } from "./logo-box";
+
+/** The eternal logotype (BrandSprite), sized by its height; the width follows. */
+export function Logotype({ className = "" }: { className?: string }) {
+  const { w, h } = LOGO_BOX.eternal;
+  return (
+    <svg aria-hidden="true" focusable="false" viewBox={`0 0 ${w} ${h}`} className={`block w-auto ${className}`} style={{ aspectRatio: `${w} / ${h}` }}>
+      <use href="#brand-eternal" />
+    </svg>
+  );
+}
 
 /**
- * The wordmark: lowercase serif, clear space the height of the e. 24 px in the 56 px phone header, 28 px on desktop.
+ * The wordmark: the house's eternal logotype from the brand kit, 28 px tall in the 56 px phone header, 35 px on
+ * desktop, with clear space the height of its e around it.
  *
  * Tapping it on the page it links to goes back to the top, as a logo does everywhere (a Next link to the
  * page already open does not scroll). It never prefetches: that would fetch the home page, and with it the
@@ -34,8 +46,8 @@ export function Wordmark({
     if (here) afterPanelBack(() => window.scrollTo({ top: 0, behavior: motionAllowed() ? "smooth" : "auto" }));
   };
   return (
-    <Link href={href} prefetch={false} replace={replace} onClick={click} aria-label="eternal — home" className={`serif inline-flex min-h-11 items-center text-[24px] font-semibold tracking-[0.02em] leading-none lg:text-[28px] ${inverted ? "text-linen" : "text-night"} ${className}`}>
-      eternal
+    <Link href={href} prefetch={false} replace={replace} onClick={click} aria-label="eternal — home" className={`inline-flex min-h-11 items-center ${inverted ? "text-linen" : "text-night"} ${className}`}>
+      <Logotype className="h-[28px] lg:h-[35px]" />
     </Link>
   );
 }
@@ -48,7 +60,7 @@ export function Mark({ size = 48, className = "", draw = false }: { size?: numbe
   return (
     <svg width={size} height={Math.round((size / MARK_ASPECT) * 10) / 10} viewBox={MARK_VIEWBOX} aria-hidden="true" className={`${draw ? "draw" : ""} ${className}`}>
       {draw && <path className="mark-line" pathLength={1} d={MARK_LINE} fill="none" stroke="currentColor" strokeWidth={MARK_LINE_WIDTH} strokeLinecap="round" strokeLinejoin="round" />}
-      <path className="mark-fill" d={MARK_FILL} fill="currentColor" />
+      <path className="mark-fill" d={MARK_FILL} fill="currentColor" fillRule="evenodd" />
     </svg>
   );
 }

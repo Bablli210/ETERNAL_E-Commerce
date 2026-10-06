@@ -6,7 +6,8 @@ import { useEffect, useMemo, useRef, useState, useSyncExternalStore, useTransiti
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { searchIndex } from "@/lib/search";
 import { track } from "@/lib/client/analytics";
-import { lineWithAudience } from "@/components/product/line";
+import { InspiredBy } from "@/components/product/InspiredBy";
+import { LineLabel } from "@/components/product/LineLabel";
 import { ProductImage } from "@/components/product/ProductImage";
 import { Eyebrow, Price } from "@/components/ui/Primitives";
 import { Icon } from "@/components/ui/Icon";
@@ -45,8 +46,7 @@ const ORIGINALS_FOR_HINT = 10;
 
 /** A scent row: the original it is inspired by gets a line of its own, since it is what most visitors search for. */
 function ResultRow({ entry, matchedInspiredBy = false, onPick }: { entry: ScentIndexEntry; matchedInspiredBy?: boolean; onPick: (e: MouseEvent) => void }) {
-  const line = entry.line ? lineWithAudience(entry.line) : null;
-  const detail = entry.inspiredBy ? line : [line, entry.notesShort.join(", ") || entry.bottle?.label].filter(Boolean).join(" · ");
+  const rest = entry.inspiredBy ? null : entry.notesShort.join(", ") || entry.bottle?.label || null;
   return (
     <li>
       <Link href={`/products/${entry.handle}`} replace onClick={onPick} className="group flex items-center gap-3 py-3">
@@ -54,11 +54,15 @@ function ResultRow({ entry, matchedInspiredBy = false, onPick }: { entry: ScentI
         <span className="min-w-0 flex-1">
           <span className="display-m block truncate !text-[20px] group-hover:text-sea">{entry.title}</span>
           {entry.inspiredBy && (
+            <InspiredBy as="span" name={entry.inspiredBy} className="block truncate text-[12px] text-ash" nameClassName={matchedInspiredBy ? "underline decoration-gold underline-offset-2" : ""} />
+          )}
+          {(entry.line || rest) && (
             <span className="block truncate text-[12px] text-ash">
-              Inspired by <span className={matchedInspiredBy ? "font-semibold text-night" : undefined}>{entry.inspiredBy}</span>
+              {entry.line && <LineLabel line={entry.line} />}
+              {entry.line && rest ? " · " : ""}
+              {rest}
             </span>
           )}
-          {detail && <span className="block truncate text-[12px] text-ash">{detail}</span>}
         </span>
         <Price money={entry.price} className="shrink-0 whitespace-nowrap text-[14px] font-medium" />
       </Link>

@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import { footerColumns, site } from "@/content/site";
 import { facts } from "@/lib/facts";
 import { Icon } from "@/components/ui/Icon";
+import { LineName } from "@/components/ui/LineName";
 import { MotionToggle } from "@/components/motion/MotionToggle";
 import { FooterBrand } from "./FooterBrand";
 import { JoinForm } from "./JoinForm";
@@ -60,7 +61,13 @@ function FooterColumn({ col, right = false, className = "" }: { col: Column; rig
         {col.links.map((l) => (
           <li key={l.href + l.label}>
             <Link href={l.href} className={`flex min-h-11 items-center text-[14px] hover:text-sea lg:min-h-9 ${right ? "justify-end" : ""}`}>
-              {l.label}
+              {"line" in l ? (
+                <span>
+                  {l.label} <span aria-hidden="true">·</span> <LineName line={l.line} size="1.15em" />
+                </span>
+              ) : (
+                l.label
+              )}
             </Link>
           </li>
         ))}

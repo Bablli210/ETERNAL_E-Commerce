@@ -1,10 +1,12 @@
 "use client";
 
+import type { ReactNode } from "react";
+
 import { useEffect, useEffectEvent, useRef } from "react";
 import { useModal } from "@/components/chrome/useModal";
 import { Icon } from "@/components/ui/Icon";
 
-export type FilterOption = { key: string; label: string; count?: number; active: boolean; onToggle: () => void };
+export type FilterOption = { key: string; label: ReactNode; count?: number; active: boolean; onToggle: () => void };
 export type FilterGroup = { title: string; options: FilterOption[] };
 
 /**

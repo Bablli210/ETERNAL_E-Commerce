@@ -14,7 +14,8 @@ import { Icon } from "@/components/ui/Icon";
 import { analyticsItem } from "./analytics-item";
 import { FilterSheet, type FilterGroup, type FilterOption } from "./FilterSheet";
 import { defaultGridState, gridQuery, mergeGridQuery, parseGridState, sorts, type GridState, type Sort } from "./grid-state";
-import { lineWithAudience } from "./line";
+import { LineLabel } from "./LineLabel";
+import { LineName } from "@/components/ui/LineName";
 import { ProductCard } from "./ProductCard";
 import { ProductImage } from "./ProductImage";
 
@@ -171,7 +172,9 @@ function NoMatch({ query, lineCounts }: { query: string; lineCounts: Record<Line
         {LINE_ORDER.map((k) => (
           <li key={k} className="border-b border-dune">
             <Link href={`/shop/${lines[k].slug}`} className="flex min-h-14 items-center justify-between gap-4 py-2 hover:text-sea">
-              <span className="serif text-[22px]">{lineWithAudience(k)}</span>
+              <span className="serif text-[22px]">
+                <LineLabel line={k} />
+              </span>
               <span className="flex items-center gap-1 text-[13px] text-ash">
                 <span className="tnum">{lineCounts[k]} scents</span>
                 <Icon name="chevron-right" size={16} />
@@ -200,6 +203,7 @@ export function CollectionGrid({
   house,
   list,
   title,
+  line = null,
   scope = title,
   descriptor,
   eyebrow,
@@ -215,6 +219,8 @@ export function CollectionGrid({
   /** The list name analytics reports: the collection's slug. */
   list: string;
   title: string;
+  /** On a line page, its line: the title is drawn as the line's logotype. */
+  line?: LineKey | null;
   /** What this page holds, as a search result names it: "eterna · for her", "Woody". */
   scope?: string;
   descriptor: string;
@@ -403,13 +409,13 @@ export function CollectionGrid({
      matches it, like Floral on the floral page) is not offered; an applied
      one always is. */
   const countWith = (patch: Partial<GridState>) => applyFilters(entries, { ...url, ...patch }, query).length;
-  const offer = (dimSet: boolean, active: boolean, patch: Partial<GridState>, clear: Partial<GridState>, key: string, label: string, withCount: boolean): FilterOption | null => {
+  const offer = (dimSet: boolean, active: boolean, patch: Partial<GridState>, clear: Partial<GridState>, key: string, label: ReactNode, withCount: boolean): FilterOption | null => {
     const count = countWith(patch);
     if (!active && (count === 0 || (!dimSet && count === filtered.length))) return null;
     return { key, label, count: withCount ? count : undefined, active, onToggle: () => apply(active ? clear : patch) };
   };
   const isOption = (o: FilterOption | null): o is FilterOption => o !== null;
-  const lineOptions = (label: (k: LineKey) => string) => LINE_ORDER.map((k) => offer(Boolean(url.line), url.line === k, { line: k }, { line: null }, k, label(k), false)).filter(isOption);
+  const lineOptions = (label: (k: LineKey) => ReactNode) => LINE_ORDER.map((k) => offer(Boolean(url.line), url.line === k, { line: k }, { line: null }, k, label(k), false)).filter(isOption);
   const familyOptions = familyOrder.map((k: FamilyKey) => offer(Boolean(url.family), url.family === k, { family: k }, { family: null }, k, families[k].label, true)).filter(isOption);
   const moodOptions = moodOrder.filter((k) => k === url.mood).map((k: MoodKey) => offer(true, true, { mood: k }, { mood: null }, k, moods[k].label, false)).filter(isOption);
   const quickLines = lineOptions((k) => LINE_CHIP[k]);
@@ -419,7 +425,7 @@ export function CollectionGrid({
 
   const groups: FilterGroup[] = [
     { title: "Sort", options: sorts.map((s) => ({ key: s.key, label: s.label, active: url.sort === s.key, onToggle: () => apply({ sort: s.key }) })) },
-    { title: "Line", options: lineOptions((k) => lineWithAudience(k)) },
+    { title: "Line", options: lineOptions((k) => <LineLabel line={k} />) },
     { title: "Scent", options: familyOptions },
   ];
 
@@ -474,7 +480,7 @@ export function CollectionGrid({
             <div>
               {eyebrow && <p className="eyebrow text-[12px] text-linen/80">{eyebrow}</p>}
               <div className="mt-1 flex flex-wrap items-baseline gap-x-3">
-                <h1 className="serif text-[40px] font-semibold leading-none lg:text-[64px]">{title}</h1>
+                <h1 className="serif text-[40px] font-semibold leading-none lg:text-[64px]">{line ? <LineName line={line} size="0.9em" /> : title}</h1>
                 <p className="tnum text-[13px] text-linen/80" aria-live="polite">
                   {elsewhere.length ? found : searching ? `${plural(filtered.length)} for “${query.trim()}”` : plural(filtered.length)}
                 </p>
@@ -487,7 +493,16 @@ export function CollectionGrid({
       ) : (
         <div className="pt-4 lg:pt-2">
           <div className="flex items-baseline justify-between gap-4">
-            <h1 className="serif min-w-0 truncate py-0.5 text-[32px] font-semibold leading-[1.15] lg:text-[56px]">{heading}</h1>
+            <h1 className="serif min-w-0 truncate py-0.5 text-[32px] font-semibold leading-[1.15] lg:text-[56px]">
+              {line && !selection ? (
+                <>
+                  <LineName line={line} size="0.9em" />
+                  {searching ? ` · “${query.trim()}”` : ""}
+                </>
+              ) : (
+                heading
+              )}
+            </h1>
             <p className="tnum shrink-0 text-[13px] text-ash" aria-live="polite">
               {elsewhere.length ? found : plural(filtered.length)}
             </p>

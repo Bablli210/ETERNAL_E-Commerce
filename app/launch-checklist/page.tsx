@@ -7,6 +7,7 @@ import { allTales } from "@/content/tales";
 import { heroes } from "@/content/heroes";
 import { Eyebrow } from "@/components/ui/Primitives";
 import { checkoutDomain, shopifyConfigured } from "@/lib/shopify/client";
+import { SEASONS_IS_DEMO } from "@/app/fonts";
 
 export const revalidate = 300;
 
@@ -30,6 +31,7 @@ function storeSetup(live: boolean) {
     { key: "SHOPIFY_CHECKOUT_DOMAIN", ok: Boolean(process.env.SHOPIFY_CHECKOUT_DOMAIN), cost: "Not set: checkout links, the bag’s checkout warm-up and the newsletter form use the store domain (SHOPIFY_STORE_DOMAIN)." },
     { key: "Checkout off myshopify.com", ok: !onMyshopify, cost: "Checkout still runs on a myshopify.com address: the shopper sees a second domain, and the ad-click cookie (_fbc) never reaches checkout, so Meta can’t tie a Purchase to its click." },
     { key: "COOKIE_DOMAIN", ok: Boolean(process.env.COOKIE_DOMAIN), cost: "The click cookies stay on the storefront host. Set it to the root domain once checkout runs on a subdomain of it." },
+    { key: "The Seasons web licence", ok: !SEASONS_IS_DEMO, cost: "The titles use Fontspring’s demo files: evaluation only, and missing curly quotes, dashes and accents. Buy the web licence and swap the files (app/fonts.ts)." },
   ];
 }
 

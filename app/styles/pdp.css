@@ -18,6 +18,8 @@
     }
     .pdp-hero[data-announce] { --pdp-chrome: calc(var(--header-h) + var(--announce-h)); }
     .pdp-hero[data-hook] { --pdp-hook: 52px; }
+    /* An original too long for one line after "INSPIRED BY" takes a second (page.tsx, ORIGINAL_ONE_LINE). */
+    .pdp-hero[data-hook][data-hook-long] { --pdp-hook: 76px; }
     .pdp-hero[data-chips] { --pdp-chips: 52px; }
     .pdp-hero[data-size] { --pdp-size: 56px; }
 
@@ -31,10 +33,11 @@
   }
 
   /*
-   * Under 390 px a long name (Shadow of the Sea, Hundred Whispers, Forbidden
-   * Apple) wraps to a second line beside the price. The page marks such names
-   * (data-long) and the frame gives that line's 35 px back, so Add to bag stays
-   * on the first screen and the sticky bar never opens over the note chips.
+   * Under 390 px a long name (Shadow of the Sea, Hundred Whispers) wraps to a
+   * second line beside the price, set in The Seasons at 28 px. The page marks
+   * such names (data-long) and the frame gives that line back (35 px, a little
+   * over the 31 px line), so Add to bag stays on the first screen and the sticky
+   * bar never opens over the note chips.
    */
   @media (max-width: 389px) {
     .pdp-hero[data-long] { --pdp-info: 189px; }

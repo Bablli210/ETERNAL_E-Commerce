@@ -5,7 +5,8 @@ import { Price } from "@/components/ui/Primitives";
 import { formatMoney, joinNotes } from "@/lib/format";
 import { analyticsItem } from "./analytics-item";
 import { CardLink } from "./CardLink";
-import { lineWithAudience } from "./line";
+import { InspiredBy } from "./InspiredBy";
+import { LineLabel } from "./LineLabel";
 import { ProductImage } from "./ProductImage";
 
 /**
@@ -51,17 +52,13 @@ export function ProductCard({
       </div>
       <div className="flex flex-1 flex-col pt-2.5">
         {/* A product without a line keeps the row, so names and prices line up across the grid. */}
-        <p className="text-[12px] leading-4 text-ash">{entry.line ? lineWithAudience(entry.line) : "\u00a0"}</p>
+        <p className="text-[12px] leading-4 text-ash">{entry.line ? <LineLabel line={entry.line} /> : "\u00a0"}</p>
         <h3 className="serif text-[20px] leading-[1.15] lg:text-[26px]">
           <CardLink href={`/products/${entry.handle}`} list={list} index={index} item={analyticsItem(entry)} className="card-link flex min-h-11 items-center hover:text-sea">
             {entry.title}
           </CardLink>
         </h3>
-        {entry.inspiredBy && (
-          <p className="text-[13px] leading-snug text-ash">
-            Inspired by <span className="font-semibold text-night">{entry.inspiredBy}</span>
-          </p>
-        )}
+        {entry.inspiredBy && <InspiredBy name={entry.inspiredBy} className="text-[13px] leading-snug text-ash lg:text-[14px]" />}
         {entry.notesShort.length > 0 && <p className="line-clamp-2 text-[13px] leading-snug text-ash">{joinNotes(entry.notesShort.slice(0, 3))}</p>}
         <Price money={entry.price} className="mt-1 whitespace-nowrap text-[15px] font-medium" />
         <div className="card-actions relative z-[2] mt-auto flex flex-col pt-3">

@@ -8,7 +8,8 @@ import { facts } from "@/lib/facts";
 import { track } from "@/lib/client/analytics";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { formatMoney, sizeLabel } from "@/lib/format";
-import { lineWithAudience } from "./line";
+import { InspiredBy } from "./InspiredBy";
+import { LineLabel } from "./LineLabel";
 
 /**
  * Sizes are variants, the sample is a real variant: the size choice appears
@@ -135,7 +136,18 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
               <p className="display-m truncate !text-[18px]">{entry.title}</p>
               <p className="truncate text-[12px] text-ash">
                 {sizeLabel(variant.label)}
-                {entry.line ? ` · ${lineWithAudience(entry.line)}` : ""}
+                {/* While the page scrolls, the bar keeps the original in view; a scent without one shows its line. */}
+                {entry.inspiredBy ? (
+                  <>
+                    {" · "}
+                    <InspiredBy as="span" name={entry.inspiredBy} />
+                  </>
+                ) : entry.line ? (
+                  <>
+                    {" · "}
+                    <LineLabel line={entry.line} />
+                  </>
+                ) : null}
               </p>
             </div>
             <form action="/bag" method="get" onSubmit={add("sticky")} className="shrink-0">

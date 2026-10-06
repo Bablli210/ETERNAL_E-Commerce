@@ -10,7 +10,9 @@ Shopify store, which stays the source of truth for products, prices, inventory a
 - **Next.js 16** (App Router, TypeScript, Turbopack) and **Tailwind CSS 4** with the design
   tokens from the direction sheet (Linen, Paper, Sand, Dune, Stone, Ash, Night, Golden hour,
   Deep sea) as `@theme` variables in `app/globals.css`.
-- **Cormorant Garamond** for display and **Instrument Sans** for UI, via `next/font`.
+- The brand kit's faces, self-hosted through `next/font` (`app/fonts.ts`): **The Seasons** for
+  titles and names, **Cabinet Grotesk** for subtitles and **General Sans** for body text. The
+  line names and the house wordmark are the kit's logotypes, drawn as SVG (`LineName`, `Wordmark`).
 - **Shopify Storefront API** for the catalogue and checkout, with a committed snapshot of
   the live catalogue as a fallback so the site builds and deploys without any credentials.
 
@@ -99,18 +101,28 @@ npm run dev
 `npm run build` must pass before pushing; `npm run lint` and `npm run typecheck` run the
 same checks Vercel does.
 
-## The house typeface
+## The house typefaces and logotypes
 
-Headings are set in **The Seasons** once it is available; Cormorant Garamond is
-the fallback until then (`lib/brand-font.ts`). Either route works, and nothing
-loads until one is in place:
+From the brand kit (*ETERNAL Logos and Fonts*), in `app/fonts.ts`:
 
-- Self-hosted: put the licensed web-font files in `public/fonts/the-seasons/`,
-  named by weight and style, e.g. `the-seasons-regular.woff2`,
-  `the-seasons-bold.woff2`, `the-seasons-light-italic.woff2`. The regular
-  weight is preloaded; an italic face also sets the signature lines.
-- Adobe Fonts: add The Seasons to a web project and set its kit ID in
-  `NEXT_PUBLIC_ADOBE_FONTS_KIT`, then redeploy.
+- **The Seasons** — the primary face: titles, scent names, the originals, the tales. Regular, and
+  its italic for the signature lines.
+- **Cabinet Grotesk** — subtitles: the small capital labels and the lockup's tagline.
+- **General Sans** — body text and the interface.
+
+Each ships the one cut the site sets, and that face answers every weight the CSS asks for, so the
+browser never fakes a bold. To give buttons and prices a heavier cut, add General Sans Medium or
+Semibold (free from Fontshare) as a second `src` entry in `app/fonts.ts`.
+
+**The Seasons is Fontspring's demo build** (`app/fonts/the-seasons/*-DEMO.woff2`): licensed for
+evaluation only, and without curly quotes, dashes, `·`, `×` or accented letters, which Cormorant
+draws in its place. Before launch, buy the web licence, replace the two files, update the paths and
+set `SEASONS_IS_DEMO` to `false`. `/launch-checklist` shows it until then.
+
+The line names (eterna, eterno, eternal) and the house wordmark are the kit's logotypes, traced to
+SVG in `components/ui/brand-paths.ts` and placed once per page by `BrandSprite`. `LineName` draws a
+line's name at the size of the text around it, in its colour; `Wordmark` and `Logotype` draw the house
+mark. The icon (the e∞ mark) is in `components/ui/mark-path.ts`.
 
 ## Connecting the live Shopify store
 

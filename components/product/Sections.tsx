@@ -13,6 +13,8 @@ import { siteImage } from "@/lib/site-images";
 import { AddPairButton } from "./AddPairButton";
 import { FaqTrack } from "./FaqTrack";
 import { lineWithAudience } from "./line";
+import { InspiredBy } from "./InspiredBy";
+import { LineLabel } from "./LineLabel";
 import { ProductImage } from "./ProductImage";
 
 /** What each optional section needs before it renders. The page numbers only the sections that do. */
@@ -198,8 +200,13 @@ function MiniCard({ entry }: { entry: ReturnType<typeof toIndexEntry> }) {
     <div className="flex items-center gap-4">
       <ProductImage src={entry.image} alt="" world={entry.world} sizes="88px" className="h-[88px] w-[88px] shrink-0" />
       <div className="min-w-0">
-        {entry.line && <span className="block text-[12px] text-ash">{lineWithAudience(entry.line)}</span>}
+        {entry.line && (
+          <span className="block text-[12px] text-ash">
+            <LineLabel line={entry.line} />
+          </span>
+        )}
         <span className="display-m block group-hover:text-sea">{entry.title}</span>
+        {entry.inspiredBy && <InspiredBy as="span" name={entry.inspiredBy} className="block text-[13px] text-ash" />}
         <Price money={entry.price} className="text-[14px] text-ash" />
       </div>
     </div>

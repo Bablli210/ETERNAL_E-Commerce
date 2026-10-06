@@ -6,7 +6,9 @@ import { Eyebrow, Price } from "@/components/ui/Primitives";
 import { site } from "@/content/site";
 import { familyOrder, families } from "@/content/taxonomy";
 import type { ScentIndexEntry } from "@/lib/catalogue";
-import { lineWithAudience } from "@/components/product/line";
+import { InspiredBy } from "@/components/product/InspiredBy";
+import { LineLabel } from "@/components/product/LineLabel";
+import { LineName } from "@/components/ui/LineName";
 
 export type FeaturedTiles = { bestseller: ScentIndexEntry | null; newIn: ScentIndexEntry | null };
 
@@ -14,9 +16,9 @@ const lists = [
   {
     title: "By line",
     links: [
-      { label: "For her · eterna", href: "/shop/her" },
-      { label: "For him · eterno", href: "/shop/him" },
-      { label: "Unisex · eternal", href: "/shop/unisex" },
+      { label: "For her", line: "eterna" as const, href: "/shop/her" },
+      { label: "For him", line: "eterno" as const, href: "/shop/him" },
+      { label: "Unisex", line: "eternal" as const, href: "/shop/unisex" },
       { label: "All scents", href: "/shop" },
     ],
   },
@@ -46,7 +48,13 @@ export function MegaMenu({ featured, onEnter, onLeave }: { featured: FeaturedTil
               {l.links.map((lk) => (
                 <li key={lk.href + lk.label}>
                   <Link href={lk.href} className="text-[14px] hover:text-sea">
-                    {lk.label}
+                    {"line" in lk && lk.line ? (
+                      <>
+                        {lk.label} <span aria-hidden="true">·</span> <LineName line={lk.line} size="1.15em" />
+                      </>
+                    ) : (
+                      lk.label
+                    )}
                   </Link>
                 </li>
               ))}
@@ -63,7 +71,13 @@ export function MegaMenu({ featured, onEnter, onLeave }: { featured: FeaturedTil
               <div className="flex flex-col justify-center">
                 <Eyebrow>{eyebrow}</Eyebrow>
                 <span className="display-m mt-1 group-hover:text-sea">{e.title}</span>
-                <span className="mt-1 text-[12px] text-ash">{e.inspiredBy ? `Inspired by ${e.inspiredBy}` : e.line ? lineWithAudience(e.line) : null}</span>
+                {e.inspiredBy ? (
+                  <InspiredBy as="span" name={e.inspiredBy} className="mt-1 text-[12px] text-ash" />
+                ) : e.line ? (
+                  <span className="mt-1 text-[12px] text-ash">
+                    <LineLabel line={e.line} />
+                  </span>
+                ) : null}
                 <Price money={e.price} className="mt-2 text-[13px] font-medium" />
               </div>
             </Link>

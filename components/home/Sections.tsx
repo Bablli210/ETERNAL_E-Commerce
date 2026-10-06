@@ -21,6 +21,9 @@ import type { Hero as HeroDef } from "@/content/heroes";
 import { SelectList, type ListItem } from "./SelectList";
 import { LineShowcase, type LineShowcaseItem } from "./LineShowcase";
 import { siteImage } from "@/lib/site-images";
+import { InspiredBy } from "@/components/product/InspiredBy";
+import { LineLabel } from "@/components/product/LineLabel";
+import { LineName } from "@/components/ui/LineName";
 
 const LINE_ORDER: LineKey[] = ["eterna", "eterno", "eternal"];
 
@@ -91,7 +94,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
                   <>
                     <span aria-hidden="true">·</span>
                     <span>
-                      {lines[scent.line].label}, {FOR[scent.line]}
+                      <LineLabel line={scent.line} sep=", " />
                     </span>
                   </>
                 )}
@@ -100,9 +103,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
                 <Icon name="arrow-right" size={14} className="text-linen" />
               </Link>
               {scent.inspiredBy && (
-                <p className="-mt-2 mb-1 text-[13px] tracking-[0.02em] text-dune">
-                  Inspired by <span className="font-semibold text-linen">{scent.inspiredBy}</span>
-                </p>
+                <InspiredBy name={scent.inspiredBy} className="-mt-2 mb-1 text-[13px] tracking-[0.02em] text-dune" tone="text-linen" nameClassName="text-[17px]" />
               )}
             </SelectList>
           )}
@@ -121,7 +122,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
           </h1>
           {/* A short phone (Instagram's browser, small Androids) drops this line so the bottle stays clear of the copy. */}
           <p className="mt-3 max-w-[46ch] text-[15px] leading-normal text-dune max-lg:[@media(max-height:760px)]:hidden lg:mt-6 lg:text-[17px]">
-            eaux de parfum from Cairo, in three lines: eterna for her, eterno for him, eternal unisex.
+            eaux de parfum from Cairo, in three lines: <LineName line="eterna" /> for her, <LineName line="eterno" /> for him, <LineName line="eternal" /> unisex.
           </p>
           {offer.length > 0 && <p className="tnum mt-2 text-[13px] font-semibold tracking-[0.02em] text-linen">{offer.join(" · ")}</p>}
           <div className="mt-5 flex flex-wrap items-center gap-x-6 lg:mt-8">
@@ -194,8 +195,6 @@ export function LineTiles({ counts, total }: { counts: Record<LineKey, number>; 
     blurb: lines[k].blurb,
     href: `/shop/${lines[k].slug}`,
     src: siteImage(`line-${k}`),
-    // The line's own logotype (public/images/logo-<line>.svg or .png); the name is set in type until it exists.
-    logo: siteImage(`logo-${k}`),
     tone: lines[k].tone,
   }));
   return (
@@ -377,7 +376,7 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
         <div>
           {scent.line && (
             <p className="text-[13px] tracking-[0.02em] text-dune">
-              A tale from {lines[scent.line].label}, {FOR[scent.line]}
+              A tale from <LineLabel line={scent.line} sep=", " />
             </p>
           )}
           <h2 className="display-l mt-3">
@@ -407,7 +406,7 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
             {scent.inspiredBy && (
               <div>
                 <dt className="eyebrow text-[12px] text-dune">Inspired by</dt>
-                <dd className="mt-1">{scent.inspiredBy}</dd>
+                <dd className="serif mt-1 text-[18px] leading-tight">{scent.inspiredBy}</dd>
               </div>
             )}
           </dl>
@@ -469,7 +468,7 @@ export function TalesTeaser({ exclude }: { exclude: string | null }) {
               <Link href={`/tales/${t.slug}`} className="group flex flex-col">
                 <Figure name={[`tale-${t.slug}-card`, `tale-${t.slug}`]} label={t.heroArt} sizes="(min-width: 768px) 33vw, 100vw" className="aspect-[4/3] w-full" />
                 <span className="mt-4 text-[13px] tracking-[0.02em] text-ash">
-                  {lines[t.line].label}, {FOR[t.line]}
+                  <LineLabel line={t.line} sep=", " />
                 </span>
                 <p className="serif mt-1 text-[26px] leading-[1.15] group-hover:text-sea">{t.signature}</p>
                 <span className="mt-3 inline-flex min-h-11 items-center self-start text-[13px] font-semibold">

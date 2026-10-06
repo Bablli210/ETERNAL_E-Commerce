@@ -8,15 +8,16 @@ import { formatMoney } from "@/lib/format";
 import { NotFoundSearch } from "@/components/content/NotFoundSearch";
 import { WhatsAppLink } from "@/components/content/WhatsAppLink";
 import { Mark } from "@/components/ui/Wordmark";
+import { LineName } from "@/components/ui/LineName";
 import { Icon } from "@/components/ui/Icon";
 
 export const metadata: Metadata = { title: "Page not found" };
 
 /** Audience first: the three line names differ by one letter. */
 const LINES: { key: LineKey; label: string }[] = [
-  { key: "eterna", label: "For her · eterna" },
-  { key: "eterno", label: "For him · eterno" },
-  { key: "eternal", label: "Unisex · eternal" },
+  { key: "eterna", label: "For her" },
+  { key: "eterno", label: "For him" },
+  { key: "eternal", label: "Unisex" },
 ];
 
 const ROW = "flex min-h-12 items-center gap-3 py-3 text-[15px] hover:text-sea";
@@ -54,7 +55,9 @@ export default async function NotFound() {
           {LINES.map((l) => (
             <li key={l.key}>
               <Link href={`/shop/${lines[l.key].slug}`} className={ROW}>
-                <span className="min-w-0 flex-1 font-semibold">{l.label}</span>
+                <span className="min-w-0 flex-1 font-semibold">
+                  {l.label} <span aria-hidden="true">·</span> <LineName line={l.key} size="1.15em" />
+                </span>
                 {chevron}
               </Link>
             </li>

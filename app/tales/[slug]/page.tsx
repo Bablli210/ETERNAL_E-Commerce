@@ -10,6 +10,8 @@ import { siteImage } from "@/lib/site-images";
 import { AddToBagButton, type BagProduct } from "@/components/cart/AddToBagButton";
 import { ProductImage } from "@/components/product/ProductImage";
 import { lineWithAudience } from "@/components/product/line";
+import { InspiredBy } from "@/components/product/InspiredBy";
+import { LineLabel } from "@/components/product/LineLabel";
 import { ReadingProgress } from "@/components/motion/ReadingProgress";
 import { FinderBand } from "@/components/content/FinderBand";
 import { TaleBar } from "@/components/content/TaleBar";
@@ -68,7 +70,7 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
       <article className="wrap grid gap-10 pb-14 pt-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-20 lg:py-20">
         <div id="tale-body" className="mx-auto w-full max-w-[640px] lg:mx-0">
           <p className="text-[12px] tracking-[0.02em] text-ash">
-            A tale from {lineWithAudience(tale.line)} · {tale.readTime}
+            A tale from <LineLabel line={tale.line} /> · {tale.readTime}
           </p>
           <h1 id="tale-title" className="display-l mt-3">
             {tale.title}
@@ -116,7 +118,9 @@ export default async function TalePage({ params }: { params: Promise<{ slug: str
                   <li key={t.slug}>
                     <Link href={`/tales/${t.slug}`} className="group flex flex-col">
                       <TaleStill slug={t.slug} label={t.heroArt} sizes="(min-width: 768px) 33vw, 100vw" />
-                      <p className="mt-4 text-[12px] text-ash">{lineWithAudience(t.line)}</p>
+                      <p className="mt-4 text-[12px] text-ash">
+                        <LineLabel line={t.line} />
+                      </p>
                       <p className="serif mt-1 text-[24px] leading-[1.15] group-hover:text-sea">{t.signature}</p>
                     </Link>
                   </li>
@@ -139,11 +143,15 @@ function BuyCard({ entry, product, box }: { entry: ScentIndexEntry; product: Bag
       <Link href={`/products/${entry.handle}`} className="group mt-4 grid grid-cols-[96px_minmax(0,1fr)] gap-4 lg:block">
         <ProductImage src={entry.image} alt="" world={entry.world} sizes="(min-width: 1024px) 320px, 96px" className="aspect-square w-full" />
         <div className="min-w-0 lg:mt-4">
-          {entry.line && <p className="text-[12px] text-ash">{lineWithAudience(entry.line)}</p>}
+          {entry.line && (
+            <p className="text-[12px] text-ash">
+              <LineLabel line={entry.line} />
+            </p>
+          )}
           <p className="font-serif text-[26px] font-semibold leading-[1.1] group-hover:text-sea">{entry.title}</p>
           {entry.inspiredBy && (
             <p className="mt-1 text-[14px] leading-snug">
-              Inspired by <span className="font-semibold">{entry.inspiredBy}</span>
+              <InspiredBy as="span" name={entry.inspiredBy} className="text-ash" />
               <span className="text-ash"> · our own composition</span>
             </p>
           )}

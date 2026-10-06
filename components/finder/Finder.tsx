@@ -15,7 +15,8 @@ import { formatMoney, joinNotes } from "@/lib/format";
 import { useCart } from "@/components/cart/CartProvider";
 import { AddToBagButton } from "@/components/cart/AddToBagButton";
 import { ProductImage } from "@/components/product/ProductImage";
-import { lineWithAudience } from "@/components/product/line";
+import { InspiredBy } from "@/components/product/InspiredBy";
+import { LineLabel } from "@/components/product/LineLabel";
 import { ImageSlot } from "@/components/ui/Primitives";
 import { Icon } from "@/components/ui/Icon";
 import { Mark } from "@/components/ui/Wordmark";
@@ -465,7 +466,11 @@ function MatchCard({ match, position }: { match: Match; position: number }) {
         {position === 0 && <span className="badge absolute left-2 top-2">Best match</span>}
       </Link>
       <div className="flex min-w-0 flex-col md:pt-4">
-        {e.line && <p className="text-[12px] text-ash">{lineWithAudience(e.line)}</p>}
+        {e.line && (
+          <p className="text-[12px] text-ash">
+            <LineLabel line={e.line} />
+          </p>
+        )}
         <h2 className="font-serif text-[24px] font-semibold leading-[1.1] md:text-[28px]">
           <Link href={`/products/${e.handle}`} onClick={select} className="relative hover:text-sea before:absolute before:inset-x-0 before:-inset-y-2 before:content-['']">
             {e.title}
@@ -473,7 +478,7 @@ function MatchCard({ match, position }: { match: Match; position: number }) {
         </h2>
         {e.inspiredBy && (
           <p className="mt-1 text-[14px] leading-snug">
-            Inspired by <span className="font-semibold">{e.inspiredBy}</span>
+            <InspiredBy as="span" name={e.inspiredBy} className="text-ash" />
             <span className="text-ash"> · our own composition</span>
           </p>
         )}
