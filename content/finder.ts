@@ -6,8 +6,8 @@ import { families, familyOrder, familyStills } from "./taxonomy";
  * each scent's tags, weighted by its question. Strength matches a scent's
  * sillage where Shopify or content/scents.ts gives one, else its tags.
  * `sub` names the line next to its audience, because the three line names
- * differ by one letter. `stills` are the images a tile falls back to until
- * its own (finder-<question>-<answer>) is installed.
+ * differ by one letter. Each tile shows finder-<question>-<answer>, or the
+ * images in `stills` (the notes question uses the Shop by scent stills).
  */
 export type FinderOption = {
   id: string;
@@ -75,11 +75,11 @@ export const finderQuestions: FinderQuestion[] = [
     max: 1,
     weight: 1,
     options: [
-      { id: "greek-island", label: "A Greek island", art: "Whitewashed steps, sea glare, lemon trees", tags: ["aquatic", "citrus", "fresh"], stills: ["finder-place-coast", "mood-sea-air"], reason: "a Greek island" },
-      { id: "paris-cafe", label: "A Paris café at night", art: "Zinc bar, crème brûlée, warm lamps", tags: ["sweet", "gourmand", "amber"], stills: ["finder-place-kitchen", "mood-warm-skin"], reason: "a Paris café" },
-      { id: "marrakech-souk", label: "A Marrakech souk", art: "Spice cones, brass lanterns, smoke", tags: ["spicy", "amber", "smoky"], stills: ["finder-mood-after-dark", "mood-after-dark"], reason: "a Marrakech souk" },
-      { id: "kyoto-garden", label: "A Kyoto garden", art: "Moss, blossom, a paper screen", tags: ["floral", "fruity", "powdery"], stills: ["finder-place-garden", "mood-wild-garden"], reason: "a Kyoto garden" },
-      { id: "mountain-cabin", label: "A mountain cabin", art: "Cedar logs, a fire, wool", tags: ["woody", "smoky", "musky"], stills: ["family-woody", "products/raw-seduction-3"], reason: "a mountain cabin" },
+      { id: "greek-island", label: "A Greek island", art: "Whitewashed steps, sea glare, lemon trees", tags: ["aquatic", "citrus", "fresh"], reason: "a Greek island" },
+      { id: "paris-cafe", label: "A Paris café at night", art: "Zinc bar, crème brûlée, warm lamps", tags: ["sweet", "gourmand", "amber"], reason: "a Paris café" },
+      { id: "marrakech-souk", label: "A Marrakech souk", art: "Spice cones, brass lanterns, smoke", tags: ["spicy", "amber", "smoky"], reason: "a Marrakech souk" },
+      { id: "kyoto-garden", label: "A Kyoto garden", art: "Moss, blossom, a paper screen", tags: ["floral", "fruity", "powdery"], reason: "a Kyoto garden" },
+      { id: "mountain-cabin", label: "A mountain cabin", art: "Cedar logs, a fire, wool", tags: ["woody", "smoky", "musky"], reason: "a mountain cabin" },
     ],
   },
   {

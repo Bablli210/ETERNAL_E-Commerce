@@ -41,10 +41,10 @@ yet shows its colour world and the e∞ mark on every card.
 | `home-hero` | The first hero film's poster (16:9), kept with `videos/home-hero`; the home page now opens on the campaign heroes below |
 | `home-hero-mobile` | The phone crop of that poster, kept with `videos/home-hero-mobile` |
 | `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles |
-| `family-fresh`, `family-woody`, `family-amber-spice`, `family-floral`, `family-gourmand`, `family-aquatic` | The six "Shop by scent" tiles (4:3; cropped square on phones). Fresh, woody, floral, gourmand and aquatic are the owner's stills; `family-amber-spice` is still to come, and until it exists that tile borrows `mood-after-dark` |
+| `family-fresh`, `family-woody`, `family-amber-spice`, `family-floral`, `family-gourmand`, `family-aquatic` | The six "Shop by scent" tiles (4:3; cropped square on phones), and the finder's notes question. All six are the owner's stills |
 | `finder-band` | Scent finder band |
 | `tale-featured` | Featured tale still. Used when the tale has no `tale-<slug>-card` |
-| `mood-sea-air`, `mood-golden-hour`, `mood-after-dark`, `mood-warm-skin`, `mood-wild-garden` | Stand-ins for the scent tiles (aquatic, fresh, amber & spice, gourmand, floral) until their `family-` stills exist. `mood-fresh-linen` is no longer shown |
+| `mood-sea-air`, `mood-golden-hour`, `mood-after-dark`, `mood-warm-skin`, `mood-wild-garden` | Stand-ins for a scent tile whose `family-` still goes missing; none is shown while all six are installed. `mood-fresh-linen` is no longer shown |
 | `mystery-box` | The wide mystery box still. "Try before you commit" falls back to it while the box has no packshot; `products/mystery-box` is that packshot, used there, in the collection grid and in the bag |
 | `house-film-poster` | House film poster, on the home page |
 

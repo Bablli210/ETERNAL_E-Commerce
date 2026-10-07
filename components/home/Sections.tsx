@@ -294,10 +294,8 @@ export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryB
 }
 
 /**
- * Shop by scent: the six families, each with an ingredient still. The owner's
- * family-<key> stills are in for fresh, woody, floral, gourmand and aquatic;
- * amber & spice borrows the closest ingredient still the house has until its
- * own exists (content/taxonomy.ts familyStills).
+ * Shop by scent: the six families, each with the owner's ingredient still
+ * (family-<key>; content/taxonomy.ts familyStills names a stand-in should one go missing).
  */
 export function ScentTiles() {
   return (
