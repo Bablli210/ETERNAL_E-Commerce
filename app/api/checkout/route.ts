@@ -109,6 +109,11 @@ export async function POST(req: Request) {
   for (const a of attributes) query.append(`attributes[${a.key}]`, a.value);
   const source = attributes.find((a) => a.key === "utm_source")?.value;
   if (source) query.set("ref", source);
+  // The campaign itself too, as on the Storefront path, for Shopify's own reports.
+  for (const k of UTM) {
+    const v = attributes.find((a) => a.key === k)?.value;
+    if (v) query.set(k, v);
+  }
   if (discount) query.set("discount", discount);
   const qs = query.toString();
   const permalink = `https://${checkoutDomain}/cart/${lines.map((l) => `${numericId(l.variantId)}:${l.quantity}`).join(",")}${qs ? `?${qs}` : ""}`;

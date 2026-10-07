@@ -70,9 +70,10 @@ Shopify checkout as order attributes, and the code is applied at checkout.
 
 **Measurement.** `lib/client/analytics.ts` sends view_item, select_item, add_to_cart, the
 bag's Checkout tap (`checkout_click` for GA4, a custom `CheckoutClick` for Meta), search, the
-finder steps and Web Vitals to the data layer, the Meta Pixel and GA4. Product ids follow
-Shopify's catalogue format (`shopify_EG_<product>_<variant>`), so Meta and Merchant Center
-match them. Set `NEXT_PUBLIC_META_PIXEL_ID` and `NEXT_PUBLIC_GA4_ID` to the same IDs
+finder steps and Web Vitals to the data layer, the Meta Pixel and GA4. Meta content ids follow
+the Facebook & Instagram catalogue format (`shopify_EG_<product>_<variant>`); GA4 item ids are
+the variant ids until a real Shopify purchase in GA4 DebugView shows which id the Google
+channel sends. Set `NEXT_PUBLIC_META_PIXEL_ID` and `NEXT_PUBLIC_GA4_ID` to the same IDs
 Shopify's Facebook & Instagram and Google channels use, so begin_checkout and Purchase (fired
 by Shopify on checkout) join the same funnel. `META_CAPI_TOKEN` with `NEXT_PUBLIC_META_CAPI=1`
 adds server copies of ViewContent and AddToCart (`app/api/meta`), deduplicated by event id.

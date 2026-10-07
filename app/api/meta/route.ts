@@ -10,7 +10,10 @@ import { site } from "@/content/site";
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const TOKEN = process.env.META_CAPI_TOKEN;
 const VERSION = process.env.META_GRAPH_VERSION || "v23.0";
-/** Set while checking the setup in Events Manager > Test events; events sent with it stay out of reporting. Clear it after. */
+/**
+ * Set only while checking the setup: the events then also show in Events Manager > Test events. Meta still counts
+ * them like any other event, so it never keeps test traffic out; leave META_CAPI_TOKEN unset on Preview for that.
+ */
 const TEST_CODE = process.env.META_TEST_EVENT_CODE || undefined;
 const ALLOWED = new Set(["ViewContent", "AddToCart"]);
 const MAX_QTY = 10;

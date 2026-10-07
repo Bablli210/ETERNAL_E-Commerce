@@ -93,15 +93,12 @@ export function ensureQueues() {
   }
 }
 
-/**
- * The id Shopify's Facebook & Instagram and Google & YouTube channels give each catalogue item
- * (shopify_<country>_<product>_<variant>), so dynamic ads and Merchant Center reports match the events.
- */
+/** The content id the Shopify Facebook & Instagram channel gives catalogue items, so dynamic ads match. */
 const contentId = (i: AnalyticsItem) => (i.productId ? `shopify_EG_${i.productId}_${i.variantId}` : i.variantId);
 const value = (items: AnalyticsItem[]) => Math.round(items.reduce((n, i) => n + i.price * (i.quantity ?? 1), 0) * 100) / 100;
 
 const ga4Items = (items: AnalyticsItem[]) =>
-  items.map((i) => ({ item_id: contentId(i), item_name: i.name, price: i.price, quantity: i.quantity ?? 1, item_variant: i.variant, item_category: i.category ?? undefined }));
+  items.map((i) => ({ item_id: i.variantId, item_name: i.name, price: i.price, quantity: i.quantity ?? 1, item_variant: i.variant, item_category: i.category ?? undefined }));
 
 const metaPayload = (items: AnalyticsItem[]) => ({
   content_ids: items.map(contentId),
