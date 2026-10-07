@@ -1,6 +1,7 @@
 "use client";
 
 import { QUIZ_PROFILE_KEY } from "@/lib/finder";
+import { allowed } from "./consent";
 
 /**
  * Where a visitor came from, kept so the order can be attributed to the ad
@@ -22,6 +23,7 @@ const DISCOUNT_CODE = /^[A-Za-z0-9_-]{2,40}$/;
 
 const PARAMS = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid", "gclid", "ttclid", "discount"] as const;
 type Param = (typeof PARAMS)[number];
+const CLICK_IDS = new Set<Param>(["fbclid", "gclid", "ttclid"]);
 
 export type Touch = Partial<Record<Param, string>> & { landing: string; referrer: string; at: number };
 
@@ -120,8 +122,10 @@ export function checkoutAttributes(): { key: string; value: string }[] {
   if (/Instagram|FBAN|FBAV/i.test(navigator.userAgent)) out.push({ key: "in_app", value: /Instagram/i.test(navigator.userAgent) ? "instagram" : "facebook" });
   const last = lastTouch();
   const first = read(FIRST, 30 * DAY);
+  // Ad click ids identify the visitor to the ad network, so they go with the order only after a yes to marketing.
+  const marketing = allowed("marketing");
   if (last) {
-    for (const p of PARAMS) if (last[p]) out.push({ key: p, value: last[p]! });
+    for (const p of PARAMS) if (last[p] && (marketing || !CLICK_IDS.has(p))) out.push({ key: p, value: last[p]! });
     out.push({ key: "landing_page", value: last.landing });
   }
   if (first && first.at !== last?.at) {

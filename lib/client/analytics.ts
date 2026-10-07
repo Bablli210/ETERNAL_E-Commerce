@@ -1,10 +1,13 @@
 "use client";
 
+import { allowed } from "./consent";
+
 /**
  * One call site for every funnel event. Each event goes to the data layer
  * (for Tag Manager), to the Meta Pixel and to GA4 when those are installed
- * (components/analytics/Analytics.tsx loads them from env IDs), and is a
- * no-op otherwise. Purchase is not sent from here: it happens on Shopify's
+ * (components/analytics/Analytics.tsx loads them from env IDs) and the visitor
+ * has said yes to them (lib/client/consent.ts: GA4 needs analytics, the pixel
+ * and its server copy need marketing), and is a no-op otherwise. Purchase is not sent from here: it happens on Shopify's
  * checkout, where the Facebook & Instagram channel and Google channel fire it
  * with the same IDs.
  */
@@ -61,9 +64,11 @@ const GA4 = process.env.NEXT_PUBLIC_GA4_ID;
  * being dropped, and each library replays them when it arrives
  * (components/analytics/Analytics.tsx only loads the two scripts).
  */
-export function ensureQueues() {
-  if (typeof window === "undefined") return;
-  if (PIXEL && !window.fbq) {
+export function ensureQueues(): { pixel: boolean; ga: boolean } {
+  const fresh = { pixel: false, ga: false };
+  if (typeof window === "undefined") return fresh;
+  if (PIXEL && !window.fbq && allowed("marketing")) {
+    fresh.pixel = true;
     type Fbq = ((...args: unknown[]) => void) & { callMethod?: (...a: unknown[]) => void; queue: unknown[]; push: unknown; loaded: boolean; version: string };
     const fbq = function (this: unknown) {
       // The pixel library expects the queue to hold Arguments objects, as its own snippet does.
@@ -78,20 +83,30 @@ export function ensureQueues() {
     fbq.version = "2.0";
     window.fbq = fbq;
     (window as unknown as { _fbq: Fbq })._fbq = fbq;
+    fbq("consent", "grant");
     fbq("init", PIXEL);
     fbq("track", "PageView");
   }
-  if (GA4 && !window.gtag) {
+  if (GA4 && !window.gtag && allowed("analytics")) {
+    fresh.ga = true;
     window.dataLayer = window.dataLayer ?? [];
     window.gtag = function () {
       // gtag.js reads Arguments objects from the data layer, not arrays.
       // eslint-disable-next-line prefer-rest-params
       window.dataLayer!.push(arguments);
     };
+    // Consent Mode v2: analytics is granted (gtag only loads then); ad signals follow the marketing choice.
+    const ads = allowed("marketing") ? "granted" : "denied";
+    window.gtag("consent", "default", { analytics_storage: "granted", ad_storage: ads, ad_user_data: ads, ad_personalization: ads });
     window.gtag("js", new Date());
     window.gtag("config", GA4, { send_page_view: false });
   }
+  return fresh;
 }
+
+/** GA4 and the pixel, each only while the visitor's choice allows it (a later "no" stops a library already loaded). */
+const ga = (): Window["gtag"] => (allowed("analytics") ? window.gtag : undefined);
+const meta = (): Window["fbq"] => (allowed("marketing") ? window.fbq : undefined);
 
 /** The content id the Shopify Facebook & Instagram channel gives catalogue items, so dynamic ads match. */
 const contentId = (i: AnalyticsItem) => (i.productId ? `shopify_EG_${i.productId}_${i.variantId}` : i.variantId);
@@ -123,7 +138,7 @@ export const inApp = () => typeof navigator !== "undefined" && /Instagram|FBAN|F
  * and deduplicates the pair. On only when NEXT_PUBLIC_META_CAPI=1.
  */
 function capi(eventName: string, eventId: string, customData: Record<string, unknown>) {
-  if (process.env.NEXT_PUBLIC_META_CAPI !== "1" || typeof navigator === "undefined" || !navigator.sendBeacon) return;
+  if (process.env.NEXT_PUBLIC_META_CAPI !== "1" || typeof navigator === "undefined" || !navigator.sendBeacon || !allowed("marketing")) return;
   const body = JSON.stringify({ event_name: eventName, event_id: eventId, event_source_url: window.location.href, custom_data: customData });
   navigator.sendBeacon("/api/meta", new Blob([body], { type: "application/json" }));
 }
@@ -135,7 +150,7 @@ export function trackVital(metric: { name: string; value: number; id: string; ra
     const params = { metric_id: metric.id, value: Math.round(metric.name === "CLS" ? metric.value * 1000 : metric.value), rating: metric.rating, page_type: pageType(window.location.pathname), in_app: inApp() };
     window.dataLayer = window.dataLayer ?? [];
     window.dataLayer.push({ event: `web_vital_${metric.name.toLowerCase()}`, ...params });
-    window.gtag?.("event", metric.name, { ...params, non_interaction: true });
+    ga()?.("event", metric.name, { ...params, non_interaction: true });
   } catch {
     /* never break the page */
   }
@@ -148,8 +163,8 @@ export function track(e: Event) {
   try {
     ensureQueues();
     const id = eventId();
-    const fbq = window.fbq;
-    const gtag = window.gtag;
+    const fbq = meta();
+    const gtag = ga();
     window.dataLayer = window.dataLayer ?? [];
 
     switch (e.name) {

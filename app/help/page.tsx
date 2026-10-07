@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CookieSettings } from "@/components/analytics/CookieSettings";
 import { pageMeta } from "@/lib/metadata";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -177,6 +178,25 @@ export default async function HelpPage() {
         <>
           <p>How we collect and use your details is set out in our privacy policy.</p>
           <Way href={policy("privacy-policy")}>Read the privacy policy</Way>
+          <p className="mt-4">
+            <strong className="font-semibold">Cookies.</strong> The site keeps what it needs to work without asking: your bag, and your cookie choice. Everything else waits
+            until you say yes, and you can change your mind at any time.
+          </p>
+          <ul className="mt-2 flex list-disc flex-col gap-1 pl-5">
+            <li>
+              <strong className="font-semibold">Analytics</strong>: Google Analytics and Vercel Web Analytics count visits and show which pages work, so we can improve the
+              site.
+            </li>
+            <li>
+              <strong className="font-semibold">Marketing</strong>: the Meta pixel and Meta&rsquo;s Conversions API tell Instagram and Facebook which scents you viewed and
+              added to your bag, so our ads reach the right people and we can measure what they sell. The ad you came from travels with your order.
+            </li>
+          </ul>
+          <p className="mt-2">
+            When you arrive from a campaign link, we note which campaign it was (no personal details) so we know which posts bring visitors. Your choice is kept for six
+            months, then we ask again.
+          </p>
+          <CookieSettings className="btn btn-secondary mt-3 w-full sm:w-auto sm:self-start">Change cookie settings</CookieSettings>
         </>
       ),
     },

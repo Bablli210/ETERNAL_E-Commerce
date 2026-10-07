@@ -3,11 +3,14 @@ import { cookies } from "next/headers";
 import { checkoutDomain, shopifyConfigured } from "@/lib/shopify/client";
 import { createCheckout } from "@/lib/shopify/queries";
 import { numericId } from "@/lib/format";
+import { CONSENT_COOKIE, parseConsent } from "@/lib/consent";
 
 type Body = { lines: { variantId: string; quantity: number }[]; attributes?: { key: string; value: string }[] };
 
 /** Campaign keys the storefront may attach to an order; anything else is dropped. */
 const ATTRIBUTE_KEYS = new Set(["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "fbclid", "gclid", "ttclid", "landing_page", "first_utm_source", "first_utm_campaign", "in_app", "quiz_profile"]);
+/** Ad click ids: personal to the visitor, so they travel only with a yes to marketing. */
+const CLICK_IDS = new Set(["fbclid", "gclid", "ttclid"]);
 /** Test arms travel as exp_{id}. */
 const EXPERIMENT_KEY = /^exp_[a-z0-9_-]{1,32}$/i;
 const VARIANT_ID = /^(gid:\/\/shopify\/ProductVariant\/)?\d+$/;
@@ -83,10 +86,13 @@ export async function POST(req: Request) {
   if (samples) attributes.push({ key: "Free 5 ml samples", value: samples });
 
   // The Meta and Google first-party cookies tie the order to the browser that clicked the ad. Shopify hides _-prefixed attributes from the buyer.
+  // Each only with the visitor's yes to its purpose (lib/consent.ts): the ad identifiers with marketing, GA's id with analytics.
   const jar = await cookies();
-  const fbp = jar.get("_fbp")?.value;
-  const fbc = jar.get("_fbc")?.value;
-  const ga = jar.get("_ga")?.value;
+  const consent = parseConsent(jar.get(CONSENT_COOKIE)?.value);
+  const fbp = consent?.marketing ? jar.get("_fbp")?.value : undefined;
+  const fbc = consent?.marketing ? jar.get("_fbc")?.value : undefined;
+  const ga = consent?.analytics ? jar.get("_ga")?.value : undefined;
+  if (!consent?.marketing) for (let i = attributes.length - 1; i >= 0; i--) if (CLICK_IDS.has(attributes[i].key)) attributes.splice(i, 1);
   if (fbp) attributes.push({ key: "_fbp", value: fbp.slice(0, 200) });
   if (fbc) attributes.push({ key: "_fbc", value: fbc.slice(0, 200) });
   if (ga) attributes.push({ key: "ga_cid", value: ga.split(".").slice(-2).join(".") });

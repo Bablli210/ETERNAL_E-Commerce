@@ -5,6 +5,7 @@ import { lines } from "@/content/taxonomy";
 import { facts } from "@/lib/facts";
 import { Icon } from "@/components/ui/Icon";
 import { MotionToggle } from "@/components/motion/MotionToggle";
+import { CookieSettings } from "@/components/analytics/CookieSettings";
 import { FooterBrand } from "./FooterBrand";
 import { JoinForm } from "./JoinForm";
 import { WhatsAppLink } from "./WhatsAppLink";
@@ -159,6 +160,7 @@ export function Footer({ shopDomain }: { shopDomain: string }) {
             <Link href="/help#terms" className="inline-flex min-h-11 items-center hover:text-night">
               Terms
             </Link>
+            <CookieSettings className="inline-flex min-h-11 items-center hover:text-night" />
             <MotionToggle className="min-h-11" />
             <span className="inline-flex min-h-11 items-center">© eternal 2026</span>
           </div>

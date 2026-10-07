@@ -7,42 +7,62 @@ import { useEffect, useRef } from "react";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { captureAttribution } from "@/lib/client/attribution";
 import { ensureQueues, inApp, pageType, trackVital } from "@/lib/client/analytics";
+import { allowed, useConsent } from "@/lib/client/consent";
 
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const GA4 = process.env.NEXT_PUBLIC_GA4_ID;
 /** Vercel Web Analytics: cookieless page views the team dashboard reads. Set to 1 once Analytics is enabled on the Vercel project. */
 const VERCEL = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS === "1";
 
+const gaPageView = (pathname: string) =>
+  window.gtag?.("event", "page_view", { page_location: window.location.href, page_path: pathname, page_type: pageType(pathname), in_app: inApp() });
+
 /**
- * Loads the Meta Pixel and GA4 libraries when their IDs are set (their command
- * queues, with init and the first PageView, come from ensureQueues), Vercel Web
- * Analytics when it is switched on, stores
- * the landing campaign for checkout, and sends a page view on every client
- * navigation.
+ * Loads the Meta Pixel and GA4 libraries when their IDs are set and the
+ * visitor has said yes to them (marketing for the pixel, analytics for GA4 and
+ * Vercel Web Analytics; components/analytics/ConsentBanner.tsx asks). Their
+ * command queues, with init and the first PageView, come from ensureQueues.
+ * Also stores the landing campaign for checkout, and sends a page view on
+ * every client navigation, and once more at the moment a purpose is allowed,
+ * so the page the visitor said yes on is counted.
  */
 export function Analytics() {
   const pathname = usePathname();
+  const consent = useConsent();
   const first = useRef(true);
   useReportWebVitals(trackVital);
 
   useEffect(() => {
     captureAttribution();
-    ensureQueues();
-    // GA4 page views come from here, tagged by template, so the first one is not sent by config.
-    window.gtag?.("event", "page_view", { page_location: window.location.href, page_path: pathname, page_type: pageType(pathname), in_app: inApp() });
-    // ensureQueues sends the first PageView with the pixel's init.
+    // The first page view of a library comes with its init (ensureQueues); later ones from here.
+    const fresh = ensureQueues();
+    if (allowed("analytics")) gaPageView(pathname);
     if (first.current) {
       first.current = false;
       return;
     }
-    window.fbq?.("track", "PageView");
+    if (!fresh.pixel && allowed("marketing")) window.fbq?.("track", "PageView");
   }, [pathname]);
+
+  // A yes given on this page: load what it allows and count this page for it.
+  const analytics = consent !== "pending" && Boolean(consent?.analytics);
+  const marketing = consent !== "pending" && Boolean(consent?.marketing);
+  const before = useRef<{ analytics: boolean; marketing: boolean } | null>(null);
+  useEffect(() => {
+    if (consent === "pending") return;
+    const was = before.current;
+    before.current = { analytics, marketing };
+    if (!was) return;
+    // ensureQueues sends the pixel's PageView with its init; GA4's is sent here.
+    if ((analytics && !was.analytics) || (marketing && !was.marketing)) ensureQueues();
+    if (analytics && !was.analytics) gaPageView(window.location.pathname);
+  }, [consent, analytics, marketing]);
 
   return (
     <>
-      {PIXEL && <Script src="https://connect.facebook.net/en_US/fbevents.js" strategy="afterInteractive" />}
-      {GA4 && <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4}`} strategy="afterInteractive" />}
-      {VERCEL && <VercelAnalytics />}
+      {PIXEL && marketing && <Script src="https://connect.facebook.net/en_US/fbevents.js" strategy="afterInteractive" />}
+      {GA4 && analytics && <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4}`} strategy="afterInteractive" />}
+      {VERCEL && analytics && <VercelAnalytics />}
     </>
   );
 }

@@ -26,9 +26,19 @@ html:has([aria-modal="true"]) .wa-float,
 html:has(.cart-toast) .wa-float,
 html:has(:is(input:not([type="checkbox"], [type="radio"], [type="submit"], [type="button"], [type="hidden"]), textarea, select, [contenteditable="true"]):focus) .wa-float,
 html:has(.pdp-hero):not(:has(.pdp-bar)) .wa-float,
+html:has(.consent-banner) .wa-float,
 .wa-float[data-covering] {
   visibility: hidden;
   opacity: 0;
+}
+
+/* The cookie choice rises into place once; with reduced motion it simply shows. */
+@media (prefers-reduced-motion: no-preference) {
+  .consent-banner { animation: consent-in 260ms var(--ease-standard) both; }
+}
+@keyframes consent-in {
+  from { transform: translateY(16px); opacity: 0; }
+  to { transform: none; opacity: 1; }
 }
 
 /* Header nav: the line under a title rests on the header's bottom edge; it marks the current section and shows on hover. */

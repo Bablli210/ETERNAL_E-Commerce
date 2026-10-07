@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { site } from "@/content/site";
+import { consentFromCookieHeader } from "@/lib/consent";
 
 /**
  * Meta Conversions API: the server copy of a browser pixel event. The browser
  * sends the same event id it gave the pixel, so Meta keeps one of the pair.
- * Off unless NEXT_PUBLIC_META_PIXEL_ID and META_CAPI_TOKEN are both set.
+ * Off unless NEXT_PUBLIC_META_PIXEL_ID and META_CAPI_TOKEN are both set, and the
+ * visitor has said yes to marketing cookies.
  * Purchase is not sent from here; Shopify's Facebook & Instagram channel owns it.
  */
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
@@ -81,6 +83,8 @@ function cleanCustomData(raw: unknown): Record<string, unknown> | null {
 export async function POST(req: Request) {
   if (!PIXEL || !TOKEN) return new NextResponse(null, { status: 204 });
   if (!sameOrigin(req)) return new NextResponse(null, { status: 403 });
+  // Only for a visitor who said yes to marketing (lib/consent.ts); the browser checks too, this is the server's own check.
+  if (!consentFromCookieHeader(req.headers.get("cookie"))?.marketing) return new NextResponse(null, { status: 204 });
   let body: Body;
   try {
     body = (await req.json()) as Body;

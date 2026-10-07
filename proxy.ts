@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { heroByHandle, heroes } from "@/content/heroes";
+import { CONSENT_COOKIE, cookieRootFor, parseConsent } from "@/lib/consent";
 
 /**
  * Two jobs, each on its own requests (see the matcher).
@@ -14,22 +15,14 @@ import { heroByHandle, heroes } from "@/content/heroes";
  * 7-day cap on script-set cookies and travel to checkout when it shares the
  * root domain (COOKIE_DOMAIN, e.g. ".myeternal.net", applied on hosts under it).
  *
- * - _fbc: Meta's click id, in Meta's own format (fb.1.<ms>.<fbclid>).
+ * - _fbc: Meta's click id, in Meta's own format (fb.1.<ms>.<fbclid>), once the visitor has said yes
+ *   to marketing (lib/consent.ts); before that the banner sets it from the stored click on a yes.
  * - eternal_utm: the landing campaign, kept 30 days. /api/checkout falls back
  *   to it when the browser's own copy of the campaign is gone.
  */
 const UTM = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
 const DAY = 86_400;
 
-/**
- * COOKIE_DOMAIN (".myeternal.net") only where the request's own host sits under it. The same deployment also
- * answers on eternal-storefront.vercel.app and preview URLs, where a browser would refuse a cookie for another domain.
- */
-function cookieDomain(host: string) {
-  const root = process.env.COOKIE_DOMAIN?.trim().replace(/^\./, "").toLowerCase();
-  if (!root) return undefined;
-  return host === root || host.endsWith(`.${root}`) ? `.${root}` : undefined;
-}
 
 /** The home page with the still an ad asked for, or one at random. */
 function homeWithHero(url: NextRequest["nextUrl"]) {
@@ -57,8 +50,10 @@ export function proxy(request: NextRequest) {
     to.pathname = lower;
     res = NextResponse.redirect(to, 308);
   }
-  const base = { path: "/", sameSite: "lax" as const, secure: url.protocol === "https:", domain: cookieDomain(url.hostname) };
-  if (fbclid) {
+  // COOKIE_DOMAIN (".myeternal.net") only where the host sits under it; eternal-storefront.vercel.app and previews get host-only cookies.
+  const base = { path: "/", sameSite: "lax" as const, secure: url.protocol === "https:", domain: cookieRootFor(url.hostname, process.env.COOKIE_DOMAIN) };
+  // Meta's click cookie only after a yes to marketing; otherwise the click waits in the browser and the banner sets it on a yes.
+  if (fbclid && parseConsent(request.cookies.get(CONSENT_COOKIE)?.value)?.marketing) {
     // Keep the original timestamp when the same click lands again.
     const current = request.cookies.get("_fbc")?.value;
     if (!current?.endsWith(`.${fbclid}`)) res.cookies.set("_fbc", `fb.1.${Date.now()}.${fbclid.slice(0, 500)}`, { ...base, maxAge: 90 * DAY });

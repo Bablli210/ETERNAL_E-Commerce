@@ -18,6 +18,7 @@ import { MotionScript } from "@/components/motion/MotionScript";
 import { Loader } from "@/components/motion/Loader";
 import { PageFade } from "@/components/motion/PageFade";
 import { Analytics } from "@/components/analytics/Analytics";
+import { ConsentBanner } from "@/components/analytics/ConsentBanner";
 
 const ogImage = siteImage("og-image");
 
@@ -76,6 +77,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <RevealObserver />
         </CartProvider>
         <Analytics />
+        {/* The public Storefront token is made for browsers; Shopify's consent API needs it to hand the choice to checkout. */}
+        <ConsentBanner cookieDomain={process.env.COOKIE_DOMAIN?.trim() || null} checkoutDomain={checkoutDomain} storefrontToken={process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null} />
       </body>
     </html>
   );
