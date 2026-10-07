@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AuthFrame } from "@/components/dashboard/AuthFrame";
 import { SetupForm } from "../_components/forms";
@@ -27,7 +28,7 @@ export default async function SetupPage() {
       <SetupForm />
       {access.state === "ready" && (
         <p className="dash-hint">
-          Already have an account? <a href="/dashboard/sign-in">Sign in</a>.
+          Already have an account? <Link href="/dashboard/sign-in">Sign in</Link>.
         </p>
       )}
     </AuthFrame>

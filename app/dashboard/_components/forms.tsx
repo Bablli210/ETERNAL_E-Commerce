@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { useActionState, useEffect, useId, useRef, useState, useTransition } from "react";
 import {
   acceptInvite,
   applyResetLink,
@@ -21,6 +21,21 @@ import type { Role } from "@/lib/dashboard/types";
  * in place (useActionState), so a mistake never loses what was typed or, on
  * the invite and reset pages, the one-time link.
  */
+
+/**
+ * React clears a form once its action finishes, which would wipe the name and
+ * username after a mistake. With JavaScript, the form is sent from onSubmit
+ * instead (no reset); the action prop stays for the rare visit without it.
+ */
+function useKeepFields(action: (fd: FormData) => void, prepare?: (fd: FormData) => void) {
+  const [, startTransition] = useTransition();
+  return (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    prepare?.(fd);
+    startTransition(() => action(fd));
+  };
+}
 
 function Message({ state }: { state: FormState | LinkState }) {
   if (state?.error)
@@ -101,8 +116,9 @@ function Submit({ pending, children, tone }: { pending: boolean; children: React
 
 export function SignInForm() {
   const [state, action, pending] = useActionState(signIn, null);
+  const onSubmit = useKeepFields(action);
   return (
-    <form action={action} className="dash-form">
+    <form action={action} onSubmit={onSubmit} className="dash-form">
       <Field label="Username" name="username" autoComplete="username" maxLength={64} />
       <Field label="Password" name="password" type="password" autoComplete="current-password" maxLength={128} />
       <Message state={state} />
@@ -113,8 +129,9 @@ export function SignInForm() {
 
 export function SetupForm() {
   const [state, action, pending] = useActionState(completeSetup, null);
+  const onSubmit = useKeepFields(action);
   return (
-    <form action={action} className="dash-form">
+    <form action={action} onSubmit={onSubmit} className="dash-form">
       <Field label="Setup code" name="code" type="password" autoComplete="off" hint="The one-time code you were given. It works once." />
       <Field label="Your name" name="name" autoComplete="given-name" maxLength={60} hint="How the team sees you, e.g. Seif." />
       <Field label="Username" name="username" autoComplete="username" maxLength={32} hint={USERNAME_HINT} />
@@ -146,14 +163,9 @@ function useLinkToken() {
 export function JoinForm() {
   const [state, action, pending] = useActionState(acceptInvite, null);
   const token = useLinkToken();
+  const onSubmit = useKeepFields(action, (fd) => fd.set("token", token.current));
   return (
-    <form
-      action={(fd) => {
-        fd.set("token", token.current);
-        action(fd);
-      }}
-      className="dash-form"
-    >
+    <form action={action} onSubmit={onSubmit} className="dash-form">
       <Field label="Your name" name="name" autoComplete="given-name" maxLength={60} hint="How the team sees you, e.g. Nour." />
       <Field label="Choose a username" name="username" autoComplete="username" maxLength={32} hint={USERNAME_HINT} />
       <Field label="Choose a password" name="password" type="password" autoComplete="new-password" minLength={15} maxLength={128} hint={PASSWORD_HINT} />
@@ -167,14 +179,9 @@ export function JoinForm() {
 export function ResetForm() {
   const [state, action, pending] = useActionState(applyResetLink, null);
   const token = useLinkToken();
+  const onSubmit = useKeepFields(action, (fd) => fd.set("token", token.current));
   return (
-    <form
-      action={(fd) => {
-        fd.set("token", token.current);
-        action(fd);
-      }}
-      className="dash-form"
-    >
+    <form action={action} onSubmit={onSubmit} className="dash-form">
       <Field label="New password" name="password" type="password" autoComplete="new-password" minLength={15} maxLength={128} hint={PASSWORD_HINT} />
       <Field label="New password again" name="confirm" type="password" autoComplete="new-password" minLength={15} maxLength={128} />
       <Message state={state} />
@@ -185,8 +192,9 @@ export function ResetForm() {
 
 export function PasswordForm() {
   const [state, action, pending] = useActionState(changePassword, null);
+  const onSubmit = useKeepFields(action);
   return (
-    <form action={action} className="dash-form">
+    <form action={action} onSubmit={onSubmit} className="dash-form">
       <Field label="Current password" name="current" type="password" autoComplete="current-password" maxLength={128} />
       <Field label="New password" name="password" type="password" autoComplete="new-password" minLength={15} maxLength={128} hint={PASSWORD_HINT} />
       <Field label="New password again" name="confirm" type="password" autoComplete="new-password" minLength={15} maxLength={128} />
@@ -237,11 +245,12 @@ function OneTimeLink({ link }: { link: NonNullable<NonNullable<LinkState>["link"
 
 export function InviteForm() {
   const [state, action, pending] = useActionState(createInvite, null);
+  const onSubmit = useKeepFields(action);
   const nameId = useId();
   const roleId = useId();
   return (
     <div className="dash-form">
-      <form action={action} className="dash-form">
+      <form action={action} onSubmit={onSubmit} className="dash-form">
         <div className="dash-field">
           <label className="dash-label" htmlFor={nameId}>
             Their first name

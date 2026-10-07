@@ -439,6 +439,7 @@ export async function getDashData(requestHost: string): Promise<DashData> {
 /** What each role may see. Owners also get the source self-checks and Meta's rate reading; nobody else receives them at all. */
 export function viewFor(role: Role, data: DashData): DashData {
   if (role === "owner") return data;
-  const { admin: _admin, ...rest } = data;
+  const rest = { ...data };
+  delete rest.admin;
   return rest;
 }

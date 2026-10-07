@@ -11,7 +11,7 @@ import "server-only";
  * - Failed attempts are counted per IP and per username (known or not, so a
  *   lockout never reveals which usernames exist): 8 in 15 minutes locks that
  *   key for the rest of the 15 minutes.
- * - At most 2 hashes at once and 12 an hour per instance; past that, sign-in
+ * - At most 2 hashes at once and 20 an hour per instance; past that, sign-in
  *   says "busy" (existing sessions keep working).
  * - An unknown username costs no hash: the answer waits about as long as a
  *   real check instead.
@@ -23,7 +23,7 @@ const st = (g.__eternalDashThrottle ??= { fails: new Map(), budget: { n: 0, rese
 
 const WINDOW_MS = 15 * 60_000;
 const MAX_FAILS = 8;
-const HASHES_PER_HOUR = 12;
+const HASHES_PER_HOUR = 20;
 const MAX_PARALLEL = 2;
 
 const count = (key: string, now: number) => {
