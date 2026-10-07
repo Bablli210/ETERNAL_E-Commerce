@@ -62,6 +62,18 @@ export function cookieRootFor(host: string, cookieDomain: string | null | undefi
   return h === root || h.endsWith(`.${root}`) ? `.${root}` : undefined;
 }
 
+/**
+ * Whether the banner can hand the choice to Shopify's checkout (its Customer
+ * Privacy API): the site's host and checkout both under COOKIE_DOMAIN, and the
+ * public Storefront token set. The banner, the help page and the launch
+ * checklist all ask this, so the promise and the behaviour agree.
+ */
+export function checkoutFollowsChoice(host: string, cookieDomain: string | null | undefined, checkoutDomain: string | null | undefined, token: string | null | undefined): boolean {
+  const root = cookieRootFor(host, cookieDomain);
+  const checkout = checkoutDomain?.trim().toLowerCase();
+  return Boolean(root && token?.trim() && checkout && `.${checkout}`.endsWith(root));
+}
+
 /** Meta's click id as Meta's own _fbc cookie writes it. */
 export const FBCLID = /^[A-Za-z0-9_\-.~]{1,500}$/;
 export const fbcFrom = (fbclid: string, at: number) => `fb.1.${Math.round(at)}.${fbclid}`;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { CONSENT_COOKIE, CONSENT_MAX_AGE, FBCLID, cookieRootFor, fbcFrom, parseConsent, serializeConsent, type Consent } from "@/lib/consent";
+import { CONSENT_COOKIE, CONSENT_MAX_AGE, FBCLID, checkoutFollowsChoice, cookieRootFor, fbcFrom, parseConsent, serializeConsent, type Consent } from "@/lib/consent";
 import { readConsent, readCookie } from "./consent-state";
 import { adoptHeldClick, forgetClicks, latestClick } from "./attribution";
 import { setGaDisabled } from "./analytics";
@@ -17,6 +17,8 @@ const CHANGE = "eternal:consent";
 const OPEN = "eternal:consent-open";
 /** The choice last handed to Shopify in this tab, so each visit re-syncs it once. */
 const SYNCED = "eternal.consent.synced.v1";
+/** Written on every save so other open tabs hear of it at once (the storage event); the cookie stays the record. */
+const BROADCAST = "eternal.consent.v1";
 
 /** Set once by the banner from the server's settings (COOKIE_DOMAIN, the checkout host, the public Storefront token). */
 export type ConsentSettings = { cookieDomain: string | null; checkoutDomain: string | null; storefrontToken: string | null };
@@ -59,9 +61,10 @@ const snapshot = (): Consent | null => {
 /** The choice this page has acted on; undefined until the page first reads it. */
 let applied: string | null | undefined;
 /**
- * Another tab may have changed the choice (the cookie is shared): when this
- * tab comes back into view, it follows, so a no given elsewhere stops this
- * tab's pixel and GA4 too.
+ * Another tab may have changed the choice (the cookie is shared): this tab
+ * follows as soon as it hears (the storage event), or when it is shown or
+ * hidden again, so a no given elsewhere stops this tab's pixel and GA4 too, and
+ * a yes keeps this tab's ad click.
  */
 function followOtherTabs() {
   const c = readConsent();
@@ -74,6 +77,9 @@ function followOtherTabs() {
     if (c.marketing) adoptHeldClick();
     else forgetClicks();
     applyInPage(c, before);
+    // A click this tab was holding: the server sets _fbc again, so Safari keeps it its full 90 days.
+    const click = c.marketing ? latestClick() : null;
+    if (click && key) keepOnServer(key, click);
   }
 }
 
@@ -81,15 +87,19 @@ const subscribe = (onChange: () => void) => {
   if (applied === undefined) applied = keyOf(readConsent());
   // Every subscriber re-reads (React skips the render when nothing changed); the page acts on a change once.
   const recheck = () => {
-    if (document.visibilityState !== "visible") return;
     followOtherTabs();
     onChange();
   };
+  const onStorage = (e: StorageEvent) => {
+    if (e.key === BROADCAST) recheck();
+  };
   window.addEventListener(CHANGE, onChange);
+  window.addEventListener("storage", onStorage);
   window.addEventListener("focus", recheck);
   document.addEventListener("visibilitychange", recheck);
   return () => {
     window.removeEventListener(CHANGE, onChange);
+    window.removeEventListener("storage", onStorage);
     window.removeEventListener("focus", recheck);
     document.removeEventListener("visibilitychange", recheck);
   };
@@ -114,6 +124,11 @@ export function saveConsent(choice: { analytics: boolean; marketing: boolean }) 
   applied = value;
   keepOnServer(value, click);
   shareWithCheckout(c);
+  try {
+    window.localStorage.setItem(BROADCAST, value);
+  } catch {
+    /* other tabs follow on focus instead */
+  }
   window.dispatchEvent(new Event(CHANGE));
 }
 
@@ -202,6 +217,10 @@ function loadCustomerPrivacy(): Promise<CustomerPrivacy | null> {
   return privacyScript;
 }
 
+/** Whether this page can hand the choice to checkout (lib/consent.ts checkoutFollowsChoice); the banner's copy says so only then. */
+export const checkoutFollows = () =>
+  typeof window !== "undefined" && checkoutFollowsChoice(window.location.hostname, settings.cookieDomain, settings.checkoutDomain, settings.storefrontToken);
+
 /**
  * Shopify's Customer Privacy API for a headless store: it stores the choice where checkout reads it, so the
  * Facebook & Instagram and Google & YouTube pixels on checkout follow it. It needs the public Storefront token,
@@ -209,11 +228,15 @@ function loadCustomerPrivacy(): Promise<CustomerPrivacy | null> {
  * (myeternal.net), so on eternal-storefront.vercel.app it is skipped. A script that fails to load is tried once more.
  */
 function shareWithCheckout(c: Consent, attempt = 1) {
-  const storefrontRoot = root();
-  const { checkoutDomain, storefrontToken } = settings;
-  if (!storefrontRoot || !checkoutDomain || !storefrontToken || !`.${checkoutDomain}`.endsWith(storefrontRoot)) return;
+  if (!checkoutFollows()) return;
+  const storefrontRoot = root()!;
+  const checkoutDomain = settings.checkoutDomain!.trim().toLowerCase();
+  const storefrontToken = settings.storefrontToken!.trim();
   const value = serializeConsent(c);
+  // A newer choice has its own call; an older one must never overwrite it.
+  const current = () => keyOf(readConsent()) === value;
   void loadCustomerPrivacy().then((api) => {
+    if (!current()) return;
     if (!api) {
       if (attempt < 2) window.setTimeout(() => shareWithCheckout(c, attempt + 1), 3000);
       return;

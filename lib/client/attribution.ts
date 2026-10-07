@@ -114,6 +114,9 @@ export function captureAttribution() {
   if (!read(FIRST, 30 * DAY)) write(FIRST, kept);
 }
 
+/** The Meta click a yes just adopted, for _fbc, when a later visit (without a click) is the latest touch. */
+let adoptedClick: { fbclid: string; at: number } | null = null;
+
 /** A yes to marketing: the click that waited for it becomes the latest touch, unless a later visit already is. */
 export function adoptHeldClick() {
   const held = readHeld();
@@ -123,6 +126,7 @@ export function adoptHeldClick() {
     /* nothing held */
   }
   if (!held) return;
+  if (held.fbclid) adoptedClick = { fbclid: held.fbclid, at: held.at };
   const last = read(LAST, 7 * DAY);
   if (last && last.at > held.at) return;
   write(LAST, held);
@@ -132,6 +136,7 @@ export function adoptHeldClick() {
 
 /** A no to marketing: the click ids go, the campaign stays. */
 export function forgetClicks() {
+  adoptedClick = null;
   try {
     window.sessionStorage.removeItem(HELD);
   } catch {
@@ -149,7 +154,8 @@ export function forgetClicks() {
 /** Meta's click id from the latest ad visit, for _fbc. */
 export function latestClick(): { fbclid: string; at: number } | null {
   const t = read(LAST, 7 * DAY);
-  return t?.fbclid ? { fbclid: t.fbclid, at: t.at } : null;
+  if (t?.fbclid && (!adoptedClick || t.at >= adoptedClick.at)) return { fbclid: t.fbclid, at: t.at };
+  return adoptedClick && Date.now() - adoptedClick.at < 7 * DAY ? adoptedClick : null;
 }
 
 export function lastTouch() {

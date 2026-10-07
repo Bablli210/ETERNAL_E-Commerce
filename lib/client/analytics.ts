@@ -96,6 +96,7 @@ export function ensureQueues(): { pixel: boolean; ga: boolean } {
     fbq("consent", "grant");
     fbq("init", PIXEL);
     fbq("track", "PageView");
+    initPageView = window.location.pathname;
   }
   if (GA4 && !window.gtag && allowed("analytics")) {
     fresh.ga = true;
@@ -113,6 +114,19 @@ export function ensureQueues(): { pixel: boolean; ga: boolean } {
     window.gtag("config", GA4, { send_page_view: false });
   }
   return fresh;
+}
+
+/** The page the pixel's first PageView (sent with its init) counted, until Analytics claims it. */
+let initPageView: string | null = null;
+/**
+ * One-shot: the page ensureQueues already sent the pixel's PageView for. The
+ * queue can be created by a page's own event (a product page's view_item)
+ * before Analytics counts the page, and that page must not get two PageViews.
+ */
+export function takeInitPageView() {
+  const path = initPageView;
+  initPageView = null;
+  return path;
 }
 
 /** GA4 and the pixel, each only while the visitor's choice allows it (a later "no" stops a library already loaded). */
@@ -189,8 +203,10 @@ export function track(e: Event) {
 
 /**
  * The banner was answered: what waited goes to whichever library the answer
- * allows, with its original id and page (the data layer already has it), and
- * the rest is dropped. Called once the libraries' queues exist.
+ * allows, with its original id (the data layer already has it), and the rest
+ * is dropped. GA4 and the Conversions API copy keep the page the event
+ * happened on; the pixel has no per-event page, so it reports the page the
+ * visitor said yes on. Called once the libraries' queues exist.
  */
 export function replayPending() {
   const events = held.splice(0);
@@ -208,7 +224,7 @@ export function replayPending() {
 function send(e: Event, id: string, url: string, replay: boolean) {
   const fbq = meta();
   const g = ga();
-  // A replayed event keeps the page it happened on, and is already in the data layer.
+  // A replayed event keeps the page it happened on in GA4 (the pixel stamps the current page), and is already in the data layer.
   const gtag = g ? (cmd: string, name: string, params?: Record<string, unknown>) => (replay ? g(cmd, name, { ...params, page_location: url }) : params ? g(cmd, name, params) : g(cmd, name)) : undefined;
   const dataLayer = {
     push: (o: Record<string, unknown>) => {

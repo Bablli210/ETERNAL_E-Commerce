@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
-import { configureConsent, onConsentOpen, readConsent, saveConsent, syncCheckoutOnce, useConsent, type ConsentSettings } from "@/lib/client/consent";
+import { checkoutFollows, configureConsent, onConsentOpen, readConsent, saveConsent, syncCheckoutOnce, useConsent, type ConsentSettings } from "@/lib/client/consent";
 
 /**
  * The cookie choice, asked once and kept 180 days (lib/consent.ts). It shows
@@ -34,7 +34,9 @@ export function ConsentBanner(props: ConsentSettings) {
     () =>
       onConsentOpen(() => {
         const c = readConsent();
-        opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        // A tap that does not focus its button (Safari) leaves <body> active: then focus goes to the page after saving.
+        const active = document.activeElement;
+        opener.current = active instanceof HTMLElement && active !== document.body ? active : null;
         setAnalytics(Boolean(c?.analytics));
         setMarketing(Boolean(c?.marketing));
         setDetails(true);
@@ -47,12 +49,14 @@ export function ConsentBanner(props: ConsentSettings) {
 
   const open = consent !== "pending" && (!consent || reopened);
 
-  // Its height, for the page's scroll padding (app/styles/chrome.css).
+  // The room it takes at the bottom (its height and the gap below it on desktop), for the page's padding (app/styles/chrome.css).
   useEffect(() => {
     const el = box.current;
     if (!open || !el) return;
     const rootStyle = document.documentElement.style;
-    const ro = new ResizeObserver(() => rootStyle.setProperty("--consent-h", `${Math.ceil(el.getBoundingClientRect().height)}px`));
+    const ro = new ResizeObserver(() =>
+      rootStyle.setProperty("--consent-h", `${Math.ceil(el.getBoundingClientRect().height + (parseFloat(getComputedStyle(el).bottom) || 0))}px`),
+    );
     ro.observe(el);
     return () => {
       ro.disconnect();
@@ -90,7 +94,7 @@ export function ConsentBanner(props: ConsentSettings) {
       ref={box}
       role="region"
       aria-labelledby={`${id}-title`}
-      className="consent-banner fixed inset-x-0 bottom-0 z-[52] max-h-[100dvh] overflow-y-auto overscroll-contain border-t border-dune bg-linen px-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))] pt-4 text-night shadow-[0_-8px_24px_rgba(23,22,20,0.08)] lg:inset-x-auto lg:bottom-6 lg:left-6 lg:max-h-[calc(100dvh-48px)] lg:w-[420px] lg:border lg:p-6"
+      className="consent-banner fixed inset-x-0 bottom-0 z-[52] max-h-[calc(100dvh-var(--header-h)-var(--announce-h))] overflow-y-auto overscroll-contain border-t border-dune bg-linen px-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))] pt-4 text-night shadow-[0_-8px_24px_rgba(23,22,20,0.08)] lg:inset-x-auto lg:bottom-6 lg:left-6 lg:max-h-[calc(100dvh-48px-var(--header-h)-var(--announce-h))] lg:w-[420px] lg:border lg:p-6"
     >
       <p className="eyebrow text-ash">Cookies</p>
       <h2 id={`${id}-title`} ref={title} tabIndex={-1} className="mt-1 font-serif text-[22px] font-semibold leading-tight outline-none lg:text-[24px]">
@@ -120,7 +124,7 @@ export function ConsentBanner(props: ConsentSettings) {
             label="Marketing"
             checked={marketing}
             onChange={setMarketing}
-            note="Meta (Instagram, Facebook) and Google see which scents you looked at and added, so our ads reach the right people and we can see what they sold. The ad you came from travels with your order, and checkout follows the same choice."
+            note={`Meta (Instagram, Facebook) and Google see which scents you looked at and added, so our ads reach the right people and we can see what they sold. The ad you came from travels with your order${checkoutFollows() ? ", and checkout follows the same choice" : ""}.`}
           />
         </fieldset>
       )}

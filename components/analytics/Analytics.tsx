@@ -6,7 +6,7 @@ import { useReportWebVitals } from "next/web-vitals";
 import { useEffect, useRef } from "react";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { captureAttribution } from "@/lib/client/attribution";
-import { ensureQueues, inApp, pageType, replayPending, trackVital } from "@/lib/client/analytics";
+import { ensureQueues, inApp, pageType, replayPending, takeInitPageView, trackVital } from "@/lib/client/analytics";
 import { allowed, useConsent } from "@/lib/client/consent";
 
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
@@ -35,15 +35,16 @@ export function Analytics() {
   useReportWebVitals(trackVital);
 
   const pageView = (path: string) => {
-    // The pixel's first PageView comes with its init (ensureQueues).
-    const fresh = ensureQueues();
+    ensureQueues();
+    // The pixel's first PageView comes with its init, whichever call created the queue (a page's own event may have, just before).
+    const initPath = takeInitPageView();
     if (allowed("analytics") && counted.current.ga !== path) {
       counted.current.ga = path;
       gaPageView(path);
     }
     if (allowed("marketing") && counted.current.meta !== path) {
       counted.current.meta = path;
-      if (!fresh.pixel) window.fbq?.("track", "PageView");
+      if (initPath !== path) window.fbq?.("track", "PageView");
     }
   };
 
