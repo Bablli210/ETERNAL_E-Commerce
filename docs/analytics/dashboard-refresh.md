@@ -62,7 +62,7 @@ Attention, only when true, most urgent first, plain words, each detail one or tw
 
 `audience`: { customers, buyers, repeatBuyers, emailSubscribed, smsSubscribed, cities: [{name, orders, net}], devices: [{name, sessions, completed}], metaAudiences: [{name, size, kind}] } — audience name without the "ETERNAL | " prefix; size in words ("about 1,000", "fewer than 1,000", "building"); kind "website" | "engagement" | "lookalike" | "customer list".
 
-`tracking`: { items: [ {label, status:"ok"|"partial"|"missing"|"blocked", detail, action, owner} ], pixel: { windowDays: 28, lastBrowser, lastServer, hosts: [...], events: [ {name, label, browser, server, emq} ] } }
+`tracking`: { items: [ {label, status:"ok"|"partial"|"missing"|"blocked", detail, action, owner} ], pixel: { windowDays: 27, lastBrowser, lastServer, hosts: [...], events: [ {name, label, browser, server, emq} ] } }
 Items, in this order, each judged from what you pulled today:
 1. "Ad account in good standing" — ok when ACTIVE, else blocked.
 2. "myeternal.net shows the new website" — ok when www.myeternal.net is served by Vercel, else missing.
