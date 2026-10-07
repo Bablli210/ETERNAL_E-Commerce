@@ -101,7 +101,7 @@ export function ConsentBanner(props: ConsentSettings) {
         A few cookies, if you agree
       </h2>
       <p className="mt-2 text-[14px] leading-snug text-ash">
-        We&rsquo;d like to count visits and show eternal to you on Instagram, Facebook and Google. Nothing that identifies you goes to Meta or Google until you say yes.{" "}
+        We&rsquo;d like to count visits and show eternal to you on Instagram, Facebook and Google. Nothing that identifies you goes to Meta or Google from this site until you say yes.{" "}
         <Link href="/help#privacy" className="lnk whitespace-nowrap text-night">
           How we use your data
         </Link>
@@ -124,7 +124,7 @@ export function ConsentBanner(props: ConsentSettings) {
             label="Marketing"
             checked={marketing}
             onChange={setMarketing}
-            note={`Meta (Instagram, Facebook) and Google see which scents you looked at and added, so our ads reach the right people and we can see what they sold. The ad you came from travels with your order${checkoutFollows() ? ", and checkout follows the same choice" : ""}.`}
+            note={`Meta (Instagram, Facebook) and Google see which scents you looked at and added, so our ads reach the right people and we can see what they sold. The ad you came from travels with your order${checkoutFollows() ? ", and checkout follows the same choice" : ". Checkout runs on Shopify, under Shopify’s own cookie settings"}.`}
           />
         </fieldset>
       )}

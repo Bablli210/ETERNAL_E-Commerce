@@ -80,7 +80,7 @@ by Shopify on checkout) join the same funnel. `META_CAPI_TOKEN` with `NEXT_PUBLI
 adds server copies of ViewContent and AddToCart (`app/api/meta`), deduplicated by event id.
 The checkout link carries the campaign, so Shopify's own reports see it too. See `.env.example`.
 
-**Consent.** Nothing that identifies a visitor goes to Meta or Google before they say yes
+**Consent.** Nothing that identifies a visitor goes to Meta or Google from the site before they say yes
 (`components/analytics/ConsentBanner.tsx`, `lib/consent.ts`): analytics loads GA4 and Vercel
 Web Analytics, marketing loads the pixel, its Conversions API copy, Google's ad signals and
 the ad click ids on the order. Events from before the answer wait in the page and go out on a

@@ -74,11 +74,10 @@ function followOtherTabs() {
   const before = applied ? parseConsent(applied) : null;
   applied = key;
   if (c) {
-    if (c.marketing) adoptHeldClick();
-    else forgetClicks();
+    const adopted = c.marketing ? adoptHeldClick() : (forgetClicks(), false);
     applyInPage(c, before);
-    // A click this tab was holding: the server sets _fbc again, so Safari keeps it its full 90 days.
-    const click = c.marketing ? latestClick() : null;
+    // A click this tab was holding: the server sets _fbc again, so Safari keeps it its full 90 days. Other tabs stay quiet.
+    const click = adopted ? latestClick() : null;
     if (click && key) keepOnServer(key, click);
   }
 }

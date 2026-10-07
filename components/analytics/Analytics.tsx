@@ -38,13 +38,18 @@ export function Analytics() {
     ensureQueues();
     // The pixel's first PageView comes with its init, whichever call created the queue (a page's own event may have, just before).
     const initPath = takeInitPageView();
-    if (allowed("analytics") && counted.current.ga !== path) {
-      counted.current.ga = path;
-      gaPageView(path);
+    // A page visited while a purpose is off clears its marker, so a later yes on a page seen before still counts it.
+    if (counted.current.ga !== path) {
+      if (allowed("analytics")) {
+        counted.current.ga = path;
+        gaPageView(path);
+      } else counted.current.ga = "";
     }
-    if (allowed("marketing") && counted.current.meta !== path) {
-      counted.current.meta = path;
-      if (initPath !== path) window.fbq?.("track", "PageView");
+    if (counted.current.meta !== path) {
+      if (allowed("marketing")) {
+        counted.current.meta = path;
+        if (initPath !== path) window.fbq?.("track", "PageView");
+      } else counted.current.meta = "";
     }
   };
 

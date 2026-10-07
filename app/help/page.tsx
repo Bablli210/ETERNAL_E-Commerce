@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CookieSettings } from "@/components/analytics/CookieSettings";
+import { CheckoutCookieNote, CookieSettings } from "@/components/analytics/CookieSettings";
 import { pageMeta } from "@/lib/metadata";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -8,7 +8,6 @@ import { confirmed, facts } from "@/lib/facts";
 import { site } from "@/content/site";
 import { getCatalogue } from "@/lib/catalogue";
 import { checkoutDomain } from "@/lib/shopify/client";
-import { checkoutFollowsChoice } from "@/lib/consent";
 import { Accordion, Eyebrow } from "@/components/ui/Primitives";
 import { Icon } from "@/components/ui/Icon";
 import { FaqTrack } from "@/components/product/FaqTrack";
@@ -29,8 +28,6 @@ const sentence = (s: string) => `${s.replace(/[.\s]+$/, "")}.`;
 const orList = (items: string[]) => (items.length > 1 ? `${items.slice(0, -1).join(", ")} or ${items.at(-1)}` : (items[0] ?? ""));
 
 const policy = (path: string) => `https://${checkoutDomain}/policies/${path}`;
-/** Whether the cookie banner can hand the visitor's choice to Shopify's checkout (lib/consent.ts), so the privacy text only promises it then. */
-const checkoutFollows = checkoutFollowsChoice(new URL(site.url).hostname, process.env.COOKIE_DOMAIN, checkoutDomain, process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN);
 
 /** A text link with a 44 px tap area; external ones open the store's own page. */
 function Way({ href, children }: { href: string; children: ReactNode }) {
@@ -183,7 +180,7 @@ export default async function HelpPage() {
           <Way href={policy("privacy-policy")}>Read the privacy policy</Way>
           <p className="mt-4">
             <strong className="font-semibold">Cookies.</strong> The site keeps what it needs to work without asking: your bag, your cookie choice, and the name of the
-            campaign that brought you here. Nothing that identifies you goes to Meta or Google until you say yes, and you can change your mind at any time.
+            campaign that brought you here. Nothing that identifies you goes to Meta or Google from this site until you say yes, and you can change your mind at any time.
           </p>
           <ul className="mt-2 flex list-disc flex-col gap-1 pl-5">
             <li>
@@ -194,9 +191,7 @@ export default async function HelpPage() {
               <strong className="font-semibold">Marketing</strong>: the Meta pixel and Meta&rsquo;s Conversions API, and Google&rsquo;s ad measurement, tell Instagram,
               Facebook and Google which scents you viewed and added to your bag, so our ads reach the right people and we can measure what they sell. The ad you came from
               (its click id) travels with your order.{" "}
-              {checkoutFollows
-                ? "Shopify’s checkout follows the same choice; until you make one, it uses Shopify’s own cookie settings."
-                : "Checkout runs on Shopify, under Shopify’s own cookie settings."}
+              <CheckoutCookieNote cookieDomain={process.env.COOKIE_DOMAIN?.trim() || null} checkoutDomain={checkoutDomain} storefrontToken={process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null} />
             </li>
           </ul>
           <p className="mt-2">

@@ -15,7 +15,8 @@ const CONTROL = "button, .btn, input, select, textarea, summary, [role=button]";
 function coversControl(el: HTMLElement) {
   const r = el.getBoundingClientRect();
   const points = [[r.left + 4, r.top + 4], [r.right - 4, r.top + 4], [r.left + 4, r.bottom - 4], [r.right - 4, r.bottom - 4], [r.left + r.width / 2, r.top + r.height / 2]];
-  return points.some(([x, y]) => document.elementsFromPoint(x, y).some((n) => !el.contains(n) && n.closest(CONTROL)));
+  // The cookie banner hides the float itself (chrome.css), so its buttons never mark the float as covering.
+  return points.some(([x, y]) => document.elementsFromPoint(x, y).some((n) => !el.contains(n) && !n.closest(".consent-banner") && n.closest(CONTROL)));
 }
 
 /**

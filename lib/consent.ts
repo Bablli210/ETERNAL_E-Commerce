@@ -5,8 +5,9 @@
  * this choice itself, and a note of which campaign brought the visitor):
  * analytics (GA4, Vercel Web Analytics) and marketing (Meta's pixel and its
  * Conversions API copy, Google's ad signals, the ad-click ids that travel with
- * an order, and the same at Shopify checkout). Nothing that identifies the
- * visitor to Meta or Google is set or sent until they say yes to that purpose.
+ * an order, and the same at Shopify checkout once it can be told). Nothing that
+ * identifies the visitor to Meta or Google is set or sent from this site until
+ * they say yes to that purpose.
  * Egypt's Personal Data Protection Law (151/2020) asks for that consent first.
  *
  * Stored in the first-party cookie `eternal_consent` as "1.<a>.<m>.<ms>":

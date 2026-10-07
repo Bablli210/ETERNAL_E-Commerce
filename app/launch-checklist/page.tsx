@@ -24,9 +24,7 @@ const SITE_IMAGES = [...heroes.flatMap((h) => [`hero-${h.handle}`, `hero-${h.han
  * so this reflects the deployed build.
  */
 /** The banner hands the choice to Shopify's Customer Privacy API (lib/client/consent.ts) only with the site and checkout under the cookie root and the token set. */
-const consentReachesCheckout = () =>
-  Boolean(process.env.SHOPIFY_CHECKOUT_DOMAIN) &&
-  checkoutFollowsChoice(new URL(site.url).hostname, process.env.COOKIE_DOMAIN, checkoutDomain, process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN);
+const consentReachesCheckout = () => checkoutFollowsChoice(new URL(site.url).hostname, process.env.COOKIE_DOMAIN, checkoutDomain, process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN);
 
 function storeSetup(live: boolean) {
   const onMyshopify = checkoutDomain.endsWith(".myshopify.com");
@@ -46,7 +44,7 @@ function storeSetup(live: boolean) {
     {
       key: "Cookie choice reaches checkout",
       ok: consentReachesCheckout(),
-      cost: "Shopify’s checkout can’t read the visitor’s cookie choice, so its Meta and Google pixels follow Shopify’s own default instead. Needs SHOPIFY_STOREFRONT_ACCESS_TOKEN, SHOPIFY_CHECKOUT_DOMAIN and COOKIE_DOMAIN, with the site (NEXT_PUBLIC_SITE_URL) and checkout both under that root (myeternal.net and checkout.myeternal.net under .myeternal.net).",
+      cost: "Shopify’s checkout can’t read the visitor’s cookie choice, so its Meta and Google pixels follow Shopify’s own default instead. Needs SHOPIFY_STOREFRONT_ACCESS_TOKEN and COOKIE_DOMAIN, with the site (NEXT_PUBLIC_SITE_URL) and the checkout host (SHOPIFY_CHECKOUT_DOMAIN, or SHOPIFY_STORE_DOMAIN when it is unset) both under that root (myeternal.net and checkout.myeternal.net under .myeternal.net).",
     },
     { key: "The Seasons web licence", ok: !SEASONS_IS_DEMO, cost: "The titles use Fontspring’s demo files: evaluation only, and missing curly quotes, dashes and accents. Buy the web licence and swap the files (app/fonts.ts)." },
   ];
