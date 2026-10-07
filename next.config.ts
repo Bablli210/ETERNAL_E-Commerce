@@ -19,7 +19,18 @@ const nextConfig: NextConfig = {
   },
   async headers() {
     // The owner's checklist is unlinked; this keeps it out of search even where the meta tag is not read.
-    return [{ source: "/launch-checklist", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] }];
+    return [
+      { source: "/launch-checklist", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
+      // The team dashboard: never indexed, never framed (its forms change accounts), and its links never leak the address they came from.
+      {
+        source: "/dashboard/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "Referrer-Policy", value: "no-referrer" },
+        ],
+      },
+    ];
   },
 };
 

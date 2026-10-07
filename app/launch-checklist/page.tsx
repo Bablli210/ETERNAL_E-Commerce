@@ -46,6 +46,12 @@ function storeSetup(live: boolean) {
       ok: consentReachesCheckout(),
       cost: "Shopify’s checkout can’t read the visitor’s cookie choice, so its Meta and Google pixels follow Shopify’s own default instead. Needs SHOPIFY_STOREFRONT_ACCESS_TOKEN and COOKIE_DOMAIN, with the site (NEXT_PUBLIC_SITE_URL) and the checkout host (SHOPIFY_CHECKOUT_DOMAIN, or SHOPIFY_STORE_DOMAIN when it is unset) both under that root (myeternal.net and checkout.myeternal.net under .myeternal.net).",
     },
+    {
+      key: "Dashboard: SHOPIFY_ADMIN_CLIENT_ID and SHOPIFY_ADMIN_CLIENT_SECRET",
+      ok: Boolean(process.env.SHOPIFY_ADMIN_CLIENT_ID?.trim() && process.env.SHOPIFY_ADMIN_CLIENT_SECRET?.trim()),
+      cost: "The team dashboard (/dashboard) shows no sales, products or customers. docs/analytics/dashboard-setup.md, step 4.",
+    },
+    { key: "Dashboard: META_ACCESS_TOKEN", ok: Boolean(process.env.META_ACCESS_TOKEN?.trim()), cost: "The team dashboard shows no ad figures, campaigns or pixel health. docs/analytics/dashboard-setup.md, step 5." },
     { key: "The Seasons web licence", ok: !SEASONS_IS_DEMO, cost: "The titles use Fontspring’s demo files: evaluation only, and missing curly quotes, dashes and accents. Buy the web licence and swap the files (app/fonts.ts)." },
   ];
 }

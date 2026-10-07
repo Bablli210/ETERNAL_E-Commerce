@@ -11,7 +11,7 @@ import { consentFromCookieHeader } from "@/lib/consent";
  */
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const TOKEN = process.env.META_CAPI_TOKEN;
-const VERSION = process.env.META_GRAPH_VERSION || "v23.0";
+const VERSION = process.env.META_GRAPH_VERSION || "v26.0";
 /**
  * Set only while checking the setup: the events then also show in Events Manager > Test events. Meta still counts
  * them like any other event, so it never keeps test traffic out; leave META_CAPI_TOKEN unset on Preview for that.

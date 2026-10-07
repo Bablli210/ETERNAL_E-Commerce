@@ -19,6 +19,7 @@ import { Loader } from "@/components/motion/Loader";
 import { PageFade } from "@/components/motion/PageFade";
 import { Analytics } from "@/components/analytics/Analytics";
 import { ConsentBanner } from "@/components/analytics/ConsentBanner";
+import { ShopChrome } from "@/components/chrome/ShopChrome";
 
 const ogImage = siteImage("og-image");
 
@@ -61,25 +62,34 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" data-scroll-behavior="smooth" className={fontVariables} suppressHydrationWarning>
       <body>
         <BrandSprite />
-        <MotionScript />
-        <Loader />
-        <CartProvider>
-          <a href="#main" className="sr-only-focusable fixed left-4 top-4 z-[100] bg-night px-4 py-2 text-linen">
-            Skip to content
-          </a>
-          {/* First after the skip link, so it is met first. The public Storefront token is made for browsers; Shopify's consent API needs it to hand the choice to checkout. */}
-          <ConsentBanner cookieDomain={process.env.COOKIE_DOMAIN?.trim() || null} checkoutDomain={checkoutDomain} storefrontToken={process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null} />
-          <Header index={index} featured={featured} taleIndex={taleIndex} popular={bestsellers.map(toIndexEntry)} />
-          <main id="main">
-            <PageFade>{children}</PageFade>
-          </main>
-          <Footer shopDomain={checkoutDomain} />
-          <CartDrawer index={index} />
-          <Toast />
-          <WhatsAppFloat />
-          <RevealObserver />
-        </CartProvider>
-        <Analytics />
+        {/* /dashboard renders on its own; every other page sits in the shop. */}
+        <ShopChrome
+          shop={
+            <>
+              <MotionScript />
+              <Loader />
+              <CartProvider>
+                <a href="#main" className="sr-only-focusable fixed left-4 top-4 z-[100] bg-night px-4 py-2 text-linen">
+                  Skip to content
+                </a>
+                {/* First after the skip link, so it is met first. The public Storefront token is made for browsers; Shopify's consent API needs it to hand the choice to checkout. */}
+                <ConsentBanner cookieDomain={process.env.COOKIE_DOMAIN?.trim() || null} checkoutDomain={checkoutDomain} storefrontToken={process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null} />
+                <Header index={index} featured={featured} taleIndex={taleIndex} popular={bestsellers.map(toIndexEntry)} />
+                <main id="main">
+                  <PageFade>{children}</PageFade>
+                </main>
+                <Footer shopDomain={checkoutDomain} />
+                <CartDrawer index={index} />
+                <Toast />
+                <WhatsAppFloat />
+                <RevealObserver />
+              </CartProvider>
+              <Analytics />
+            </>
+          }
+        >
+          {children}
+        </ShopChrome>
       </body>
     </html>
   );

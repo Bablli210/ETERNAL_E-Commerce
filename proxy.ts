@@ -63,18 +63,18 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // "/" always. Otherwise pages only (never static files, images, API routes or
-  // metadata files), and only when the URL carries a click id or a campaign: a
+  // "/" always. Otherwise shop pages only (never static files, images, API
+  // routes, metadata files or the team dashboard), and only when the URL carries a click id or a campaign: a
   // plain page view or a router prefetch never pays for a proxy invocation.
   // Next reads the matcher at build time, so each entry is written out in full.
   matcher: [
     // The home page, every request (prefetches too, so a client navigation home also gets a still).
     "/",
-    { source: "/((?!_next/|api/|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "fbclid" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
-    { source: "/((?!_next/|api/|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_source" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
-    { source: "/((?!_next/|api/|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_medium" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
-    { source: "/((?!_next/|api/|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_campaign" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
-    { source: "/((?!_next/|api/|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_content" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
-    { source: "/((?!_next/|api/|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_term" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "fbclid" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_source" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_medium" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_campaign" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_content" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_term" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
   ],
 };
