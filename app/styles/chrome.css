@@ -32,14 +32,21 @@ html:has(.consent-banner) .wa-float,
   opacity: 0;
 }
 
-/* The cookie choice rises into place once; with reduced motion it simply shows. */
+/* The cookie choice fades in once; it also rises into place unless the visitor (or the site's motion switch) asks for less motion. */
+.consent-banner { animation: consent-fade 200ms var(--ease-standard) both; }
 @media (prefers-reduced-motion: no-preference) {
-  .consent-banner { animation: consent-in 260ms var(--ease-standard) both; }
+  html:not([data-motion="off"]) .consent-banner { animation: consent-in 260ms var(--ease-standard) both; }
+}
+@keyframes consent-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 @keyframes consent-in {
   from { transform: translateY(16px); opacity: 0; }
   to { transform: none; opacity: 1; }
 }
+/* A field focused near the bottom of the page scrolls clear of the banner (it publishes --consent-h), and of a sticky bar under it. */
+:root:has(.consent-banner) { scroll-padding-bottom: max(var(--consent-h, 0px), var(--sticky-bar-h, 0px)); }
 
 /* Header nav: the line under a title rests on the header's bottom edge; it marks the current section and shows on hover. */
 .nav-link { transition: border-color 150ms var(--ease-standard), opacity 150ms var(--ease-standard); }

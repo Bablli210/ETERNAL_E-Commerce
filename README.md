@@ -65,8 +65,9 @@ phone, inside Instagram's browser, so every landing page sells on its first scre
 
 Add `utm_source`, `utm_medium`, `utm_campaign` and `utm_content` to every ad link, and
 `discount=CODE` when the ad carries a code. The campaign, Meta's click id (`_fbc`, set as a
-first-party cookie by `proxy.ts`), the in-app flag and the finder's answers travel to
-Shopify checkout as order attributes, and the code is applied at checkout.
+first-party cookie by `proxy.ts` or `app/api/consent` once the visitor says yes to marketing),
+the in-app flag and the finder's answers travel to Shopify checkout as order attributes, and
+the code is applied at checkout.
 
 **Measurement.** `lib/client/analytics.ts` sends view_item, select_item, add_to_cart, the
 bag's Checkout tap (`checkout_click` for GA4, a custom `CheckoutClick` for Meta), search, the
@@ -78,6 +79,15 @@ Shopify's Facebook & Instagram and Google channels use, so begin_checkout and Pu
 by Shopify on checkout) join the same funnel. `META_CAPI_TOKEN` with `NEXT_PUBLIC_META_CAPI=1`
 adds server copies of ViewContent and AddToCart (`app/api/meta`), deduplicated by event id.
 The checkout link carries the campaign, so Shopify's own reports see it too. See `.env.example`.
+
+**Consent.** Nothing that identifies a visitor goes to Meta or Google before they say yes
+(`components/analytics/ConsentBanner.tsx`, `lib/consent.ts`): analytics loads GA4 and Vercel
+Web Analytics, marketing loads the pixel, its Conversions API copy, Google's ad signals and
+the ad click ids on the order. Events from before the answer wait in the page and go out on a
+yes. The choice is kept 180 days in `eternal_consent`, set again by `app/api/consent` so Safari
+keeps it. Shopify's checkout follows the same choice through its Customer Privacy API once
+`SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `SHOPIFY_CHECKOUT_DOMAIN` and `COOKIE_DOMAIN` are set and
+checkout runs on a subdomain of the site's root domain (the launch checklist shows it).
 
 ## Routes
 

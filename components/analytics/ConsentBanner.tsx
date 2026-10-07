@@ -2,15 +2,17 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
-import { configureConsent, onConsentOpen, readConsent, saveConsent, useConsent, type ConsentSettings } from "@/lib/client/consent";
+import { configureConsent, onConsentOpen, readConsent, saveConsent, syncCheckoutOnce, useConsent, type ConsentSettings } from "@/lib/client/consent";
 
 /**
  * The cookie choice, asked once and kept 180 days (lib/consent.ts). It shows
  * after the page has loaded, fixed to the bottom, so it never moves the page
- * or delays its first paint. Saying no is as easy as saying yes: both buttons
- * sit side by side at the same size. "Choose for myself" opens one switch per
- * purpose. The footer's Cookie settings opens it again with the switches set
- * to the current choice.
+ * or delays its first paint; it sits first in the page's order after the skip
+ * link, so keyboard and screen-reader users meet it first, and it publishes its
+ * height (--consent-h) so a focused field is never scrolled under it. Saying no
+ * is as easy as saying yes: both buttons sit side by side at the same size.
+ * "Choose for myself" opens one switch per purpose. The footer's Cookie
+ * settings opens it again with the switches set to the current choice.
  */
 export function ConsentBanner(props: ConsentSettings) {
   useState(() => configureConsent(props));
@@ -19,13 +21,20 @@ export function ConsentBanner(props: ConsentSettings) {
   const [details, setDetails] = useState(false);
   const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
+  const box = useRef<HTMLElement>(null);
   const title = useRef<HTMLHeadingElement>(null);
+  const firstSwitch = useRef<HTMLInputElement>(null);
+  const opener = useRef<HTMLElement | null>(null);
   const id = useId();
+
+  // Shopify's checkout keeps its own copy of the choice; hand it over again once a visit.
+  useEffect(() => syncCheckoutOnce(), []);
 
   useEffect(
     () =>
       onConsentOpen(() => {
         const c = readConsent();
+        opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
         setAnalytics(Boolean(c?.analytics));
         setMarketing(Boolean(c?.marketing));
         setDetails(true);
@@ -36,26 +45,59 @@ export function ConsentBanner(props: ConsentSettings) {
     [],
   );
 
-  if (consent === "pending" || (consent && !reopened)) return null;
+  const open = consent !== "pending" && (!consent || reopened);
+
+  // Its height, for the page's scroll padding (app/styles/chrome.css).
+  useEffect(() => {
+    const el = box.current;
+    if (!open || !el) return;
+    const rootStyle = document.documentElement.style;
+    const ro = new ResizeObserver(() => rootStyle.setProperty("--consent-h", `${Math.ceil(el.getBoundingClientRect().height)}px`));
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      rootStyle.removeProperty("--consent-h");
+    };
+  }, [open]);
+
+  if (!open) return null;
 
   const done = (choice: { analytics: boolean; marketing: boolean }) => {
     saveConsent(choice);
     setReopened(false);
     setDetails(false);
+    // Focus goes back where it came from, or to the page, never to nowhere.
+    const back = opener.current;
+    opener.current = null;
+    window.requestAnimationFrame(() => {
+      if (back?.isConnected) back.focus({ preventScroll: true });
+      else {
+        const main = document.getElementById("main");
+        if (!main) return;
+        if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+        main.focus({ preventScroll: true });
+      }
+    });
+  };
+
+  const choose = () => {
+    setDetails(true);
+    window.requestAnimationFrame(() => firstSwitch.current?.focus());
   };
 
   return (
     <section
+      ref={box}
       role="region"
       aria-labelledby={`${id}-title`}
-      className="consent-banner fixed inset-x-0 bottom-0 z-[52] border-t border-dune bg-linen px-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))] pt-4 text-night shadow-[0_-8px_24px_rgba(23,22,20,0.08)] lg:inset-x-auto lg:bottom-6 lg:left-6 lg:w-[420px] lg:border lg:p-6"
+      className="consent-banner fixed inset-x-0 bottom-0 z-[52] max-h-[100dvh] overflow-y-auto overscroll-contain border-t border-dune bg-linen px-4 pb-[calc(16px+env(safe-area-inset-bottom,0px))] pt-4 text-night shadow-[0_-8px_24px_rgba(23,22,20,0.08)] lg:inset-x-auto lg:bottom-6 lg:left-6 lg:max-h-[calc(100dvh-48px)] lg:w-[420px] lg:border lg:p-6"
     >
       <p className="eyebrow text-ash">Cookies</p>
       <h2 id={`${id}-title`} ref={title} tabIndex={-1} className="mt-1 font-serif text-[22px] font-semibold leading-tight outline-none lg:text-[24px]">
         A few cookies, if you agree
       </h2>
       <p className="mt-2 text-[14px] leading-snug text-ash">
-        We&rsquo;d like to count visits and show eternal to you on Instagram and Facebook. Nothing optional is set until you choose.{" "}
+        We&rsquo;d like to count visits and show eternal to you on Instagram, Facebook and Google. Nothing that identifies you goes to Meta or Google until you say yes.{" "}
         <Link href="/help#privacy" className="lnk whitespace-nowrap text-night">
           How we use your data
         </Link>
@@ -64,9 +106,10 @@ export function ConsentBanner(props: ConsentSettings) {
       {details && (
         <fieldset className="mt-4 flex flex-col gap-3 border-t border-dune pt-3">
           <legend className="sr-only">Choose which cookies to allow</legend>
-          <Purpose id={`${id}-necessary`} label="Necessary" checked disabled note="Your bag, and this choice. Always on." />
+          <Purpose id={`${id}-necessary`} label="Necessary" checked disabled note="Your bag, this choice, and the name of the campaign that brought you here. Always on." />
           <Purpose
             id={`${id}-analytics`}
+            ref={firstSwitch}
             label="Analytics"
             checked={analytics}
             onChange={setAnalytics}
@@ -77,34 +120,27 @@ export function ConsentBanner(props: ConsentSettings) {
             label="Marketing"
             checked={marketing}
             onChange={setMarketing}
-            note="The Meta pixel tells Instagram and Facebook which scents you looked at, so our ads reach the right people and we can see what they sold."
+            note="Meta (Instagram, Facebook) and Google see which scents you looked at and added, so our ads reach the right people and we can see what they sold. The ad you came from travels with your order, and checkout follows the same choice."
           />
         </fieldset>
       )}
 
       <div className="mt-4 grid grid-cols-2 gap-2">
+        <button type="button" className="btn btn-secondary btn-sm" onClick={() => done({ analytics: false, marketing: false })}>
+          Only necessary
+        </button>
         {details ? (
-          <>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => done({ analytics: false, marketing: false })}>
-              Only necessary
-            </button>
-            <button type="button" className="btn btn-sm" onClick={() => done({ analytics, marketing })}>
-              Save my choice
-            </button>
-          </>
+          <button type="button" className="btn btn-sm" onClick={() => done({ analytics, marketing })}>
+            Save my choice
+          </button>
         ) : (
-          <>
-            <button type="button" className="btn btn-secondary btn-sm" onClick={() => done({ analytics: false, marketing: false })}>
-              Only necessary
-            </button>
-            <button type="button" className="btn btn-sm" onClick={() => done({ analytics: true, marketing: true })}>
-              Accept all
-            </button>
-          </>
+          <button type="button" className="btn btn-sm" onClick={() => done({ analytics: true, marketing: true })}>
+            Accept all
+          </button>
         )}
       </div>
       {!details && (
-        <button type="button" className="mt-2 inline-flex min-h-11 items-center text-[13px] text-night" onClick={() => setDetails(true)}>
+        <button type="button" className="mt-2 inline-flex min-h-11 items-center text-[13px] text-night" onClick={choose}>
           <span className="lnk">Choose for myself</span>
         </button>
       )}
@@ -112,11 +148,28 @@ export function ConsentBanner(props: ConsentSettings) {
   );
 }
 
-function Purpose({ id, label, note, checked, disabled = false, onChange }: { id: string; label: string; note: string; checked: boolean; disabled?: boolean; onChange?: (v: boolean) => void }) {
+function Purpose({
+  id,
+  ref,
+  label,
+  note,
+  checked,
+  disabled = false,
+  onChange,
+}: {
+  id: string;
+  ref?: React.Ref<HTMLInputElement>;
+  label: string;
+  note: string;
+  checked: boolean;
+  disabled?: boolean;
+  onChange?: (v: boolean) => void;
+}) {
   return (
     <div className="flex items-start gap-3">
       <input
         id={id}
+        ref={ref}
         type="checkbox"
         role="switch"
         checked={checked}

@@ -21,6 +21,12 @@ const SITE_IMAGES = [...heroes.flatMap((h) => [`hero-${h.handle}`, `hero-${h.han
  * set, never its value. NEXT_PUBLIC_* keys are fixed when the site is built,
  * so this reflects the deployed build.
  */
+/** The banner hands the choice to Shopify's Customer Privacy API (lib/client/consent.ts) only with all three set and checkout under the cookie root. */
+function consentReachesCheckout() {
+  const root = process.env.COOKIE_DOMAIN?.trim().replace(/^\./, "").toLowerCase();
+  return Boolean(process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() && process.env.SHOPIFY_CHECKOUT_DOMAIN && root && `.${checkoutDomain.toLowerCase()}`.endsWith(`.${root}`));
+}
+
 function storeSetup(live: boolean) {
   const onMyshopify = checkoutDomain.endsWith(".myshopify.com");
   return [
@@ -36,6 +42,11 @@ function storeSetup(live: boolean) {
     { key: "SHOPIFY_CHECKOUT_DOMAIN", ok: Boolean(process.env.SHOPIFY_CHECKOUT_DOMAIN), cost: "Not set: checkout links, the bag’s checkout warm-up and the newsletter form use the store domain (SHOPIFY_STORE_DOMAIN)." },
     { key: "Checkout off myshopify.com", ok: !onMyshopify, cost: "Checkout still runs on a myshopify.com address: the shopper sees a second domain, and the ad-click cookie (_fbc) never reaches checkout, so Meta can’t tie a Purchase to its click." },
     { key: "COOKIE_DOMAIN", ok: Boolean(process.env.COOKIE_DOMAIN), cost: "The click cookies stay on the storefront host. Set it to the root domain once checkout runs on a subdomain of it." },
+    {
+      key: "Cookie choice reaches checkout",
+      ok: consentReachesCheckout(),
+      cost: "Shopify’s checkout can’t read the visitor’s cookie choice, so its Meta and Google pixels follow Shopify’s own default instead. Needs SHOPIFY_STOREFRONT_ACCESS_TOKEN, SHOPIFY_CHECKOUT_DOMAIN and COOKIE_DOMAIN, with checkout on a subdomain of that root (checkout.myeternal.net under .myeternal.net).",
+    },
     { key: "The Seasons web licence", ok: !SEASONS_IS_DEMO, cost: "The titles use Fontspring’s demo files: evaluation only, and missing curly quotes, dashes and accents. Buy the web licence and swap the files (app/fonts.ts)." },
   ];
 }

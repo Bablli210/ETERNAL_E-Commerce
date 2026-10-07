@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { checkoutDomain, shopifyConfigured } from "@/lib/shopify/client";
 import { createCheckout } from "@/lib/shopify/queries";
 import { numericId } from "@/lib/format";
-import { CONSENT_COOKIE, parseConsent } from "@/lib/consent";
+import { consentFromCookieHeader } from "@/lib/consent";
 
 type Body = { lines: { variantId: string; quantity: number }[]; attributes?: { key: string; value: string }[] };
 
@@ -88,7 +88,8 @@ export async function POST(req: Request) {
   // The Meta and Google first-party cookies tie the order to the browser that clicked the ad. Shopify hides _-prefixed attributes from the buyer.
   // Each only with the visitor's yes to its purpose (lib/consent.ts): the ad identifiers with marketing, GA's id with analytics.
   const jar = await cookies();
-  const consent = parseConsent(jar.get(CONSENT_COOKIE)?.value);
+  // The raw header: with a copy on the host and one on the root domain, the newer choice wins.
+  const consent = consentFromCookieHeader(req.headers.get("cookie"));
   const fbp = consent?.marketing ? jar.get("_fbp")?.value : undefined;
   const fbc = consent?.marketing ? jar.get("_fbc")?.value : undefined;
   const ga = consent?.analytics ? jar.get("_ga")?.value : undefined;

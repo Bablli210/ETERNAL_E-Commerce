@@ -6,7 +6,7 @@ import { useReportWebVitals } from "next/web-vitals";
 import { useEffect, useRef } from "react";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { captureAttribution } from "@/lib/client/attribution";
-import { ensureQueues, inApp, pageType, trackVital } from "@/lib/client/analytics";
+import { ensureQueues, inApp, pageType, replayPending, trackVital } from "@/lib/client/analytics";
 import { allowed, useConsent } from "@/lib/client/consent";
 
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
@@ -24,27 +24,35 @@ const gaPageView = (pathname: string) =>
  * command queues, with init and the first PageView, come from ensureQueues.
  * Also stores the landing campaign for checkout, and sends a page view on
  * every client navigation, and once more at the moment a purpose is allowed,
- * so the page the visitor said yes on is counted.
+ * so the page the visitor said yes on is counted, with the events that
+ * waited for the answer. Each library counts a page once, however the yes
+ * arrives (this tab's banner, or another tab's, noticed on focus).
  */
 export function Analytics() {
   const pathname = usePathname();
   const consent = useConsent();
-  const first = useRef(true);
+  const counted = useRef({ ga: "", meta: "" });
   useReportWebVitals(trackVital);
+
+  const pageView = (path: string) => {
+    // The pixel's first PageView comes with its init (ensureQueues).
+    const fresh = ensureQueues();
+    if (allowed("analytics") && counted.current.ga !== path) {
+      counted.current.ga = path;
+      gaPageView(path);
+    }
+    if (allowed("marketing") && counted.current.meta !== path) {
+      counted.current.meta = path;
+      if (!fresh.pixel) window.fbq?.("track", "PageView");
+    }
+  };
 
   useEffect(() => {
     captureAttribution();
-    // The first page view of a library comes with its init (ensureQueues); later ones from here.
-    const fresh = ensureQueues();
-    if (allowed("analytics")) gaPageView(pathname);
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    if (!fresh.pixel && allowed("marketing")) window.fbq?.("track", "PageView");
+    pageView(pathname);
   }, [pathname]);
 
-  // A yes given on this page: load what it allows and count this page for it.
+  // An answer given while on this page: load what it allows, count this page for it, and send what waited.
   const analytics = consent !== "pending" && Boolean(consent?.analytics);
   const marketing = consent !== "pending" && Boolean(consent?.marketing);
   const before = useRef<{ analytics: boolean; marketing: boolean } | null>(null);
@@ -53,9 +61,8 @@ export function Analytics() {
     const was = before.current;
     before.current = { analytics, marketing };
     if (!was) return;
-    // ensureQueues sends the pixel's PageView with its init; GA4's is sent here.
-    if ((analytics && !was.analytics) || (marketing && !was.marketing)) ensureQueues();
-    if (analytics && !was.analytics) gaPageView(window.location.pathname);
+    if ((analytics && !was.analytics) || (marketing && !was.marketing)) pageView(window.location.pathname);
+    if (consent) replayPending();
   }, [consent, analytics, marketing]);
 
   return (

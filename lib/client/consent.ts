@@ -1,26 +1,28 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { CONSENT_COOKIE, CONSENT_MAX_AGE, cookieRootFor, parseConsent, serializeConsent, type Consent } from "@/lib/consent";
+import { CONSENT_COOKIE, CONSENT_MAX_AGE, FBCLID, cookieRootFor, fbcFrom, parseConsent, serializeConsent, type Consent } from "@/lib/consent";
+import { readConsent, readCookie } from "./consent-state";
+import { adoptHeldClick, forgetClicks, latestClick } from "./attribution";
+import { setGaDisabled } from "./analytics";
+
+export { allowed, readConsent } from "./consent-state";
 
 /**
- * The cookie choice in the browser: read it, keep it, and tell everything that
- * depends on it. lib/consent.ts holds the format the server routes share.
+ * The cookie choice in the browser: keep it, apply it, and tell everything
+ * that depends on it. lib/consent.ts holds the format the server routes share;
+ * lib/client/consent-state.ts reads it.
  */
 const CHANGE = "eternal:consent";
 const OPEN = "eternal:consent-open";
+/** The choice last handed to Shopify in this tab, so each visit re-syncs it once. */
+const SYNCED = "eternal.consent.synced.v1";
 
 /** Set once by the banner from the server's settings (COOKIE_DOMAIN, the checkout host, the public Storefront token). */
 export type ConsentSettings = { cookieDomain: string | null; checkoutDomain: string | null; storefrontToken: string | null };
 let settings: ConsentSettings = { cookieDomain: null, checkoutDomain: null, storefrontToken: null };
 export const configureConsent = (s: ConsentSettings) => {
   settings = s;
-};
-
-const readCookie = (name: string) => {
-  if (typeof document === "undefined") return null;
-  const part = document.cookie.split(/;\s*/).find((c) => c.startsWith(`${name}=`));
-  return part ? part.slice(name.length + 1) : null;
 };
 
 const root = () => (typeof window === "undefined" ? undefined : cookieRootFor(window.location.hostname, settings.cookieDomain));
@@ -38,39 +40,101 @@ function dropCookie(name: string) {
   for (const d of domains) document.cookie = `${name}=; Path=/; Max-Age=0${d ? `; Domain=${d}` : ""}`;
 }
 
-/** The current choice, or null while the visitor has not chosen. */
-export const readConsent = (): Consent | null => parseConsent(readCookie(CONSENT_COOKIE));
+const cookieNames = () => document.cookie.split(/;\s*/).map((p) => p.split("=")[0]);
 
 // useSyncExternalStore needs the same object back while nothing changed.
-let lastRaw: string | null | undefined;
+let lastKey: string | null | undefined;
 let lastValue: Consent | null = null;
+const keyOf = (c: Consent | null) => (c ? serializeConsent(c) : null);
 const snapshot = (): Consent | null => {
-  const raw = readCookie(CONSENT_COOKIE);
-  if (raw !== lastRaw) {
-    lastRaw = raw;
-    lastValue = parseConsent(raw);
+  const c = readConsent();
+  const key = keyOf(c);
+  if (key !== lastKey) {
+    lastKey = key;
+    lastValue = c;
   }
   return lastValue;
 };
+
+/** The choice this page has acted on; undefined until the page first reads it. */
+let applied: string | null | undefined;
+/**
+ * Another tab may have changed the choice (the cookie is shared): when this
+ * tab comes back into view, it follows, so a no given elsewhere stops this
+ * tab's pixel and GA4 too.
+ */
+function followOtherTabs() {
+  const c = readConsent();
+  const key = keyOf(c);
+  if (applied === undefined) applied = key;
+  if (key === applied) return;
+  const before = applied ? parseConsent(applied) : null;
+  applied = key;
+  if (c) {
+    if (c.marketing) adoptHeldClick();
+    else forgetClicks();
+    applyInPage(c, before);
+  }
+}
+
 const subscribe = (onChange: () => void) => {
+  if (applied === undefined) applied = keyOf(readConsent());
+  // Every subscriber re-reads (React skips the render when nothing changed); the page acts on a change once.
+  const recheck = () => {
+    if (document.visibilityState !== "visible") return;
+    followOtherTabs();
+    onChange();
+  };
   window.addEventListener(CHANGE, onChange);
-  return () => window.removeEventListener(CHANGE, onChange);
+  window.addEventListener("focus", recheck);
+  document.addEventListener("visibilitychange", recheck);
+  return () => {
+    window.removeEventListener(CHANGE, onChange);
+    window.removeEventListener("focus", recheck);
+    document.removeEventListener("visibilitychange", recheck);
+  };
 };
 /** On the server and during hydration the choice is unknown: "pending", so nothing renders that depends on it. */
 export function useConsent(): Consent | null | "pending" {
   return useSyncExternalStore<Consent | null | "pending">(subscribe, snapshot, () => "pending");
 }
 
-/** True only when the visitor said yes to this purpose. */
-export const allowed = (purpose: "analytics" | "marketing") => Boolean(readConsent()?.[purpose]);
-
 /** Keeps the visitor's choice and applies it at once. */
 export function saveConsent(choice: { analytics: boolean; marketing: boolean }) {
   const before = readConsent();
   const c: Consent = { ...choice, at: Date.now() };
-  setCookie(CONSENT_COOKIE, serializeConsent(c), CONSENT_MAX_AGE);
-  applyConsent(c, before);
+  const value = serializeConsent(c);
+  // One copy only: an older one on another domain scope would otherwise linger beside it.
+  dropCookie(CONSENT_COOKIE);
+  setCookie(CONSENT_COOKIE, value, CONSENT_MAX_AGE);
+  if (c.marketing) adoptHeldClick();
+  else forgetClicks();
+  const click = c.marketing ? latestClick() : null;
+  applyInPage(c, before);
+  applied = value;
+  keepOnServer(value, click);
+  shareWithCheckout(c);
   window.dispatchEvent(new Event(CHANGE));
+}
+
+/**
+ * The same cookies again from the server (app/api/consent), so they last
+ * their full time: Safari keeps cookies a page script sets for 7 days only.
+ */
+function keepOnServer(value: string, click: { fbclid: string; at: number } | null) {
+  try {
+    void fetch("/api/consent", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ value, click }),
+      keepalive: true,
+      credentials: "same-origin",
+    }).catch(() => {
+      /* the page's own copy stands */
+    });
+  } catch {
+    /* the page's own copy stands */
+  }
 }
 
 /** Opens the banner again (the footer's Cookie settings). */
@@ -80,36 +144,35 @@ export const onConsentOpen = (fn: () => void) => {
   return () => window.removeEventListener(OPEN, fn);
 };
 
-/** The Meta click id of the latest ad visit, kept by lib/client/attribution.ts. */
-function storedClick(): { fbclid: string; at: number } | null {
-  try {
-    const t = JSON.parse(window.localStorage.getItem("eternal.attr.last.v1") ?? "null") as { fbclid?: unknown; at?: unknown } | null;
-    return t && typeof t.fbclid === "string" && typeof t.at === "number" && Date.now() - t.at < 7 * 86_400_000 ? { fbclid: t.fbclid, at: t.at } : null;
-  } catch {
-    return null;
-  }
-}
-
 /**
- * What a choice changes beyond the page's own scripts (lib/client/analytics.ts reads the choice on every event):
+ * What a choice changes in this page beyond its own scripts (lib/client/analytics.ts reads the choice on every event):
  * - A yes to marketing keeps the ad click (_fbc) that brought the visitor, as Meta's pixel would have on landing.
- * - A no clears the cookies the pixel or GA4 had set, and tells them to stop.
- * - Shopify's checkout is told, so its own Meta and Google pixels follow the same choice.
+ * - A no clears the cookies the pixel, GA4 or Google's ad signals had set, and tells them to stop.
  */
-function applyConsent(c: Consent, before: Consent | null) {
-  if (c.marketing && !readCookie("_fbc")) {
-    const click = storedClick();
-    if (click) setCookie("_fbc", `fb.1.${click.at}.${click.fbclid.slice(0, 500)}`, 90 * 86_400);
-  }
+function applyInPage(c: Consent, before: Consent | null) {
+  const click = c.marketing ? latestClick() : null;
+  if (click && FBCLID.test(click.fbclid) && !readCookie("_fbc")?.endsWith(`.${click.fbclid}`)) setCookie("_fbc", fbcFrom(click.fbclid, click.at), 90 * 86_400);
   if (!c.marketing && before?.marketing !== false) {
     window.fbq?.("consent", "revoke");
-    for (const name of ["_fbp", "_fbc"]) dropCookie(name);
+    for (const name of cookieNames().filter((n) => n === "_fbp" || n === "_fbc" || n.startsWith("_gcl_") || n.startsWith("_gac_"))) dropCookie(name);
   }
   if (c.marketing) window.fbq?.("consent", "grant");
   const gaState = (on: boolean) => (on ? "granted" : "denied");
   window.gtag?.("consent", "update", { analytics_storage: gaState(c.analytics), ad_storage: gaState(c.marketing), ad_user_data: gaState(c.marketing), ad_personalization: gaState(c.marketing) });
+  setGaDisabled(!c.analytics);
   if (!c.analytics && before?.analytics !== false) {
-    for (const name of document.cookie.split(/;\s*/).map((p) => p.split("=")[0]).filter((n) => n === "_ga" || n.startsWith("_ga_"))) dropCookie(name);
+    for (const name of cookieNames().filter((n) => n === "_ga" || n.startsWith("_ga_"))) dropCookie(name);
+  }
+}
+
+/** Once per visit, the stored choice goes to Shopify again (its own record can lapse or be cleared). */
+export function syncCheckoutOnce() {
+  const c = readConsent();
+  if (!c) return;
+  try {
+    if (window.sessionStorage.getItem(SYNCED) === serializeConsent(c)) return;
+  } catch {
+    /* no session storage: sync every page */
   }
   shareWithCheckout(c);
 }
@@ -130,6 +193,7 @@ function loadCustomerPrivacy(): Promise<CustomerPrivacy | null> {
     s.async = true;
     s.onload = () => resolve(window.Shopify?.customerPrivacy ?? null);
     s.onerror = () => {
+      s.remove();
       privacyScript = null;
       resolve(null);
     };
@@ -140,16 +204,22 @@ function loadCustomerPrivacy(): Promise<CustomerPrivacy | null> {
 
 /**
  * Shopify's Customer Privacy API for a headless store: it stores the choice where checkout reads it, so the
- * Facebook & Instagram and Google & YouTube pixels on checkout follow it. It only works when the site and
- * checkout share a root domain (myeternal.net), so on eternal-storefront.vercel.app it is skipped.
+ * Facebook & Instagram and Google & YouTube pixels on checkout follow it. It needs the public Storefront token,
+ * SHOPIFY_CHECKOUT_DOMAIN and COOKIE_DOMAIN, with the site and checkout under that one root domain
+ * (myeternal.net), so on eternal-storefront.vercel.app it is skipped. A script that fails to load is tried once more.
  */
-function shareWithCheckout(c: Consent) {
+function shareWithCheckout(c: Consent, attempt = 1) {
   const storefrontRoot = root();
   const { checkoutDomain, storefrontToken } = settings;
-  if (!storefrontRoot || !checkoutDomain || !storefrontToken || !checkoutDomain.endsWith(storefrontRoot)) return;
+  if (!storefrontRoot || !checkoutDomain || !storefrontToken || !`.${checkoutDomain}`.endsWith(storefrontRoot)) return;
+  const value = serializeConsent(c);
   void loadCustomerPrivacy().then((api) => {
+    if (!api) {
+      if (attempt < 2) window.setTimeout(() => shareWithCheckout(c, attempt + 1), 3000);
+      return;
+    }
     try {
-      api?.setTrackingConsent(
+      api.setTrackingConsent(
         {
           analytics: c.analytics,
           marketing: c.marketing,
@@ -161,7 +231,15 @@ function shareWithCheckout(c: Consent) {
           storefrontAccessToken: storefrontToken,
         },
         (result) => {
-          if (result?.error) console.error("[consent] Shopify did not store the choice:", result.error);
+          if (result?.error) {
+            console.error("[consent] Shopify did not store the choice:", result.error);
+            return;
+          }
+          try {
+            window.sessionStorage.setItem(SYNCED, value);
+          } catch {
+            /* synced; just not remembered */
+          }
         },
       );
     } catch (err) {

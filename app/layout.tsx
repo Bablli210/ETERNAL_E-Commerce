@@ -57,7 +57,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
   return (
     // data-scroll-behavior: Next 16 suspends the smooth scrolling (globals.css) during route changes only with this opt-in; without it a new page lands part-way down.
-    <html lang="en" data-scroll-behavior="smooth" className={fontVariables}>
+    // suppressHydrationWarning: MotionScript sets data-ad and data-motion on <html> before React hydrates, on purpose.
+    <html lang="en" data-scroll-behavior="smooth" className={fontVariables} suppressHydrationWarning>
       <body>
         <BrandSprite />
         <MotionScript />
@@ -66,6 +67,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <a href="#main" className="sr-only-focusable fixed left-4 top-4 z-[100] bg-night px-4 py-2 text-linen">
             Skip to content
           </a>
+          {/* First after the skip link, so it is met first. The public Storefront token is made for browsers; Shopify's consent API needs it to hand the choice to checkout. */}
+          <ConsentBanner cookieDomain={process.env.COOKIE_DOMAIN?.trim() || null} checkoutDomain={checkoutDomain} storefrontToken={process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null} />
           <Header index={index} featured={featured} taleIndex={taleIndex} popular={bestsellers.map(toIndexEntry)} />
           <main id="main">
             <PageFade>{children}</PageFade>
@@ -77,8 +80,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <RevealObserver />
         </CartProvider>
         <Analytics />
-        {/* The public Storefront token is made for browsers; Shopify's consent API needs it to hand the choice to checkout. */}
-        <ConsentBanner cookieDomain={process.env.COOKIE_DOMAIN?.trim() || null} checkoutDomain={checkoutDomain} storefrontToken={process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null} />
       </body>
     </html>
   );

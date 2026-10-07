@@ -179,8 +179,8 @@ export default async function HelpPage() {
           <p>How we collect and use your details is set out in our privacy policy.</p>
           <Way href={policy("privacy-policy")}>Read the privacy policy</Way>
           <p className="mt-4">
-            <strong className="font-semibold">Cookies.</strong> The site keeps what it needs to work without asking: your bag, and your cookie choice. Everything else waits
-            until you say yes, and you can change your mind at any time.
+            <strong className="font-semibold">Cookies.</strong> The site keeps what it needs to work without asking: your bag, your cookie choice, and the name of the
+            campaign that brought you here. Nothing that identifies you goes to Meta or Google until you say yes, and you can change your mind at any time.
           </p>
           <ul className="mt-2 flex list-disc flex-col gap-1 pl-5">
             <li>
@@ -188,13 +188,14 @@ export default async function HelpPage() {
               site.
             </li>
             <li>
-              <strong className="font-semibold">Marketing</strong>: the Meta pixel and Meta&rsquo;s Conversions API tell Instagram and Facebook which scents you viewed and
-              added to your bag, so our ads reach the right people and we can measure what they sell. The ad you came from travels with your order.
+              <strong className="font-semibold">Marketing</strong>: the Meta pixel and Meta&rsquo;s Conversions API, and Google&rsquo;s ad measurement, tell Instagram,
+              Facebook and Google which scents you viewed and added to your bag, so our ads reach the right people and we can measure what they sell. The ad you came from
+              (its click id) travels with your order, and Shopify&rsquo;s checkout follows the same choice.
             </li>
           </ul>
           <p className="mt-2">
-            When you arrive from a campaign link, we note which campaign it was (no personal details) so we know which posts bring visitors. Your choice is kept for six
-            months, then we ask again.
+            When you arrive from a campaign link, we note which campaign it was (its name only, nothing about you) so we know which posts bring visitors. Your choice is
+            kept for six months, then we ask again.
           </p>
           <CookieSettings className="btn btn-secondary mt-3 w-full sm:w-auto sm:self-start">Change cookie settings</CookieSettings>
         </>

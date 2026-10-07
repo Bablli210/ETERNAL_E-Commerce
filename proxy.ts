@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { heroByHandle, heroes } from "@/content/heroes";
-import { CONSENT_COOKIE, cookieRootFor, parseConsent } from "@/lib/consent";
+import { FBCLID, consentFromCookieHeader, cookieRootFor, fbcFrom } from "@/lib/consent";
 
 /**
  * Two jobs, each on its own requests (see the matcher).
@@ -16,7 +16,7 @@ import { CONSENT_COOKIE, cookieRootFor, parseConsent } from "@/lib/consent";
  * root domain (COOKIE_DOMAIN, e.g. ".myeternal.net", applied on hosts under it).
  *
  * - _fbc: Meta's click id, in Meta's own format (fb.1.<ms>.<fbclid>), once the visitor has said yes
- *   to marketing (lib/consent.ts); before that the banner sets it from the stored click on a yes.
+ *   to marketing (lib/consent.ts); before that the click waits in the browser, and a yes sets it (app/api/consent).
  * - eternal_utm: the landing campaign, kept 30 days. /api/checkout falls back
  *   to it when the browser's own copy of the campaign is gone.
  */
@@ -53,10 +53,10 @@ export function proxy(request: NextRequest) {
   // COOKIE_DOMAIN (".myeternal.net") only where the host sits under it; eternal-storefront.vercel.app and previews get host-only cookies.
   const base = { path: "/", sameSite: "lax" as const, secure: url.protocol === "https:", domain: cookieRootFor(url.hostname, process.env.COOKIE_DOMAIN) };
   // Meta's click cookie only after a yes to marketing; otherwise the click waits in the browser and the banner sets it on a yes.
-  if (fbclid && parseConsent(request.cookies.get(CONSENT_COOKIE)?.value)?.marketing) {
+  if (fbclid && FBCLID.test(fbclid) && consentFromCookieHeader(request.headers.get("cookie"))?.marketing) {
     // Keep the original timestamp when the same click lands again.
     const current = request.cookies.get("_fbc")?.value;
-    if (!current?.endsWith(`.${fbclid}`)) res.cookies.set("_fbc", `fb.1.${Date.now()}.${fbclid.slice(0, 500)}`, { ...base, maxAge: 90 * DAY });
+    if (!current?.endsWith(`.${fbclid}`)) res.cookies.set("_fbc", fbcFrom(fbclid, Date.now()), { ...base, maxAge: 90 * DAY });
   }
   if (utm.length) res.cookies.set("eternal_utm", JSON.stringify({ ...Object.fromEntries(utm), landing: url.pathname }), { ...base, maxAge: 30 * DAY });
   return res;

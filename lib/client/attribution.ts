@@ -1,7 +1,7 @@
 "use client";
 
 import { QUIZ_PROFILE_KEY } from "@/lib/finder";
-import { allowed } from "./consent";
+import { readConsent } from "./consent-state";
 
 /**
  * Where a visitor came from, kept so the order can be attributed to the ad
@@ -10,9 +10,17 @@ import { allowed } from "./consent";
  * Meta's default click window). Both travel to Shopify checkout as cart
  * attributes, so every order shows its campaign on the order page. A
  * ?discount=CODE in the ad link is kept the same way and applied at checkout.
+ *
+ * The ad click ids (fbclid, gclid, ttclid) identify the visitor to the ad
+ * network, so they are only kept with a yes to marketing (lib/consent.ts).
+ * Before the visitor has chosen, the touch is kept without them and the
+ * click waits in this tab's session storage: a yes adopts it, a no forgets
+ * it. The referrer is kept as its site only (https://www.instagram.com).
  */
 const FIRST = "eternal.attr.first.v1";
 const LAST = "eternal.attr.last.v1";
+/** The click waiting for the cookie choice, in session storage. */
+const HELD = "eternal.attr.held.v1";
 /** When this browser first saw the finder profile now stored, for a profile written without a time. */
 const QUIZ_SEEN = "eternal.quiz.seen.v1";
 const DAY = 86_400_000;
@@ -46,6 +54,30 @@ function write(key: string, t: Touch) {
   }
 }
 
+const referrerSite = () => {
+  try {
+    return document.referrer ? new URL(document.referrer).origin : "";
+  } catch {
+    return "";
+  }
+};
+
+const hasClick = (t: Partial<Record<Param, string>>) => [...CLICK_IDS].some((p) => t[p]);
+const withoutClicks = <T extends Partial<Record<Param, string>>>(t: T): T => {
+  const out = { ...t };
+  for (const p of CLICK_IDS) delete out[p];
+  return out;
+};
+
+function readHeld(): Touch | null {
+  try {
+    const t = JSON.parse(window.sessionStorage.getItem(HELD) ?? "null") as Touch | null;
+    return t && typeof t.at === "number" && Date.now() - t.at < 7 * DAY ? t : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Call once per page load. Only a URL that carries campaign parameters counts as a touch. */
 export function captureAttribution() {
   quizProfile();
@@ -53,15 +85,71 @@ export function captureAttribution() {
   const found: Partial<Record<Param, string>> = {};
   for (const p of PARAMS) {
     const v = url.searchParams.get(p);
-    if (v) found[p] = v.slice(0, 200);
+    // Meta's click ids run past 200 characters; _fbc needs the whole id.
+    if (v) found[p] = v.slice(0, CLICK_IDS.has(p) ? 500 : 200);
   }
   if (!Object.keys(found).length) return;
+  const touch: Touch = { ...found, landing: url.pathname, referrer: referrerSite(), at: Date.now() };
+  const consent = readConsent();
+  if (!consent?.marketing && hasClick(found)) {
+    // No choice yet: the whole touch waits in this tab for the banner's answer (the same click seen again keeps its first time).
+    if (!consent) {
+      const held = readHeld();
+      if (!held || PARAMS.some((p) => (held[p] ?? "") !== (found[p] ?? ""))) {
+        try {
+          window.sessionStorage.setItem(HELD, JSON.stringify(touch));
+        } catch {
+          /* blocked storage: the click is simply not kept */
+        }
+      }
+    }
+    for (const p of CLICK_IDS) delete found[p];
+    if (!Object.keys(found).length) return;
+  }
   // The same click seen again (Back to the landing page, a reload) keeps its first time, so one visit never reads as two touches.
   const prev = read(LAST, 7 * DAY);
   if (prev && PARAMS.every((p) => (prev[p] ?? "") === (found[p] ?? ""))) return;
-  const touch: Touch = { ...found, landing: url.pathname, referrer: document.referrer.slice(0, 200), at: Date.now() };
-  write(LAST, touch);
-  if (!read(FIRST, 30 * DAY)) write(FIRST, touch);
+  const kept: Touch = { ...found, landing: touch.landing, referrer: touch.referrer, at: touch.at };
+  write(LAST, kept);
+  if (!read(FIRST, 30 * DAY)) write(FIRST, kept);
+}
+
+/** A yes to marketing: the click that waited for it becomes the latest touch, unless a later visit already is. */
+export function adoptHeldClick() {
+  const held = readHeld();
+  try {
+    window.sessionStorage.removeItem(HELD);
+  } catch {
+    /* nothing held */
+  }
+  if (!held) return;
+  const last = read(LAST, 7 * DAY);
+  if (last && last.at > held.at) return;
+  write(LAST, held);
+  const first = read(FIRST, 30 * DAY);
+  if (!first || first.at === held.at) write(FIRST, held);
+}
+
+/** A no to marketing: the click ids go, the campaign stays. */
+export function forgetClicks() {
+  try {
+    window.sessionStorage.removeItem(HELD);
+  } catch {
+    /* nothing held */
+  }
+  for (const [key, maxAge] of [
+    [LAST, 7 * DAY],
+    [FIRST, 30 * DAY],
+  ] as const) {
+    const t = read(key, maxAge);
+    if (t && hasClick(t)) write(key, withoutClicks(t));
+  }
+}
+
+/** Meta's click id from the latest ad visit, for _fbc. */
+export function latestClick(): { fbclid: string; at: number } | null {
+  const t = read(LAST, 7 * DAY);
+  return t?.fbclid ? { fbclid: t.fbclid, at: t.at } : null;
 }
 
 export function lastTouch() {
@@ -123,9 +211,9 @@ export function checkoutAttributes(): { key: string; value: string }[] {
   const last = lastTouch();
   const first = read(FIRST, 30 * DAY);
   // Ad click ids identify the visitor to the ad network, so they go with the order only after a yes to marketing.
-  const marketing = allowed("marketing");
+  const marketing = Boolean(readConsent()?.marketing);
   if (last) {
-    for (const p of PARAMS) if (last[p] && (marketing || !CLICK_IDS.has(p))) out.push({ key: p, value: last[p]! });
+    for (const p of PARAMS) if (last[p] && (marketing || !CLICK_IDS.has(p))) out.push({ key: p, value: last[p]!.slice(0, 200) });
     out.push({ key: "landing_page", value: last.landing });
   }
   if (first && first.at !== last?.at) {
