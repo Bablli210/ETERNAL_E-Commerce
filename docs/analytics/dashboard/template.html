@@ -1,0 +1,575 @@
+<title>eternal Performance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&display=swap">
+<style>
+/* Layout: a house ledger. A summary strip and what needs attention first, then one section per question the team asks
+   (how are sales, what does advertising return, what sells, where buyers come from, who they are, can we trust the data). */
+@font-face { font-family: "General Sans"; src: url(data:font/woff2;base64,{{FONT_GENERAL}}) format("woff2"); font-weight: 100 900; font-display: swap; }
+@font-face { font-family: "Cabinet Grotesk"; src: url(data:font/woff2;base64,{{FONT_CABINET}}) format("woff2"); font-weight: 100 900; font-display: swap; }
+:root {
+  --ground: #f1ede4;      /* brand cream */
+  --paper: #f8f5ee;
+  --ink: #331e10;         /* brand espresso */
+  --ink-2: #6a5646;
+  --muted: #8a8775;       /* brand olive, a step darker for text */
+  --rule: #ddd4c4;
+  --bar: #331e10;
+  --line: #5f7fa6;        /* brand pale blue, deepened to read as a line */
+  --wash: #b9c8dd;        /* brand pale blue */
+  --good: #3c6a3a;
+  --warn: #9a6512;
+  --bad: #a03a2c;
+  --good-bg: #e3ead9;
+  --warn-bg: #f2e4c8;
+  --bad-bg: #f3dcd6;
+  --display: "Cormorant Garamond", "Cormorant", Georgia, "Times New Roman", serif;
+  --body: "General Sans", "Helvetica Neue", Arial, sans-serif;
+  --num: "Cabinet Grotesk", "General Sans", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #17110c; --paper: #211912; --ink: #f1ede4; --ink-2: #d2c6b5; --muted: #a8a491; --rule: #3a2e24;
+    --bar: #e9e1d2; --line: #9db4d2; --wash: #3b4a5e;
+    --good: #93c38a; --warn: #e2ab55; --bad: #ec8f7f; --good-bg: #24301f; --warn-bg: #3a2c14; --bad-bg: #3d211b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #17110c; --paper: #211912; --ink: #f1ede4; --ink-2: #d2c6b5; --muted: #a8a491; --rule: #3a2e24;
+  --bar: #e9e1d2; --line: #9db4d2; --wash: #3b4a5e;
+  --good: #93c38a; --warn: #e2ab55; --bad: #ec8f7f; --good-bg: #24301f; --warn-bg: #3a2c14; --bad-bg: #3d211b;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--ink); font: 15px/1.5 var(--body); padding-inline: 16px; padding-block: 0 48px; -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 40px; }
+h1, h2, h3 { margin: 0; text-wrap: balance; font-weight: 600; }
+h2 { font-family: var(--display); font-size: clamp(26px, 3.2vw, 34px); line-height: 1.1; letter-spacing: -0.005em; }
+h3 { font-size: 15px; }
+p { margin: 0; }
+.label { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.num { font-family: var(--num); font-variant-numeric: tabular-nums; }
+.lede { color: var(--ink-2); max-width: 65ch; }
+.small { font-size: 13px; color: var(--ink-2); }
+a { color: inherit; text-underline-offset: 3px; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--line); outline-offset: 2px; }
+
+/* Header */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--ground); border-bottom: 1px solid var(--rule); margin-inline: -16px; padding: 14px 16px; }
+.top-in { max-width: 1180px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.brand { display: flex; align-items: baseline; gap: 12px; margin-right: auto; }
+.brand svg { height: 26px; width: auto; color: var(--ink); display: block; }
+.brand span { font-family: var(--num); font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: 999px; padding: 3px; background: var(--paper); }
+.seg button { border: 0; background: none; padding: 6px 14px; border-radius: 999px; font-size: 13px; cursor: pointer; color: var(--ink-2); min-height: 32px; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--ground); }
+.fresh { font-size: 12px; color: var(--muted); }
+
+/* Intro */
+.intro { display: grid; gap: 14px; padding-top: 28px; }
+.intro h1 { font-family: var(--display); font-size: clamp(34px, 5vw, 52px); line-height: 1.02; }
+.sources { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--rule); background: var(--paper); color: var(--ink-2); }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.ok { background: var(--good); } .dot.warn { background: var(--warn); } .dot.bad { background: var(--bad); }
+
+/* Attention */
+.attention { display: grid; gap: 10px; }
+.alert { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; padding: 14px 16px; border-radius: 10px; background: var(--paper); border: 1px solid var(--rule); }
+.alert .pill { grid-row: span 2; align-self: start; }
+.alert strong { font-weight: 600; }
+.alert p { color: var(--ink-2); font-size: 14px; }
+.alert .who { font-size: 12px; color: var(--muted); }
+.pill { display: inline-block; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; white-space: nowrap; font-weight: 600; }
+.pill.critical, .pill.missing, .pill.blocked { background: var(--bad-bg); color: var(--bad); }
+.pill.warning, .pill.partial { background: var(--warn-bg); color: var(--warn); }
+.pill.info, .pill.ok, .pill.active { background: var(--good-bg); color: var(--good); }
+.pill.paused, .pill.neutral { background: transparent; color: var(--muted); border: 1px solid var(--rule); }
+
+/* KPI tiles */
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
+.kpi { padding: 16px 16px 18px 0; border-bottom: 1px solid var(--rule); display: grid; gap: 4px; align-content: start; min-width: 0; }
+.kpi + .kpi { padding-left: 16px; border-left: 1px solid var(--rule); }
+.kpi:nth-of-type(4n + 1) { padding-left: 0; border-left: 0; }
+.kpi .v { font-family: var(--num); font-variant-numeric: tabular-nums; font-size: clamp(24px, 3vw, 32px); line-height: 1.1; letter-spacing: -0.01em; }
+.kpi .d { font-size: 12px; color: var(--muted); }
+.d .up { color: var(--good); } .d .down { color: var(--bad); }
+.d .up.inverse { color: var(--bad); } .d .down.inverse { color: var(--good); }
+.kpi svg { width: 100%; height: 28px; display: block; margin-top: 6px; }
+.group-label { grid-column: 1 / -1; padding: 10px 0 0; }
+
+/* Sections */
+section.block { display: grid; gap: 16px; }
+.head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 6px 20px; }
+.two { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.card { background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 18px; min-width: 0; }
+
+/* Chart */
+.chart { position: relative; }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; }
+.chart text { fill: var(--muted); font: 11px var(--body); font-variant-numeric: tabular-nums; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--ink-2); }
+.key { display: inline-flex; align-items: center; gap: 6px; }
+.key i { width: 12px; height: 12px; display: inline-block; border-radius: 2px; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--ground); font-size: 12px; padding: 8px 10px; border-radius: 8px; white-space: nowrap; transform: translate(-50%, calc(-100% - 10px)); }
+.tip[hidden] { display: none !important; }
+
+/* Funnel */
+.funnel { display: grid; gap: 10px; }
+.step { display: grid; grid-template-columns: minmax(110px, 160px) minmax(0, 1fr) 72px; gap: 12px; align-items: center; font-size: 14px; }
+.step .bar { height: 22px; background: var(--wash); border-radius: 4px; min-width: 2px; }
+.step .n { text-align: right; font-family: var(--num); font-variant-numeric: tabular-nums; }
+.step .rate { grid-column: 2 / 4; font-size: 12px; color: var(--muted); margin-top: -6px; }
+
+/* Tables */
+.tablebox { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; font-weight: 500; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); padding: 0 10px 8px 0; border-bottom: 1px solid var(--ink); white-space: nowrap; }
+td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
+td.r { font-family: var(--num); }
+tr.sub td:first-child { padding-left: 16px; color: var(--ink-2); }
+.share { display: block; height: 4px; background: var(--wash); border-radius: 2px; margin-top: 6px; }
+
+/* Lines split */
+.split { display: flex; height: 14px; border-radius: 4px; overflow: hidden; background: var(--rule); }
+.split span { display: block; height: 100%; }
+.split-key { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; margin-top: 10px; }
+
+/* Stats list */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+.stat .v { font-family: var(--num); font-size: 26px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+
+/* Tracking */
+.checks { display: grid; gap: 0; }
+.check { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 4px 14px; padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.check .pill { align-self: start; text-align: center; }
+.check p { color: var(--ink-2); font-size: 14px; }
+.check .act { font-size: 13px; color: var(--ink); }
+
+/* Notes */
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.note { border-top: 2px solid var(--ink); padding-top: 12px; display: grid; gap: 6px; align-content: start; }
+.note.risk { border-color: var(--bad); } .note.win { border-color: var(--good); } .note.next { border-color: var(--line); }
+.note p { color: var(--ink-2); font-size: 14px; }
+
+/* Ask */
+.ask form { display: flex; gap: 8px; flex-wrap: wrap; }
+.ask input { flex: 1 1 260px; min-width: 0; font: inherit; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--rule); background: var(--ground); color: var(--ink); }
+.ask button { padding: 10px 16px; border-radius: 8px; border: 0; background: var(--ink); color: var(--ground); cursor: pointer; }
+.ask button[disabled] { opacity: 0.5; cursor: default; }
+.answer { white-space: pre-wrap; color: var(--ink); font-size: 14px; margin-top: 12px; max-width: 75ch; }
+.suggest { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.suggest button { border: 1px solid var(--rule); background: transparent; border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; color: var(--ink-2); }
+
+.empty { padding: 40px 0; display: grid; gap: 10px; max-width: 60ch; }
+.foot { border-top: 1px solid var(--rule); padding-top: 18px; display: grid; gap: 10px; font-size: 13px; color: var(--ink-2); }
+.foot dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px; margin: 0; }
+.foot dt { font-weight: 600; color: var(--ink); }
+.foot dd { margin: 0; }
+
+@media (max-width: 860px) {
+  .two { grid-template-columns: minmax(0, 1fr); }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi:nth-of-type(4n + 1) { padding-left: 16px; border-left: 1px solid var(--rule); }
+  .kpi:nth-of-type(2n + 1) { padding-left: 0; border-left: 0; }
+  .step { grid-template-columns: minmax(96px, 120px) minmax(0, 1fr) 60px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .bar, .split span { transition: width 300ms ease; }
+}
+</style>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <svg viewBox="0 0 250.6 82.6" role="img" aria-label="eternal"><path fill="currentColor" fill-rule="evenodd" d="{{LOGO_PATH}}"/></svg>
+      <span>Performance</span>
+    </div>
+    <div class="seg" role="group" aria-label="Period">
+      <button type="button" id="p7" data-days="7" aria-pressed="false">7 days</button>
+      <button type="button" id="p30" data-days="30" aria-pressed="true">30 days</button>
+      <button type="button" id="p90" data-days="90" aria-pressed="false">90 days</button>
+    </div>
+    <span class="fresh" id="fresh">Loading figures…</span>
+  </div>
+</header>
+
+<main class="wrap" id="app">
+  <div class="intro">
+    <p class="label">eternal · eaux de parfum · Cairo</p>
+    <h1>How the house is selling</h1>
+    <p class="lede">Sales and customers from Shopify, advertising from Meta, and the state of the tracking that feeds both. Refreshed every morning at about 7:00 Cairo time.</p>
+    <div class="sources" id="sources"></div>
+  </div>
+  <div id="content">
+    <div class="empty" id="empty">
+      <h2>The first figures are on their way</h2>
+      <p class="lede">This page fills itself from Shopify and Meta each morning. If you are reading this, the first refresh has not run yet or this view cannot reach the figures. Refresh the page in a few minutes.</p>
+    </div>
+  </div>
+</main>
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (s, el = document) => el.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const state = { days: 30, data: {} };
+  try { const d = Number(localStorage.getItem("eternal.dash.days")); if ([7, 30, 90].includes(d)) state.days = d; } catch {}
+
+  const fmtInt = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+  const fmt1 = new Intl.NumberFormat("en-US", { maximumFractionDigits: 1, minimumFractionDigits: 1 });
+  const fmt2 = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  const isNum = (v) => typeof v === "number" && Number.isFinite(v);
+  const egp = (v) => (isNum(v) ? `EGP ${fmtInt.format(Math.round(v))}` : "–");
+  const int = (v) => (isNum(v) ? fmtInt.format(v) : "–");
+  const pct = (v) => (isNum(v) ? `${fmt1.format(v * 100)}%` : "–");
+  const ratio = (v) => (isNum(v) ? `${fmt2.format(v)}×` : "–");
+  const compact = (v) => (!isNum(v) ? "–" : Math.abs(v) >= 1000 ? `${fmt1.format(v / 1000)}k` : fmtInt.format(v));
+  const cairo = (iso, opts) => {
+    try { return new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Cairo", ...opts }).format(new Date(iso)); } catch { return ""; }
+  };
+
+  /** Change against the previous period, as a sentence part. `inverse`: lower is better (cost per purchase). */
+  const delta = (now, before, inverse = false) => {
+    if (!isNum(now) || !isNum(before)) return `<span>no earlier figure</span>`;
+    if (before === 0) return now === 0 ? `<span>same as before</span>` : `<span>none the period before</span>`;
+    const ch = (now - before) / Math.abs(before);
+    const dir = ch > 0.005 ? "up" : ch < -0.005 ? "down" : "";
+    const arrow = dir === "up" ? "▲" : dir === "down" ? "▼" : "■";
+    return `<span class="${dir}${inverse ? " inverse" : ""}">${arrow} ${fmtInt.format(Math.abs(ch * 100))}%</span> vs previous ${state.days} days`;
+  };
+
+  const spark = (values) => {
+    const v = values.filter(isNum);
+    if (v.length < 2) return "";
+    const max = Math.max(...v, 1), w = 120, h = 28;
+    const pts = values.map((x, i) => `${((i / (values.length - 1)) * w).toFixed(1)},${(h - 2 - ((isNum(x) ? x : 0) / max) * (h - 4)).toFixed(1)}`);
+    const last = pts[pts.length - 1].split(",");
+    return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${pts.join(" ")}" fill="none" stroke="var(--muted)" stroke-width="1.25" vector-effect="non-scaling-stroke"/><circle cx="${last[0]}" cy="${last[1]}" r="2.2" fill="var(--ink)"/></svg>`;
+  };
+
+  /** Today's date in Cairo, as the daily rows write it. */
+  const todayCairo = () => {
+    try { return new Intl.DateTimeFormat("en-CA", { timeZone: "Africa/Cairo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()); } catch { return ""; }
+  };
+  const allDays = () => (state.data.daily?.days ?? []).slice().sort((a, b) => (a.d < b.d ? -1 : 1));
+  /** The period's full days, ending yesterday: the same days the tiles count. Today is shown on its own. */
+  const window_ = () => allDays().filter((d) => d.d < todayCairo()).slice(-state.days);
+  const todayRow = () => allDays().find((d) => d.d === todayCairo());
+  const rangeLabel = () => {
+    const r = state.data.periods?.[String(state.days)]?.range;
+    const w = window_();
+    const from = r?.from ?? w[0]?.d, to = r?.to ?? w[w.length - 1]?.d;
+    if (!from || !to) return "";
+    const f = (d) => cairo(d + "T12:00:00Z", { day: "numeric", month: "short" });
+    return `${f(from)} – ${f(to)}`;
+  };
+
+  /* ---------- Sections ---------- */
+  const renderSources = () => {
+    const st = state.data.status;
+    const list = st?.sources ?? [];
+    $("#sources").innerHTML = list
+      .map((s) => `<span class="chip" title="${esc(s.note)}"><span class="dot ${s.ok === true ? "ok" : s.ok === false ? "bad" : "warn"}"></span>${esc(s.label)}${s.note ? ` · ${esc(s.note)}` : ""}</span>`)
+      .join("");
+    const t = todayRow();
+    const today = t && (t.orders || t.spend) ? ` · Today so far: ${int(t.orders)} ${t.orders === 1 ? "order" : "orders"}, ${egp(t.net)}${t.spend ? `, ad spend ${egp(t.spend)}` : ""}` : "";
+    $("#fresh").textContent = st?.updatedAt ? `Updated ${cairo(st.updatedAt, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })} Cairo${today}` : "Not refreshed yet";
+  };
+
+  const attention = () => {
+    const items = state.data.status?.attention ?? [];
+    if (!items.length) return "";
+    return `<section class="block" aria-labelledby="h-att">
+      <div class="head"><h2 id="h-att">Needs attention</h2><p class="small">${items.length} open ${items.length === 1 ? "item" : "items"}</p></div>
+      <div class="attention">${items
+        .map((a) => `<div class="alert"><span class="pill ${esc(a.level)}">${esc(a.level === "critical" ? "Urgent" : a.level === "warning" ? "Soon" : "Note")}</span><strong>${esc(a.title)}</strong><div><p>${esc(a.detail)}</p>${a.owner ? `<p class="who">Who: ${esc(a.owner)}</p>` : ""}</div></div>`)
+        .join("")}</div></section>`;
+  };
+
+  const kpis = () => {
+    const p = state.data.periods?.[String(state.days)];
+    if (!p) return "";
+    const s = p.sales ?? {}, prev = p.prev ?? {}, c = p.customers ?? {}, a = p.ads ?? {}, ap = p.adsPrev ?? {};
+    const days = window_();
+    const series = (k) => days.map((d) => d[k]);
+    const tile = (label, value, d, sp = "") => `<div class="kpi"><span class="label">${label}</span><span class="v">${value}</span><span class="d">${d}</span>${sp}</div>`;
+    return `<section class="block" aria-labelledby="h-kpi">
+      <div class="head"><h2 id="h-kpi">The last ${state.days} days</h2><p class="small">${esc(rangeLabel())}, full days to yesterday. Net sales are after discounts and returns; advertising figures are what Meta credits to its ads.</p></div>
+      <div class="kpis">
+        <p class="label group-label">Shop · Shopify</p>
+        ${tile("Net sales", egp(s.net), delta(s.net, prev.net), spark(series("net")))}
+        ${tile("Orders", int(s.orders), delta(s.orders, prev.orders), spark(series("orders")))}
+        ${tile("Average order", egp(s.aov), delta(s.aov, prev.aov))}
+        ${tile("Returning customers", pct(c.returningRate), `${int(c.returning)} of ${int(c.customers)} customers ordered before`)}
+        <p class="label group-label">Advertising · Meta</p>
+        ${tile("Ad spend", egp(a.spend), delta(a.spend, ap.spend), spark(series("spend")))}
+        ${tile("Purchases from ads", int(a.purchases), delta(a.purchases, ap.purchases), spark(series("purchases")))}
+        ${tile("Return on ad spend", ratio(a.roas), `EGP ${isNum(a.roas) ? fmt2.format(a.roas) : "–"} back per EGP 1 · ${delta(a.roas, ap.roas)}`)}
+        ${tile("Cost per purchase", egp(a.cpa), delta(a.cpa, ap.cpa, true))}
+      </div></section>`;
+  };
+
+  const trend = () => {
+    const days = window_();
+    if (days.length < 2) return "";
+    // Drawn at the width it is shown, so the axis text stays 11 px on a phone.
+    const W = Math.round(Math.max(300, Math.min(1140, ($("#content")?.clientWidth || 960) - 38))), H = W < 600 ? 220 : 260, L = 44, R = 8, T = 12, B = 28;
+    const max = Math.max(1, ...days.map((d) => Math.max(d.net || 0, d.spend || 0)));
+    const nice = (m) => { const p = Math.pow(10, Math.floor(Math.log10(m))); const f = m / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; };
+    const top = nice(max);
+    const x = (i) => L + ((i + 0.5) / days.length) * (W - L - R);
+    const y = (v) => T + (1 - v / top) * (H - T - B);
+    const bw = Math.max(2, ((W - L - R) / days.length) * 0.62);
+    const ticks = [0, 0.25, 0.5, 0.75, 1].map((t) => t * top);
+    const every = Math.ceil(days.length / Math.max(3, Math.floor(W / 120)));
+    const grid = ticks.map((t) => `<line x1="${L}" x2="${W - R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--rule)" stroke-width="1"/><text x="${L - 8}" y="${y(t) + 4}" text-anchor="end">${compact(t)}</text>`).join("");
+    const bars = days.map((d, i) => `<rect x="${(x(i) - bw / 2).toFixed(1)}" y="${y(d.net || 0).toFixed(1)}" width="${bw.toFixed(1)}" height="${(y(0) - y(d.net || 0)).toFixed(1)}" fill="var(--bar)" rx="1.5"/>`).join("");
+    const linePts = days.map((d, i) => `${x(i).toFixed(1)},${y(d.spend || 0).toFixed(1)}`).join(" ");
+    const labels = days.map((d, i) => (i % every === 0 || i === days.length - 1 ? `<text x="${x(i)}" y="${H - 8}" text-anchor="middle">${esc(cairo(d.d + "T12:00:00Z", { day: "numeric", month: "short" }))}</text>` : "")).join("");
+    const hits = days.map((d, i) => `<rect class="hit" data-i="${i}" x="${(x(i) - (W - L - R) / days.length / 2).toFixed(1)}" y="${T}" width="${((W - L - R) / days.length).toFixed(1)}" height="${H - T - B}" fill="transparent"/>`).join("");
+    const totNet = days.reduce((s, d) => s + (d.net || 0), 0), totSpend = days.reduce((s, d) => s + (d.spend || 0), 0);
+    return `<section class="block" aria-labelledby="h-trend">
+      <div class="head"><h2 id="h-trend">Sales and ad spend, day by day</h2>
+        <div class="legend"><span class="key"><i style="background:var(--bar)"></i>Net sales · ${egp(totNet)}</span><span class="key"><i style="background:var(--line);height:3px"></i>Meta ad spend · ${egp(totSpend)}</span></div></div>
+      <div class="card chart" id="trend"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Net sales and ad spend per day for the last ${state.days} days">${grid}${bars}<polyline points="${linePts}" fill="none" stroke="var(--line)" stroke-width="2.25" stroke-linejoin="round"/>${labels}${hits}</svg></div>
+    </section>`;
+  };
+
+  const funnel = () => {
+    const a = state.data.periods?.[String(state.days)]?.ads;
+    const px = state.data.tracking?.pixel;
+    if (!a && !px) return "";
+    const steps = a ? [
+      ["Saw an ad", a.reach, "people reached"],
+      ["Clicked through", a.linkClicks, "of those reached"],
+      ["Page loaded", a.lpv, "of clicks"],
+      ["Added to bag", a.atc, "of page loads"],
+      ["Started checkout", a.ic, "of bag adds"],
+      ["Bought", a.purchases, "of checkouts"],
+    ] : [];
+    const max = Math.max(1, ...steps.map((s) => s[1] || 0));
+    const body = steps.map((s, i) => {
+      const prev = i ? steps[i - 1][1] : null;
+      const rate = i && isNum(prev) && prev > 0 && isNum(s[1]) ? `${pct(s[1] / prev)} ${s[2]}` : "";
+      const w = isNum(s[1]) ? Math.max(0.4, Math.sqrt(s[1] / max) * 100) : 0;
+      return `<div class="step"><span>${s[0]}</span><span class="bar" style="width:${w.toFixed(1)}%"></span><span class="n">${int(s[1])}</span>${rate ? `<span class="rate">${rate}</span>` : ""}</div>`;
+    }).join("");
+    const ev = px?.events ?? [];
+    const site = ev.length ? `<div class="card"><h3>Everything the website reported to Meta</h3><p class="small" style="margin:4px 0 12px">Last ${esc(px.windowDays ?? 28)} days, every visitor, ad or not. Browser and server copies of the same event are shown apart, as Meta counts them before removing duplicates.</p>
+      <div class="tablebox"><table><thead><tr><th>Event</th><th class="r">Browser</th><th class="r">Server</th><th class="r">Match quality</th></tr></thead><tbody>
+      ${ev.map((e) => `<tr><td>${esc(e.label ?? e.name)}</td><td class="r">${int(e.browser)}</td><td class="r">${int(e.server)}</td><td class="r">${isNum(e.emq) ? `${fmt1.format(e.emq)}/10` : "–"}</td></tr>`).join("")}
+      </tbody></table></div></div>` : "";
+    return `<section class="block" aria-labelledby="h-funnel">
+      <div class="head"><h2 id="h-funnel">From ad to order</h2><p class="small">Bars are scaled by square root so the small steps stay visible.</p></div>
+      <div class="two">${steps.length ? `<div class="card"><h3>People who came from Meta ads · last ${state.days} days</h3><div class="funnel" style="margin-top:14px">${body}</div></div>` : ""}${site}</div>
+    </section>`;
+  };
+
+  const LINE_COLORS = { eterna: "var(--wash)", eterno: "var(--bar)", eternal: "var(--muted)" };
+  const products = () => {
+    // Rows that are only a return (no order, money back) stay out of the shares; the returns sit in net sales above.
+    const rows = (state.data.products?.[String(state.days)] ?? []).filter((r) => (r.net || 0) > 0 || (r.orders || 0) > 0);
+    if (!rows.length) return "";
+    const total = rows.reduce((s, r) => s + Math.max(0, r.net || 0), 0) || 1;
+    const byLine = {};
+    rows.forEach((r) => { const k = r.line || "other"; byLine[k] = (byLine[k] || 0) + Math.max(0, r.net || 0); });
+    const lines = Object.entries(byLine).sort((a, b) => b[1] - a[1]);
+    const label = { eterna: "eterna · for her", eterno: "eterno · for him", eternal: "eternal · unisex", other: "Sets and other" };
+    return `<section class="block" aria-labelledby="h-prod">
+      <div class="head"><h2 id="h-prod">What sells</h2><p class="small">Net sales by scent, last ${state.days} days.</p></div>
+      <div class="two">
+        <div class="card tablebox"><table><thead><tr><th>Scent</th><th class="r">Bottles</th><th class="r">Orders</th><th class="r">Net sales</th></tr></thead><tbody>
+          ${rows.slice(0, 12).map((r) => `<tr><td>${esc(r.title)}${r.line ? `<span class="small"> · ${esc(r.line)}</span>` : ""}<span class="share" style="width:${Math.min(100, Math.max(0, (r.net || 0) / total * 100)).toFixed(1)}%"></span></td><td class="r">${int(r.units)}</td><td class="r">${int(r.orders)}</td><td class="r">${egp(r.net)}</td></tr>`).join("")}
+        </tbody></table></div>
+        <div class="card"><h3>Share of sales by line</h3>
+          <div class="split" style="margin-top:14px">${lines.map(([k, v]) => `<span style="width:${(v / total * 100).toFixed(2)}%;background:${LINE_COLORS[k] || "var(--rule)"}" title="${esc(label[k] || k)}"></span>`).join("")}</div>
+          <div class="split-key">${lines.map(([k, v]) => `<span class="key"><i style="background:${LINE_COLORS[k] || "var(--rule)"}"></i>${esc(label[k] || k)} · ${pct(v / total)}</span>`).join("")}</div>
+        </div>
+      </div></section>`;
+  };
+
+  const sources = () => {
+    const d = state.data.sources;
+    const rows = (d?.[String(state.days)] ?? []).filter((r) => (r.orders || 0) > 0 || (r.net || 0) > 0);
+    if (!rows.length) return "";
+    const total = rows.reduce((s, r) => s + Math.max(0, r.orders || 0), 0) || 1;
+    return `<section class="block" aria-labelledby="h-src">
+      <div class="head"><h2 id="h-src">Where orders come from</h2><p class="small">The site a buyer arrived from before checkout, last ${state.days} days.</p></div>
+      <div class="card tablebox"><table><thead><tr><th>Arrived from</th><th class="r">Orders</th><th class="r">Share</th><th class="r">Net sales</th></tr></thead><tbody>
+        ${rows.map((r) => `<tr><td>${esc(r.source)}</td><td class="r">${int(r.orders)}</td><td class="r">${pct((r.orders || 0) / total)}</td><td class="r">${egp(r.net)}</td></tr>`).join("")}
+      </tbody></table>${d.note ? `<p class="small" style="margin-top:12px">${esc(d.note)}</p>` : ""}</div></section>`;
+  };
+
+  const campaigns = () => {
+    const c = state.data.campaigns;
+    const rows = c?.rows ?? [];
+    if (!rows.length) return "";
+    return `<section class="block" aria-labelledby="h-camp">
+      <div class="head"><h2 id="h-camp">Meta campaigns</h2><p class="small">${esc(c.period ?? "")}. Ad sets sit under their campaign.</p></div>
+      <div class="card tablebox"><table><thead><tr><th>Campaign / ad set</th><th>Status</th><th class="r">Budget a day</th><th class="r">Spend</th><th class="r">Page loads</th><th class="r">Added to bag</th><th class="r">Purchases</th><th class="r">Return</th><th class="r">Cost per purchase</th></tr></thead><tbody>
+        ${rows.map((r) => `<tr class="${r.level === "adset" ? "sub" : ""}"><td>${esc(r.name)}</td><td><span class="pill ${/active/i.test(r.status) ? "active" : "paused"}">${esc(r.status)}</span></td><td class="r">${isNum(r.budgetDay) ? egp(r.budgetDay) : "–"}</td><td class="r">${egp(r.spend)}</td><td class="r">${int(r.lpv)}</td><td class="r">${int(r.atc)}</td><td class="r">${int(r.purchases)}</td><td class="r">${ratio(r.roas)}</td><td class="r">${egp(r.cpa)}</td></tr>`).join("")}
+      </tbody></table></div></section>`;
+  };
+
+  const audience = () => {
+    const a = state.data.audience;
+    if (!a) return "";
+    const stat = (label, v, note) => `<div class="stat"><span class="label">${label}</span><div class="v">${v}</div>${note ? `<p class="small">${note}</p>` : ""}</div>`;
+    const cities = a.cities ?? [], devices = a.devices ?? [], aud = a.metaAudiences ?? [];
+    return `<section class="block" aria-labelledby="h-aud">
+      <div class="head"><h2 id="h-aud">Who buys, and who we can reach again</h2><p class="small">Customer counts are all-time, from Shopify.</p></div>
+      <div class="card"><div class="stats">
+        ${stat("Customers", int(a.customers))}
+        ${stat("Have ordered", int(a.buyers))}
+        ${stat("Ordered twice or more", int(a.repeatBuyers), isNum(a.buyers) && a.buyers ? pct(a.repeatBuyers / a.buyers) + " of buyers" : "")}
+        ${stat("Email subscribers", int(a.emailSubscribed), isNum(a.customers) && a.customers ? pct(a.emailSubscribed / a.customers) + " of customers" : "")}
+        ${stat("SMS subscribers", int(a.smsSubscribed))}
+      </div></div>
+      <div class="two">
+        <div class="card tablebox"><h3>Meta audiences ready for ads</h3><table style="margin-top:10px"><thead><tr><th>Audience</th><th class="r">People</th></tr></thead><tbody>
+          ${aud.map((x) => `<tr><td>${esc(x.name)}${x.kind ? `<span class="small"> · ${esc(x.kind)}</span>` : ""}</td><td class="r">${x.size ? esc(x.size) : "–"}</td></tr>`).join("") || `<tr><td colspan="2" class="small">No audiences yet.</td></tr>`}
+        </tbody></table></div>
+        <div class="card tablebox"><h3>Orders by city · last 90 days</h3><table style="margin-top:10px"><thead><tr><th>City</th><th class="r">Orders</th><th class="r">Net sales</th></tr></thead><tbody>
+          ${cities.map((x) => `<tr><td>${esc(x.name)}</td><td class="r">${int(x.orders)}</td><td class="r">${egp(x.net)}</td></tr>`).join("")}
+        </tbody></table>${devices.length ? `<p class="small" style="margin-top:12px">Checkouts by device: ${devices.map((d) => `${esc(d.name)} ${int(d.completed)} of ${int(d.sessions)}`).join(" · ")}</p>` : ""}</div>
+      </div></section>`;
+  };
+
+  const tracking = () => {
+    const t = state.data.tracking;
+    const items = t?.items ?? [];
+    if (!items.length) return "";
+    const word = { ok: "Working", partial: "Partly", missing: "Not set up", blocked: "Blocked" };
+    const done = items.filter((i) => i.status === "ok").length;
+    return `<section class="block" aria-labelledby="h-trk">
+      <div class="head"><h2 id="h-trk">Can we trust the data?</h2><p class="small">${done} of ${items.length} tracking pieces working.</p></div>
+      <div class="card checks">${items.map((i) => `<div class="check"><span class="pill ${esc(i.status)}">${esc(word[i.status] || i.status)}</span><div><strong>${esc(i.label)}</strong><p>${esc(i.detail)}</p>${i.action ? `<p class="act">Next: ${esc(i.action)}${i.owner ? ` · ${esc(i.owner)}` : ""}</p>` : ""}</div></div>`).join("")}</div>
+    </section>`;
+  };
+
+  const notes = () => {
+    const n = state.data.notes;
+    const items = n?.items ?? [];
+    if (!items.length) return "";
+    return `<section class="block" aria-labelledby="h-notes">
+      <div class="head"><h2 id="h-notes">${esc(n.headline || "This week's read")}</h2>${n.weekOf ? `<p class="small">Written ${esc(cairo(n.weekOf, { day: "numeric", month: "long" }))}</p>` : ""}</div>
+      <div class="notes">${items.map((i) => `<div class="note ${esc(i.kind)}"><span class="label">${esc(i.kind === "risk" ? "Risk" : i.kind === "win" ? "Working" : "Next step")}</span><h3>${esc(i.title)}</h3><p>${esc(i.body)}</p></div>`).join("")}</div>
+    </section>`;
+  };
+
+  const ask = () => `<section class="block ask" aria-labelledby="h-ask" id="ask" hidden>
+      <div class="head"><h2 id="h-ask">Ask about these numbers</h2><p class="small">Claude answers from the figures on this page only.</p></div>
+      <div class="card"><form id="askForm"><label class="label" for="q" style="flex-basis:100%">Your question</label><input id="q" name="q" autocomplete="off" placeholder="Which ad set should get more budget?" maxlength="400"><button type="submit" id="askBtn">Ask</button></form>
+      <div class="suggest" id="suggest"><button type="button">What changed most against the previous period?</button><button type="button">Is advertising paying for itself?</button><button type="button">What should we fix first?</button></div>
+      <p class="answer" id="answer" aria-live="polite"></p></div></section>`;
+
+  const foot = () => `<footer class="foot">
+      <dl>
+        <dt>Net sales</dt><dd>Shopify sales after discounts and returns, before shipping.</dd>
+        <dt>Return on ad spend</dt><dd>Purchase value Meta attributes to its ads, divided by what the ads cost. Above 1 means the ads brought back more than they cost.</dd>
+        <dt>Match quality</dt><dd>Meta's 0–10 score for how well an event can be matched to a person. Higher means better targeting and reporting.</dd>
+        <dt>Orders</dt><dd>Every order, including cash on delivery orders that were later cancelled; Shopify counts a cancellation as a return.</dd>
+      </dl>
+      <p>Sources: Shopify Analytics and Admin, Meta Ads Manager and Events Manager. Figures are in Egyptian pounds.</p>
+    </footer>`;
+
+  const render = () => {
+    renderSources();
+    for (const b of document.querySelectorAll(".seg button")) b.setAttribute("aria-pressed", String(Number(b.dataset.days) === state.days));
+    const has = Object.keys(state.data).some((k) => k !== "status");
+    const box = $("#content");
+    if (!has) return;
+    const keepQ = $("#q")?.value ?? "", keepA = $("#answer")?.textContent ?? "";
+    box.innerHTML = [attention(), kpis(), trend(), funnel(), products(), sources(), campaigns(), audience(), tracking(), notes(), ask(), foot()].join("");
+    box.style.display = "grid"; box.style.gap = "48px";
+    if ($("#q")) { $("#q").value = keepQ; $("#answer").textContent = keepA; }
+    wireTrend(); wireAsk();
+  };
+
+  /* Chart tooltip */
+  const wireTrend = () => {
+    const box = $("#trend"), tip = $("#tip");
+    if (!box) return;
+    const days = window_();
+    const show = (e) => {
+      const r = e.target.closest(".hit");
+      if (!r) { tip.hidden = true; return; }
+      const d = days[Number(r.dataset.i)];
+      tip.innerHTML = `<strong>${esc(cairo(d.d + "T12:00:00Z", { weekday: "short", day: "numeric", month: "short" }))}</strong><br>Net sales ${egp(d.net)} · ${int(d.orders)} orders<br>Ad spend ${egp(d.spend)} · ${int(d.purchases)} ad purchases`;
+      const rect = r.getBoundingClientRect();
+      tip.style.left = `${rect.left + rect.width / 2 + window.scrollX}px`;
+      tip.style.top = `${box.getBoundingClientRect().top + window.scrollY + 8}px`;
+      tip.style.position = "absolute";
+      tip.hidden = false;
+    };
+    box.addEventListener("pointermove", show);
+    box.addEventListener("pointerleave", () => { tip.hidden = true; });
+  };
+
+  /* Ask Claude */
+  let sample = null, sampleReady = false, asking = null;
+  const wireAsk = () => {
+    const form = $("#askForm");
+    if (!form) return;
+    $("#ask").hidden = !sampleReady;
+    form.addEventListener("submit", (e) => { e.preventDefault(); askNow($("#q").value.trim()); });
+    for (const b of document.querySelectorAll("#suggest button")) b.addEventListener("click", () => { $("#q").value = b.textContent; askNow(b.textContent); });
+  };
+  const askNow = async (q) => {
+    if (!q || !sample) return;
+    asking?.abort();
+    asking = new AbortController();
+    const out = $("#answer"), btn = $("#askBtn");
+    out.textContent = "Thinking…"; btn.disabled = true;
+    const figures = JSON.stringify({ period_days: state.days, ...state.data });
+    const prompt = `You are the analyst for eternal, an Egyptian perfume house selling eaux de parfum online (prices in EGP). Answer the team's question using ONLY the JSON figures below. Be concrete: cite the numbers you use, say which period they cover, and say plainly when the figures cannot answer the question. Plain text, no markdown headings, at most 150 words. If you recommend something, give one clear next step.\n\nQuestion: ${q}\n\nFigures (JSON):\n${figures}`;
+    try {
+      const { text } = await sample(prompt, { signal: asking.signal, onText: ({ text }) => { out.textContent = text; } });
+      out.textContent = text;
+    } catch (err) {
+      if (err?.code === "not_granted") { $("#ask").hidden = true; sampleReady = false; }
+      else if (err?.code === "cancelled") return;
+      else out.textContent = err?.code === "rate_limited" ? "Too many questions at once. Try again in a minute." : "Claude could not answer just now. Try again in a moment.";
+    } finally { btn.disabled = false; }
+  };
+
+  for (const b of document.querySelectorAll(".seg button")) b.addEventListener("click", () => {
+    state.days = Number(b.dataset.days);
+    try { localStorage.setItem("eternal.dash.days", String(state.days)); } catch {}
+    render();
+  });
+
+  render();
+  let lastW = window.innerWidth, resizeT = 0;
+  window.addEventListener("resize", () => {
+    if (window.innerWidth === lastW) return;
+    lastW = window.innerWidth;
+    clearTimeout(resizeT);
+    resizeT = setTimeout(render, 150);
+  });
+
+  (async () => {
+    const c = window.claude;
+    if (!c?.use) { $("#fresh").textContent = "Open this page in Claude to see the figures"; return; }
+    c.use("sample").then((s) => { sample = s; sampleReady = Boolean(s); const a = $("#ask"); if (a) a.hidden = !sampleReady; }).catch(() => {});
+    const db = await c.use("db");
+    if (!db) { $("#fresh").textContent = "Figures unavailable in this view"; return; }
+    db.collection("dash").onSnapshot(
+      (snap) => {
+        const next = {};
+        for (const doc of snap.docs) if (doc.exists) next[doc.id] = doc.data();
+        state.data = next;
+        render();
+      },
+      () => { $("#fresh").textContent = "Figures unavailable in this view"; },
+    );
+  })();
+})();
+</script>

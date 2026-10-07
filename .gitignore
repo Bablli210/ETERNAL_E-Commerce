@@ -47,3 +47,6 @@ next-env.d.ts
 
 # Agent worktrees
 /.claude/worktrees/
+
+# Built dashboard page (docs/analytics/dashboard/build.py)
+docs/analytics/dashboard/eternal-performance.html
