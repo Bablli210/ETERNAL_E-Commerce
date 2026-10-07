@@ -26,6 +26,12 @@ function storeSetup(live: boolean) {
   return [
     { key: "NEXT_PUBLIC_META_PIXEL_ID", ok: Boolean(process.env.NEXT_PUBLIC_META_PIXEL_ID), cost: "No Meta pixel: the ads can’t optimise on, or attribute, a view, an add or a checkout." },
     { key: "NEXT_PUBLIC_GA4_ID", ok: Boolean(process.env.NEXT_PUBLIC_GA4_ID), cost: "No GA4: no funnel from ad landing to checkout." },
+    {
+      key: "META_CAPI_TOKEN and NEXT_PUBLIC_META_CAPI=1",
+      ok: Boolean(process.env.META_CAPI_TOKEN) && process.env.NEXT_PUBLIC_META_CAPI === "1",
+      cost: "No server copy of ViewContent and AddToCart: views and adds from browsers that block the pixel (Safari, ad blockers, many in-app browsers) never reach Meta.",
+    },
+    ...(process.env.META_TEST_EVENT_CODE ? [{ key: "META_TEST_EVENT_CODE cleared", ok: false, cost: "Server events are still marked as tests, so Meta keeps them out of reporting and optimisation. Clear it once Test events shows them." }] : []),
     { key: "SHOPIFY_STOREFRONT_PRIVATE_TOKEN or SHOPIFY_STOREFRONT_ACCESS_TOKEN", ok: shopifyConfigured, cost: "The site runs on the committed catalogue snapshot: prices, stock and new scents only change when it is re-exported." },
     ...(shopifyConfigured ? [{ key: "Live catalogue from Shopify", ok: live, cost: "A token is set, but Shopify refused it or returned no products, so the site is showing the snapshot. Check the token, and that the products are published to the Headless channel." }] : []),
     { key: "SHOPIFY_CHECKOUT_DOMAIN", ok: Boolean(process.env.SHOPIFY_CHECKOUT_DOMAIN), cost: "Not set: checkout links, the bag’s checkout warm-up and the newsletter form use the store domain (SHOPIFY_STORE_DOMAIN)." },

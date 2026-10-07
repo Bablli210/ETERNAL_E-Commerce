@@ -68,13 +68,15 @@ Add `utm_source`, `utm_medium`, `utm_campaign` and `utm_content` to every ad lin
 first-party cookie by `proxy.ts`), the in-app flag and the finder's answers travel to
 Shopify checkout as order attributes, and the code is applied at checkout.
 
-**Measurement.** `lib/client/analytics.ts` sends view_item, select_item, add_to_cart,
-begin_checkout (a custom `CheckoutClick` for Meta), search, the finder steps and Web Vitals
-to the data layer, the Meta Pixel and GA4. Set `NEXT_PUBLIC_META_PIXEL_ID` and
-`NEXT_PUBLIC_GA4_ID` to the same IDs Shopify's Facebook & Instagram and Google channels use,
-so Purchase (fired by Shopify on checkout) joins the same funnel. `META_CAPI_TOKEN` with
-`NEXT_PUBLIC_META_CAPI=1` adds server copies of ViewContent and AddToCart
-(`app/api/meta`), deduplicated by event id. See `.env.example`.
+**Measurement.** `lib/client/analytics.ts` sends view_item, select_item, add_to_cart, the
+bag's Checkout tap (`checkout_click` for GA4, a custom `CheckoutClick` for Meta), search, the
+finder steps and Web Vitals to the data layer, the Meta Pixel and GA4. Product ids follow
+Shopify's catalogue format (`shopify_EG_<product>_<variant>`), so Meta and Merchant Center
+match them. Set `NEXT_PUBLIC_META_PIXEL_ID` and `NEXT_PUBLIC_GA4_ID` to the same IDs
+Shopify's Facebook & Instagram and Google channels use, so begin_checkout and Purchase (fired
+by Shopify on checkout) join the same funnel. `META_CAPI_TOKEN` with `NEXT_PUBLIC_META_CAPI=1`
+adds server copies of ViewContent and AddToCart (`app/api/meta`), deduplicated by event id.
+The checkout link carries the campaign, so Shopify's own reports see it too. See `.env.example`.
 
 ## Routes
 

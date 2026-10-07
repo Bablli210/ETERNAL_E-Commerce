@@ -4,15 +4,19 @@ import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useReportWebVitals } from "next/web-vitals";
 import { useEffect, useRef } from "react";
+import { Analytics as VercelAnalytics } from "@vercel/analytics/next";
 import { captureAttribution } from "@/lib/client/attribution";
 import { ensureQueues, inApp, pageType, trackVital } from "@/lib/client/analytics";
 
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const GA4 = process.env.NEXT_PUBLIC_GA4_ID;
+/** Vercel Web Analytics: cookieless page views the team dashboard reads. Set to 1 once Analytics is enabled on the Vercel project. */
+const VERCEL = process.env.NEXT_PUBLIC_VERCEL_ANALYTICS === "1";
 
 /**
  * Loads the Meta Pixel and GA4 libraries when their IDs are set (their command
- * queues, with init and the first PageView, come from ensureQueues), stores
+ * queues, with init and the first PageView, come from ensureQueues), Vercel Web
+ * Analytics when it is switched on, stores
  * the landing campaign for checkout, and sends a page view on every client
  * navigation.
  */
@@ -38,6 +42,7 @@ export function Analytics() {
     <>
       {PIXEL && <Script src="https://connect.facebook.net/en_US/fbevents.js" strategy="afterInteractive" />}
       {GA4 && <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA4}`} strategy="afterInteractive" />}
+      {VERCEL && <VercelAnalytics />}
     </>
   );
 }

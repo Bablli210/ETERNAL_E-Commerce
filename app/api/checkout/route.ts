@@ -40,6 +40,23 @@ function utmFromCookie(value: string | undefined): { key: string; value: string 
 }
 
 /**
+ * The campaign on the checkout link itself. Shopify's own reports (UTM columns, the order's
+ * customer journey) read the landing URL of the checkout session; the cart attributes stay the full record.
+ */
+function withCampaign(checkoutUrl: string, attributes: { key: string; value: string }[]) {
+  try {
+    const url = new URL(checkoutUrl);
+    for (const k of UTM) {
+      const v = attributes.find((a) => a.key === k)?.value;
+      if (v && !url.searchParams.has(k)) url.searchParams.set(k, v);
+    }
+    return url.toString();
+  } catch {
+    return checkoutUrl;
+  }
+}
+
+/**
  * Turns the local bag into a Shopify checkout. With a Storefront token this
  * creates a cart and returns its checkoutUrl; without one it returns a
  * Shopify cart permalink, which needs no credentials and lands on the same
@@ -82,7 +99,7 @@ export async function POST(req: Request) {
     try {
       const buyerIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || req.headers.get("x-real-ip") || undefined;
       const url = await createCheckout(lines.map((l) => ({ merchandiseId: l.variantId.startsWith("gid:") ? l.variantId : `gid://shopify/ProductVariant/${l.variantId}`, quantity: l.quantity })), attributes, discount ? [discount] : [], buyerIp);
-      return NextResponse.json({ url, mode: "storefront" });
+      return NextResponse.json({ url: withCampaign(url, attributes), mode: "storefront" });
     } catch (err) {
       console.error("[checkout] Storefront cart failed, falling back to permalink:", err);
     }

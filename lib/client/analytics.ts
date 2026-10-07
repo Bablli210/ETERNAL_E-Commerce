@@ -27,7 +27,10 @@ type Event =
   | { name: "add_to_cart"; items: AnalyticsItem[]; source?: string }
   | { name: "remove_from_cart"; items: AnalyticsItem[] }
   | { name: "view_cart"; items: AnalyticsItem[] }
-  /** The Checkout tap in the bag. Shopify's own checkout fires InitiateCheckout and Purchase. */
+  /**
+   * The Checkout tap in the bag. Shopify's own checkout fires begin_checkout and purchase (Google channel) and
+   * InitiateCheckout and Purchase (Facebook & Instagram channel), so this goes out as checkout_click and CheckoutClick.
+   */
   | { name: "begin_checkout"; items: AnalyticsItem[] }
   | { name: "select_item"; list: string; index: number; item: AnalyticsItem }
   | { name: "search"; term: string; results?: number }
@@ -90,12 +93,15 @@ export function ensureQueues() {
   }
 }
 
-/** The content id the Shopify Facebook & Instagram channel gives catalogue items, so dynamic ads match. */
+/**
+ * The id Shopify's Facebook & Instagram and Google & YouTube channels give each catalogue item
+ * (shopify_<country>_<product>_<variant>), so dynamic ads and Merchant Center reports match the events.
+ */
 const contentId = (i: AnalyticsItem) => (i.productId ? `shopify_EG_${i.productId}_${i.variantId}` : i.variantId);
 const value = (items: AnalyticsItem[]) => Math.round(items.reduce((n, i) => n + i.price * (i.quantity ?? 1), 0) * 100) / 100;
 
 const ga4Items = (items: AnalyticsItem[]) =>
-  items.map((i) => ({ item_id: i.variantId, item_name: i.name, price: i.price, quantity: i.quantity ?? 1, item_variant: i.variant, item_category: i.category ?? undefined }));
+  items.map((i) => ({ item_id: contentId(i), item_name: i.name, price: i.price, quantity: i.quantity ?? 1, item_variant: i.variant, item_category: i.category ?? undefined }));
 
 const metaPayload = (items: AnalyticsItem[]) => ({
   content_ids: items.map(contentId),
@@ -157,9 +163,11 @@ export function track(e: Event) {
       case "begin_checkout": {
         const source = e.name === "add_to_cart" ? e.source : undefined;
         const ecommerce = { currency: CURRENCY, value: value(e.items), items: ga4Items(e.items) };
+        // Shopify's checkout sends GA4's begin_checkout itself; the tap that leads there is its own event, so it is never counted twice.
+        const gaName = e.name === "begin_checkout" ? "checkout_click" : e.name;
         window.dataLayer.push({ ecommerce: null });
-        window.dataLayer.push({ event: e.name, event_id: id, source, ecommerce });
-        gtag?.("event", e.name, source ? { ...ecommerce, source } : ecommerce);
+        window.dataLayer.push({ event: gaName, event_id: id, source, ecommerce });
+        gtag?.("event", gaName, source ? { ...ecommerce, source } : ecommerce);
         // InitiateCheckout and Purchase belong to Shopify's checkout (Facebook & Instagram channel),
         // so the bag's Checkout tap is a custom CheckoutClick and never double counts.
         const meta = { view_item: "ViewContent", add_to_cart: "AddToCart" } as const;

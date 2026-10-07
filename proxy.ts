@@ -12,8 +12,7 @@ import { heroByHandle, heroes } from "@/content/heroes";
  * Ad clicks: on page requests that carry a click id or a campaign, keeps
  * the click as first-party cookies set by the server, which outlive Safari's
  * 7-day cap on script-set cookies and travel to checkout when it shares the
- * root domain (set COOKIE_DOMAIN, e.g. ".myeternal.net", once checkout is on a
- * subdomain).
+ * root domain (COOKIE_DOMAIN, e.g. ".myeternal.net", applied on hosts under it).
  *
  * - _fbc: Meta's click id, in Meta's own format (fb.1.<ms>.<fbclid>).
  * - eternal_utm: the landing campaign, kept 30 days. /api/checkout falls back
@@ -21,6 +20,16 @@ import { heroByHandle, heroes } from "@/content/heroes";
  */
 const UTM = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term"] as const;
 const DAY = 86_400;
+
+/**
+ * COOKIE_DOMAIN (".myeternal.net") only where the request's own host sits under it. The same deployment also
+ * answers on eternal-storefront.vercel.app and preview URLs, where a browser would refuse a cookie for another domain.
+ */
+function cookieDomain(host: string) {
+  const root = process.env.COOKIE_DOMAIN?.trim().replace(/^\./, "").toLowerCase();
+  if (!root) return undefined;
+  return host === root || host.endsWith(`.${root}`) ? `.${root}` : undefined;
+}
 
 /** The home page with the still an ad asked for, or one at random. */
 function homeWithHero(url: NextRequest["nextUrl"]) {
@@ -48,7 +57,7 @@ export function proxy(request: NextRequest) {
     to.pathname = lower;
     res = NextResponse.redirect(to, 308);
   }
-  const base = { path: "/", sameSite: "lax" as const, secure: url.protocol === "https:", domain: process.env.COOKIE_DOMAIN || undefined };
+  const base = { path: "/", sameSite: "lax" as const, secure: url.protocol === "https:", domain: cookieDomain(url.hostname) };
   if (fbclid) {
     // Keep the original timestamp when the same click lands again.
     const current = request.cookies.get("_fbc")?.value;

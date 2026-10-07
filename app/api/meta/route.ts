@@ -9,7 +9,9 @@ import { site } from "@/content/site";
  */
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 const TOKEN = process.env.META_CAPI_TOKEN;
-const VERSION = process.env.META_GRAPH_VERSION ?? "v21.0";
+const VERSION = process.env.META_GRAPH_VERSION || "v23.0";
+/** Set while checking the setup in Events Manager > Test events; events sent with it stay out of reporting. Clear it after. */
+const TEST_CODE = process.env.META_TEST_EVENT_CODE || undefined;
 const ALLOWED = new Set(["ViewContent", "AddToCart"]);
 const MAX_QTY = 10;
 const MAX_ITEMS = 20;
@@ -106,10 +108,11 @@ export async function POST(req: Request) {
   };
 
   try {
-    const res = await fetch(`https://graph.facebook.com/${VERSION}/${PIXEL}/events?access_token=${encodeURIComponent(TOKEN)}`, {
+    // The token travels in the body, never in a URL that logs and proxies could keep.
+    const res = await fetch(`https://graph.facebook.com/${VERSION}/${PIXEL}/events`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ data: [event] }),
+      body: JSON.stringify({ data: [event], access_token: TOKEN, ...(TEST_CODE ? { test_event_code: TEST_CODE } : {}) }),
       cache: "no-store",
     });
     if (!res.ok) console.error("[meta] CAPI rejected the event:", res.status, await res.text());
