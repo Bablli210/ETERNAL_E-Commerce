@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { AddToBagButton } from "@/components/cart/AddToBagButton";
 import { site } from "@/content/site";
 import { confirmed, facts } from "@/lib/facts";
-import { families, familyOrder, lines, type FamilyKey, type LineKey } from "@/content/taxonomy";
+import { families, familyOrder, familyStills, lines, type LineKey } from "@/content/taxonomy";
 import { tales } from "@/content/tales";
 import type { Scent, ScentIndexEntry } from "@/lib/catalogue";
 import type { Money } from "@/lib/shopify/types";
@@ -297,17 +297,8 @@ export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryB
  * Shop by scent: the six families, each with an ingredient still. The owner's
  * family-<key> stills are in for fresh, woody, floral, gourmand and aquatic;
  * amber & spice borrows the closest ingredient still the house has until its
- * own exists.
+ * own exists (content/taxonomy.ts familyStills).
  */
-const FAMILY_STILL: Record<FamilyKey, string[]> = {
-  fresh: ["family-fresh", "mood-golden-hour"],
-  woody: ["family-woody", "products/raw-seduction-3"],
-  "amber-spice": ["family-amber-spice", "mood-after-dark"],
-  floral: ["family-floral", "mood-wild-garden"],
-  gourmand: ["family-gourmand", "mood-warm-skin"],
-  aquatic: ["family-aquatic", "mood-sea-air"],
-};
-
 export function ScentTiles() {
   return (
     <section className="py-10 lg:py-24">
@@ -321,7 +312,7 @@ export function ScentTiles() {
                 <Link href={`/shop/${k}`} className="group block">
                   <div className="relative aspect-square overflow-hidden lg:aspect-[4/3]" style={{ backgroundColor: f.world.bg }}>
                     <Figure
-                      name={FAMILY_STILL[k]}
+                      name={familyStills[k]}
                       label={`${f.label} — ingredient still`}
                       sizes="33vw"
                       className="absolute inset-0"

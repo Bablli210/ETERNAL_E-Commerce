@@ -418,6 +418,8 @@ export type ScentIndexEntry = {
   tags: string[];
   families: FamilyKey[];
   moods: MoodKey[];
+  /** 1–10, where Shopify or content/scents.ts sets it: the finder's strength question reads it. */
+  sillage: number | null;
   price: Money;
   image: string | null;
   hoverImage: string | null;
@@ -441,6 +443,7 @@ export const toIndexEntry = (s: Scent): ScentIndexEntry => ({
   tags: s.tags,
   families: s.families,
   moods: s.moods,
+  sillage: s.sillage,
   price: s.price,
   image: s.image?.url ?? null,
   hoverImage: s.hoverImage,

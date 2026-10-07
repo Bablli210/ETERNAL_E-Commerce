@@ -162,7 +162,9 @@
       "description": "",
       "tags": [
         "eterna",
-        "for her"
+        "floral",
+        "for her",
+        "woody"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",
@@ -203,7 +205,9 @@
       "description": "",
       "tags": [
         "eterna",
-        "for her"
+        "floral",
+        "for her",
+        "fruity"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",
@@ -345,8 +349,11 @@
       "title": "Ciel",
       "description": "",
       "tags": [
+        "citrus",
         "eterno",
-        "for him"
+        "for him",
+        "fresh",
+        "woody"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",
@@ -1148,6 +1155,9 @@
       "description": "",
       "tags": [
         "eternal",
+        "fruity",
+        "sweet",
+        "tropical",
         "unisex"
       ],
       "vendor": "eternal",
@@ -1429,8 +1439,11 @@
       "title": "Paradox",
       "description": "",
       "tags": [
+        "amber",
         "eterna",
-        "for her"
+        "floral",
+        "for her",
+        "sweet"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",
@@ -1775,7 +1788,10 @@
       "description": "",
       "tags": [
         "eterno",
-        "for him"
+        "for him",
+        "fruity",
+        "smoky",
+        "woody"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",

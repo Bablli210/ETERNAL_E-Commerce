@@ -63,15 +63,16 @@ Installed for `vintage-vanilla`, `linen`, `mango-eclipse`, `neroli-code` and
 
 ## Scent finder
 
-One tile per answer, named `finder-<question>-<option>`:
+One tile per answer, named `finder-<question>-<option>`. The notes question
+uses the Shop by scent stills (`family-<key>`) unless a `finder-notes-<key>`
+file is added:
 
 ```
-finder-who-her            finder-who-him           finder-who-either      finder-who-any
-finder-time-day           finder-time-night        finder-time-both
-finder-mood-sea-air       finder-mood-golden-hour  finder-mood-after-dark
-finder-mood-fresh-linen   finder-mood-warm-skin    finder-mood-wild-garden
-finder-place-coast        finder-place-city        finder-place-garden    finder-place-kitchen
-finder-strength-soft      finder-strength-present  finder-strength-loud
+finder-who-her                finder-who-him              finder-who-either      finder-who-any
+finder-time-day               finder-time-night           finder-time-both
+finder-place-greek-island     finder-place-paris-cafe     finder-place-marrakech-souk
+finder-place-kyoto-garden     finder-place-mountain-cabin
+finder-strength-soft          finder-strength-present     finder-strength-loud
 ```
 
 ## Tales

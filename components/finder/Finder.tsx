@@ -47,8 +47,10 @@ const screenFrom = (search: string): { answers: Answers; step: number } => {
   const params = new URLSearchParams(search);
   const answers = answersFromParams(params);
   const open = firstUnanswered(answers);
-  const q = Number(params.get("q"));
-  return { answers, step: params.has("q") && q >= 1 ? Math.min(q - 1, open) : open };
+  // Only a whole question number, as the server reads it (app/finder/page.tsx): ?q=1.5 opens where the answers stop.
+  const raw = params.get("q");
+  const q = raw && /^\d+$/.test(raw) ? Number(raw) : 0;
+  return { answers, step: q >= 1 ? Math.min(q - 1, open) : open };
 };
 
 const hrefFor = (answers: Answers, step: number) => {
@@ -82,6 +84,7 @@ export function Finder({
   boxImage,
   tiles,
   initialSearch,
+  origin,
 }: {
   index: ScentIndexEntry[];
   mysteryBox: ScentIndexEntry | null;
@@ -89,6 +92,8 @@ export function Finder({
   tiles: Record<string, string | null>;
   /** The screen's part of the request's query ("?who=her&q=2"), so the server renders the screen the URL names. */
   initialSearch: string;
+  /** The site's address as the visitor reached it ("https://myeternal.net"), for the results link. */
+  origin: string;
 }) {
   const search = useSyncExternalStore(subscribe, readSearch, () => initialSearch);
   const { answers, step } = useMemo(() => screenFrom(search), [search]);
@@ -164,7 +169,7 @@ export function Finder({
     let picked: string[];
     if (q.max === 1) picked = [id];
     else if (chosen.includes(id)) picked = chosen.filter((x) => x !== id);
-    else picked = [...chosen, id].slice(-q.max); // a third mood replaces the first
+    else picked = [...chosen, id].slice(-q.max); // a third note replaces the first
     const next = { ...answers, [q.id]: picked };
     if (!picked.length) delete next[q.id];
     return next;
@@ -202,7 +207,7 @@ export function Finder({
 
   const matches = useMemo(() => (done ? rankMatches(index, answers, 3) : []), [done, index, answers]);
   const summary = useMemo(() => summariseAnswers(answers), [answers]);
-  const resultsUrl = () => `${window.location.origin}${hrefFor(answers, total)}`;
+  const resultsUrl = () => `${origin}${hrefFor(answers, total)}`;
 
   const share = async () => {
     const url = resultsUrl();
@@ -340,9 +345,15 @@ export function Finder({
   }
 
   const showNext = q.max > 1 || chosen.length > 0;
-  const three = q.options.length === 3;
-  const cols = three ? "grid-cols-3" : "grid-cols-2 lg:grid-cols-4";
-  const shape = three ? "aspect-[4/5] lg:aspect-[4/3]" : "aspect-[16/9] lg:aspect-[4/3]";
+  const n = q.options.length;
+  const three = n === 3;
+  // Three across; four in pairs, one row on a desktop; five or six in pairs, three to a row on a desktop.
+  const cols = three ? "grid-cols-3" : n === 4 ? "grid-cols-2 lg:grid-cols-4" : "grid-cols-2 lg:grid-cols-6";
+  const shape = three ? "aspect-[4/5] lg:aspect-[4/3]" : n === 4 ? "aspect-[16/9] lg:aspect-[4/3]" : "aspect-[16/9]";
+  // Five or six on the desktop's six-column grid: each tile spans two, and a short last row of two sits centred.
+  const span = (i: number) =>
+    n < 5 ? "" : `lg:col-span-2 ${n === 5 && i === 3 ? "lg:col-start-2" : ""} ${n % 2 === 1 && i === n - 1 ? "col-span-2 lg:col-span-2" : ""}`;
+  const tileShape = (i: number) => (n % 2 === 1 && n > 3 && i === n - 1 ? "aspect-[32/9] lg:aspect-[16/9]" : shape);
   // Links act in place once the script runs; before that the browser follows them to the server-rendered screen.
   const onBack = (e: MouseEvent) => {
     e.preventDefault();
@@ -378,13 +389,13 @@ export function Finder({
         <p className="mt-2 text-[15px] leading-snug text-ash lg:text-[17px]">{q.help}</p>
 
         <ul className={`mt-5 grid gap-2 lg:mt-10 lg:gap-4 ${cols}`} role="group" aria-label={q.title}>
-          {q.options.map((o) => {
+          {q.options.map((o, i) => {
             const on = chosen.includes(o.id);
             const src = tiles[`${q.id}-${o.id}`];
             // A single answer leads to the next question; a pick-two answer reloads this one with the tile toggled.
             const href = hrefFor(toggled(o.id), q.max === 1 ? step + 1 : step);
             return (
-              <li key={o.id}>
+              <li key={o.id} className={span(i)}>
                 {/* F2: the chosen tile takes a Night ring and a check; the others dim. A real link, so a tap before the
                     script has loaded still answers (an ad's first screen is nothing but these tiles). */}
                 <a
@@ -401,7 +412,7 @@ export function Finder({
                     e.preventDefault();
                     choose(o.id);
                   }}
-                  className={`tile relative block w-full overflow-hidden bg-sand text-left ${shape}`}
+                  className={`tile relative block w-full overflow-hidden bg-sand text-left ${tileShape(i)}`}
                 >
                   {src ? (
                     <Image
@@ -411,7 +422,7 @@ export function Finder({
                       // The first question is the first screen: its tiles load first, and a three-up tile asks for a third of the width, not half.
                       loading={step === 0 ? "eager" : "lazy"}
                       fetchPriority={step === 0 ? "high" : "auto"}
-                      sizes={three ? "(min-width: 1024px) 25vw, 31vw" : "(min-width: 1024px) 25vw, 45vw"}
+                      sizes={three ? "(min-width: 1024px) 25vw, 31vw" : n === 4 ? "(min-width: 1024px) 25vw, 45vw" : `(min-width: 1440px) 416px, (min-width: 1024px) 30vw, ${n % 2 === 1 && i === n - 1 ? 92 : 45}vw`}
                       className={`object-cover transition-opacity duration-200 ${chosen.length && !on ? "opacity-60" : ""}`}
                     />
                   ) : (

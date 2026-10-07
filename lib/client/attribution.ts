@@ -72,7 +72,7 @@ export function discountCode(): string | null {
   return code && DISCOUNT_CODE.test(code) ? code : null;
 }
 
-/** who=her&mood=after-dark%2Cwarm-skin reads who=her&mood=after-dark,warm-skin on the order page. */
+/** who=her&notes=amber-spice%2Cgourmand reads who=her&notes=amber-spice,gourmand on the order page. */
 const decodeProfile = (profile: string) =>
   Array.from(new URLSearchParams(profile))
     .map(([k, v]) => `${k}=${v}`)

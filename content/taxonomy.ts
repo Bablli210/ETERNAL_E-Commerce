@@ -51,6 +51,16 @@ export const families: Record<
 
 export const familyOrder: FamilyKey[] = ["fresh", "woody", "amber-spice", "floral", "gourmand", "aquatic"];
 
+/** Each family's still in public/images, then the stills that stand in until it is installed (Shop by scent, the finder). */
+export const familyStills: Record<FamilyKey, string[]> = {
+  fresh: ["family-fresh", "mood-golden-hour"],
+  woody: ["family-woody", "products/raw-seduction-3"],
+  "amber-spice": ["family-amber-spice", "mood-after-dark"],
+  floral: ["family-floral", "mood-wild-garden"],
+  gourmand: ["family-gourmand", "mood-warm-skin"],
+  aquatic: ["family-aquatic", "mood-sea-air"],
+};
+
 export type MoodKey = "sea-air" | "golden-hour" | "after-dark" | "fresh-linen" | "warm-skin" | "wild-garden";
 
 export const moods: Record<MoodKey, { key: MoodKey; label: string; descriptor: string; tags: string[]; art: string; wash: string }> = {

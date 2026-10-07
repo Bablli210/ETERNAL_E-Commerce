@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { pageMeta } from "@/lib/metadata";
 import { Finder } from "@/components/finder/Finder";
 import { getScent, getScentIndex, toIndexEntry } from "@/lib/catalogue";
 import { finderQuestions } from "@/content/finder";
 import { answersFromParams, answersToParams, firstUnanswered, rankMatches } from "@/lib/finder";
 import { siteImage } from "@/lib/site-images";
+import { site } from "@/content/site";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
@@ -45,7 +47,7 @@ export async function generateMetadata({ searchParams }: { searchParams: SearchP
 }
 
 export default async function FinderPage({ searchParams }: { searchParams: SearchParams }) {
-  const [index, mysteryBox, raw] = await Promise.all([getScentIndex(), getScent("mystery-box"), searchParams]);
+  const [index, mysteryBox, raw, h] = await Promise.all([getScentIndex(), getScent("mystery-box"), searchParams, headers()]);
   const params = toParams(raw);
   // Only the finder's own state: valid answers and the question number, so the server and the browser open the same screen.
   const state = answersToParams(answersFromParams(params));
@@ -55,7 +57,19 @@ export default async function FinderPage({ searchParams }: { searchParams: Searc
   // One tile per answer, resolved here so the client component stays serialisable.
   const tiles: Record<string, string | null> = {};
   for (const question of finderQuestions) {
-    for (const o of question.options) tiles[`${question.id}-${o.id}`] = siteImage(`finder-${question.id}-${o.id}`);
+    for (const o of question.options) tiles[`${question.id}-${o.id}`] = siteImage([`finder-${question.id}-${o.id}`, ...(o.stills ?? [])]);
   }
-  return <Finder index={index} mysteryBox={mysteryBox ? toIndexEntry(mysteryBox) : null} boxImage={siteImage(["products/mystery-box", "mystery-box"])} tiles={tiles} initialSearch={initialSearch} />;
+  // The address the visitor is on, for the results link they share: the server renders the results too, where there is no window.
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const origin = host && /^[a-z0-9.-]+(:\d+)?$/i.test(host) ? `${h.get("x-forwarded-proto") === "http" ? "http" : "https"}://${host}` : site.url;
+  return (
+    <Finder
+      index={index}
+      mysteryBox={mysteryBox ? toIndexEntry(mysteryBox) : null}
+      boxImage={siteImage(["products/mystery-box", "mystery-box"])}
+      tiles={tiles}
+      initialSearch={initialSearch}
+      origin={origin}
+    />
+  );
 }
