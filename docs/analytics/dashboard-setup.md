@@ -24,8 +24,9 @@ Protection choose the option that keeps production domains public. Never turn pr
    address) and a password of at least 15 characters (a short sentence works well).
 3. The code works once. Afterwards, in Vercel → Settings → Environment Variables, delete
    `DASHBOARD_SETUP_CODE` and redeploy; /dashboard/setup then disappears. If every owner is ever
-   locked out, set a new code, redeploy, and use it with an existing owner's username to set a new
-   password.
+   locked out, set a new code, redeploy, and open /dashboard/setup: it shows "Owner recovery".
+   Enter the code and an existing owner's username, leave the name empty, and set a new password.
+   That signs the owner out everywhere else.
 
 ## 3. Invite the team and clients
 
@@ -99,8 +100,9 @@ check turns green. Then send everyone https://www.myeternal.net/dashboard.
 
 The site already slows repeated wrong passwords. For an extra wall in front of it: Vercel →
 eternal-storefront → Firewall → Rules → New rule "Dashboard sign-in limit": if Method is POST
-and Path starts with `/dashboard`, OR Method is POST and Header `next-action` exists → Rate limit,
-fixed window 10 minutes, 20 requests, by IP, action 429. Save, then Publish.
+and Path starts with `/dashboard` → Rate limit, fixed window 10 minutes, 20 requests, by IP,
+action 429. Save, then Publish. (The dashboard's forms post to their own page, so this covers
+them and nothing in the shop.)
 
 ## How the figures are read
 
