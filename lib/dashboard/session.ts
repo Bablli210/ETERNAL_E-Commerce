@@ -40,6 +40,24 @@ export function unseal(value: string | undefined, secret: string): Session | nul
   }
 }
 
+/**
+ * The device cookie: set at every correct sign-in and kept for 180 days,
+ * signing out included. It grants nothing by itself; it only lets this
+ * browser's sign-ins for that person use the hashes kept back for known
+ * devices (lib/dashboard/throttle.ts), so guessing from elsewhere can't
+ * keep the owner out. Sealed with its own key, so it can never pass as a
+ * session cookie, nor a session cookie as it.
+ */
+export const DEVICE_COOKIE = process.env.NODE_ENV === "production" ? "__Host-eternal_dash_device" : "eternal_dash_device";
+export const DEVICE_DAYS = 180;
+const deviceKey = (secret: string) => `device:${secret}`;
+export function sealDevice(uid: string, secret: string) {
+  const iat = Math.floor(Date.now() / 1000);
+  return seal({ uid, sv: 0, iat, exp: iat + DEVICE_DAYS * 86_400 }, deviceKey(secret));
+}
+/** The person this browser has signed in as before, or null. */
+export const deviceUid = (value: string | undefined, secret: string) => unseal(value, deviceKey(secret))?.uid ?? null;
+
 export const cookieOptions = (maxAgeSeconds: number) => ({
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",

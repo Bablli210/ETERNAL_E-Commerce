@@ -14,12 +14,13 @@ import {
   recentSignIn,
   ROLES,
   sameOriginPost,
+  stillOwner,
   USERNAME,
   type AccountsDoc,
   type User,
 } from "@/lib/dashboard/accounts";
 import { hashPassword, passwordProblem, verifyPassword } from "@/lib/dashboard/kdf";
-import { cookieOptions, seal, SESSION_COOKIE, SESSION_DAYS } from "@/lib/dashboard/session";
+import { cookieOptions, DEVICE_COOKIE, DEVICE_DAYS, deviceUid, seal, sealDevice, SESSION_COOKIE, SESSION_DAYS } from "@/lib/dashboard/session";
 import { clearFailures, hashWaitMinutes, locked, recordFailure, refundIpSlot, releaseSignOutAllSlot, releaseSlot, SLOTS, takeRefreshSlot, takeSignOutAllSlot, takeSlot, waitLikeAHash, withHashBudget } from "@/lib/dashboard/throttle";
 import { dashboardOrigin } from "@/lib/dashboard/origin";
 import { StoreUnavailable } from "@/lib/dashboard/store";
@@ -43,8 +44,8 @@ const BUSY = "The dashboard is busy. Try again in a minute.";
 const LOCKED = "Too many tries. Wait an hour, then try again.";
 const SIGNED_OUT = "You've been signed out. Sign in again, then retry.";
 /** When the hashing budget refuses: a minute when only the parallel limit did, longer once the hour's budget is spent. */
-const hashBusy = () => {
-  const m = hashWaitMinutes();
+const hashBusy = (trusted = false) => {
+  const m = hashWaitMinutes(trusted);
   return m <= 1 ? BUSY : `Sign-in is paused after many attempts. Try again in about ${m} minutes.`;
 };
 /**
@@ -52,17 +53,35 @@ const hashBusy = () => {
  * with a sentence once that source has had its share this hour, or when the
  * instance is busy, and a busy refusal gives the share back.
  */
-async function hashAs<T>(key: string, max: number, full: string, fn: () => Promise<T>): Promise<{ value: T } | { error: string }> {
-  if (!takeSlot(key, max)) return { error: full };
-  const value = await withHashBudget(fn);
+async function hashAs<T>(
+  slots: { key: string; max: number; full: string }[],
+  fn: () => Promise<T>,
+  budget: { trusted?: boolean; charge?: boolean } = {},
+): Promise<{ value: T } | { error: string }> {
+  const taken: string[] = [];
+  const giveBack = () => taken.forEach(releaseSlot);
+  for (const s of slots) {
+    if (!takeSlot(s.key, s.max)) {
+      giveBack();
+      return { error: s.full };
+    }
+    taken.push(s.key);
+  }
+  const value = await withHashBudget(fn, budget);
   if (value === null) {
-    releaseSlot(key);
-    return { error: hashBusy() };
+    giveBack();
+    return { error: hashBusy(budget.trusted) };
   }
   return { value };
 }
 const FROM_HERE = "Too many attempts from this network in the last hour. Try again later.";
-const fromIp = <T>(ipKey: string, fn: () => Promise<T>) => hashAs(ipKey, SLOTS.ip, FROM_HERE, fn);
+const ipSlot = (ipKey: string) => ({ key: ipKey, max: SLOTS.ip, full: FROM_HERE });
+const fromIp = <T>(ipKey: string, fn: () => Promise<T>) => hashAs([ipSlot(ipKey)], fn);
+
+/** Password changes and sign-outs everywhere a person may make in a day: each is a store write, and Hobby allows 2,000 a month. */
+const SELF_PER_DAY = 4;
+const recentSelf = (u: User) => (u.selfChanges ?? []).filter((t) => t > nowSec() - 86_400);
+const SELF_LIMIT = "You've changed your password or signed out everywhere several times today. Try again tomorrow, or ask an owner.";
 
 /** Ends this browser's session. The deletion must carry the same attributes (Secure, Path=/) or browsers ignore it for a __Host- cookie. */
 const endSession = async () => (await cookies()).set(SESSION_COOKIE, "", cookieOptions(0));
@@ -80,9 +99,12 @@ function displayName(raw: string): string | null {
   return name.length >= 1 && name.length <= 60 && !name.includes("@") ? name : null;
 }
 
+/** Signs this browser in, and marks it as a device this person uses (lib/dashboard/session.ts). */
 async function startSession(user: Pick<User, "id" | "sv">, secret: string) {
   const iat = nowSec();
-  (await cookies()).set(SESSION_COOKIE, seal({ uid: user.id, sv: user.sv, iat, exp: iat + SESSION_DAYS * 86_400 }, secret), cookieOptions(SESSION_DAYS * 86_400));
+  const jar = await cookies();
+  jar.set(SESSION_COOKIE, seal({ uid: user.id, sv: user.sv, iat, exp: iat + SESSION_DAYS * 86_400 }, secret), cookieOptions(SESSION_DAYS * 86_400));
+  jar.set(DEVICE_COOKIE, sealDevice(user.id, secret), cookieOptions(DEVICE_DAYS * 86_400));
 }
 
 /** Store failures become a sentence, never a crash page. */
@@ -108,22 +130,35 @@ const lastActiveOwner = (doc: AccountsDoc, userId: string) => {
 export async function signIn(_prev: FormState, fd: FormData): Promise<FormState> {
   const username = text(fd, "username", 64).trim().toLowerCase();
   const password = text(fd, "password", 256);
-  const keys = [`ip:${await clientIp()}`, `user:${username}`];
-  if (locked(keys)) return { error: LOCKED };
+  const ipKey = `ip:${await clientIp()}`;
+  // Failures count for this network and username together (lib/dashboard/throttle.ts).
+  const pair = [`try:${ipKey}:${username}`];
+  if (locked(pair)) return { error: LOCKED };
   const doc = await guarded(() => getAccounts(), undefined);
   if (doc === undefined) return { error: UNREACHABLE };
   const user = doc?.users.find((u) => u.username === username && !u.disabled);
-  // Known or not, every attempt takes a slot, so "busy" and its timing never tell which usernames exist; an unknown one only waits.
-  // Being refused for busy is not a wrong password, so it is never counted as one.
-  const checked = await fromIp(keys[0], () => (user ? verifyPassword(password, user.pw) : waitLikeAHash().then(() => false)));
-  if ("error" in checked) return { error: checked.error };
-  const ok = checked.value;
-  if (!ok || !user || !doc) {
-    recordFailure(keys);
+  const jar = await cookies();
+  // A browser this person signed in on before may use the hashes kept back for known devices, a few times an hour.
+  const knownDevice = Boolean(user && doc && deviceUid(jar.get(DEVICE_COOKIE)?.value, doc.secret) === user.id && takeSlot(`dev:${user.id}`, SLOTS.device));
+  // Known or not, every attempt takes the same slots and is admitted by the same rule, so "busy" and its timing never tell which
+  // usernames exist; an unknown one only waits, and is not charged for a hash it never runs.
+  const checked = knownDevice
+    ? await hashAs([], () => verifyPassword(password, (user as User).pw), { trusted: true })
+    : await hashAs(
+        [ipSlot(ipKey), { key: `name:${username}`, max: SLOTS.username, full: "Too many sign-in attempts for this username in the last hour. Try again later, or sign in on a device you've used before." }],
+        () => (user ? verifyPassword(password, user.pw) : waitLikeAHash().then(() => false)),
+        { charge: Boolean(user) },
+      );
+  if ("error" in checked) {
+    if (knownDevice && user) releaseSlot(`dev:${user.id}`);
+    return { error: checked.error };
+  }
+  if (!checked.value || !user || !doc) {
+    recordFailure(pair);
     return { error: "That username and password don't match." };
   }
-  clearFailures(keys);
-  refundIpSlot(keys[0], user.id);
+  clearFailures(pair);
+  if (!knownDevice) refundIpSlot(ipKey, user.id);
   await startSession(user, doc.secret);
   redirect("/dashboard");
 }
@@ -232,6 +267,7 @@ export async function createInvite(_prev: LinkState, fd: FormData): Promise<Link
     () =>
       changeAccounts((doc) => {
         if (!doc) return "nodoc";
+        if (!stillOwner(doc, auth.viewer)) return "signedout";
         if (doc.links.filter((l) => l.expiresAt > nowSec()).length >= 20) return "toomany";
         doc.links.push({ id: newId(), kind: "invite", tokenHash: sha(token), role, name, createdBy: auth.viewer.username, createdAt: new Date().toISOString(), expiresAt });
         logEvent(doc, auth.viewer.username, `made an invite link (${role})`, name);
@@ -240,6 +276,7 @@ export async function createInvite(_prev: LinkState, fd: FormData): Promise<Link
     "unreachable" as const,
   );
   if (result === "toomany") return { error: "There are 20 open links already. Revoke some first." };
+  if (result === "signedout") return { error: SIGNED_OUT };
   if (typeof result === "string") return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   // The token goes after #, which browsers never send to a server, so it stays out of logs and link previews.
   return { link: { url: `${await dashboardOrigin()}/dashboard/join#${token}`, name, role, expires: expiresText(expiresAt) } };
@@ -257,6 +294,7 @@ export async function createResetLink(_prev: LinkState, fd: FormData): Promise<L
     () =>
       changeAccounts((doc) => {
         const u = doc?.users.find((x) => x.id === userId);
+        if (doc && !stillOwner(doc, auth.viewer)) return "signedout";
         if (!doc || !u) return "nouser";
         name = u.name;
         doc.links = doc.links.filter((l) => !(l.kind === "reset" && l.userId === userId));
@@ -267,6 +305,7 @@ export async function createResetLink(_prev: LinkState, fd: FormData): Promise<L
     "unreachable" as const,
   );
   if (result === "nouser") return { error: "That person no longer has an account." };
+  if (result === "signedout") return { error: SIGNED_OUT };
   if (typeof result === "string") return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   return { link: { id: linkId, url: `${await dashboardOrigin()}/dashboard/reset#${token}`, name, expires: expiresText(expiresAt) } };
 }
@@ -381,6 +420,7 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
     () =>
       changeAccounts((doc) => {
         if (!doc) return "Nothing to change yet.";
+        if (!stillOwner(doc, auth.viewer)) return SIGNED_OUT;
         if (what === "revoke") {
           const l = doc.links.find((x) => x.id === id);
           if (!l) return "That link is already gone.";
@@ -444,38 +484,38 @@ export async function changePassword(_prev: FormState, fd: FormData): Promise<Fo
   if (!user) return { error: UNREACHABLE };
   const current = text(fd, "current", 256);
   const password = text(fd, "password", 256);
-  const keys = [`user:${user.username}`];
-  if (locked(keys)) return { error: LOCKED };
+  if (recentSelf(user).length >= SELF_PER_DAY) return { error: SELF_LIMIT };
   const problem = passwordProblem(password, user.username);
   if (problem) return { error: problem };
   if (password !== text(fd, "confirm", 256)) return { error: "The two new passwords don't match." };
-  // Two hashes per change, charged to the person: at most 3 changes an hour, from anywhere.
+  // Two hashes per change, charged to the person (3 tries an hour, from anywhere); a signed-in person may use the reserved hashes.
   const slot = `pw:${user.id}`;
-  const checked = await hashAs(slot, SLOTS.passwordChange, "You've changed your password several times this hour. Try again later.", () => verifyPassword(current, user.pw));
+  const checked = await hashAs([{ key: slot, max: SLOTS.passwordChange, full: "You've tried to change your password several times this hour. Try again later." }], () => verifyPassword(current, user.pw), {
+    trusted: true,
+  });
   if ("error" in checked) return { error: checked.error };
-  const ok = checked.value;
-  if (!ok) {
-    recordFailure(keys);
-    return { error: "Your current password isn't right." };
-  }
-  const pw = await withHashBudget(() => hashPassword(password));
+  if (!checked.value) return { error: "Your current password isn't right." };
+  const pw = await withHashBudget(() => hashPassword(password), { trusted: true });
   if (!pw) {
     releaseSlot(slot);
-    return { error: hashBusy() };
+    return { error: hashBusy(true) };
   }
   const out: { who: User | null } = { who: null };
   const result = await guarded(
     () =>
       changeAccounts((d) => {
         const u = d?.users.find((x) => x.id === viewer.id);
-        if (!d || !u) return "gone";
-        Object.assign(u, { pw, sv: u.sv + 1, pwChangedAt: new Date().toISOString() });
+        if (!d || !u || u.sv !== viewer.sv) return "gone";
+        if (recentSelf(u).length >= SELF_PER_DAY) return "limit";
+        Object.assign(u, { pw, sv: u.sv + 1, pwChangedAt: new Date().toISOString(), selfChanges: [...recentSelf(u), nowSec()] });
         out.who = u;
         logEvent(d, u.username, "changed their password");
         return d;
       }),
     "unreachable" as const,
   );
+  if (result === "limit") return { error: SELF_LIMIT };
+  if (result === "gone") return { error: SIGNED_OUT };
   if (typeof result === "string" || !out.who) return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   // New password, new session: every other device is signed out, this one stays in.
   await startSession(out.who, result.secret);
@@ -488,13 +528,17 @@ export async function signOutEverywhere(): Promise<FormState> {
   const viewer = await guarded(() => currentViewer(), "unreachable" as const);
   if (viewer === "unreachable") return { error: UNREACHABLE };
   if (!viewer) return { error: SIGNED_OUT };
+  const cached = (await guarded(() => getAccounts(), null))?.users.find((u) => u.id === viewer.id);
+  if (cached && recentSelf(cached).length >= SELF_PER_DAY) return { error: SELF_LIMIT };
   if (!takeSignOutAllSlot(viewer.id)) return { error: "You did this a few minutes ago. Try again in 10 minutes, or change your password." };
   const result = await guarded(
     () =>
       changeAccounts((d) => {
         const u = d?.users.find((x) => x.id === viewer.id);
-        if (!d || !u) return "gone";
+        if (!d || !u || u.sv !== viewer.sv) return "gone";
+        if (recentSelf(u).length >= SELF_PER_DAY) return "limit";
         u.sv++;
+        u.selfChanges = [...recentSelf(u), nowSec()];
         logEvent(d, u.username, "signed out everywhere");
         return d;
       }),
@@ -502,7 +546,7 @@ export async function signOutEverywhere(): Promise<FormState> {
   );
   if (typeof result === "string") {
     releaseSignOutAllSlot(viewer.id);
-    return { error: result === "unreachable" ? UNREACHABLE : result === "gone" ? SIGNED_OUT : BUSY };
+    return { error: result === "unreachable" ? UNREACHABLE : result === "gone" ? SIGNED_OUT : result === "limit" ? SELF_LIMIT : BUSY };
   }
   await endSession();
   redirect("/dashboard/sign-in");

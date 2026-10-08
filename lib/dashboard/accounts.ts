@@ -31,6 +31,8 @@ export type User = {
   createdAt: string;
   createdBy: string | null;
   pwChangedAt: string;
+  /** When this person last changed their password or signed out everywhere (Unix seconds, the last day only): each is a store write, so a day allows a few. */
+  selfChanges?: number[];
 };
 /** A one-time link: an invite (makes a new account) or a reset (sets a new password). Only the token's SHA-256 is kept. */
 export type Link = {
@@ -72,7 +74,7 @@ export const getAccounts = unstable_cache(async () => (await readDoc<AccountsDoc
 });
 
 /** The signed-in person, or null. Read once per request. */
-export const currentViewer = cache(async (): Promise<(Viewer & { iat: number }) | null> => {
+export const currentViewer = cache(async (): Promise<(Viewer & { iat: number; sv: number }) | null> => {
   const raw = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!raw) return null;
   const doc = await getAccounts();
@@ -81,7 +83,7 @@ export const currentViewer = cache(async (): Promise<(Viewer & { iat: number }) 
   if (!s) return null;
   const u = doc.users.find((x) => x.id === s.uid);
   if (!u || u.disabled || u.sv !== s.sv) return null;
-  return { id: u.id, name: u.name, username: u.username, role: u.role, iat: s.iat };
+  return { id: u.id, name: u.name, username: u.username, role: u.role, iat: s.iat, sv: u.sv };
 });
 
 /** For pages: the signed-in person with one of these roles, or off to sign in. */
@@ -92,6 +94,14 @@ export async function requireViewer(roles: readonly Role[] = ROLES) {
   return v;
 }
 
+/**
+ * Inside a change: whether the person acting is, in the latest document, still
+ * an active owner with the same session. The cached copy that let them in can
+ * be a little behind (a change whose answer was lost), so every owner action
+ * checks again here.
+ */
+export const stillOwner = (doc: AccountsDoc, v: { id: string; sv: number }) => doc.users.some((u) => u.id === v.id && u.role === "owner" && !u.disabled && u.sv === v.sv);
+
 /** Owners change accounts only within 12 hours of signing in, so a forgotten open session cannot be used to add people. */
 export const recentSignIn = (v: { iat: number }) => nowSec() - v.iat < 12 * 3600;
 
@@ -99,20 +109,29 @@ export const recentSignIn = (v: { iat: number }) => nowSec() - v.iat < 12 * 3600
  * Read the latest document, change it, write it back only if nobody changed it
  * meanwhile (retried a few times), then refresh the cached copy. `change`
  * returns the new document, or a string naming why it refused.
+ *
+ * The cached copy is refreshed whenever the store may now differ from it: after
+ * every write attempt, including one whose answer was lost (it may have landed),
+ * and after a refusal, which was decided on a fresh read. Not when the read
+ * itself failed: then the cached copy is the best there is.
  */
 export async function changeAccounts(change: (doc: AccountsDoc | null) => AccountsDoc | string): Promise<AccountsDoc | string> {
   for (let attempt = 0; attempt < 3; attempt++) {
     const current = await readDoc<AccountsDoc>(DOC);
     const next = change(current ? structuredClone(current.data) : null);
-    if (typeof next === "string") return next;
+    if (typeof next === "string") {
+      updateTag(ACCOUNTS_TAG);
+      return next;
+    }
     next.events = next.events.slice(-100);
     next.links = next.links.filter((l) => l.expiresAt > nowSec());
     try {
       await writeDoc(DOC, next, current?.etag ?? null);
-      updateTag(ACCOUNTS_TAG);
       return next;
     } catch (err) {
       if (!(err instanceof StoreConflict)) throw err;
+    } finally {
+      updateTag(ACCOUNTS_TAG);
     }
   }
   return "busy";

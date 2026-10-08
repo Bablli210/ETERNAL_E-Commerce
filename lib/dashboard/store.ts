@@ -30,6 +30,19 @@ const usesFiles = () => !blobConfigured() && process.env.NODE_ENV !== "productio
 /** Whether documents can be read and written here at all. */
 export const storeReady = () => blobConfigured() || usesFiles();
 
+/**
+ * The Blob SDK retries a timed-out call with the same aborted signal, so its
+ * own timeout does not bound it: past this, the caller gets StoreUnavailable
+ * (a write may still land; changeAccounts refreshes the cached copy either way).
+ */
+function within<T>(ms: number, p: Promise<T>): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new StoreUnavailable(`no answer within ${ms / 1000} s`)), ms);
+  });
+  return Promise.race([p, late]).finally(() => clearTimeout(timer));
+}
+
 const blobPath = (name: string) => `dashboard/${env()}/${name}.json`;
 const filePath = (name: string) => join(process.env.DASHBOARD_STORE_DIR?.trim() || join(tmpdir(), "eternal-dashboard"), `${name}.json`);
 const tag = (text: string) => createHash("sha256").update(text).digest("base64url");
@@ -48,11 +61,13 @@ export async function readDoc<T>(name: string): Promise<Stored<T> | null> {
   if (!blobConfigured()) throw new StoreUnavailable("No Blob store is connected to this deployment.");
   try {
     // useCache: false reads the latest copy from storage, not the CDN, so a write never starts from a stale etag.
-    const res = await get(blobPath(name), { access: "private", useCache: false, abortSignal: AbortSignal.timeout(8000) });
-    if (!res) return null;
-    if (res.statusCode !== 200) throw new StoreUnavailable(`unexpected status ${res.statusCode}`);
-    const text = await new Response(res.stream).text();
-    return { data: JSON.parse(text) as T, etag: res.blob.etag };
+    return await within(9000, (async () => {
+      const res = await get(blobPath(name), { access: "private", useCache: false, abortSignal: AbortSignal.timeout(8000) });
+      if (!res) return null;
+      if (res.statusCode !== 200) throw new StoreUnavailable(`unexpected status ${res.statusCode}`);
+      const text = await new Response(res.stream).text();
+      return { data: JSON.parse(text) as T, etag: res.blob.etag };
+    })());
   } catch (err) {
     if (err instanceof StoreUnavailable) throw err;
     throw new StoreUnavailable(err instanceof Error ? err.message : "Blob read failed");
@@ -76,14 +91,17 @@ export async function writeDoc<T>(name: string, data: T, etag: string | null): P
   }
   if (!blobConfigured()) throw new StoreUnavailable("No Blob store is connected to this deployment.");
   try {
-    await put(blobPath(name), text, {
-      access: "private",
-      contentType: "application/json",
-      addRandomSuffix: false,
-      cacheControlMaxAge: 60,
-      ...(etag ? { ifMatch: etag } : { allowOverwrite: false }),
-      abortSignal: AbortSignal.timeout(8000),
-    });
+    await within(
+      9000,
+      put(blobPath(name), text, {
+        access: "private",
+        contentType: "application/json",
+        addRandomSuffix: false,
+        cacheControlMaxAge: 60,
+        ...(etag ? { ifMatch: etag } : { allowOverwrite: false }),
+        abortSignal: AbortSignal.timeout(8000),
+      }),
+    );
   } catch (err) {
     // A create-only write that finds the document already there is also a lost race.
     if (err instanceof BlobPreconditionFailedError || (etag === null && /already exists/i.test(String((err as Error)?.message)))) throw new StoreConflict("changed since read");

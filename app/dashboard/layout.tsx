@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: { absolute: "eternal · Performance" },
   robots: { index: false, follow: false, nocache: true, googleBot: { index: false, follow: false } },
-  referrer: "no-referrer",
+  referrer: "same-origin",
 };
 
 export const viewport: Viewport = { themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#17110c" }, { color: "#f1ede4" }] };

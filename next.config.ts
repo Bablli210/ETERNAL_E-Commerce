@@ -21,13 +21,14 @@ const nextConfig: NextConfig = {
     // The owner's checklist is unlinked; this keeps it out of search even where the meta tag is not read.
     return [
       { source: "/launch-checklist", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
-      // The team dashboard: never indexed, never framed (its forms change accounts), and its links never leak the address they came from.
+      // The team dashboard: never indexed, never framed (its forms change accounts), and its links never tell another site the address they came from.
       {
         source: "/dashboard/:path*",
         headers: [
           { key: "X-Robots-Tag", value: "noindex, nofollow" },
           { key: "X-Frame-Options", value: "DENY" },
-          { key: "Referrer-Policy", value: "no-referrer" },
+          // same-origin, not no-referrer: under no-referrer a form posted before the page's scripts load sends "Origin: null", which Next refuses. No other site is ever sent a Referer either way.
+          { key: "Referrer-Policy", value: "same-origin" },
         ],
       },
     ];

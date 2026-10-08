@@ -41,7 +41,9 @@ WhatsApp", and send it privately. They choose their own username and password.
 | Owner | the same, plus source checks | everything, including People |
 
 Forgotten password: on People, "Make a reset link" (works once, 24 hours). Owners re-sign-in
-every 12 hours before changing people.
+every 12 hours before changing people. Each phone or computer someone has signed in on is
+remembered for 180 days (even after signing out), and keeps getting in while someone elsewhere
+is guessing passwords; a person can change their password or sign out everywhere a few times a day.
 
 ## 4. Connect Shopify (read-only key, about 15 minutes)
 

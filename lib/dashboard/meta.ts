@@ -435,7 +435,8 @@ export async function fetchMetaAds(): Promise<WithRate<MetaAdsTier>> {
     } catch (e) {
       // While the account is not active Meta may refuse insights; that is the unpaid balance, never zero sales.
       // A refusal of the key itself (270, 274, permissions) is not, and paying would not bring the figures back.
-      if (status === null || status === 1 || aboutTheKey(e)) throw e;
+      // A failure that passes by itself is not the account's state either: rethrown, it keeps the last good figures (keepLastGood).
+      if (status === null || status === 1 || aboutTheKey(e) || (e instanceof MetaError && e.kind === "transient")) throw e;
       const owes = owesPayment(status);
       tier.state = owes ? "unsettled" : "error";
       tier.failure = {
