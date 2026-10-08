@@ -271,6 +271,8 @@ async function gql<T>(c: Config, query: string, variables: Record<string, unknow
     }
     if (!res.ok) throw new ShopifyError(httpKind(res.status), res.status, requestId);
     if (!body) throw new ShopifyError("bad_response", res.status, requestId);
+    // Shopify sends its own internal errors as HTTP 200 with INTERNAL_SERVER_ERROR "instead of 500": treated as the 500 they are, which passes by itself.
+    if (body.data == null && errors.some((e) => e.extensions?.code === "INTERNAL_SERVER_ERROR")) throw new ShopifyError("http_500", 500, requestId);
     return { data: (body.data ?? null) as T | null, errors, version: res.headers.get("x-shopify-api-version"), requestId };
   }
 }

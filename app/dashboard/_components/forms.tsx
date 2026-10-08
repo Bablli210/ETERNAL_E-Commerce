@@ -271,12 +271,17 @@ type OneLink = NonNullable<NonNullable<LinkState>["link"]>;
  */
 function LinkResult({ link }: { link: OneLink | undefined }) {
   return (
-    <>
+    <div className={link ? "dash-form dash-linkresult" : undefined}>
       <div role="status">
-        {link ? <p className="dash-ok">Link for {link.name} ready. It works once, until {link.expires}, and is shown only now: send it privately.</p> : null}
+        {/* Keyed by the link, so a second link with the same wording is still a change screen readers announce. */}
+        {link ? (
+          <p key={link.url} className="dash-ok">
+            Link for {link.name} ready. It works once, until {link.expires}, and is shown only now: send it privately.
+          </p>
+        ) : null}
       </div>
       {link ? <OneTimeLink link={link} /> : null}
-    </>
+    </div>
   );
 }
 
@@ -322,7 +327,7 @@ export function InviteForm() {
   const nameId = useId();
   const roleId = useId();
   return (
-    <div className="dash-form">
+    <div>
       <form action={action} onSubmit={onSubmit} className="dash-form">
         <div className="dash-field">
           <label className="dash-label" htmlFor={nameId}>
@@ -349,8 +354,8 @@ export function InviteForm() {
   );
 }
 
-/** open: whether this person still has a reset link waiting; a link that was revoked, used, expired or cancelled by a pause is no longer shown. */
-export function ResetLinkForm({ userId, name, open }: { userId: string; name: string; open: boolean }) {
+/** openLinkId: this person's reset link still waiting, if any. The link made here is shown only while it is that one, so a link revoked, used, expired, replaced or cancelled by a pause disappears. */
+export function ResetLinkForm({ userId, name, openLinkId }: { userId: string; name: string; openLinkId?: string }) {
   const [state, action, pending] = useActionState(createResetLink, null);
   return (
     <div>
@@ -361,7 +366,7 @@ export function ResetLinkForm({ userId, name, open }: { userId: string; name: st
         </Submit>
       </form>
       <Message state={state?.error ? state : null} />
-      <LinkResult link={open ? state?.link : undefined} />
+      <LinkResult link={state?.link && state.link.id === openLinkId ? state.link : undefined} />
     </div>
   );
 }
@@ -405,18 +410,41 @@ export function StatusLine({ area }: { area: Area }) {
   );
 }
 
+/** A row's latest answer, counted so the same sentence twice is still a new message. */
+type RowState = (NonNullable<FormState> & { n: number }) | null;
+
 /** managePerson; when the change removes the row (Remove, Revoke), its confirmation goes to the section's status line instead. */
 function usePersonAction(area: Area) {
   const announce = useContext(Announce);
-  return useActionState(async (prev: FormState, fd: FormData): Promise<FormState> => {
+  return useActionState(async (prev: RowState, fd: FormData): Promise<RowState> => {
     const result = await managePerson(prev, fd);
     const what = fd.get("what");
     if (result?.ok && (what === "remove" || what === "revoke")) {
       announce(area, result.ok);
       return null;
     }
-    return result;
+    return result && { ...result, n: (prev?.n ?? 0) + 1 };
   }, null);
+}
+
+/** A row's answer: an error as an alert, a confirmation in a status region that is always there. */
+function RowMessage({ state }: { state: RowState }) {
+  return (
+    <>
+      {state?.error ? (
+        <p key={state.n} className="dash-error" role="alert">
+          {state.error}
+        </p>
+      ) : null}
+      <div role="status">
+        {state?.ok ? (
+          <p key={state.n} className="dash-ok">
+            {state.ok}
+          </p>
+        ) : null}
+      </div>
+    </>
+  );
 }
 
 /** Role, pause or resume, sign out everywhere, remove: one small form per change. */
@@ -424,8 +452,13 @@ export function PersonControls({ id, name, role, disabled, self }: { id: string;
   const [state, action, pending] = usePersonAction("people");
   const forName = <span className="sr-only"> for {name}</span>;
   const roleId = useId();
+  const box = useRef<HTMLDivElement>(null);
+  // A role change re-sorts the list, so the row may have moved: bring its answer into view (nothing happens when it is already visible).
+  useEffect(() => {
+    if (state) box.current?.scrollIntoView({ block: "nearest" });
+  }, [state]);
   return (
-    <div className="dash-form">
+    <div className="dash-form" ref={box}>
       <form action={action} className="dash-copy">
         <input type="hidden" name="what" value="role" />
         <input type="hidden" name="id" value={id} />
@@ -473,7 +506,7 @@ export function PersonControls({ id, name, role, disabled, self }: { id: string;
           </form>
         )}
       </div>
-      <Message state={state} />
+      <RowMessage state={state} />
     </div>
   );
 }

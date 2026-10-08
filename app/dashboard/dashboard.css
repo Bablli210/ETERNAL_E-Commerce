@@ -198,7 +198,7 @@ html:has(body > .dash) > body {
 .dash .dash-fresh { font-size: 12px; line-height: 1.4; color: var(--muted); }
 .dash .dash-fresh span { display: inline-block; }
 .dash .dash-fresh .sep { white-space: pre; }
-@media (max-width: 719px) {
+@media (width < 720px) {
   .dash .dash-fresh span { display: block; }
   .dash .dash-fresh .sep { display: none; }
 }
@@ -221,7 +221,7 @@ html:has(body > .dash) > body {
   .dash .dash-top-in.has-period .dash-period { flex: 0 1 auto; }
   .dash .dash-top-in.has-period .dash-tools { margin-left: auto; }
 }
-@media (max-width: 1279px) {
+@media (width < 1280px) {
   .dash .dash-top-in.has-period { reading-flow: flex-visual; }
   .dash .dash-period { order: 3; }
 }
@@ -420,7 +420,7 @@ html:has(body > .dash) > body {
 .dash .trend-tip .k.line { height: 3px; width: 11px; vertical-align: 3px; background: var(--wash); }
 
 /* Phone: shorter, fewer dates. From tablet width: taller, more dates. */
-@media (max-width: 719px) {
+@media (width < 720px) {
   .dash .trend-x span.s { display: block; }
 }
 @media (min-width: 720px) {
@@ -460,7 +460,7 @@ html:has(body > .dash) > body {
 .dash .tablebox[tabindex]:focus-visible { outline-offset: 4px; }
 /* Said only while the campaigns table is wider than its box (about 1200 px of screen). */
 .dash .swipe-hint { display: none; }
-@media (max-width: 1199px) {
+@media (width < 1200px) {
   .dash .swipe-hint { display: inline; }
 }
 .dash h2[tabindex="-1"]:focus { outline: none; }
@@ -565,6 +565,8 @@ html:has(body > .dash) > body {
 /* ------------------------------------------------------------ Forms, buttons, messages */
 
 .dash .dash-form { display: grid; gap: 16px; min-width: 0; }
+/* A new one-time link under its form; no space while there is none. */
+.dash .dash-linkresult { margin-top: 16px; }
 .dash .dash-form > .dash-btn { justify-self: start; }
 .dash .dash-field { display: grid; gap: 6px; }
 .dash .dash-label { font-size: 14px; font-weight: 500; color: var(--ink); }

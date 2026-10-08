@@ -78,7 +78,7 @@ export default async function PeoplePage() {
                     </td>
                     <td>
                       <PersonControls id={u.id} name={u.name} role={u.role} disabled={u.disabled} self={u.id === viewer.id} />
-                      <ResetLinkForm userId={u.id} name={u.name} open={links.some((l) => l.kind === "reset" && l.userId === u.id)} />
+                      <ResetLinkForm userId={u.id} name={u.name} openLinkId={links.find((l) => l.kind === "reset" && l.userId === u.id)?.id} />
                     </td>
                   </tr>
                 ))}

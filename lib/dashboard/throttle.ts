@@ -12,8 +12,12 @@ import "server-only";
  *   and per username (known or not, so a lockout never reveals which
  *   usernames exist): 5 in an hour locks that key for the rest of the hour.
  *   A refusal for being busy is not a failed attempt and is never counted.
- * - Sign-in attempts take at most 8 hash slots per IP an hour, right or
- *   wrong, so no single visitor can use the shared budget up.
+ * - Every hash is also charged to its source, an hour at a time: sign-in,
+ *   invite, reset and setup to the visitor's IP (8), a password change to
+ *   the person (3). So no single visitor or account can use the shared
+ *   budget up. A busy refusal gives the slot back (no password was
+ *   checked), and a person's first 2 sign-ins an hour give the IP's slot
+ *   back, so colleagues behind one office address don't share 8.
  * - At most 2 hashes at once and 20 an hour per instance; past that, sign-in
  *   says to wait (existing sessions keep working). An unknown username takes
  *   a slot like a real one, so "busy" never tells which usernames exist, but
@@ -69,20 +73,28 @@ export async function withHashBudget<T>(fn: () => Promise<T>): Promise<T | null>
   }
 }
 
-const SLOTS_PER_IP = 8;
-const ipSlots = new Map<string, Window>();
-/** One sign-in hash slot for this IP key, or false when it has had its 8 this hour. */
-export function takeIpSlot(key: string): boolean {
+export const SLOTS = { ip: 8, passwordChange: 3, refundedSignIns: 2 } as const;
+const slots = new Map<string, Window>();
+/** One slot for this source this hour, or false when it has had its `max`. */
+export function takeSlot(key: string, max: number): boolean {
   const now = Date.now();
-  if (ipSlots.size > 5000) for (const [k, w] of ipSlots) if (w.reset <= now) ipSlots.delete(k);
-  const w = ipSlots.get(key);
+  if (slots.size > 5000) for (const [k, w] of slots) if (w.reset <= now) slots.delete(k);
+  const w = slots.get(key);
   if (!w || w.reset <= now) {
-    ipSlots.set(key, { n: 1, reset: now + WINDOW_MS });
+    slots.set(key, { n: 1, reset: now + WINDOW_MS });
     return true;
   }
-  if (w.n >= SLOTS_PER_IP) return false;
+  if (w.n >= max) return false;
   w.n++;
   return true;
+}
+export function releaseSlot(key: string) {
+  const w = slots.get(key);
+  if (w && w.reset > Date.now() && w.n > 0) w.n--;
+}
+/** After a correct password: the IP's slot comes back for the person's first 2 sign-ins this hour (an account signing in over and over still uses them up). */
+export function refundIpSlot(ipKey: string, userId: string) {
+  if (takeSlot(`ok:${userId}`, SLOTS.refundedSignIns)) releaseSlot(ipKey);
 }
 
 /** Minutes until hashes are allowed again: 1 when only the parallel limit refused, longer once the hour's budget is spent. */

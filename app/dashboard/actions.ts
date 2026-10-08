@@ -20,7 +20,7 @@ import {
 } from "@/lib/dashboard/accounts";
 import { hashPassword, passwordProblem, verifyPassword } from "@/lib/dashboard/kdf";
 import { cookieOptions, seal, SESSION_COOKIE, SESSION_DAYS } from "@/lib/dashboard/session";
-import { clearFailures, hashWaitMinutes, locked, recordFailure, releaseSignOutAllSlot, takeIpSlot, takeRefreshSlot, takeSignOutAllSlot, waitLikeAHash, withHashBudget } from "@/lib/dashboard/throttle";
+import { clearFailures, hashWaitMinutes, locked, recordFailure, refundIpSlot, releaseSignOutAllSlot, releaseSlot, SLOTS, takeRefreshSlot, takeSignOutAllSlot, takeSlot, waitLikeAHash, withHashBudget } from "@/lib/dashboard/throttle";
 import { dashboardOrigin } from "@/lib/dashboard/origin";
 import { StoreUnavailable } from "@/lib/dashboard/store";
 import type { Role } from "@/lib/dashboard/types";
@@ -32,7 +32,7 @@ import type { Role } from "@/lib/dashboard/types";
  * or sends an email address.
  */
 export type FormState = { error?: string; ok?: string } | null;
-export type LinkState = { error?: string; link?: { url: string; name: string; role?: Role; expires: string } } | null;
+export type LinkState = { error?: string; link?: { id?: string; url: string; name: string; role?: Role; expires: string } } | null;
 
 const sha = (s: string) => createHash("sha256").update(s).digest("base64url");
 const text = (fd: FormData, k: string, max = 200) => String(fd.get(k) ?? "").slice(0, max);
@@ -47,9 +47,29 @@ const hashBusy = () => {
   const m = hashWaitMinutes();
   return m <= 1 ? BUSY : `Sign-in is paused after many attempts. Try again in about ${m} minutes.`;
 };
+/**
+ * A password hash charged to one source (lib/dashboard/throttle.ts): refused
+ * with a sentence once that source has had its share this hour, or when the
+ * instance is busy, and a busy refusal gives the share back.
+ */
+async function hashAs<T>(key: string, max: number, full: string, fn: () => Promise<T>): Promise<{ value: T } | { error: string }> {
+  if (!takeSlot(key, max)) return { error: full };
+  const value = await withHashBudget(fn);
+  if (value === null) {
+    releaseSlot(key);
+    return { error: hashBusy() };
+  }
+  return { value };
+}
+const FROM_HERE = "Too many attempts from this network in the last hour. Try again later.";
+const fromIp = <T>(ipKey: string, fn: () => Promise<T>) => hashAs(ipKey, SLOTS.ip, FROM_HERE, fn);
+
 /** Ends this browser's session. The deletion must carry the same attributes (Secure, Path=/) or browsers ignore it for a __Host- cookie. */
 const endSession = async () => (await cookies()).set(SESSION_COOKIE, "", cookieOptions(0));
 const UNREACHABLE = "The account store can't be reached just now. Try again in a minute.";
+const ADD_NAME = "Add your name: up to 60 characters, not an email address.";
+const TAKEN = "That username is taken. Pick another.";
+const NOT_AN_OWNER = "That username belongs to someone who isn't an owner. Pick another.";
 const NO_SUCH_OWNER = "No owner has that username. Check it, or fill in your name only if you mean to add a new owner.";
 /** The page lost the token from its link (a browser that cleared the tab's storage): not a wrong or used link, so not counted against anyone. */
 const LOST_LINK = "This page lost its link. Open the link again from your message.";
@@ -95,14 +115,15 @@ export async function signIn(_prev: FormState, fd: FormData): Promise<FormState>
   const user = doc?.users.find((u) => u.username === username && !u.disabled);
   // Known or not, every attempt takes a slot, so "busy" and its timing never tell which usernames exist; an unknown one only waits.
   // Being refused for busy is not a wrong password, so it is never counted as one.
-  if (!takeIpSlot(keys[0])) return { error: "Too many sign-ins from this network in the last hour. Try again later." };
-  const ok = await withHashBudget(() => (user ? verifyPassword(password, user.pw) : waitLikeAHash().then(() => false)));
-  if (ok === null) return { error: hashBusy() };
+  const checked = await fromIp(keys[0], () => (user ? verifyPassword(password, user.pw) : waitLikeAHash().then(() => false)));
+  if ("error" in checked) return { error: checked.error };
+  const ok = checked.value;
   if (!ok || !user || !doc) {
     recordFailure(keys);
     return { error: "That username and password don't match." };
   }
   clearFailures(keys);
+  refundIpSlot(keys[0], user.id);
   await startSession(user, doc.secret);
   redirect("/dashboard");
 }
@@ -131,20 +152,26 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
     return { error: "That setup code isn't right." };
   }
   const username = text(fd, "username", 64).trim().toLowerCase();
-  const name = displayName(text(fd, "name", 100));
+  const rawName = text(fd, "name", 100).trim();
+  const name = displayName(rawName);
   const password = text(fd, "password", 256);
   if (!USERNAME.test(username)) return { error: "Usernames are 3 to 32 lower-case letters, numbers, dots, dashes or underscores (not an email address)." };
   const problem = passwordProblem(password, username);
   if (problem) return { error: problem };
   if (password !== text(fd, "confirm", 256)) return { error: "The two passwords don't match." };
+  // No usable name for a username no account has: a name that was typed but refused needs fixing; an empty one in recovery means the username is wrong.
+  const missingName = (doc: AccountsDoc | null) => (rawName || !doc?.users.some((u) => u.role === "owner") ? "noname" : "nouser");
 
   const before = await guarded(() => getAccounts(), undefined);
   if (before === undefined) return { error: UNREACHABLE };
   if ((before?.setupCodesUsed ?? []).includes(sha(envCode))) return { error: "This setup code has already been used. Ask for a new one, or sign in." };
   // Checked before hashing, so a mistake costs no hash: in recovery an empty name means "set my password", never "make a new owner".
-  if (!name && !before?.users.some((u) => u.username === username)) return { error: before?.users.some((u) => u.role === "owner") ? NO_SUCH_OWNER : "Add your name (not an email address)." };
-  const pw = await withHashBudget(() => hashPassword(password));
-  if (!pw) return { error: hashBusy() };
+  const existing = before?.users.find((u) => u.username === username);
+  if (existing && existing.role !== "owner") return { error: NOT_AN_OWNER };
+  if (!name && !existing) return { error: missingName(before) === "nouser" ? NO_SUCH_OWNER : ADD_NAME };
+  const hashed = await fromIp(ipKey[0], () => hashPassword(password));
+  if ("error" in hashed) return { error: hashed.error };
+  const pw = hashed.value;
 
   const out: { who: User | null } = { who: null };
   const result = await guarded(
@@ -159,7 +186,7 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
           out.who = existing;
           logEvent(doc, username, "recovered owner access with a setup code");
         } else {
-          if (!name) return doc.users.some((u) => u.role === "owner") ? "nouser" : "noname";
+          if (!name) return missingName(doc);
           out.who = { id: newId(), username, name, role: "owner", pw, sv: 1, disabled: false, createdAt: new Date().toISOString(), createdBy: null, pwChangedAt: new Date().toISOString() };
           doc.users.push(out.who);
           logEvent(doc, username, "set up the dashboard");
@@ -170,8 +197,8 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
     "unreachable" as const,
   );
   if (result === "used") return { error: "This setup code has already been used." };
-  if (result === "taken") return { error: "That username belongs to someone who isn't an owner. Pick another." };
-  if (result === "noname") return { error: "Add your name (not an email address)." };
+  if (result === "taken") return { error: NOT_AN_OWNER };
+  if (result === "noname") return { error: ADD_NAME };
   if (result === "nouser") return { error: NO_SUCH_OWNER };
   if (typeof result === "string" || !out.who) return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   await startSession(out.who, result.secret);
@@ -224,6 +251,7 @@ export async function createResetLink(_prev: LinkState, fd: FormData): Promise<L
   const userId = text(fd, "userId", 64);
   const token = randomBytes(32).toString("base64url");
   const expiresAt = nowSec() + RESET_HOURS * 3600;
+  const linkId = newId(); // made once, so a retried write keeps the id the page shows the link under
   let name = "";
   const result = await guarded(
     () =>
@@ -232,7 +260,7 @@ export async function createResetLink(_prev: LinkState, fd: FormData): Promise<L
         if (!doc || !u) return "nouser";
         name = u.name;
         doc.links = doc.links.filter((l) => !(l.kind === "reset" && l.userId === userId));
-        doc.links.push({ id: newId(), kind: "reset", tokenHash: sha(token), userId, createdBy: auth.viewer.username, createdAt: new Date().toISOString(), expiresAt });
+        doc.links.push({ id: linkId, kind: "reset", tokenHash: sha(token), userId, createdBy: auth.viewer.username, createdAt: new Date().toISOString(), expiresAt });
         logEvent(doc, auth.viewer.username, "made a password reset link", u.username);
         return doc;
       }),
@@ -240,7 +268,7 @@ export async function createResetLink(_prev: LinkState, fd: FormData): Promise<L
   );
   if (result === "nouser") return { error: "That person no longer has an account." };
   if (typeof result === "string") return { error: result === "unreachable" ? UNREACHABLE : BUSY };
-  return { link: { url: `${await dashboardOrigin()}/dashboard/reset#${token}`, name, expires: expiresText(expiresAt) } };
+  return { link: { id: linkId, url: `${await dashboardOrigin()}/dashboard/reset#${token}`, name, expires: expiresText(expiresAt) } };
 }
 
 /** Looks a link up in the cached copy first, so a wrong or old link costs no store read. */
@@ -269,8 +297,11 @@ export async function acceptInvite(_prev: FormState, fd: FormData): Promise<Form
   const problem = passwordProblem(password, username);
   if (problem) return { error: problem };
   if (password !== text(fd, "confirm", 256)) return { error: "The two passwords don't match." };
-  const pw = await withHashBudget(() => hashPassword(password));
-  if (!pw) return { error: hashBusy() };
+  // A taken username is refused before hashing, so retrying one costs nothing; the check inside the change still covers a race.
+  if ((await guarded(() => getAccounts(), null))?.users.some((u) => u.username === username)) return { error: TAKEN };
+  const hashed = await fromIp(ipKey[0], () => hashPassword(password));
+  if ("error" in hashed) return { error: hashed.error };
+  const pw = hashed.value;
   const out: { who: User | null } = { who: null };
   const result = await guarded(
     () =>
@@ -287,7 +318,7 @@ export async function acceptInvite(_prev: FormState, fd: FormData): Promise<Form
     "unreachable" as const,
   );
   if (result === "link") return { error: "This invite link has expired or was already used. Ask for a new one." };
-  if (result === "taken") return { error: "That username is taken. Pick another." };
+  if (result === "taken") return { error: TAKEN };
   if (typeof result === "string" || !out.who) return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   await startSession(out.who, result.secret);
   redirect("/dashboard");
@@ -312,8 +343,9 @@ export async function applyResetLink(_prev: FormState, fd: FormData): Promise<Fo
   const problem = passwordProblem(password, user.username);
   if (problem) return { error: problem };
   if (password !== text(fd, "confirm", 256)) return { error: "The two passwords don't match." };
-  const pw = await withHashBudget(() => hashPassword(password));
-  if (!pw) return { error: hashBusy() };
+  const hashed = await fromIp(ipKey[0], () => hashPassword(password));
+  if ("error" in hashed) return { error: hashed.error };
+  const pw = hashed.value;
   const out: { who: User | null } = { who: null };
   const result = await guarded(
     () =>
@@ -362,6 +394,11 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
         const self = u.id === auth.viewer.id;
         if (what === "role") {
           if (!role) return "Choose a role.";
+          if (u.role === role) {
+            // Nothing to save, and no reason to sign them out: a second tap must not change anything.
+            done = `${u.name} is already ${role === "owner" ? "an owner" : role === "team" ? "on the team" : "a client"}.`;
+            return "unchanged";
+          }
           if (u.role === "owner" && role !== "owner" && lastActiveOwner(doc, u.id)) return "There must always be one owner. Make someone else an owner first.";
           u.role = role;
           u.sv++; // their next page load picks the new role; old open pages stop working
@@ -371,7 +408,7 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
           u.disabled = what === "pause";
           u.sv++;
           // A reset link sent before the pause must not let them back in.
-          const cancelled = what === "pause" && doc.links.some((l) => l.userId === u.id);
+          const cancelled = what === "pause" && doc.links.some((l) => l.userId === u.id && l.expiresAt > nowSec());
           if (what === "pause") doc.links = doc.links.filter((l) => l.userId !== u.id);
           done = what === "pause" ? `${u.name} can no longer sign in.${cancelled ? " Their open reset link is cancelled." : ""}` : `${u.name} can sign in again.`;
         } else if (what === "signout") {
@@ -390,6 +427,7 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
       }),
     "unreachable" as const,
   );
+  if (result === "unchanged") return { ok: done };
   if (typeof result === "string") return { error: result === "unreachable" ? UNREACHABLE : result === "busy" ? BUSY : result };
   return { ok: done };
 }
@@ -411,14 +449,20 @@ export async function changePassword(_prev: FormState, fd: FormData): Promise<Fo
   const problem = passwordProblem(password, user.username);
   if (problem) return { error: problem };
   if (password !== text(fd, "confirm", 256)) return { error: "The two new passwords don't match." };
-  const ok = await withHashBudget(() => verifyPassword(current, user.pw));
-  if (ok === null) return { error: hashBusy() };
+  // Two hashes per change, charged to the person: at most 3 changes an hour, from anywhere.
+  const slot = `pw:${user.id}`;
+  const checked = await hashAs(slot, SLOTS.passwordChange, "You've changed your password several times this hour. Try again later.", () => verifyPassword(current, user.pw));
+  if ("error" in checked) return { error: checked.error };
+  const ok = checked.value;
   if (!ok) {
     recordFailure(keys);
     return { error: "Your current password isn't right." };
   }
   const pw = await withHashBudget(() => hashPassword(password));
-  if (!pw) return { error: hashBusy() };
+  if (!pw) {
+    releaseSlot(slot);
+    return { error: hashBusy() };
+  }
   const out: { who: User | null } = { who: null };
   const result = await guarded(
     () =>
