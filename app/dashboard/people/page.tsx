@@ -109,7 +109,10 @@ export default async function PeoplePage() {
                   {links.map((l) => (
                     <tr key={l.id}>
                       <th scope="row">{l.kind === "invite" ? l.name : nameOf(l.userId)}</th>
-                      <td>{l.kind === "invite" ? `Invite (${ROLE_LABEL[l.role ?? "client"]})` : "Password reset"}</td>
+                      <td>
+                      {l.kind === "invite" ? `Invite (${ROLE_LABEL[l.role ?? "client"]})` : "Password reset"}
+                      <span className="dash-hint block">made by {nameOf(l.creatorId)}</span>
+                    </td>
                       <td>{when(new Date(l.expiresAt * 1000).toISOString())} Cairo</td>
                       <td>
                         <RevokeLink id={l.id} label={`${l.kind} link for ${l.kind === "invite" ? l.name : nameOf(l.userId)}`} />

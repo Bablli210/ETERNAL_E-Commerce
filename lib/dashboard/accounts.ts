@@ -43,6 +43,8 @@ export type Link = {
   name?: string;
   userId?: string;
   createdBy: string;
+  /** The owner who made it, by id (usernames can be reused): a link works only while they are still an active owner. */
+  creatorId?: string;
   createdAt: string;
   /** Unix seconds. */
   expiresAt: number;
@@ -101,6 +103,14 @@ export async function requireViewer(roles: readonly Role[] = ROLES) {
  * checks again here.
  */
 export const stillOwner = (doc: AccountsDoc, v: { id: string; sv: number }) => doc.users.some((u) => u.id === v.id && u.role === "owner" && !u.disabled && u.sv === v.sv);
+
+/**
+ * Whether the owner who made a link is still an active owner. A link is an
+ * owner's action carried out later, so removing, pausing or demoting that
+ * owner ends it, even if it was never revoked. Not tied to the owner's
+ * session: changing their own password must not kill the invites they sent.
+ */
+export const issuerActive = (doc: AccountsDoc, l: Link) => doc.users.some((u) => u.id === l.creatorId && u.role === "owner" && !u.disabled);
 
 /** Owners change accounts only within 12 hours of signing in, so a forgotten open session cannot be used to add people. */
 export const recentSignIn = (v: { iat: number }) => nowSec() - v.iat < 12 * 3600;

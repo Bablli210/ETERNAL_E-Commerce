@@ -21,8 +21,9 @@ import "server-only";
  *   colleagues behind one office address don't share 8.
  * - At most 2 hashes at once and 20 an hour per instance. 8 of the 20 are
  *   kept for people signing in on a device they have used before (a sealed
- *   cookie, lib/dashboard/session.ts) and for signed-in password changes, so
- *   visitors without one can never use them up. An unknown username costs
+ *   cookie, lib/dashboard/session.ts), for signed-in password changes, and
+ *   for whoever holds a live invite or reset link or the setup code, so
+ *   visitors with none of these can never use them up. An unknown username costs
  *   no hash and is not charged, but is refused exactly like a real one when
  *   the budget is full, so "busy" never tells which usernames exist.
  */
@@ -34,7 +35,7 @@ const st = (g.__eternalDashThrottle ??= { fails: new Map(), budget: { n: 0, rese
 const WINDOW_MS = 60 * 60_000;
 const MAX_FAILS = 5;
 const HASHES_PER_HOUR = 20;
-/** Of the 20, how many only known devices and signed-in people may use. */
+/** Of the 20, how many only known devices, signed-in people and link or setup-code holders may use. */
 const RESERVED = 8;
 const MAX_PARALLEL = 2;
 

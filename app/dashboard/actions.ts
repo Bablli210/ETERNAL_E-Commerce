@@ -9,6 +9,7 @@ import {
   clientIp,
   currentViewer,
   getAccounts,
+  issuerActive,
   logEvent,
   nowSec,
   recentSignIn,
@@ -76,7 +77,8 @@ async function hashAs<T>(
 }
 const FROM_HERE = "Too many attempts from this network in the last hour. Try again later.";
 const ipSlot = (ipKey: string) => ({ key: ipKey, max: SLOTS.ip, full: FROM_HERE });
-const fromIp = <T>(ipKey: string, fn: () => Promise<T>) => hashAs([ipSlot(ipKey)], fn);
+/** For invite, reset and setup: the caller has already shown an owner-issued link or the setup code, so may use the reserved hashes. */
+const fromIp = <T>(ipKey: string, fn: () => Promise<T>) => hashAs([ipSlot(ipKey)], fn, { trusted: true });
 
 /** Password changes and sign-outs everywhere a person may make in a day: each is a store write, and Hobby allows 2,000 a month. */
 const SELF_PER_DAY = 4;
@@ -119,6 +121,13 @@ async function guarded<T, F = T>(fn: () => Promise<T>, fallback: F): Promise<T |
     throw err;
   }
 }
+
+/** Cancels the open links an owner made (when they stop being an active owner); returns a sentence for the confirmation when there were any. */
+const dropLinksBy = (doc: AccountsDoc, userId: string) => {
+  const open = doc.links.filter((l) => l.creatorId === userId && l.expiresAt > nowSec()).length;
+  doc.links = doc.links.filter((l) => l.creatorId !== userId);
+  return open ? ` ${open === 1 ? "The link they made is" : `The ${open} links they made are`} cancelled.` : "";
+};
 
 const lastActiveOwner = (doc: AccountsDoc, userId: string) => {
   const owners = doc.users.filter((u) => u.role === "owner" && !u.disabled);
@@ -269,7 +278,7 @@ export async function createInvite(_prev: LinkState, fd: FormData): Promise<Link
         if (!doc) return "nodoc";
         if (!stillOwner(doc, auth.viewer)) return "signedout";
         if (doc.links.filter((l) => l.expiresAt > nowSec()).length >= 20) return "toomany";
-        doc.links.push({ id: newId(), kind: "invite", tokenHash: sha(token), role, name, createdBy: auth.viewer.username, createdAt: new Date().toISOString(), expiresAt });
+        doc.links.push({ id: newId(), kind: "invite", tokenHash: sha(token), role, name, createdBy: auth.viewer.username, creatorId: auth.viewer.id, createdAt: new Date().toISOString(), expiresAt });
         logEvent(doc, auth.viewer.username, `made an invite link (${role})`, name);
         return doc;
       }),
@@ -298,7 +307,7 @@ export async function createResetLink(_prev: LinkState, fd: FormData): Promise<L
         if (!doc || !u) return "nouser";
         name = u.name;
         doc.links = doc.links.filter((l) => !(l.kind === "reset" && l.userId === userId));
-        doc.links.push({ id: linkId, kind: "reset", tokenHash: sha(token), userId, createdBy: auth.viewer.username, createdAt: new Date().toISOString(), expiresAt });
+        doc.links.push({ id: linkId, kind: "reset", tokenHash: sha(token), userId, createdBy: auth.viewer.username, creatorId: auth.viewer.id, createdAt: new Date().toISOString(), expiresAt });
         logEvent(doc, auth.viewer.username, "made a password reset link", u.username);
         return doc;
       }),
@@ -314,7 +323,8 @@ export async function createResetLink(_prev: LinkState, fd: FormData): Promise<L
 async function findLink(token: string, kind: "invite" | "reset") {
   if (!/^[A-Za-z0-9_-]{43}$/.test(token)) return null;
   const doc = await getAccounts();
-  return doc?.links.find((l) => l.kind === kind && l.tokenHash === sha(token) && l.expiresAt > nowSec()) ?? null;
+  const link = doc?.links.find((l) => l.kind === kind && l.tokenHash === sha(token) && l.expiresAt > nowSec());
+  return doc && link && issuerActive(doc, link) ? link : null;
 }
 
 export async function acceptInvite(_prev: FormState, fd: FormData): Promise<FormState> {
@@ -346,7 +356,7 @@ export async function acceptInvite(_prev: FormState, fd: FormData): Promise<Form
     () =>
       changeAccounts((doc) => {
         const l = doc?.links.find((x) => x.id === link.id && x.expiresAt > nowSec());
-        if (!doc || !l) return "link";
+        if (!doc || !l || !issuerActive(doc, l)) return "link";
         if (doc.users.some((u) => u.username === username)) return "taken";
         doc.links = doc.links.filter((x) => x.id !== l.id); // one use
         out.who = { id: newId(), username, name, role: l.role ?? "client", pw, sv: 1, disabled: false, createdAt: new Date().toISOString(), createdBy: l.createdBy, pwChangedAt: new Date().toISOString() };
@@ -391,7 +401,7 @@ export async function applyResetLink(_prev: FormState, fd: FormData): Promise<Fo
       changeAccounts((d) => {
         const l = d?.links.find((x) => x.id === link.id && x.expiresAt > nowSec());
         const u = d?.users.find((x) => x.id === link.userId);
-        if (!d || !l || !u || u.disabled) return "link";
+        if (!d || !l || !u || u.disabled || !issuerActive(d, l)) return "link";
         d.links = d.links.filter((x) => x.id !== l.id);
         Object.assign(u, { pw, sv: u.sv + 1, pwChangedAt: new Date().toISOString() });
         out.who = u;
@@ -440,9 +450,10 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
             return "unchanged";
           }
           if (u.role === "owner" && role !== "owner" && lastActiveOwner(doc, u.id)) return "There must always be one owner. Make someone else an owner first.";
+          const cancelled = u.role === "owner" ? dropLinksBy(doc, u.id) : "";
           u.role = role;
           u.sv++; // their next page load picks the new role; old open pages stop working
-          done = `${u.name} is now ${role === "owner" ? "an owner" : role === "team" ? "on the team" : "a client"}.`;
+          done = `${u.name} is now ${role === "owner" ? "an owner" : role === "team" ? "on the team" : "a client"}.${cancelled}`;
         } else if (what === "pause" || what === "resume") {
           if (what === "pause" && (self || lastActiveOwner(doc, u.id))) return self ? "You can't pause your own account." : "There must always be one owner.";
           u.disabled = what === "pause";
@@ -450,7 +461,8 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
           // A reset link sent before the pause must not let them back in.
           const cancelled = what === "pause" && doc.links.some((l) => l.userId === u.id && l.expiresAt > nowSec());
           if (what === "pause") doc.links = doc.links.filter((l) => l.userId !== u.id);
-          done = what === "pause" ? `${u.name} can no longer sign in.${cancelled ? " Their open reset link is cancelled." : ""}` : `${u.name} can sign in again.`;
+          const made = what === "pause" ? dropLinksBy(doc, u.id) : "";
+          done = what === "pause" ? `${u.name} can no longer sign in.${cancelled ? " Their open reset link is cancelled." : ""}${made}` : `${u.name} can sign in again.`;
         } else if (what === "signout") {
           u.sv++;
           done = `${u.name} is signed out everywhere.`;
@@ -459,7 +471,7 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
           if (lastActiveOwner(doc, u.id)) return "There must always be one owner.";
           doc.users = doc.users.filter((x) => x.id !== u.id);
           doc.links = doc.links.filter((l) => l.userId !== u.id);
-          done = `${u.name}'s account is removed.`;
+          done = `${u.name}'s account is removed.${dropLinksBy(doc, u.id)}`;
         } else return "Unknown change.";
         const verb: Record<string, string> = { pause: "paused access for", resume: "let back in", signout: "signed out everywhere", remove: "removed" };
         logEvent(doc, auth.viewer.username, what === "role" ? `changed the role to ${role} for` : verb[what], u.username);
@@ -500,25 +512,30 @@ export async function changePassword(_prev: FormState, fd: FormData): Promise<Fo
     releaseSlot(slot);
     return { error: hashBusy(true) };
   }
-  const out: { who: User | null } = { who: null };
+  const out: { who: User | null; secret: string } = { who: null, secret: "" };
   const result = await guarded(
     () =>
       changeAccounts((d) => {
         const u = d?.users.find((x) => x.id === viewer.id);
+        // This request's own write already in the store (its answer was lost, the write retried): done, not "signed out".
+        if (d && u && !u.disabled && u.pw === pw && u.sv === viewer.sv + 1) {
+          Object.assign(out, { who: u, secret: d.secret });
+          return "already";
+        }
         if (!d || !u || u.sv !== viewer.sv) return "gone";
         if (recentSelf(u).length >= SELF_PER_DAY) return "limit";
         Object.assign(u, { pw, sv: u.sv + 1, pwChangedAt: new Date().toISOString(), selfChanges: [...recentSelf(u), nowSec()] });
-        out.who = u;
+        Object.assign(out, { who: u, secret: d.secret });
         logEvent(d, u.username, "changed their password");
         return d;
       }),
     "unreachable" as const,
   );
   if (result === "limit") return { error: SELF_LIMIT };
-  if (result === "gone") return { error: SIGNED_OUT };
-  if (typeof result === "string" || !out.who) return { error: result === "unreachable" ? UNREACHABLE : BUSY };
+  if (result === "gone") return { error: "You've been signed out. Sign in again; if you just changed your password, use the new one." };
+  if ((typeof result === "string" && result !== "already") || !out.who) return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   // New password, new session: every other device is signed out, this one stays in.
-  await startSession(out.who, result.secret);
+  await startSession(out.who, out.secret);
   return { ok: "Password changed. You're signed out everywhere else." };
 }
 
