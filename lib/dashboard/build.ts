@@ -17,6 +17,8 @@ import { PERIOD_KEYS, type AttentionItem, type DashData, type MetaSnapshot, type
 const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 const egp = (v: number) => `EGP ${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Math.round(v))}`;
 const ratio2 = (v: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+const cairoTime = (iso: string) => new Intl.DateTimeFormat("en-GB", { timeZone: SHOP_TZ, hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+const dayText = (ymd: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${ymd}T00:00:00Z`));
 
 const EVENT_LABELS: Record<string, string> = {
   PageView: "Page viewed",
@@ -28,9 +30,9 @@ const EVENT_LABELS: Record<string, string> = {
 
 /**
  * Shopify's referrer (source, name) as the page names it. Shopify names the
- * myeternal.net site "myeternal", whichever website it shows, so the domain
- * check decides: the old site while the domain still points there, the new
- * website once it is on Vercel, the plain name when that couldn't be checked.
+ * myeternal.net site "myeternal", whichever website it shows, and a period
+ * can span the domain switch, so only "old site" is ever claimed, and only
+ * while the domain check says myeternal.net still points there.
  */
 function referrerLabel(source: string | null, name: string | null, domainLive: boolean | null) {
   const n = (name ?? "").toLowerCase();
@@ -38,7 +40,7 @@ function referrerLabel(source: string | null, name: string | null, domainLive: b
   if (/instagram/.test(n)) return "Instagram";
   if (/facebook|fb\b/.test(n)) return "Facebook";
   if (/eternal-storefront|www\.myeternal\.net/.test(n)) return "New website";
-  if (/myeternal/.test(n)) return domainLive === true ? "New website" : domainLive === false ? "myeternal.net (old site)" : "myeternal.net";
+  if (/myeternal/.test(n)) return domainLive === false ? "myeternal.net (old site)" : "myeternal.net";
   if (/google/.test(n)) return "Google";
   if (/tiktok/.test(n)) return "TikTok";
   if (!n && !s) return "Direct or unknown";
@@ -148,6 +150,12 @@ function attentionFor(s: ShopifySnapshot, m: MetaSnapshot, data: Pick<DashData, 
     );
   if (s.state === "error")
     out.push({ level: "critical", title: "Shopify can't be read", detail: s.failure?.message ?? "The dashboard couldn't read the store just now.", owner: "Seif" });
+  else if (s.heldSince)
+    out.push({
+      level: "warning",
+      title: "Shopify figures are from earlier",
+      detail: `The latest read of Shopify failed, so the shop's figures are from ${cairoTime(s.fetchedAt)} Cairo time. The dashboard tries again within a few minutes.`,
+    });
   if (isNum(s.oldSiteOrders7) && s.oldSiteOrders7 > 0)
     out.push({
       level: "warning",
@@ -307,7 +315,9 @@ function sourcesFor(s: ShopifySnapshot, m: MetaSnapshot, tracking: TrackItem[]):
       ? { label: "Shopify", ok: null, note: "not connected yet" }
       : s.state === "error"
         ? { label: "Shopify", ok: false, note: "couldn't read" }
-        : { label: "Shopify", ok: s.state === "fallback" ? null : true, note: s.state === "fallback" ? "orders only (limited)" : "orders and customers" };
+        : s.heldSince
+          ? { label: "Shopify", ok: null, note: `latest read failed; figures from ${cairoTime(s.fetchedAt)}` }
+          : { label: "Shopify", ok: s.state === "fallback" ? null : true, note: s.state === "fallback" ? "orders only (limited)" : "orders and customers" };
   const ads = m.ads.state;
   const acct = m.ads.account;
   // The account's standing comes first: figures can still arrive from an account that has stopped running ads.
@@ -319,9 +329,9 @@ function sourcesFor(s: ShopifySnapshot, m: MetaSnapshot, tracking: TrackItem[]):
         ? { label: "Meta", ok: false, note: ads === "unsettled" || owesPayment(acct?.status ?? null) ? "unpaid balance" : "ad account not active" }
         : ads === "ok"
           ? { label: "Meta", ok: true, note: "ads and pixel" }
-          : ads === "error" && !Object.keys(m.ads.periods).length
-            ? { label: "Meta", ok: false, note: "couldn't read" }
-            : { label: "Meta", ok: null, note: ads === "throttled" ? "busy, figures from earlier" : "partly read" };
+          : !(Object.keys(m.ads.periods).length || m.pixel.events.length || m.slow.audiences || m.slow.emq)
+            ? { label: "Meta", ok: false, note: ads === "throttled" ? "busy, nothing read yet" : "couldn't read" }
+            : { label: "Meta", ok: null, note: ads === "throttled" && Object.keys(m.ads.periods).length ? "busy, figures from earlier" : "partly read" };
   const domain = tracking[1];
   const pixel = tracking[2];
   const site: SourceChip = !k.production
@@ -368,6 +378,8 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
   // One row per day for the last 90 full days and today, sales and spend side by side. Each source lists every day it read (0 for a quiet day), so a day it lacks was never read and stays null.
   const shopDays = new Map(s.daily.map((d) => [d.d, d]));
   const metaDays = new Map(m.ads.daily.map((d) => [d.d, d]));
+  // Kept figures can stop days ago (a held-back read); a day behind Shopify's is only another time zone.
+  const metaLast = m.ads.daily.at(-1)?.d;
   const days: DashData["daily"]["days"] = [];
   for (let i = 90; i >= 0; i--) {
     const d = addDays(today, -i);
@@ -446,7 +458,11 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
     gaps: {
       shopify: shopifyGap(s),
       ads: adsGap(m),
-      adsDaily: m.ads.daily.length ? null : (adsGap(m) ?? (m.ads.failure?.message ?? "Meta's daily ad figures could not be read just now.")),
+      adsDaily: !m.ads.daily.length
+        ? (adsGap(m) ?? m.ads.failure?.message ?? "Meta's daily ad figures could not be read just now.")
+        : metaLast && metaLast < addDays(today, -1)
+          ? `Meta's daily ad figures run to ${dayText(metaLast)}, from the last read that worked; later days have none yet.`
+          : null,
       pixel: m.pixel.events.length ? null : tierGap(m.pixel.state, m.pixel.failure, "What the website reported to Meta"),
       audiences: m.slow.audiences ? null : tierGap(m.slow.audiencesState, m.slow.audiencesFailure ?? null, "Meta's audiences"),
       // The periods can be read while a later part of the ads read failed: then that part says so rather than vanishing.

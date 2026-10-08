@@ -20,7 +20,7 @@ import {
 } from "@/lib/dashboard/accounts";
 import { hashPassword, passwordProblem, verifyPassword } from "@/lib/dashboard/kdf";
 import { cookieOptions, seal, SESSION_COOKIE, SESSION_DAYS } from "@/lib/dashboard/session";
-import { clearFailures, hashWaitMinutes, locked, recordFailure, releaseSignOutAllSlot, takeRefreshSlot, takeSignOutAllSlot, waitLikeAHash, withHashBudget } from "@/lib/dashboard/throttle";
+import { clearFailures, hashWaitMinutes, locked, recordFailure, releaseSignOutAllSlot, takeIpSlot, takeRefreshSlot, takeSignOutAllSlot, waitLikeAHash, withHashBudget } from "@/lib/dashboard/throttle";
 import { dashboardOrigin } from "@/lib/dashboard/origin";
 import { StoreUnavailable } from "@/lib/dashboard/store";
 import type { Role } from "@/lib/dashboard/types";
@@ -50,6 +50,7 @@ const hashBusy = () => {
 /** Ends this browser's session. The deletion must carry the same attributes (Secure, Path=/) or browsers ignore it for a __Host- cookie. */
 const endSession = async () => (await cookies()).set(SESSION_COOKIE, "", cookieOptions(0));
 const UNREACHABLE = "The account store can't be reached just now. Try again in a minute.";
+const NO_SUCH_OWNER = "No owner has that username. Check it, or fill in your name only if you mean to add a new owner.";
 /** The page lost the token from its link (a browser that cleared the tab's storage): not a wrong or used link, so not counted against anyone. */
 const LOST_LINK = "This page lost its link. Open the link again from your message.";
 
@@ -65,7 +66,7 @@ async function startSession(user: Pick<User, "id" | "sv">, secret: string) {
 }
 
 /** Store failures become a sentence, never a crash page. */
-async function guarded<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
+async function guarded<T, F = T>(fn: () => Promise<T>, fallback: F): Promise<T | F> {
   try {
     return await fn();
   } catch (err) {
@@ -93,11 +94,10 @@ export async function signIn(_prev: FormState, fd: FormData): Promise<FormState>
   if (doc === undefined) return { error: UNREACHABLE };
   const user = doc?.users.find((u) => u.username === username && !u.disabled);
   // Known or not, every attempt takes a slot, so "busy" and its timing never tell which usernames exist; an unknown one only waits.
+  // Being refused for busy is not a wrong password, so it is never counted as one.
+  if (!takeIpSlot(keys[0])) return { error: "Too many sign-ins from this network in the last hour. Try again later." };
   const ok = await withHashBudget(() => (user ? verifyPassword(password, user.pw) : waitLikeAHash().then(() => false)));
-  if (ok === null) {
-    recordFailure(keys);
-    return { error: hashBusy() };
-  }
+  if (ok === null) return { error: hashBusy() };
   if (!ok || !user || !doc) {
     recordFailure(keys);
     return { error: "That username and password don't match." };
@@ -138,9 +138,11 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
   if (problem) return { error: problem };
   if (password !== text(fd, "confirm", 256)) return { error: "The two passwords don't match." };
 
-  const used = await guarded(async () => (await getAccounts())?.setupCodesUsed ?? [], null);
-  if (used === null) return { error: UNREACHABLE };
-  if (used.includes(sha(envCode))) return { error: "This setup code has already been used. Ask for a new one, or sign in." };
+  const before = await guarded(() => getAccounts(), undefined);
+  if (before === undefined) return { error: UNREACHABLE };
+  if ((before?.setupCodesUsed ?? []).includes(sha(envCode))) return { error: "This setup code has already been used. Ask for a new one, or sign in." };
+  // Checked before hashing, so a mistake costs no hash: in recovery an empty name means "set my password", never "make a new owner".
+  if (!name && !before?.users.some((u) => u.username === username)) return { error: before?.users.some((u) => u.role === "owner") ? NO_SUCH_OWNER : "Add your name (not an email address)." };
   const pw = await withHashBudget(() => hashPassword(password));
   if (!pw) return { error: hashBusy() };
 
@@ -157,7 +159,7 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
           out.who = existing;
           logEvent(doc, username, "recovered owner access with a setup code");
         } else {
-          if (!name) return "noname";
+          if (!name) return doc.users.some((u) => u.role === "owner") ? "nouser" : "noname";
           out.who = { id: newId(), username, name, role: "owner", pw, sv: 1, disabled: false, createdAt: new Date().toISOString(), createdBy: null, pwChangedAt: new Date().toISOString() };
           doc.users.push(out.who);
           logEvent(doc, username, "set up the dashboard");
@@ -170,6 +172,7 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
   if (result === "used") return { error: "This setup code has already been used." };
   if (result === "taken") return { error: "That username belongs to someone who isn't an owner. Pick another." };
   if (result === "noname") return { error: "Add your name (not an email address)." };
+  if (result === "nouser") return { error: NO_SUCH_OWNER };
   if (typeof result === "string" || !out.who) return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   await startSession(out.who, result.secret);
   redirect("/dashboard");
@@ -179,7 +182,8 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
 
 async function ownerOrError(): Promise<{ viewer: NonNullable<Awaited<ReturnType<typeof currentViewer>>> } | { error: string }> {
   if (!(await sameOriginPost())) return { error: "Open the dashboard again and retry." };
-  const viewer = await guarded(() => currentViewer(), null);
+  const viewer = await guarded(() => currentViewer(), "unreachable" as const);
+  if (viewer === "unreachable") return { error: UNREACHABLE };
   if (!viewer) return { error: SIGNED_OUT };
   if (viewer.role !== "owner") return { error: "Only owners can do this." };
   if (!recentSignIn(viewer)) return { error: "For safety, sign out and in again before changing people (you signed in more than 12 hours ago)." };
@@ -367,8 +371,9 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
           u.disabled = what === "pause";
           u.sv++;
           // A reset link sent before the pause must not let them back in.
+          const cancelled = what === "pause" && doc.links.some((l) => l.userId === u.id);
           if (what === "pause") doc.links = doc.links.filter((l) => l.userId !== u.id);
-          done = what === "pause" ? `${u.name} can no longer sign in.` : `${u.name} can sign in again.`;
+          done = what === "pause" ? `${u.name} can no longer sign in.${cancelled ? " Their open reset link is cancelled." : ""}` : `${u.name} can sign in again.`;
         } else if (what === "signout") {
           u.sv++;
           done = `${u.name} is signed out everywhere.`;
@@ -393,8 +398,9 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
 
 export async function changePassword(_prev: FormState, fd: FormData): Promise<FormState> {
   if (!(await sameOriginPost())) return { error: "Open the dashboard again and retry." };
-  const viewer = await guarded(() => currentViewer(), null);
-  if (!viewer) return { error: "Sign in again first." };
+  const viewer = await guarded(() => currentViewer(), "unreachable" as const);
+  if (viewer === "unreachable") return { error: UNREACHABLE };
+  if (!viewer) return { error: SIGNED_OUT };
   const doc = await guarded(() => getAccounts(), null);
   const user = doc?.users.find((u) => u.id === viewer.id);
   if (!user) return { error: UNREACHABLE };
@@ -435,7 +441,8 @@ export async function changePassword(_prev: FormState, fd: FormData): Promise<Fo
 /** Ends every session of the person asking, this one included; only once the store has the change, so it never claims what it didn't do. */
 export async function signOutEverywhere(): Promise<FormState> {
   if (!(await sameOriginPost())) return { error: "Open the dashboard again and retry." };
-  const viewer = await guarded(() => currentViewer(), null);
+  const viewer = await guarded(() => currentViewer(), "unreachable" as const);
+  if (viewer === "unreachable") return { error: UNREACHABLE };
   if (!viewer) return { error: SIGNED_OUT };
   if (!takeSignOutAllSlot(viewer.id)) return { error: "You did this a few minutes ago. Try again in 10 minutes, or change your password." };
   const result = await guarded(
@@ -462,7 +469,8 @@ export async function signOutEverywhere(): Promise<FormState> {
 /** Fresh figures from Shopify and Meta's ad numbers, for owners and team, at most every 5 minutes. */
 export async function refreshFigures(): Promise<FormState> {
   if (!(await sameOriginPost())) return { error: "Open the dashboard again and retry." };
-  const viewer = await guarded(() => currentViewer(), null);
+  const viewer = await guarded(() => currentViewer(), "unreachable" as const);
+  if (viewer === "unreachable") return { error: UNREACHABLE };
   if (!viewer) return { error: SIGNED_OUT };
   if (viewer.role === "client") return { error: "Only owners and the team can refresh." };
   if (!takeRefreshSlot()) return { error: "Figures were refreshed in the last 5 minutes. Try again shortly." };

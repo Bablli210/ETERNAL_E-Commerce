@@ -11,14 +11,14 @@ Refresh the "eternal Performance" dashboard: pull today's figures from Shopify a
 
 ## Pull
 Shopify (run-analytics-query uses ShopifyQL; FROM … SHOW …):
-1. For N in 7, 30, 90: `FROM sales SHOW orders, gross_sales, discounts, returns, net_sales, total_sales, average_order_value SINCE -{N}d UNTIL -1d COMPARE TO previous_period` → current and previous values (N days ending yesterday; `UNTIL today` would add today and make N+1 days).
-2. For N in 7, 30, 90: `FROM sales SHOW customers, new_customers, returning_customers, returning_customer_rate SINCE -{N}d UNTIL -1d`.
-3. `FROM sales SHOW orders, net_sales TIMESERIES day SINCE -90d UNTIL today` → one row per day, 91 rows including today.
-4. For N in 7, 30, 90: `FROM sales SHOW net_items_sold, net_sales, orders GROUP BY product_title ORDER BY net_sales DESC LIMIT 15 SINCE -{N}d UNTIL -1d`. Drop rows that are only a return (orders 0 and net ≤ 0); keep the top 12. Map each title to its line with one GraphQL read of product titles and tags (graphql_schema → validate_graphql_codeblocks → graphql_query, e.g. `products(first: 60) { nodes { title tags } }`).
-5. For N in 7, 30, 90: `FROM sales SHOW orders, net_sales GROUP BY order_referrer_source, order_referrer_name SINCE -{N}d UNTIL -1d ORDER BY net_sales DESC`. Drop rows that are only a return (orders 0 and net ≤ 0).
-6. `FROM sales SHOW orders, net_sales GROUP BY shipping_city ORDER BY net_sales DESC LIMIT 15 SINCE -89d UNTIL today` (cities are free text: merge obvious spellings of the same place, e.g. "6th of October", "October", "٦ اكتوبر"; keep the top 8).
-7. `FROM sessions SHOW sessions, sessions_that_completed_checkout GROUP BY session_device_type SINCE -89d UNTIL today`.
-8. `FROM sessions SHOW sessions GROUP BY utm_campaign, utm_source, utm_medium SINCE -30d UNTIL today` (only to learn whether any session carries a UTM).
+1. For N in 7, 30, 90: `FROM sales SHOW orders, gross_sales, discounts, returns, net_sales, total_sales, average_order_value SINCE startOfDay(-{N}d) UNTIL endOfDay(-1d) COMPARE TO previous_period` → current and previous values (N whole days ending yesterday; a bare `-{N}d` counts back hours from the moment of the query and drops part of the first day, and `UNTIL today` would add today and make N+1 days).
+2. For N in 7, 30, 90: `FROM sales SHOW customers, new_customers, returning_customers, returning_customer_rate SINCE startOfDay(-{N}d) UNTIL endOfDay(-1d)`.
+3. `FROM sales SHOW orders, net_sales TIMESERIES day SINCE startOfDay(-90d) UNTIL today` → one row per day, 91 rows including today.
+4. For N in 7, 30, 90: `FROM sales SHOW net_items_sold, net_sales, orders GROUP BY product_title ORDER BY net_sales DESC LIMIT 15 SINCE startOfDay(-{N}d) UNTIL endOfDay(-1d)`. Drop rows that are only a return (orders 0 and net ≤ 0); keep the top 12. Map each title to its line with one GraphQL read of product titles and tags (graphql_schema → validate_graphql_codeblocks → graphql_query, e.g. `products(first: 60) { nodes { title tags } }`).
+5. For N in 7, 30, 90: `FROM sales SHOW orders, net_sales GROUP BY order_referrer_source, order_referrer_name SINCE startOfDay(-{N}d) UNTIL endOfDay(-1d) ORDER BY net_sales DESC`. Drop rows that are only a return (orders 0 and net ≤ 0).
+6. `FROM sales SHOW orders, net_sales GROUP BY shipping_city ORDER BY net_sales DESC LIMIT 15 SINCE startOfDay(-89d) UNTIL today` (cities are free text: merge obvious spellings of the same place, e.g. "6th of October", "October", "٦ اكتوبر"; keep the top 8).
+7. `FROM sessions SHOW sessions, sessions_that_completed_checkout GROUP BY session_device_type SINCE startOfDay(-89d) UNTIL today`.
+8. `FROM sessions SHOW sessions GROUP BY utm_campaign, utm_source, utm_medium SINCE startOfDay(-30d) UNTIL today` (only to learn whether any session carries a UTM).
 9. GraphQL customer counts with customerSegmentMembers totalCount: all customers (`number_of_orders >= 0`), buyers (`number_of_orders >= 1`), repeat buyers (`number_of_orders >= 2`), email subscribers (`email_subscription_status = 'SUBSCRIBED'`), SMS subscribers (`sms_subscription_status = 'SUBSCRIBED'`).
 10. GraphQL: the orders of the last 7 days with `app { name }` only, to see whether any came through the old "Lovable" app.
 

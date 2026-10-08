@@ -20,9 +20,10 @@ function labelled(n: number, most: number) {
   return out;
 }
 
+/** The period's total over the days that were read, and how many those were: days not read are left out, never counted as 0. */
 const sum = (rows: Day[], k: "net" | "spend") => {
   const known = rows.map((r) => r[k]).filter(isNum);
-  return known.length ? known.reduce((a, b) => a + b, 0) : null;
+  return known.length ? { v: known.reduce((a, b) => a + b, 0), days: known.length } : null;
 };
 
 /**
@@ -41,6 +42,7 @@ export function TrendChart({ rows, days, gaps }: { rows: Day[]; days: PeriodKey;
   const range = rangeText({ from: rows[0].d, to: rows[rows.length - 1].d });
   const totNet = sum(rows, "net");
   const totSpend = sum(rows, "spend");
+  const total = (t: { v: number; days: number } | null) => (t && t.days < rows.length ? `${egp(t.v)} over ${t.days} of ${rows.length} days` : egp(t?.v));
   const missing = [!sales && gaps.shopify, !spend && (gaps.ads ?? gaps.adsDaily)].filter((g): g is string => Boolean(g));
 
   if (!sales && !spend)
@@ -84,19 +86,19 @@ export function TrendChart({ rows, days, gaps }: { rows: Day[]; days: PeriodKey;
       {sales ? (
         <span className="key">
           <i className="sw bar" aria-hidden="true" />
-          Net sales · {egp(totNet)}
+          Net sales · {total(totNet)}
         </span>
       ) : null}
       {spend ? (
         <span className="key">
           <i className="sw line" aria-hidden="true" />
-          Meta ad spend · {egp(totSpend)}
+          Meta ad spend · {total(totSpend)}
         </span>
       ) : null}
     </span>
   );
   const what = [sales ? "bars show net sales" : "", spend ? `${sales ? "the line" : "a line"} shows Meta ad spend` : ""].filter(Boolean).join(" and ");
-  const alt = `The last ${days} days, ${range}, day by day: ${what}. ${sales ? `Net sales ${egp(totNet)} in all. ` : ""}${spend ? `Ad spend ${egp(totSpend)} in all. ` : ""}Each day's figures are in the table that follows.`;
+  const alt = `The last ${days} days, ${range}, day by day: ${what}. ${sales ? `Net sales ${total(totNet)} in all. ` : ""}${spend ? `Ad spend ${total(totSpend)} in all. ` : ""}Each day's figures are in the table that follows.`;
 
   return (
     <Section id="h-trend" title="Sales and ad spend, day by day" sub={legend}>

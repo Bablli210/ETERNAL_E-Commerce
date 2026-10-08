@@ -216,10 +216,14 @@ html:has(body > .dash) > body {
  * squeezing the freshness line or running over the period switch.
  */
 @media (min-width: 1280px) {
-  .dash .dash-top-in.has-period { column-gap: 28px; reading-flow: flex-visual; }
+  .dash .dash-top-in.has-period { column-gap: 28px; }
   .dash .dash-top-in.has-period .dash-brand { margin-right: 0; }
-  .dash .dash-top-in.has-period .dash-period { flex: 0 1 auto; order: 1; }
-  .dash .dash-top-in.has-period .dash-tools { margin-left: auto; order: 2; }
+  .dash .dash-top-in.has-period .dash-period { flex: 0 1 auto; }
+  .dash .dash-top-in.has-period .dash-tools { margin-left: auto; }
+}
+@media (max-width: 1279px) {
+  .dash .dash-top-in.has-period { reading-flow: flex-visual; }
+  .dash .dash-period { order: 3; }
 }
 
 /* The person's controls (app/dashboard/_components/Toolbar.tsx). */

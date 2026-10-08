@@ -68,6 +68,8 @@ export type ShopifySnapshot = {
   hidden: { panel: string; reason: string }[];
   /** First-run self-check, for owners: token, API version, scopes, shop, analytics access. */
   checks: { id: string; level: "ok" | "warn" | "fail"; detail: string }[];
+  /** When a newer read failed for a moment and these figures are from the read before it: when that read failed. */
+  heldSince?: string | null;
 };
 
 /* --------------------------------------------------------------------- Meta */

@@ -263,18 +263,32 @@ export function SignOutEverywhereForm() {
   );
 }
 
-/** A link shown once, with Copy and a WhatsApp share (the owner sends it by hand). */
-function OneTimeLink({ link }: { link: NonNullable<NonNullable<LinkState>["link"]> }) {
-  const [copied, setCopied] = useState(false);
+type OneLink = NonNullable<NonNullable<LinkState>["link"]>;
+
+/**
+ * Where a new one-time link appears: a status line that is always on the
+ * page, so screen readers announce each new link, then the link itself.
+ */
+function LinkResult({ link }: { link: OneLink | undefined }) {
+  return (
+    <>
+      <div role="status">
+        {link ? <p className="dash-ok">Link for {link.name} ready. It works once, until {link.expires}, and is shown only now: send it privately.</p> : null}
+      </div>
+      {link ? <OneTimeLink link={link} /> : null}
+    </>
+  );
+}
+
+/** A link shown once, with Copy and a WhatsApp share (the owner sends it by hand). "Copied" belongs to one link, so a new link starts at "Copy". */
+function OneTimeLink({ link }: { link: OneLink }) {
+  const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const id = useId();
   const message = link.role
     ? `Hi ${link.name}, here is your invitation to the eternal performance dashboard. It works once, until ${link.expires}: ${link.url}`
     : `Hi ${link.name}, here is a link to set a new password for the eternal dashboard. It works once, until ${link.expires}: ${link.url}`;
   return (
-    <div className="dash-form" aria-live="polite">
-      <p className="dash-ok" role="status">
-        Link for {link.name} ready. It works once, until {link.expires}, and is shown only now: send it privately.
-      </p>
+    <div className="dash-form">
       <div className="dash-copy">
         <label className="sr-only" htmlFor={id}>
           One-time link
@@ -286,13 +300,13 @@ function OneTimeLink({ link }: { link: NonNullable<NonNullable<LinkState>["link"
           onClick={async () => {
             try {
               await navigator.clipboard.writeText(link.url);
-              setCopied(true);
+              setCopiedUrl(link.url);
             } catch {
-              setCopied(false);
+              setCopiedUrl(null);
             }
           }}
         >
-          {copied ? "Copied" : "Copy"}
+          {copiedUrl === link.url ? "Copied" : "Copy"}
         </button>
       </div>
       <a className="dash-btn secondary" href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener noreferrer">
@@ -330,12 +344,13 @@ export function InviteForm() {
         <Message state={state?.error ? state : null} />
         <Submit pending={pending}>Make an invite link</Submit>
       </form>
-      {state?.link && <OneTimeLink key={state.link.url} link={state.link} />}
+      <LinkResult link={state?.link} />
     </div>
   );
 }
 
-export function ResetLinkForm({ userId, name }: { userId: string; name: string }) {
+/** open: whether this person still has a reset link waiting; a link that was revoked, used, expired or cancelled by a pause is no longer shown. */
+export function ResetLinkForm({ userId, name, open }: { userId: string; name: string; open: boolean }) {
   const [state, action, pending] = useActionState(createResetLink, null);
   return (
     <div>
@@ -346,7 +361,7 @@ export function ResetLinkForm({ userId, name }: { userId: string; name: string }
         </Submit>
       </form>
       <Message state={state?.error ? state : null} />
-      {state?.link && <OneTimeLink key={state.link.url} link={state.link} />}
+      <LinkResult link={open ? state?.link : undefined} />
     </div>
   );
 }
@@ -354,38 +369,31 @@ export function ResetLinkForm({ userId, name }: { userId: string; name: string }
 /* ------------------------------------------------------------ People */
 
 type Area = "people" | "links";
-const HEADING: Record<Area, string> = {
-  people: "ppl-list",
-  links: "ppl-links",
-};
-const Announce = createContext<(area: Area, message: string, moveFocus: boolean) => void>(() => {});
-const Said = createContext<{ area: Area; message: string; n: number } | null>(null);
+type Said = { area: Area; message: string; n: number };
+const HEADING: Record<Area, string> = { people: "ppl-list", links: "ppl-links" };
+const Announce = createContext<(area: Area, message: string) => void>(() => {});
+const SaidContext = createContext<Said | null>(null);
 
 /**
- * People's confirmations, shown under each section's heading rather than in
- * the row: after Remove or Revoke the row is gone, so focus moves to the
- * heading and the line under it says what happened.
+ * Confirmations for Remove and Revoke, whose row disappears: they show under
+ * the section's heading, which takes focus. Other changes confirm in their row.
  */
 export function PeopleStatus({ children }: { children: React.ReactNode }) {
-  const [said, setSaid] = useState<{
-    area: Area;
-    message: string;
-    n: number;
-  } | null>(null);
-  const announce = useCallback((area: Area, message: string, moveFocus: boolean) => {
+  const [said, setSaid] = useState<Said | null>(null);
+  const announce = useCallback((area: Area, message: string) => {
     setSaid((prev) => ({ area, message, n: (prev?.n ?? 0) + 1 }));
-    if (moveFocus) document.getElementById(HEADING[area])?.focus();
+    document.getElementById(HEADING[area])?.focus();
   }, []);
   return (
     <Announce value={announce}>
-      <Said.Provider value={said}>{children}</Said.Provider>
+      <SaidContext value={said}>{children}</SaidContext>
     </Announce>
   );
 }
 
 /** The live line under a People heading; present before anything is said, so screen readers announce it. */
 export function StatusLine({ area }: { area: Area }) {
-  const said = useContext(Said);
+  const said = useContext(SaidContext);
   return (
     <div role="status" className="dash-status">
       {said?.area === area ? (
@@ -397,15 +405,17 @@ export function StatusLine({ area }: { area: Area }) {
   );
 }
 
-/** managePerson, with its confirmation sent to the section's status line; only an error stays in the row. */
+/** managePerson; when the change removes the row (Remove, Revoke), its confirmation goes to the section's status line instead. */
 function usePersonAction(area: Area) {
   const announce = useContext(Announce);
   return useActionState(async (prev: FormState, fd: FormData): Promise<FormState> => {
     const result = await managePerson(prev, fd);
-    if (!result?.ok) return result;
     const what = fd.get("what");
-    announce(area, result.ok, what === "remove" || what === "revoke");
-    return null;
+    if (result?.ok && (what === "remove" || what === "revoke")) {
+      announce(area, result.ok);
+      return null;
+    }
+    return result;
   }, null);
 }
 

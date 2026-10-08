@@ -8,10 +8,12 @@ import "server-only";
  * Hobby pauses the whole project when its monthly CPU runs out. A long
  * password policy is what makes guessing hopeless.
  *
- * - Failed attempts are counted per IP and per username (known or not, so a
- *   lockout never reveals which usernames exist): 5 in an hour locks that key
- *   for the rest of the hour. That is stricter than the shared budget below,
- *   so no single visitor or username can use the whole budget up.
+ * - Failed attempts (a password checked and found wrong) are counted per IP
+ *   and per username (known or not, so a lockout never reveals which
+ *   usernames exist): 5 in an hour locks that key for the rest of the hour.
+ *   A refusal for being busy is not a failed attempt and is never counted.
+ * - Sign-in attempts take at most 8 hash slots per IP an hour, right or
+ *   wrong, so no single visitor can use the shared budget up.
  * - At most 2 hashes at once and 20 an hour per instance; past that, sign-in
  *   says to wait (existing sessions keep working). An unknown username takes
  *   a slot like a real one, so "busy" never tells which usernames exist, but
@@ -65,6 +67,22 @@ export async function withHashBudget<T>(fn: () => Promise<T>): Promise<T | null>
     st.running--;
     st.avgMs = st.avgMs * 0.8 + (performance.now() - t) * 0.2;
   }
+}
+
+const SLOTS_PER_IP = 8;
+const ipSlots = new Map<string, Window>();
+/** One sign-in hash slot for this IP key, or false when it has had its 8 this hour. */
+export function takeIpSlot(key: string): boolean {
+  const now = Date.now();
+  if (ipSlots.size > 5000) for (const [k, w] of ipSlots) if (w.reset <= now) ipSlots.delete(k);
+  const w = ipSlots.get(key);
+  if (!w || w.reset <= now) {
+    ipSlots.set(key, { n: 1, reset: now + WINDOW_MS });
+    return true;
+  }
+  if (w.n >= SLOTS_PER_IP) return false;
+  w.n++;
+  return true;
 }
 
 /** Minutes until hashes are allowed again: 1 when only the parallel limit refused, longer once the hour's budget is spent. */

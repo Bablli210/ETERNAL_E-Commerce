@@ -912,9 +912,8 @@ export function fetchShopifySnapshot(): Promise<ShopifySnapshot> {
   return inflight;
 }
 
-/** Failures that pass by themselves: a read that hit one must not replace good figures. */
-const passes = (kind: string) =>
-  ["throttled", "timeout", "unreachable", "bad_response", "internal", "reports_failed", "token_bad_response"].includes(kind) || /^(token_)?http_5\d\d$/.test(kind);
+/** Failures that pass by themselves (Shopify slow, busy or briefly down): a read that hit one must not replace good figures. A code or API change ("internal", "reports_failed") does not pass, so it is shown. */
+const passes = (kind: string) => ["throttled", "timeout", "unreachable", "bad_response", "token_bad_response"].includes(kind) || /^(token_)?http_5\d\d$/.test(kind);
 
 /**
  * Thrown by the cached read when Shopify failed for a moment, as Meta's tiers
@@ -939,11 +938,15 @@ let heldBack: ShopifySnapshot | null = null;
 let lastGood: ShopifySnapshot | null = null;
 /** After a failed moment, the next read waits this long, so an outage costs a call a minute rather than one per page view (a throttle has its own wait). */
 const RETRY_FLOOR_MS = 60_000;
+/** Good figures are kept through a failure only while they are from the store's same day and under an hour old; past that the failure is shown. */
+const HOLD_MAX_MS = 60 * 60_000;
 
 async function keepLastGood(): Promise<ShopifySnapshot> {
   if (heldBack && heldBack.failure?.kind !== "throttled" && Date.now() - Date.parse(heldBack.fetchedAt) < RETRY_FLOOR_MS) throw new KeptLastGood(heldBack);
   const snap = await fetchShopifySnapshot();
-  if (snap.state === "error" && snap.failure && passes(snap.failure.kind)) {
+  // When Next revalidates a stale entry, lastGood is that entry (getShopifySnapshot set it), so this judges the figures on screen.
+  const holdable = !lastGood || (lastGood.state !== "error" && lastGood.today === snap.today && Date.now() - Date.parse(lastGood.fetchedAt) < HOLD_MAX_MS);
+  if (snap.state === "error" && snap.failure && passes(snap.failure.kind) && holdable) {
     heldBack = snap;
     throw new KeptLastGood(snap);
   }
@@ -952,10 +955,14 @@ async function keepLastGood(): Promise<ShopifySnapshot> {
   return snap;
 }
 
-/** Good figures with a newer failed read noted for the owner's self-checks; the figures keep their own fetchedAt. */
+/** Good figures with a newer failed read noted: for everyone as heldSince (the page says the figures are from earlier), for owners with the reason; the figures keep their own fetchedAt. */
 function withHeld(good: ShopifySnapshot, held: ShopifySnapshot | null): ShopifySnapshot {
   if (!held?.failure || held.fetchedAt <= good.fetchedAt) return good;
-  return { ...good, checks: [...good.checks, { id: "latest", level: "warn", detail: `The latest read failed, so these are the figures from the read before it. ${held.failure.message}` }] };
+  return {
+    ...good,
+    heldSince: held.fetchedAt,
+    checks: [...good.checks, { id: "latest", level: "warn", detail: `The latest read failed, so these are the figures from the read before it. ${held.failure.message}` }],
+  };
 }
 
 /**
