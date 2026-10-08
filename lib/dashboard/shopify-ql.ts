@@ -1,5 +1,5 @@
 import { addDays, daysBetween, ymdIn } from "./dates";
-import type { Line, ProductRow, ReferrerRow, ShopifyCustomers, ShopifySales } from "./types";
+import type { Line, Num, ProductRow, ReferrerRow, ShopifyCustomers, ShopifySales } from "./types";
 
 /**
  * The Shopify reports behind the dashboard, with no I/O: what each ShopifyQL
@@ -137,14 +137,14 @@ export const UTM_PANEL: PanelSpec = {
   variants: [{ from: "sessions", show: ["sessions"], groupBy: ["utm_campaign", "utm_source", "utm_medium"], since: "startOfDay(-30d)", until: "today", limit: 10 }],
 };
 
-/** Orders by sales channel over the last 7 full days and today; sales_channel is the older name of the dimension. */
+/** Orders by sales channel over the last 7 days, today included; sales_channel is the older name of the dimension. */
 export const CHANNEL_PANEL: PanelSpec = {
   key: "channel7",
   label: "Orders through the old site",
   required: ["orders"],
   variants: [
-    { from: "sales", show: ["orders"], groupBy: ["order_sales_channel"], since: "startOfDay(-7d)", until: "today" },
-    { from: "sales", show: ["orders"], groupBy: ["sales_channel"], since: "startOfDay(-7d)", until: "today" },
+    { from: "sales", show: ["orders"], groupBy: ["order_sales_channel"], since: "startOfDay(-6d)", until: "today" },
+    { from: "sales", show: ["orders"], groupBy: ["sales_channel"], since: "startOfDay(-6d)", until: "today" },
   ],
 };
 
@@ -559,8 +559,8 @@ export function aggregateOrders(nodes: readonly OrderNode[], customersKnown: boo
   };
 }
 
-/** 91 days ending today; a day without orders shows 0, including days older than the orders Shopify lets the app read. */
-export function ordersDaily(nodes: readonly OrderNode[], tz: string, today: string): { d: string; net: number; orders: number }[] {
+/** 91 days ending today; a day without orders shows 0, and a day older than the orders Shopify lets the app read (before firstDay) stays unknown. */
+export function ordersDaily(nodes: readonly OrderNode[], tz: string, today: string, firstDay: string): { d: string; net: Num; orders: Num }[] {
   const byDay = new Map<string, { net: number; orders: number }>();
   for (const o of nodes) {
     if (o.test) continue;
@@ -571,6 +571,7 @@ export function ordersDaily(nodes: readonly OrderNode[], tz: string, today: stri
     byDay.set(d, e);
   }
   return daysBetween(addDays(today, -90), today).map((d) => {
+    if (d < firstDay) return { d, net: null, orders: null };
     const e = byDay.get(d);
     return { d, net: money(e?.net ?? 0) ?? 0, orders: e?.orders ?? 0 };
   });

@@ -20,7 +20,7 @@ import {
 } from "@/lib/dashboard/accounts";
 import { hashPassword, passwordProblem, verifyPassword } from "@/lib/dashboard/kdf";
 import { cookieOptions, seal, SESSION_COOKIE, SESSION_DAYS } from "@/lib/dashboard/session";
-import { clearFailures, locked, recordFailure, takeRefreshSlot, waitLikeAHash, withHashBudget } from "@/lib/dashboard/throttle";
+import { clearFailures, hashWaitMinutes, locked, recordFailure, releaseSignOutAllSlot, takeRefreshSlot, takeSignOutAllSlot, waitLikeAHash, withHashBudget } from "@/lib/dashboard/throttle";
 import { dashboardOrigin } from "@/lib/dashboard/origin";
 import { StoreUnavailable } from "@/lib/dashboard/store";
 import type { Role } from "@/lib/dashboard/types";
@@ -40,7 +40,18 @@ const newId = () => randomBytes(12).toString("base64url");
 const INVITE_DAYS = 7;
 const RESET_HOURS = 24;
 const BUSY = "The dashboard is busy. Try again in a minute.";
+const LOCKED = "Too many tries. Wait an hour, then try again.";
+const SIGNED_OUT = "You've been signed out. Sign in again, then retry.";
+/** When the hashing budget refuses: a minute when only the parallel limit did, longer once the hour's budget is spent. */
+const hashBusy = () => {
+  const m = hashWaitMinutes();
+  return m <= 1 ? BUSY : `Sign-in is paused after many attempts. Try again in about ${m} minutes.`;
+};
+/** Ends this browser's session. The deletion must carry the same attributes (Secure, Path=/) or browsers ignore it for a __Host- cookie. */
+const endSession = async () => (await cookies()).set(SESSION_COOKIE, "", cookieOptions(0));
 const UNREACHABLE = "The account store can't be reached just now. Try again in a minute.";
+/** The page lost the token from its link (a browser that cleared the tab's storage): not a wrong or used link, so not counted against anyone. */
+const LOST_LINK = "This page lost its link. Open the link again from your message.";
 
 /** A display name: a first name or two, never an email address. */
 function displayName(raw: string): string | null {
@@ -77,16 +88,16 @@ export async function signIn(_prev: FormState, fd: FormData): Promise<FormState>
   const username = text(fd, "username", 64).trim().toLowerCase();
   const password = text(fd, "password", 256);
   const keys = [`ip:${await clientIp()}`, `user:${username}`];
-  if (locked(keys)) return { error: "Too many tries. Wait 15 minutes, then try again." };
+  if (locked(keys)) return { error: LOCKED };
   const doc = await guarded(() => getAccounts(), undefined);
   if (doc === undefined) return { error: UNREACHABLE };
   const user = doc?.users.find((u) => u.username === username && !u.disabled);
-  let ok = false;
-  if (user) {
-    const result = await withHashBudget(() => verifyPassword(password, user.pw));
-    if (result === null) return { error: BUSY };
-    ok = result;
-  } else await waitLikeAHash();
+  // Known or not, every attempt takes a slot, so "busy" and its timing never tell which usernames exist; an unknown one only waits.
+  const ok = await withHashBudget(() => (user ? verifyPassword(password, user.pw) : waitLikeAHash().then(() => false)));
+  if (ok === null) {
+    recordFailure(keys);
+    return { error: hashBusy() };
+  }
   if (!ok || !user || !doc) {
     recordFailure(keys);
     return { error: "That username and password don't match." };
@@ -97,7 +108,7 @@ export async function signIn(_prev: FormState, fd: FormData): Promise<FormState>
 }
 
 export async function signOut() {
-  (await cookies()).delete(SESSION_COOKIE);
+  await endSession();
   redirect("/dashboard/sign-in");
 }
 
@@ -113,7 +124,7 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
   const envCode = process.env.DASHBOARD_SETUP_CODE?.trim() ?? "";
   if (envCode.length < 24) return { error: "Setup is switched off." };
   const ipKey = [`ip:${await clientIp()}`];
-  if (locked(ipKey)) return { error: "Too many tries. Wait 15 minutes, then try again." };
+  if (locked(ipKey)) return { error: LOCKED };
   const code = text(fd, "code", 200).trim();
   if (!timingSafeEqual(Buffer.from(sha(code)), Buffer.from(sha(envCode)))) {
     recordFailure(ipKey);
@@ -123,7 +134,6 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
   const name = displayName(text(fd, "name", 100));
   const password = text(fd, "password", 256);
   if (!USERNAME.test(username)) return { error: "Usernames are 3 to 32 lower-case letters, numbers, dots, dashes or underscores (not an email address)." };
-  if (!name) return { error: "Add your name (not an email address)." };
   const problem = passwordProblem(password, username);
   if (problem) return { error: problem };
   if (password !== text(fd, "confirm", 256)) return { error: "The two passwords don't match." };
@@ -132,7 +142,7 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
   if (used === null) return { error: UNREACHABLE };
   if (used.includes(sha(envCode))) return { error: "This setup code has already been used. Ask for a new one, or sign in." };
   const pw = await withHashBudget(() => hashPassword(password));
-  if (!pw) return { error: BUSY };
+  if (!pw) return { error: hashBusy() };
 
   const out: { who: User | null } = { who: null };
   const result = await guarded(
@@ -147,6 +157,7 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
           out.who = existing;
           logEvent(doc, username, "recovered owner access with a setup code");
         } else {
+          if (!name) return "noname";
           out.who = { id: newId(), username, name, role: "owner", pw, sv: 1, disabled: false, createdAt: new Date().toISOString(), createdBy: null, pwChangedAt: new Date().toISOString() };
           doc.users.push(out.who);
           logEvent(doc, username, "set up the dashboard");
@@ -158,6 +169,7 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
   );
   if (result === "used") return { error: "This setup code has already been used." };
   if (result === "taken") return { error: "That username belongs to someone who isn't an owner. Pick another." };
+  if (result === "noname") return { error: "Add your name (not an email address)." };
   if (typeof result === "string" || !out.who) return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   await startSession(out.who, result.secret);
   redirect("/dashboard");
@@ -168,7 +180,8 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
 async function ownerOrError(): Promise<{ viewer: NonNullable<Awaited<ReturnType<typeof currentViewer>>> } | { error: string }> {
   if (!(await sameOriginPost())) return { error: "Open the dashboard again and retry." };
   const viewer = await guarded(() => currentViewer(), null);
-  if (!viewer || viewer.role !== "owner") return { error: "Only owners can do this." };
+  if (!viewer) return { error: SIGNED_OUT };
+  if (viewer.role !== "owner") return { error: "Only owners can do this." };
   if (!recentSignIn(viewer)) return { error: "For safety, sign out and in again before changing people (you signed in more than 12 hours ago)." };
   return { viewer };
 }
@@ -235,8 +248,9 @@ async function findLink(token: string, kind: "invite" | "reset") {
 
 export async function acceptInvite(_prev: FormState, fd: FormData): Promise<FormState> {
   const ipKey = [`ip:${await clientIp()}`];
-  if (locked(ipKey)) return { error: "Too many tries. Wait 15 minutes, then try again." };
+  if (locked(ipKey)) return { error: LOCKED };
   const token = text(fd, "token", 100);
+  if (!token) return { error: LOST_LINK };
   const link = await guarded(() => findLink(token, "invite"), undefined);
   if (link === undefined) return { error: UNREACHABLE };
   if (!link) {
@@ -252,7 +266,7 @@ export async function acceptInvite(_prev: FormState, fd: FormData): Promise<Form
   if (problem) return { error: problem };
   if (password !== text(fd, "confirm", 256)) return { error: "The two passwords don't match." };
   const pw = await withHashBudget(() => hashPassword(password));
-  if (!pw) return { error: BUSY };
+  if (!pw) return { error: hashBusy() };
   const out: { who: User | null } = { who: null };
   const result = await guarded(
     () =>
@@ -277,8 +291,9 @@ export async function acceptInvite(_prev: FormState, fd: FormData): Promise<Form
 
 export async function applyResetLink(_prev: FormState, fd: FormData): Promise<FormState> {
   const ipKey = [`ip:${await clientIp()}`];
-  if (locked(ipKey)) return { error: "Too many tries. Wait 15 minutes, then try again." };
+  if (locked(ipKey)) return { error: LOCKED };
   const token = text(fd, "token", 100);
+  if (!token) return { error: LOST_LINK };
   const link = await guarded(() => findLink(token, "reset"), undefined);
   if (link === undefined) return { error: UNREACHABLE };
   if (!link) {
@@ -288,21 +303,22 @@ export async function applyResetLink(_prev: FormState, fd: FormData): Promise<Fo
   const doc = await guarded(() => getAccounts(), null);
   const user = doc?.users.find((u) => u.id === link.userId);
   if (!user) return { error: "This account no longer exists." };
+  if (user.disabled) return { error: "This account is paused. Ask an owner to let you back in." };
   const password = text(fd, "password", 256);
   const problem = passwordProblem(password, user.username);
   if (problem) return { error: problem };
   if (password !== text(fd, "confirm", 256)) return { error: "The two passwords don't match." };
   const pw = await withHashBudget(() => hashPassword(password));
-  if (!pw) return { error: BUSY };
+  if (!pw) return { error: hashBusy() };
   const out: { who: User | null } = { who: null };
   const result = await guarded(
     () =>
       changeAccounts((d) => {
         const l = d?.links.find((x) => x.id === link.id && x.expiresAt > nowSec());
         const u = d?.users.find((x) => x.id === link.userId);
-        if (!d || !l || !u) return "link";
+        if (!d || !l || !u || u.disabled) return "link";
         d.links = d.links.filter((x) => x.id !== l.id);
-        Object.assign(u, { pw, sv: u.sv + 1, disabled: false, pwChangedAt: new Date().toISOString() });
+        Object.assign(u, { pw, sv: u.sv + 1, pwChangedAt: new Date().toISOString() });
         out.who = u;
         logEvent(d, u.username, "set a new password with a reset link");
         return d;
@@ -333,7 +349,7 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
           const l = doc.links.find((x) => x.id === id);
           if (!l) return "That link is already gone.";
           doc.links = doc.links.filter((x) => x.id !== id);
-          logEvent(doc, auth.viewer.username, `revoked a${l.kind === "invite" ? "n invite" : " reset"} link`, l.name);
+          logEvent(doc, auth.viewer.username, `revoked a${l.kind === "invite" ? "n invite" : " reset"} link`, l.kind === "invite" ? l.name : doc.users.find((x) => x.id === l.userId)?.username);
           done = "Link revoked.";
           return doc;
         }
@@ -350,6 +366,8 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
           if (what === "pause" && (self || lastActiveOwner(doc, u.id))) return self ? "You can't pause your own account." : "There must always be one owner.";
           u.disabled = what === "pause";
           u.sv++;
+          // A reset link sent before the pause must not let them back in.
+          if (what === "pause") doc.links = doc.links.filter((l) => l.userId !== u.id);
           done = what === "pause" ? `${u.name} can no longer sign in.` : `${u.name} can sign in again.`;
         } else if (what === "signout") {
           u.sv++;
@@ -361,7 +379,8 @@ export async function managePerson(_prev: FormState, fd: FormData): Promise<Form
           doc.links = doc.links.filter((l) => l.userId !== u.id);
           done = `${u.name}'s account is removed.`;
         } else return "Unknown change.";
-        logEvent(doc, auth.viewer.username, what === "role" ? `changed role to ${role}` : what, u.username);
+        const verb: Record<string, string> = { pause: "paused access for", resume: "let back in", signout: "signed out everywhere", remove: "removed" };
+        logEvent(doc, auth.viewer.username, what === "role" ? `changed the role to ${role} for` : verb[what], u.username);
         return doc;
       }),
     "unreachable" as const,
@@ -382,18 +401,18 @@ export async function changePassword(_prev: FormState, fd: FormData): Promise<Fo
   const current = text(fd, "current", 256);
   const password = text(fd, "password", 256);
   const keys = [`user:${user.username}`];
-  if (locked(keys)) return { error: "Too many tries. Wait 15 minutes, then try again." };
+  if (locked(keys)) return { error: LOCKED };
   const problem = passwordProblem(password, user.username);
   if (problem) return { error: problem };
   if (password !== text(fd, "confirm", 256)) return { error: "The two new passwords don't match." };
   const ok = await withHashBudget(() => verifyPassword(current, user.pw));
-  if (ok === null) return { error: BUSY };
+  if (ok === null) return { error: hashBusy() };
   if (!ok) {
     recordFailure(keys);
     return { error: "Your current password isn't right." };
   }
   const pw = await withHashBudget(() => hashPassword(password));
-  if (!pw) return { error: BUSY };
+  if (!pw) return { error: hashBusy() };
   const out: { who: User | null } = { who: null };
   const result = await guarded(
     () =>
@@ -413,22 +432,28 @@ export async function changePassword(_prev: FormState, fd: FormData): Promise<Fo
   return { ok: "Password changed. You're signed out everywhere else." };
 }
 
-export async function signOutEverywhere() {
-  if (!(await sameOriginPost())) redirect("/dashboard/account");
+/** Ends every session of the person asking, this one included; only once the store has the change, so it never claims what it didn't do. */
+export async function signOutEverywhere(): Promise<FormState> {
+  if (!(await sameOriginPost())) return { error: "Open the dashboard again and retry." };
   const viewer = await guarded(() => currentViewer(), null);
-  if (viewer)
-    await guarded(
-      () =>
-        changeAccounts((d) => {
-          const u = d?.users.find((x) => x.id === viewer.id);
-          if (!d || !u) return "gone";
-          u.sv++;
-          logEvent(d, u.username, "signed out everywhere");
-          return d;
-        }),
-      null,
-    );
-  (await cookies()).delete(SESSION_COOKIE);
+  if (!viewer) return { error: SIGNED_OUT };
+  if (!takeSignOutAllSlot(viewer.id)) return { error: "You did this a few minutes ago. Try again in 10 minutes, or change your password." };
+  const result = await guarded(
+    () =>
+      changeAccounts((d) => {
+        const u = d?.users.find((x) => x.id === viewer.id);
+        if (!d || !u) return "gone";
+        u.sv++;
+        logEvent(d, u.username, "signed out everywhere");
+        return d;
+      }),
+    "unreachable" as const,
+  );
+  if (typeof result === "string") {
+    releaseSignOutAllSlot(viewer.id);
+    return { error: result === "unreachable" ? UNREACHABLE : result === "gone" ? SIGNED_OUT : BUSY };
+  }
+  await endSession();
   redirect("/dashboard/sign-in");
 }
 
@@ -438,7 +463,8 @@ export async function signOutEverywhere() {
 export async function refreshFigures(): Promise<FormState> {
   if (!(await sameOriginPost())) return { error: "Open the dashboard again and retry." };
   const viewer = await guarded(() => currentViewer(), null);
-  if (!viewer || viewer.role === "client") return { error: "Only owners and the team can refresh." };
+  if (!viewer) return { error: SIGNED_OUT };
+  if (viewer.role === "client") return { error: "Only owners and the team can refresh." };
   if (!takeRefreshSlot()) return { error: "Figures were refreshed in the last 5 minutes. Try again shortly." };
   updateTag("dash-shopify");
   updateTag("dash-meta-ads");

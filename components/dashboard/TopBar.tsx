@@ -49,8 +49,9 @@ export function TopBar({ period, toolbar }: { period?: React.ReactNode; toolbar?
       <header className="dash-top">
         <div className={`dash-top-in${period ? " has-period" : ""}`}>
           <DashBrand />
-          {period ? <div className="dash-period">{period}</div> : null}
+          {/* The controls come before the period in reading order, as on screen below 1280 px; wider, CSS puts the period between them and reading-flow follows. */}
           {toolbar ? <div className="dash-tools">{toolbar}</div> : null}
+          {period ? <div className="dash-period">{period}</div> : null}
         </div>
       </header>
     </>

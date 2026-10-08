@@ -9,20 +9,21 @@ import "server-only";
  * password policy is what makes guessing hopeless.
  *
  * - Failed attempts are counted per IP and per username (known or not, so a
- *   lockout never reveals which usernames exist): 8 in 15 minutes locks that
- *   key for the rest of the 15 minutes.
+ *   lockout never reveals which usernames exist): 5 in an hour locks that key
+ *   for the rest of the hour. That is stricter than the shared budget below,
+ *   so no single visitor or username can use the whole budget up.
  * - At most 2 hashes at once and 20 an hour per instance; past that, sign-in
- *   says "busy" (existing sessions keep working).
- * - An unknown username costs no hash: the answer waits about as long as a
- *   real check instead.
+ *   says to wait (existing sessions keep working). An unknown username takes
+ *   a slot like a real one, so "busy" never tells which usernames exist, but
+ *   it costs no hash: the answer waits about as long as a real check.
  */
 type Window = { n: number; reset: number };
 type State = { fails: Map<string, Window>; budget: Window; running: number; avgMs: number };
 const g = globalThis as unknown as { __eternalDashThrottle?: State };
 const st = (g.__eternalDashThrottle ??= { fails: new Map(), budget: { n: 0, reset: 0 }, running: 0, avgMs: 450 });
 
-const WINDOW_MS = 15 * 60_000;
-const MAX_FAILS = 8;
+const WINDOW_MS = 60 * 60_000;
+const MAX_FAILS = 5;
 const HASHES_PER_HOUR = 20;
 const MAX_PARALLEL = 2;
 
@@ -66,8 +67,26 @@ export async function withHashBudget<T>(fn: () => Promise<T>): Promise<T | null>
   }
 }
 
+/** Minutes until hashes are allowed again: 1 when only the parallel limit refused, longer once the hour's budget is spent. */
+export function hashWaitMinutes() {
+  const now = Date.now();
+  return st.budget.reset > now && st.budget.n >= HASHES_PER_HOUR ? Math.ceil((st.budget.reset - now) / 60_000) : 1;
+}
+
 /** For an unknown username: wait about as long as a real check would, without spending CPU. */
 export const waitLikeAHash = () => new Promise((r) => setTimeout(r, st.avgMs * (0.85 + Math.random() * 0.3)));
+
+/** One "sign out everywhere" per person per 10 minutes per instance: each is a Blob write, and Hobby allows 2,000 a month. */
+const lastSignOutAll = new Map<string, number>();
+export function takeSignOutAllSlot(userId: string): boolean {
+  const now = Date.now();
+  if (now - (lastSignOutAll.get(userId) ?? 0) < 10 * 60_000) return false;
+  if (lastSignOutAll.size > 1000) lastSignOutAll.clear();
+  lastSignOutAll.set(userId, now);
+  return true;
+}
+/** Gives the slot back when the change could not be saved, so the person can retry at once. */
+export const releaseSignOutAllSlot = (userId: string) => void lastSignOutAll.delete(userId);
 
 /** One "Refresh now" per 5 minutes per instance: each refresh calls Shopify and Meta, and Meta allows little. */
 let lastRefresh = 0;

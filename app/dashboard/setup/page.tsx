@@ -25,7 +25,7 @@ export default async function SetupPage() {
           : "With a new setup code, an owner who is locked out can set a new password here."
       }
     >
-      <SetupForm />
+      <SetupForm recovery={access.state === "ready"} />
       {access.state === "ready" && (
         <p className="dash-hint">
           Already have an account? <Link href="/dashboard/sign-in">Sign in</Link>.

@@ -1,12 +1,15 @@
 import { PageFrame } from "@/components/dashboard/PageFrame";
 import { requireViewer, ROLE_LABEL } from "@/lib/dashboard/accounts";
-import { PasswordForm } from "../_components/forms";
+import { accessState } from "../_components/access";
+import { PasswordForm, SignOutEverywhereForm } from "../_components/forms";
+import { StoreProblem } from "../_components/StoreProblem";
 import { Toolbar } from "../_components/Toolbar";
-import { signOutEverywhere } from "../actions";
 
 export const metadata = { title: { absolute: "Your account · eternal Performance" } };
 
 export default async function AccountPage() {
+  const access = await accessState();
+  if (access.state === "no-store" || access.state === "unreachable") return <StoreProblem state={access.state} />;
   const viewer = await requireViewer();
   return (
     <PageFrame title="Your account" viewer={viewer} toolbar={<Toolbar viewer={viewer} />} back>
@@ -24,11 +27,7 @@ export default async function AccountPage() {
       <section className="dash-form" aria-labelledby="acc-out">
         <h2 id="acc-out">Signed in somewhere you shouldn&rsquo;t be?</h2>
         <p className="dash-hint">This signs you out on every phone and computer, including this one.</p>
-        <form action={signOutEverywhere}>
-          <button type="submit" className="dash-btn secondary">
-            Sign out everywhere
-          </button>
-        </form>
+        <SignOutEverywhereForm />
       </section>
     </PageFrame>
   );

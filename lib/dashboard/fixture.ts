@@ -33,7 +33,7 @@ export function loadFixture(dir: string): DashData {
   const tracking = (read(dir, "tracking") ?? { items: [] }) as any;
   const notes = (read(dir, "notes") ?? { items: [] }) as any;
   const days = (daily.days ?? []) as DashData["daily"]["days"];
-  for (const k of Object.keys(periods)) periods[k].approximate = false;
+  for (const k of Object.keys(periods)) Object.assign(periods[k], { approximate: false, adsRange: periods[k].adsRange ?? null });
   return {
     status: { updatedAt: status.updatedAt ?? null, sources: status.sources ?? [], attention: status.attention ?? [], dayLabel: "Cairo days" },
     periods,
@@ -53,7 +53,7 @@ export function loadFixture(dir: string): DashData {
     },
     tracking: { items: tracking.items ?? [], pixel: tracking.pixel ?? null },
     notes: { headline: notes.headline ?? "This week's read", basis: periods["7"]?.range ?? null, items: notes.items ?? [] },
-    gaps: { shopify: null, ads: null, pixel: null, audiences: null, campaigns: null },
+    gaps: { shopify: null, ads: null, adsDaily: null, pixel: null, audiences: null, campaigns: null },
     admin: {
       shopifyChecks: [{ id: "fixture", level: "warn", detail: `Figures from the fixture folder ${dir}, not from Shopify or Meta.` }],
       shopifyHidden: [],

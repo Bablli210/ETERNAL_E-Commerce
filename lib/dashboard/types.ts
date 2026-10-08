@@ -48,8 +48,8 @@ export type ShopifySnapshot = {
   /** The store's today when read. */
   today: string;
   periods: Partial<Record<PeriodKey, ShopifyPeriod>>;
-  /** Oldest first, every day present (0 when nothing happened), the last 90 full days plus today. */
-  daily: { d: string; net: number; orders: number }[];
+  /** Oldest first, every day present (0 when nothing happened), the last 90 full days plus today; null for a day the read could not cover (reduced mode keeps 60 days). */
+  daily: { d: string; net: Num; orders: Num }[];
   /** Best first, at most 12; rows that are only a return are left out. */
   products: Partial<Record<PeriodKey, ProductRow[]>>;
   referrers: Partial<Record<PeriodKey, ReferrerRow[]>>;
@@ -58,7 +58,7 @@ export type ShopifySnapshot = {
   devices: { name: string; sessions: number; completed: number }[] | null;
   /** Whether any session in the last 30 days carried a UTM tag; null when not read. */
   hasUtm: boolean | null;
-  /** Orders in the last 7 days through the old "Lovable" sales channel; null when not read. */
+  /** Orders in the last 7 days, today included, through the old "Lovable" sales channel; null when not read. */
   oldSiteOrders7: number | null;
   /** All-time customer counts from customer segments. */
   counts: { customers: Num; buyers: Num; repeatBuyers: Num; emailSubscribed: Num; smsSubscribed: Num } | null;
@@ -88,7 +88,7 @@ export type CampaignRow = {
  * - "ok": read now (or within its cache time);
  * - "off": no Meta key set;
  * - "no_permission": the key is not allowed this part (shown as "not checked with the current key");
- * - "unsettled": the ad account has an unpaid balance and Meta refused the ad figures;
+ * - "unsettled": the ad account has an unpaid balance (status 3, 8 or 9) and Meta refused the ad figures;
  * - "throttled": Meta asked us to slow down; the last good figures are kept when there are any;
  * - "key_invalid": Meta rejected the key itself;
  * - "error": anything else (failure says what).
@@ -121,6 +121,8 @@ export type MetaSlowTier = MetaTier & {
   emqState: TierState;
   audiences: { name: string; size: string | null; kind: string | null }[] | null;
   audiencesState: TierState;
+  /** Why the audiences could not be read (failure is the tier's worst part, which may be match quality). */
+  audiencesFailure: Failure | null;
 };
 export type MetaSnapshot = {
   configured: boolean;
@@ -163,6 +165,8 @@ export type DashData = {
   };
   periods: Partial<Record<PeriodKey, {
     range: Range | null;
+    /** The days Meta's figures cover, when they came from Meta; can differ from range (an older cached read, another time zone). */
+    adsRange: Range | null;
     sales: ShopifySales | null;
     prev: { net: Num; orders: Num; aov: Num } | null;
     customers: ShopifyCustomers | null;
@@ -186,7 +190,7 @@ export type DashData = {
   };
   notes: { headline: string; basis: Range | null; items: Note[] };
   /** Per section, why it is empty (key missing, Meta busy, unpaid account…); the page shows this instead of zeros. */
-  gaps: { shopify: Gap; ads: Gap; pixel: Gap; audiences: Gap; campaigns: Gap };
+  gaps: { shopify: Gap; ads: Gap; adsDaily: Gap; pixel: Gap; audiences: Gap; campaigns: Gap };
   /** Owner-only details: source self-checks and Meta's rate-limit reading. Removed for team and client views. */
   admin?: { shopifyChecks: ShopifySnapshot["checks"]; shopifyHidden: ShopifySnapshot["hidden"]; meta: MetaSnapshot["rate"] & { states: Record<string, TierState> } };
 };

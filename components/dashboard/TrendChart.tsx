@@ -41,7 +41,7 @@ export function TrendChart({ rows, days, gaps }: { rows: Day[]; days: PeriodKey;
   const range = rangeText({ from: rows[0].d, to: rows[rows.length - 1].d });
   const totNet = sum(rows, "net");
   const totSpend = sum(rows, "spend");
-  const missing = [!sales && gaps.shopify, !spend && gaps.ads].filter((g): g is string => Boolean(g));
+  const missing = [!sales && gaps.shopify, !spend && (gaps.ads ?? gaps.adsDaily)].filter((g): g is string => Boolean(g));
 
   if (!sales && !spend)
     return (

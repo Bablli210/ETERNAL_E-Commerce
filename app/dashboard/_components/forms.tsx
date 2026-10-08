@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef, useState, useTransition } from "react";
+import { createContext, useActionState, useCallback, useContext, useEffect, useId, useRef, useState, useTransition } from "react";
 import {
   acceptInvite,
   applyResetLink,
@@ -11,6 +11,7 @@ import {
   managePerson,
   refreshFigures,
   signIn,
+  signOutEverywhere,
   type FormState,
   type LinkState,
 } from "../actions";
@@ -63,6 +64,7 @@ function Field({
   defaultValue,
   minLength,
   maxLength,
+  autoCapitalize = type === "text" ? "none" : undefined,
 }: {
   label: string;
   name: string;
@@ -73,6 +75,8 @@ function Field({
   defaultValue?: string;
   minLength?: number;
   maxLength?: number;
+  /** Off for usernames and codes; "words" for a person's name, so phones start it with a capital. */
+  autoCapitalize?: "none" | "words";
 }) {
   const id = useId();
   return (
@@ -87,7 +91,7 @@ function Field({
         type={type}
         required={required}
         autoComplete={autoComplete}
-        autoCapitalize={type === "text" ? "none" : undefined}
+        autoCapitalize={autoCapitalize}
         spellCheck={false}
         defaultValue={defaultValue}
         minLength={minLength}
@@ -127,18 +131,51 @@ export function SignInForm() {
   );
 }
 
-export function SetupForm() {
+/** The first owner; in recovery (an owner exists), an owner sets a new password with their username, and the name is only for a new owner. */
+export function SetupForm({ recovery }: { recovery: boolean }) {
   const [state, action, pending] = useActionState(completeSetup, null);
   const onSubmit = useKeepFields(action);
   return (
     <form action={action} onSubmit={onSubmit} className="dash-form">
       <Field label="Setup code" name="code" type="password" autoComplete="off" hint="The one-time code you were given. It works once." />
-      <Field label="Your name" name="name" autoComplete="given-name" maxLength={60} hint="How the team sees you, e.g. Seif." />
-      <Field label="Username" name="username" autoComplete="username" maxLength={32} hint={USERNAME_HINT} />
-      <Field label="Password" name="password" type="password" autoComplete="new-password" minLength={15} maxLength={128} hint={PASSWORD_HINT} />
-      <Field label="Password again" name="confirm" type="password" autoComplete="new-password" minLength={15} maxLength={128} />
+      {recovery ? (
+        <>
+          <Field label="Your username" name="username" autoComplete="username" maxLength={32} hint="The owner username you sign in with." />
+          <Field
+            label="Your name (only for a new owner)"
+            name="name"
+            autoComplete="given-name"
+            autoCapitalize="words"
+            maxLength={60}
+            required={false}
+            hint="Leave it empty to set a new password. Fill it in only to add a new owner account with a new username."
+          />
+        </>
+      ) : (
+        <>
+          <Field label="Your name" name="name" autoComplete="given-name" autoCapitalize="words" maxLength={60} hint="How the team sees you, e.g. Seif." />
+          <Field label="Username" name="username" autoComplete="username" maxLength={32} hint={USERNAME_HINT} />
+        </>
+      )}
+      <Field
+        label={recovery ? "New password" : "Password"}
+        name="password"
+        type="password"
+        autoComplete="new-password"
+        minLength={15}
+        maxLength={128}
+        hint={PASSWORD_HINT}
+      />
+      <Field
+        label={recovery ? "New password again" : "Password again"}
+        name="confirm"
+        type="password"
+        autoComplete="new-password"
+        minLength={15}
+        maxLength={128}
+      />
       <Message state={state} />
-      <Submit pending={pending}>Create the owner account</Submit>
+      <Submit pending={pending}>{recovery ? "Set my new password" : "Create the owner account"}</Submit>
     </form>
   );
 }
@@ -146,27 +183,37 @@ export function SetupForm() {
 /**
  * The one-time token arrives after # in the link (never sent to a server,
  * so it stays out of logs and link previews). It is read once, taken out of
- * the address bar, and added to the form only when it is sent.
+ * the address bar, and added to the form only when it is sent. This tab
+ * keeps a copy (sessionStorage), so a reload or a phone restoring the tab
+ * after a switch to WhatsApp or a password manager doesn't lose it.
  */
-function useLinkToken() {
+function useLinkToken(kind: "join" | "reset") {
   const token = useRef("");
   useEffect(() => {
+    const key = `eternal-dash-${kind}`;
     // Development runs effects twice; the second run finds no hash and must not wipe the token.
     if (window.location.hash.length > 1) {
       token.current = window.location.hash.slice(1);
+      try {
+        sessionStorage.setItem(key, token.current);
+      } catch {}
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
+    } else if (!token.current) {
+      try {
+        token.current = sessionStorage.getItem(key) ?? "";
+      } catch {}
     }
-  }, []);
+  }, [kind]);
   return token;
 }
 
 export function JoinForm() {
   const [state, action, pending] = useActionState(acceptInvite, null);
-  const token = useLinkToken();
+  const token = useLinkToken("join");
   const onSubmit = useKeepFields(action, (fd) => fd.set("token", token.current));
   return (
     <form action={action} onSubmit={onSubmit} className="dash-form">
-      <Field label="Your name" name="name" autoComplete="given-name" maxLength={60} hint="How the team sees you, e.g. Nour." />
+      <Field label="Your name" name="name" autoComplete="given-name" autoCapitalize="words" maxLength={60} hint="How the team sees you, e.g. Nour." />
       <Field label="Choose a username" name="username" autoComplete="username" maxLength={32} hint={USERNAME_HINT} />
       <Field label="Choose a password" name="password" type="password" autoComplete="new-password" minLength={15} maxLength={128} hint={PASSWORD_HINT} />
       <Field label="Password again" name="confirm" type="password" autoComplete="new-password" minLength={15} maxLength={128} />
@@ -178,7 +225,7 @@ export function JoinForm() {
 
 export function ResetForm() {
   const [state, action, pending] = useActionState(applyResetLink, null);
-  const token = useLinkToken();
+  const token = useLinkToken("reset");
   const onSubmit = useKeepFields(action, (fd) => fd.set("token", token.current));
   return (
     <form action={action} onSubmit={onSubmit} className="dash-form">
@@ -200,6 +247,18 @@ export function PasswordForm() {
       <Field label="New password again" name="confirm" type="password" autoComplete="new-password" minLength={15} maxLength={128} />
       <Message state={state} />
       <Submit pending={pending}>Change password</Submit>
+    </form>
+  );
+}
+
+export function SignOutEverywhereForm() {
+  const [state, action, pending] = useActionState(signOutEverywhere, null);
+  return (
+    <form action={action} className="dash-form">
+      <Message state={state} />
+      <Submit pending={pending} tone="secondary">
+        Sign out everywhere
+      </Submit>
     </form>
   );
 }
@@ -255,7 +314,7 @@ export function InviteForm() {
           <label className="dash-label" htmlFor={nameId}>
             Their first name
           </label>
-          <input id={nameId} className="dash-input" name="name" required maxLength={60} autoComplete="off" />
+          <input id={nameId} className="dash-input" name="name" required maxLength={60} autoComplete="off" autoCapitalize="words" />
           <p className="dash-hint">Only a name. The link itself is what lets them in.</p>
         </div>
         <div className="dash-field">
@@ -271,7 +330,7 @@ export function InviteForm() {
         <Message state={state?.error ? state : null} />
         <Submit pending={pending}>Make an invite link</Submit>
       </form>
-      {state?.link && <OneTimeLink link={state.link} />}
+      {state?.link && <OneTimeLink key={state.link.url} link={state.link} />}
     </div>
   );
 }
@@ -287,14 +346,73 @@ export function ResetLinkForm({ userId, name }: { userId: string; name: string }
         </Submit>
       </form>
       <Message state={state?.error ? state : null} />
-      {state?.link && <OneTimeLink link={state.link} />}
+      {state?.link && <OneTimeLink key={state.link.url} link={state.link} />}
     </div>
   );
 }
 
+/* ------------------------------------------------------------ People */
+
+type Area = "people" | "links";
+const HEADING: Record<Area, string> = {
+  people: "ppl-list",
+  links: "ppl-links",
+};
+const Announce = createContext<(area: Area, message: string, moveFocus: boolean) => void>(() => {});
+const Said = createContext<{ area: Area; message: string; n: number } | null>(null);
+
+/**
+ * People's confirmations, shown under each section's heading rather than in
+ * the row: after Remove or Revoke the row is gone, so focus moves to the
+ * heading and the line under it says what happened.
+ */
+export function PeopleStatus({ children }: { children: React.ReactNode }) {
+  const [said, setSaid] = useState<{
+    area: Area;
+    message: string;
+    n: number;
+  } | null>(null);
+  const announce = useCallback((area: Area, message: string, moveFocus: boolean) => {
+    setSaid((prev) => ({ area, message, n: (prev?.n ?? 0) + 1 }));
+    if (moveFocus) document.getElementById(HEADING[area])?.focus();
+  }, []);
+  return (
+    <Announce value={announce}>
+      <Said.Provider value={said}>{children}</Said.Provider>
+    </Announce>
+  );
+}
+
+/** The live line under a People heading; present before anything is said, so screen readers announce it. */
+export function StatusLine({ area }: { area: Area }) {
+  const said = useContext(Said);
+  return (
+    <div role="status" className="dash-status">
+      {said?.area === area ? (
+        <p key={said.n} className="dash-ok">
+          {said.message}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/** managePerson, with its confirmation sent to the section's status line; only an error stays in the row. */
+function usePersonAction(area: Area) {
+  const announce = useContext(Announce);
+  return useActionState(async (prev: FormState, fd: FormData): Promise<FormState> => {
+    const result = await managePerson(prev, fd);
+    if (!result?.ok) return result;
+    const what = fd.get("what");
+    announce(area, result.ok, what === "remove" || what === "revoke");
+    return null;
+  }, null);
+}
+
 /** Role, pause or resume, sign out everywhere, remove: one small form per change. */
 export function PersonControls({ id, name, role, disabled, self }: { id: string; name: string; role: Role; disabled: boolean; self: boolean }) {
-  const [state, action, pending] = useActionState(managePerson, null);
+  const [state, action, pending] = usePersonAction("people");
+  const forName = <span className="sr-only"> for {name}</span>;
   const roleId = useId();
   return (
     <div className="dash-form">
@@ -310,7 +428,7 @@ export function PersonControls({ id, name, role, disabled, self }: { id: string;
           <option value="owner">Owner</option>
         </select>
         <Submit pending={pending} tone="secondary">
-          Save role
+          Save role{forName}
         </Submit>
       </form>
       <div className="dash-copy">
@@ -320,6 +438,7 @@ export function PersonControls({ id, name, role, disabled, self }: { id: string;
             <input type="hidden" name="id" value={id} />
             <Submit pending={pending} tone="secondary">
               {disabled ? "Let them sign in again" : "Pause access"}
+              {forName}
             </Submit>
           </form>
         )}
@@ -327,7 +446,7 @@ export function PersonControls({ id, name, role, disabled, self }: { id: string;
           <input type="hidden" name="what" value="signout" />
           <input type="hidden" name="id" value={id} />
           <Submit pending={pending} tone="secondary">
-            Sign out everywhere
+            Sign out everywhere{forName}
           </Submit>
         </form>
         {!self && (
@@ -339,7 +458,7 @@ export function PersonControls({ id, name, role, disabled, self }: { id: string;
             <input type="hidden" name="what" value="remove" />
             <input type="hidden" name="id" value={id} />
             <Submit pending={pending} tone="danger">
-              Remove
+              Remove{forName}
             </Submit>
           </form>
         )}
@@ -350,7 +469,7 @@ export function PersonControls({ id, name, role, disabled, self }: { id: string;
 }
 
 export function RevokeLink({ id, label }: { id: string; label: string }) {
-  const [state, action, pending] = useActionState(managePerson, null);
+  const [state, action, pending] = usePersonAction("links");
   return (
     <form action={action}>
       <input type="hidden" name="what" value="revoke" />

@@ -90,6 +90,8 @@ export function Kpis({ p, full, days, gaps }: { p: Period | undefined; full: Day
   const a = p?.ads;
   const ap = p?.adsPrev;
   const range = rangeText(p?.range ?? (full.length ? { from: full[0].d, to: full[full.length - 1].d } : null));
+  // Meta's figures can cover other days than the heading (an older read kept through a Meta outage, an ad account in another time zone).
+  const adsRange = p?.adsRange && p.range && (p.adsRange.from !== p.range.from || p.adsRange.to !== p.range.to) ? rangeText(p.adsRange) : null;
   const series = (k: "net" | "orders" | "spend" | "purchases") => full.map((d) => d[k]);
   const sub = (
     <>
@@ -127,6 +129,7 @@ export function Kpis({ p, full, days, gaps }: { p: Period | undefined; full: Day
       </div>
       <div className="kgroup">
         <p className="label">Advertising · Meta</p>
+        {!gaps.ads && adsRange && <p className="dash-hint">These figures cover {adsRange}.</p>}
         {gaps.ads ? (
           <Gap>{gaps.ads}</Gap>
         ) : (

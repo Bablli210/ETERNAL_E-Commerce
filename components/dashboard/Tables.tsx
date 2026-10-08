@@ -160,7 +160,16 @@ export function Campaigns({ campaigns, gap }: { campaigns: DashData["campaigns"]
   const rows = campaigns.rows;
   if (!gap && !rows.length) return null;
   return (
-    <Section id="h-camp" title="Meta campaigns" sub={`${campaigns.period}. Ad sets sit under their campaign.`}>
+    <Section
+      id="h-camp"
+      title="Meta campaigns"
+      sub={
+        <>
+          {campaigns.period}. Ad sets sit under their campaign.
+          {gap ? null : <span className="swipe-hint"> Scroll the table sideways for spend and results.</span>}
+        </>
+      }
+    >
       {gap ? (
         <Gap>{gap}</Gap>
       ) : (

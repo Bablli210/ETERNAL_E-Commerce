@@ -61,6 +61,8 @@ const STATUS_WORDS: Record<string, string> = {
   ARCHIVED: "Archived",
   DELETED: "Archived",
 };
+/** Ad account statuses that mean money is owed: Unpaid balance, Settlement pending, In grace period. The others (Disabled, risk review, closing) are not fixed by paying. */
+export const owesPayment = (status: number | null) => status === 3 || status === 8 || status === 9;
 const ACCOUNT_STATUS: Record<number, string> = {
   1: "Active",
   2: "Disabled",
@@ -434,10 +436,13 @@ export async function fetchMetaAds(): Promise<WithRate<MetaAdsTier>> {
       // While the account is not active Meta may refuse insights; that is the unpaid balance, never zero sales.
       // A refusal of the key itself (270, 274, permissions) is not, and paying would not bring the figures back.
       if (status === null || status === 1 || aboutTheKey(e)) throw e;
-      tier.state = "unsettled";
+      const owes = owesPayment(status);
+      tier.state = owes ? "unsettled" : "error";
       tier.failure = {
-        kind: "unsettled",
-        message: `Meta did not give the ad figures while the ad account shows "${tier.account.statusName}". Settle it in Ads Manager › Billing & payments; the figures come back once the account is active.`,
+        kind: owes ? "unsettled" : "inactive",
+        message: owes
+          ? `Meta did not give the ad figures while the ad account shows "${tier.account.statusName}". Settle it in Ads Manager › Billing & payments; the figures come back once the account is active.`
+          : `Meta did not give the ad figures while the ad account shows "${tier.account.statusName}". Ads Manager › Account quality says why and what Meta asks for; the figures come back once the account is active.`,
         requestId: e instanceof MetaError ? e.requestId : null,
       };
       return withRate(tier, run);
@@ -669,7 +674,7 @@ async function readAudiences(run: MetaRun): Promise<NonNullable<MetaSlowTier["au
   }));
 }
 
-const blankSlow = (): MetaSlowTier => ({ state: "off", failure: null, fetchedAt: null, emq: null, emqState: "off", audiences: null, audiencesState: "off" });
+const blankSlow = (): MetaSlowTier => ({ state: "off", failure: null, fetchedAt: null, emq: null, emqState: "off", audiences: null, audiencesState: "off", audiencesFailure: null });
 
 /**
  * The slow tier, read now: event match quality and custom audiences. Each
@@ -691,13 +696,16 @@ export async function fetchMetaSlow(): Promise<WithRate<MetaSlowTier>> {
     failures.push({ state: tier.emqState, failure: failureOf(e, "event match quality") });
     stopped = stopsEverything(e);
   }
-  if (stopped) tier.audiencesState = tier.emqState;
-  else {
+  if (stopped) {
+    tier.audiencesState = tier.emqState;
+    tier.audiencesFailure = failures[0].failure;
+  } else {
     try {
       tier.audiences = await readAudiences(run);
     } catch (e) {
       tier.audiencesState = stateOf(e);
-      failures.push({ state: tier.audiencesState, failure: failureOf(e, "the custom audiences") });
+      tier.audiencesFailure = failureOf(e, "the custom audiences");
+      failures.push({ state: tier.audiencesState, failure: tier.audiencesFailure });
     }
   }
 
@@ -767,9 +775,11 @@ async function keepLastGood<T extends MetaTier>(name: TierName, read: () => Prom
 }
 
 const TAGS = ["dash-data", "dash-meta"];
-const cachedAds = unstable_cache(() => keepLastGood("ads", fetchMetaAds), ["dash-meta-ads-v1"], { revalidate: 600, tags: [...TAGS, "dash-meta-ads"] });
-const cachedPixel = unstable_cache(() => keepLastGood("pixel", fetchMetaPixel), ["dash-meta-pixel-v1"], { revalidate: 3600, tags: [...TAGS, "dash-meta-pixel"] });
-const cachedSlow = unstable_cache(() => keepLastGood("slow", fetchMetaSlow), ["dash-meta-slow-v1"], { revalidate: 21600, tags: [...TAGS, "dash-meta-slow"] });
+/** Each deployment starts its own entries, so a key or permission fixed by a redeploy shows at once instead of after the cached failure lapses. */
+const DEPLOYMENT = process.env.VERCEL_DEPLOYMENT_ID ?? "local";
+const cachedAds = unstable_cache(() => keepLastGood("ads", fetchMetaAds), ["dash-meta-ads-v1", DEPLOYMENT], { revalidate: 600, tags: [...TAGS, "dash-meta-ads"] });
+const cachedPixel = unstable_cache(() => keepLastGood("pixel", fetchMetaPixel), ["dash-meta-pixel-v1", DEPLOYMENT], { revalidate: 3600, tags: [...TAGS, "dash-meta-pixel"] });
+const cachedSlow = unstable_cache(() => keepLastGood("slow", fetchMetaSlow), ["dash-meta-slow-v1", DEPLOYMENT], { revalidate: 21600, tags: [...TAGS, "dash-meta-slow"] });
 
 /** Figures read earlier with a newer held-back failure laid over them: the figures and their fetchedAt stay, state and failure say why they are not newer. */
 function withHeld<T extends MetaTier>(good: WithRate<T>, held: WithRate<MetaTier> | undefined): WithRate<T> {

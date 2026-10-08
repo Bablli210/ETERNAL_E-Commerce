@@ -216,13 +216,10 @@ html:has(body > .dash) > body {
  * squeezing the freshness line or running over the period switch.
  */
 @media (min-width: 1280px) {
-  .dash .dash-top-in.has-period { column-gap: 28px; }
+  .dash .dash-top-in.has-period { column-gap: 28px; reading-flow: flex-visual; }
   .dash .dash-top-in.has-period .dash-brand { margin-right: 0; }
-  .dash .dash-top-in.has-period .dash-period { flex: 0 1 auto; }
-  .dash .dash-top-in.has-period .dash-tools { margin-left: auto; }
-}
-@media (max-width: 1279px) {
-  .dash .dash-period { order: 3; }
+  .dash .dash-top-in.has-period .dash-period { flex: 0 1 auto; order: 1; }
+  .dash .dash-top-in.has-period .dash-tools { margin-left: auto; order: 2; }
 }
 
 /* The person's controls (app/dashboard/_components/Toolbar.tsx). */
@@ -457,6 +454,12 @@ html:has(body > .dash) > body {
 .dash .card-table { margin-top: 2px; }
 .dash .share { display: block; height: 4px; max-width: 100%; background: var(--wash); border-radius: 2px; margin-top: 6px; }
 .dash .tablebox[tabindex]:focus-visible { outline-offset: 4px; }
+/* Said only while the campaigns table is wider than its box (about 1200 px of screen). */
+.dash .swipe-hint { display: none; }
+@media (max-width: 1199px) {
+  .dash .swipe-hint { display: inline; }
+}
+.dash h2[tabindex="-1"]:focus { outline: none; }
 
 /* What sells: the lines' shares. */
 .dash .split { display: flex; gap: 2px; height: 14px; margin-top: 14px; }

@@ -623,7 +623,7 @@ const REDUCED = "Not available in the reduced mode";
  * Shopify refused the reports (protected customer data, or no
  * read_reports): rebuild the 7- and 30-day figures, best sellers and daily
  * rows from orders. The app may read only the last 60 days of orders, so the
- * 90-day period is left out and older days show 0. Only amounts and a
+ * 90-day period is left out and older days stay blank. Only amounts and a
  * customer id are read, never a name, email, phone, address or note.
  */
 async function readFromOrders(
@@ -667,8 +667,8 @@ async function readFromOrders(
     const prev = before.from >= firstDay ? aggregateOrders(ordersOn(kpi.nodes, zone, before.from, before.to), false).sales : null;
     snap.periods[k] = { range, sales, prev: prev && { net: prev.net, orders: prev.orders, aov: prev.aov }, customers, approximate: true };
   }
-  snap.daily = ordersDaily(kpi.nodes, zone, today);
-  snap.oldSiteOrders7 = ordersOn(kpi.nodes, zone, addDays(today, -7), today).filter((o) => isOldSiteApp(o.app?.name)).length;
+  snap.daily = ordersDaily(kpi.nodes, zone, today, firstDay);
+  snap.oldSiteOrders7 = ordersOn(kpi.nodes, zone, addDays(today, -6), today).filter((o) => isOldSiteApp(o.app?.name)).length;
 
   try {
     const span = fullDays(30, today);
@@ -687,7 +687,7 @@ async function readFromOrders(
   snap.hidden.push(
     { panel: "Sales and customers, last 90 days", reason: `${REDUCED}: ${sixty}.` },
     { panel: "Best sellers, last 90 days", reason: `${REDUCED}: ${sixty}.` },
-    { panel: `Daily sales before ${firstDay}`, reason: `${REDUCED}: ${sixty}, so earlier days show 0.` },
+    { panel: `Daily sales before ${firstDay}`, reason: `${REDUCED}: ${sixty}, so earlier days are left blank.` },
     { panel: "Where orders came from", reason: `${REDUCED}: order sources are only in the analytics reports.` },
     { panel: "Cities", reason: `${REDUCED}: delivery addresses are protected customer data.` },
     { panel: "Devices", reason: `${REDUCED}: visits are only in the analytics reports.` },
@@ -912,11 +912,69 @@ export function fetchShopifySnapshot(): Promise<ShopifySnapshot> {
   return inflight;
 }
 
+/** Failures that pass by themselves: a read that hit one must not replace good figures. */
+const passes = (kind: string) =>
+  ["throttled", "timeout", "unreachable", "bad_response", "internal", "reports_failed", "token_bad_response"].includes(kind) || /^(token_)?http_5\d\d$/.test(kind);
+
+/**
+ * Thrown by the cached read when Shopify failed for a moment, as Meta's tiers
+ * do (lib/dashboard/meta.ts): while the entry is only stale, Next keeps
+ * serving it; when there is none, getShopifySnapshot shows this instance's
+ * last good figures, or the failed read when it has none.
+ */
+class KeptLastGood extends Error {
+  readonly #snap: ShopifySnapshot;
+  constructor(snap: ShopifySnapshot) {
+    super(`Shopify: ${snap.failure?.message ?? snap.state} The last good figures stay in the cache.`);
+    this.name = "KeptLastGood";
+    this.#snap = snap;
+  }
+  get snap() {
+    return this.#snap;
+  }
+}
+
+/** Per instance: the latest read that failed for a moment, and the last good one read or served. */
+let heldBack: ShopifySnapshot | null = null;
+let lastGood: ShopifySnapshot | null = null;
+/** After a failed moment, the next read waits this long, so an outage costs a call a minute rather than one per page view (a throttle has its own wait). */
+const RETRY_FLOOR_MS = 60_000;
+
+async function keepLastGood(): Promise<ShopifySnapshot> {
+  if (heldBack && heldBack.failure?.kind !== "throttled" && Date.now() - Date.parse(heldBack.fetchedAt) < RETRY_FLOOR_MS) throw new KeptLastGood(heldBack);
+  const snap = await fetchShopifySnapshot();
+  if (snap.state === "error" && snap.failure && passes(snap.failure.kind)) {
+    heldBack = snap;
+    throw new KeptLastGood(snap);
+  }
+  heldBack = null;
+  lastGood = snap;
+  return snap;
+}
+
+/** Good figures with a newer failed read noted for the owner's self-checks; the figures keep their own fetchedAt. */
+function withHeld(good: ShopifySnapshot, held: ShopifySnapshot | null): ShopifySnapshot {
+  if (!held?.failure || held.fetchedAt <= good.fetchedAt) return good;
+  return { ...good, checks: [...good.checks, { id: "latest", level: "warn", detail: `The latest read failed, so these are the figures from the read before it. ${held.failure.message}` }] };
+}
+
 /**
  * The read, kept for 10 minutes in Next's data cache and served stale while
  * the next one runs; "dash-shopify" (or "dash-data") clears it on demand.
+ * Each deployment starts its own entry, so a key fixed by a redeploy shows at once.
  */
-export const getShopifySnapshot = unstable_cache(fetchShopifySnapshot, ["dash-shopify-v1"], {
+const cachedRead = unstable_cache(keepLastGood, ["dash-shopify-v2", process.env.VERCEL_DEPLOYMENT_ID ?? "local"], {
   revalidate: 600,
   tags: ["dash-data", "dash-shopify"],
 });
+
+export async function getShopifySnapshot(): Promise<ShopifySnapshot> {
+  try {
+    const snap = await cachedRead();
+    lastGood = snap;
+    return withHeld(snap, heldBack);
+  } catch (e) {
+    if (e instanceof KeptLastGood) return lastGood ? withHeld(lastGood, e.snap) : e.snap;
+    throw e;
+  }
+}

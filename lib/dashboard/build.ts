@@ -1,6 +1,6 @@
 import "server-only";
 import { getShopifySnapshot } from "./shopify";
-import { getMetaSnapshot } from "./meta";
+import { getMetaSnapshot, owesPayment } from "./meta";
 import { getSiteProbes, liveKeys, VERCEL_ANALYTICS_URL, type SiteProbes } from "./site";
 import { buildRead } from "./read";
 import { fixtureDir, loadFixture } from "./fixture";
@@ -26,14 +26,19 @@ const EVENT_LABELS: Record<string, string> = {
   Purchase: "Purchase",
 };
 
-/** Shopify's referrer (source, name) as the page names it. */
-function referrerLabel(source: string | null, name: string | null) {
+/**
+ * Shopify's referrer (source, name) as the page names it. Shopify names the
+ * myeternal.net site "myeternal", whichever website it shows, so the domain
+ * check decides: the old site while the domain still points there, the new
+ * website once it is on Vercel, the plain name when that couldn't be checked.
+ */
+function referrerLabel(source: string | null, name: string | null, domainLive: boolean | null) {
   const n = (name ?? "").toLowerCase();
   const s = (source ?? "").toLowerCase();
   if (/instagram/.test(n)) return "Instagram";
   if (/facebook|fb\b/.test(n)) return "Facebook";
   if (/eternal-storefront|www\.myeternal\.net/.test(n)) return "New website";
-  if (/myeternal/.test(n)) return "myeternal.net (old site)";
+  if (/myeternal/.test(n)) return domainLive === true ? "New website" : domainLive === false ? "myeternal.net (old site)" : "myeternal.net";
   if (/google/.test(n)) return "Google";
   if (/tiktok/.test(n)) return "TikTok";
   if (!n && !s) return "Direct or unknown";
@@ -79,7 +84,7 @@ function emptyMeta(): MetaSnapshot {
     configured: true,
     ads: { ...tier, account: null, today: null, periods: {}, daily: [], campaigns: [] },
     pixel: { ...tier, windowDays: 27, lastBrowser: null, lastServer: null, hosts: [], events: [] },
-    slow: { ...tier, emq: null, emqState: "error", audiences: null, audiencesState: "error" },
+    slow: { ...tier, emq: null, emqState: "error", audiences: null, audiencesState: "error", audiencesFailure: tier.failure },
     rate: { tier: null, maxPct: null, calls: 0 },
   };
 }
@@ -124,13 +129,23 @@ function attentionFor(s: ShopifySnapshot, m: MetaSnapshot, data: Pick<DashData, 
       owner: "Seif",
     });
   if (acct && acct.status !== null && acct.status !== 1)
-    out.push({
-      level: "critical",
-      title: "Meta ad account payment overdue",
-      detail: `The ad account reads "${acct.statusName ?? "not active"}". Ads stop while it is unpaid, and new audiences can't be made. Pay in Ads Manager > Billing & payments.`,
-      owner: "Seif",
-      next: { title: "Pay the overdue Meta balance", body: "Settle the ad account in Ads Manager > Billing & payments. Until then ads stay off, figures stay frozen and no new audiences can be made." },
-    });
+    out.push(
+      owesPayment(acct.status)
+        ? {
+            level: "critical",
+            title: "Meta ad account payment overdue",
+            detail: `The ad account reads "${acct.statusName ?? "not active"}". Ads stop while it is unpaid, and new audiences can't be made. Pay in Ads Manager > Billing & payments.`,
+            owner: "Seif",
+            next: { title: "Pay the overdue Meta balance", body: "Settle the ad account in Ads Manager > Billing & payments. Until then ads stay off, figures stay frozen and no new audiences can be made." },
+          }
+        : {
+            level: "critical",
+            title: "Meta ad account is not active",
+            detail: `The ad account reads "${acct.statusName ?? "not active"}". Ads don't run while it is, and new audiences can't be made. Ads Manager > Account quality says why and what Meta asks for.`,
+            owner: "Seif",
+            next: { title: "Get the Meta ad account active again", body: "Open Ads Manager > Account quality to see why the account isn't active and what Meta asks for. Until then ads stay off and figures stay frozen." },
+          },
+    );
   if (s.state === "error")
     out.push({ level: "critical", title: "Shopify can't be read", detail: s.failure?.message ?? "The dashboard couldn't read the store just now.", owner: "Seif" });
   if (isNum(s.oldSiteOrders7) && s.oldSiteOrders7 > 0)
@@ -172,11 +187,15 @@ function attentionFor(s: ShopifySnapshot, m: MetaSnapshot, data: Pick<DashData, 
   return out;
 }
 
-function trackingFor(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes | null, requestHost: string): TrackItem[] {
+/** Whether www.myeternal.net shows the new website: known for sure when this request came through it, else from the probe. */
+function domainLiveFor(probes: SiteProbes | null, requestHost: string): boolean | null {
+  return liveKeys().production && requestHost === "www.myeternal.net" ? true : (probes?.www.onVercel ?? null);
+}
+
+function trackingFor(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes | null, domainLive: boolean | null): TrackItem[] {
   const k = liveKeys();
   const notProd = (label: string): TrackItem => ({ label, status: "unknown", detail: "Checked on the live site only (this is a preview or local copy)." });
   const acct = m.ads.account;
-  const domainLive: boolean | null = k.production && requestHost === "www.myeternal.net" ? true : (probes?.www.onVercel ?? null);
   const apexLive = probes?.apex.onVercel ?? null;
 
   const account: TrackItem = !m.configured
@@ -184,7 +203,13 @@ function trackingFor(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes | n
     : acct?.status === 1
       ? { label: "Ad account in good standing", status: "ok", detail: "The Meta ad account is active." }
       : acct
-        ? { label: "Ad account in good standing", status: "blocked", detail: `The ad account reads "${acct.statusName ?? "not active"}".`, action: "Pay the balance in Ads Manager > Billing & payments", owner: "Seif" }
+        ? {
+            label: "Ad account in good standing",
+            status: "blocked",
+            detail: `The ad account reads "${acct.statusName ?? "not active"}".`,
+            action: owesPayment(acct.status) ? "Pay the balance in Ads Manager > Billing & payments" : "See why in Ads Manager > Account quality",
+            owner: "Seif",
+          }
         : { label: "Ad account in good standing", status: "unknown", detail: "Couldn't read the ad account just now." };
 
   const domainLabel = "myeternal.net shows the new website";
@@ -284,15 +309,19 @@ function sourcesFor(s: ShopifySnapshot, m: MetaSnapshot, tracking: TrackItem[]):
         ? { label: "Shopify", ok: false, note: "couldn't read" }
         : { label: "Shopify", ok: s.state === "fallback" ? null : true, note: s.state === "fallback" ? "orders only (limited)" : "orders and customers" };
   const ads = m.ads.state;
+  const acct = m.ads.account;
+  // The account's standing comes first: figures can still arrive from an account that has stopped running ads.
   const meta: SourceChip = !m.configured
     ? { label: "Meta", ok: null, note: "not connected yet" }
-    : ads === "ok"
-      ? { label: "Meta", ok: true, note: "ads and pixel" }
-      : ads === "unsettled"
-        ? { label: "Meta", ok: false, note: "unpaid balance" }
-        : ads === "key_invalid"
-          ? { label: "Meta", ok: false, note: "key rejected" }
-          : { label: "Meta", ok: null, note: ads === "throttled" ? "busy, figures from earlier" : "partly read" };
+    : ads === "key_invalid"
+      ? { label: "Meta", ok: false, note: "key rejected" }
+      : ads === "unsettled" || (acct && acct.status !== null && acct.status !== 1)
+        ? { label: "Meta", ok: false, note: ads === "unsettled" || owesPayment(acct?.status ?? null) ? "unpaid balance" : "ad account not active" }
+        : ads === "ok"
+          ? { label: "Meta", ok: true, note: "ads and pixel" }
+          : ads === "error" && !Object.keys(m.ads.periods).length
+            ? { label: "Meta", ok: false, note: "couldn't read" }
+            : { label: "Meta", ok: null, note: ads === "throttled" ? "busy, figures from earlier" : "partly read" };
   const domain = tracking[1];
   const pixel = tracking[2];
   const site: SourceChip = !k.production
@@ -308,11 +337,13 @@ function sourcesFor(s: ShopifySnapshot, m: MetaSnapshot, tracking: TrackItem[]):
 
 export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes | null, requestHost: string): DashData {
   const today = s.today || ymdIn(new Date(), SHOP_TZ);
+  // The days are keyed in Shopify's zone, or Cairo's when Shopify's couldn't be read; Meta's rows are compared against that either way.
   const shopTz = s.timezone;
+  const shopZone = shopTz ?? SHOP_TZ;
   const metaTz = m.ads.account?.timezone ?? null;
   const zonesDiffer =
-    shopTz && metaTz && shopTz !== metaTz
-      ? `The ad account counts days in ${metaTz} while Shopify counts them in ${shopTz}, so a Meta 'day' covers different hours from a Shopify day. Daily ad and sales figures won't line up exactly.`
+    metaTz && shopZone !== metaTz
+      ? `The ad account counts days in ${metaTz} while Shopify counts them in ${shopTz ?? `${SHOP_TZ} (assumed)`}, so a Meta 'day' covers different hours from a Shopify day. Daily ad and sales figures won't line up exactly.`
       : null;
   const shopOk = s.state !== "off" && s.state !== "error";
   const adsOk = Object.keys(m.ads.periods).length > 0;
@@ -324,6 +355,7 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
     if (!sp && !mp) continue;
     periods[k] = {
       range: sp?.range ?? mp?.range ?? null,
+      adsRange: mp?.range ?? null,
       sales: sp?.sales ?? null,
       prev: sp?.prev ?? null,
       customers: sp?.customers ?? null,
@@ -333,7 +365,7 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
     };
   }
 
-  // One row per day for the last 90 full days and today, sales and spend side by side; unknown stays null.
+  // One row per day for the last 90 full days and today, sales and spend side by side. Each source lists every day it read (0 for a quiet day), so a day it lacks was never read and stays null.
   const shopDays = new Map(s.daily.map((d) => [d.d, d]));
   const metaDays = new Map(m.ads.daily.map((d) => [d.d, d]));
   const days: DashData["daily"]["days"] = [];
@@ -343,22 +375,23 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
     const md = adsOk ? metaDays.get(d) : undefined;
     days.push({
       d,
-      net: sd ? sd.net : shopOk && s.daily.length ? 0 : null,
-      orders: sd ? sd.orders : shopOk && s.daily.length ? 0 : null,
-      spend: md ? md.spend : adsOk && m.ads.daily.length ? 0 : null,
-      purchases: md ? md.purchases : adsOk && m.ads.daily.length ? 0 : null,
+      net: sd ? sd.net : null,
+      orders: sd ? sd.orders : null,
+      spend: md ? md.spend : null,
+      purchases: md ? md.purchases : null,
       lpv: md ? md.lpv : null,
       atc: md ? md.atc : null,
     });
   }
 
+  const domainLive = domainLiveFor(probes, requestHost);
   const sources: DashData["sources"] = {};
   for (const k of PERIOD_KEYS) {
     const rows = s.referrers[k];
     if (!shopOk || !rows) continue;
     const merged = new Map<string, { source: string; orders: number; net: number }>();
     for (const r of rows) {
-      const label = referrerLabel(r.source, r.name);
+      const label = referrerLabel(r.source, r.name, domainLive);
       const e = merged.get(label) ?? { source: label, orders: 0, net: 0 };
       e.orders += r.orders;
       e.net = Math.round((e.net + r.net) * 100) / 100;
@@ -369,7 +402,7 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
   if (shopOk && s.hasUtm === false) sources.note = "Shopify sees only the site a buyer came from, not the ad or campaign. Campaign tags on every ad link fix this.";
 
   const emq = m.slow.emq;
-  const tracking = trackingFor(s, m, probes, requestHost);
+  const tracking = trackingFor(s, m, probes, domainLive);
   const partial: Pick<DashData, "periods" | "daily"> = { periods, daily: { days, today } };
   const attention = attentionFor(s, m, partial, zonesDiffer, emq?.Purchase ?? null);
   const stamps = [shopOk ? s.fetchedAt : null, adsOk ? m.ads.fetchedAt : null].filter((t): t is string => Boolean(t)).sort();
@@ -379,7 +412,7 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
       updatedAt: stamps[0] ?? null,
       sources: sourcesFor(s, m, tracking),
       attention,
-      dayLabel: zonesDiffer ? `Shopify days are ${shopTz} days; Meta days are ${metaTz} days.` : "Days are Cairo days.",
+      dayLabel: zonesDiffer ? `Shopify days are ${shopZone} days; Meta days are ${metaTz} days.` : `Days are ${shopZone === SHOP_TZ ? "Cairo" : shopZone} days.`,
     },
     periods,
     daily: { days, today },
@@ -413,9 +446,11 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
     gaps: {
       shopify: shopifyGap(s),
       ads: adsGap(m),
+      adsDaily: m.ads.daily.length ? null : (adsGap(m) ?? (m.ads.failure?.message ?? "Meta's daily ad figures could not be read just now.")),
       pixel: m.pixel.events.length ? null : tierGap(m.pixel.state, m.pixel.failure, "What the website reported to Meta"),
-      audiences: m.slow.audiences ? null : tierGap(m.slow.audiencesState, m.slow.failure, "Meta's audiences"),
-      campaigns: m.ads.campaigns.length ? null : adsGap(m),
+      audiences: m.slow.audiences ? null : tierGap(m.slow.audiencesState, m.slow.audiencesFailure ?? null, "Meta's audiences"),
+      // The periods can be read while a later part of the ads read failed: then that part says so rather than vanishing.
+      campaigns: m.ads.campaigns.length ? null : (adsGap(m) ?? (m.ads.state !== "ok" ? (m.ads.failure?.message ?? "Meta's campaign figures could not be read just now.") : null)),
     },
     admin: {
       shopifyChecks: s.checks,

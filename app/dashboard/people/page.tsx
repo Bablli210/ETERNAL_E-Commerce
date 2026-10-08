@@ -1,6 +1,8 @@
 import { PageFrame } from "@/components/dashboard/PageFrame";
 import { getAccounts, nowSec, recentSignIn, requireViewer, ROLE_LABEL } from "@/lib/dashboard/accounts";
-import { InviteForm, PersonControls, ResetLinkForm, RevokeLink } from "../_components/forms";
+import { accessState } from "../_components/access";
+import { InviteForm, PeopleStatus, PersonControls, ResetLinkForm, RevokeLink, StatusLine } from "../_components/forms";
+import { StoreProblem } from "../_components/StoreProblem";
 import { Toolbar } from "../_components/Toolbar";
 import { signOut } from "../actions";
 
@@ -15,6 +17,8 @@ const when = (iso: string) =>
  * hand; no email address is asked for or kept.
  */
 export default async function PeoplePage() {
+  const access = await accessState();
+  if (access.state === "no-store" || access.state === "unreachable") return <StoreProblem state={access.state} />;
   const viewer = await requireViewer(["owner"]);
   const doc = await getAccounts();
   const users = [...(doc?.users ?? [])].sort((a, b) => ["owner", "team", "client"].indexOf(a.role) - ["owner", "team", "client"].indexOf(b.role) || a.name.localeCompare(b.name));
@@ -43,75 +47,83 @@ export default async function PeoplePage() {
         <InviteForm />
       </section>
 
-      <section aria-labelledby="ppl-list">
-        <h2 id="ppl-list">Who has access</h2>
-        <div className="dash-tablebox">
-          <table className="dash-table">
-            <thead>
-              <tr>
-                <th scope="col">Person</th>
-                <th scope="col">Role</th>
-                <th scope="col">Changes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.id}>
-                  <td>
-                    <strong>{u.name}</strong>
-                    {u.id === viewer.id ? " (you)" : ""}
-                    <span className="dash-hint block">
-                      {u.username} · joined {when(u.createdAt)}
-                      {u.disabled ? " · paused" : ""}
-                    </span>
-                  </td>
-                  <td>
-                    <span className={`dash-pill ${u.disabled ? "paused" : u.role}`}>{u.disabled ? "Paused" : ROLE_LABEL[u.role]}</span>
-                  </td>
-                  <td>
-                    <PersonControls id={u.id} name={u.name} role={u.role} disabled={u.disabled} self={u.id === viewer.id} />
-                    <ResetLinkForm userId={u.id} name={u.name} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section aria-labelledby="ppl-links">
-        <h2 id="ppl-links">Links waiting to be used</h2>
-        {links.length ? (
+      <PeopleStatus>
+        <section aria-labelledby="ppl-list">
+          <h2 id="ppl-list" tabIndex={-1}>
+            Who has access
+          </h2>
+          <StatusLine area="people" />
           <div className="dash-tablebox">
             <table className="dash-table">
               <thead>
                 <tr>
-                  <th scope="col">For</th>
-                  <th scope="col">Kind</th>
-                  <th scope="col">Works until</th>
-                  <th scope="col">
-                    <span className="sr-only">Revoke</span>
-                  </th>
+                  <th scope="col">Person</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Changes</th>
                 </tr>
               </thead>
               <tbody>
-                {links.map((l) => (
-                  <tr key={l.id}>
-                    <td>{l.kind === "invite" ? l.name : nameOf(l.userId)}</td>
-                    <td>{l.kind === "invite" ? `Invite (${ROLE_LABEL[l.role ?? "client"]})` : "Password reset"}</td>
-                    <td>{when(new Date(l.expiresAt * 1000).toISOString())} Cairo</td>
+                {users.map((u) => (
+                  <tr key={u.id}>
+                    <th scope="row">
+                      <strong>{u.name}</strong>
+                      {u.id === viewer.id ? " (you)" : ""}
+                      <span className="dash-hint block">
+                        {u.username} · joined {when(u.createdAt)}
+                        {u.disabled ? " · paused" : ""}
+                      </span>
+                    </th>
                     <td>
-                      <RevokeLink id={l.id} label={`${l.kind} link for ${l.kind === "invite" ? l.name : nameOf(l.userId)}`} />
+                      <span className={`dash-pill ${u.disabled ? "paused" : u.role}`}>{u.disabled ? "Paused" : ROLE_LABEL[u.role]}</span>
+                    </td>
+                    <td>
+                      <PersonControls id={u.id} name={u.name} role={u.role} disabled={u.disabled} self={u.id === viewer.id} />
+                      <ResetLinkForm userId={u.id} name={u.name} />
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        ) : (
-          <p className="dash-hint">None. Links disappear once used or expired; the link itself is shown only when it is made.</p>
-        )}
-      </section>
+        </section>
+
+        <section aria-labelledby="ppl-links">
+          <h2 id="ppl-links" tabIndex={-1}>
+            Links waiting to be used
+          </h2>
+          <StatusLine area="links" />
+          {links.length ? (
+            <div className="dash-tablebox">
+              <table className="dash-table">
+                <thead>
+                  <tr>
+                    <th scope="col">For</th>
+                    <th scope="col">Kind</th>
+                    <th scope="col">Works until</th>
+                    <th scope="col">
+                      <span className="sr-only">Revoke</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {links.map((l) => (
+                    <tr key={l.id}>
+                      <th scope="row">{l.kind === "invite" ? l.name : nameOf(l.userId)}</th>
+                      <td>{l.kind === "invite" ? `Invite (${ROLE_LABEL[l.role ?? "client"]})` : "Password reset"}</td>
+                      <td>{when(new Date(l.expiresAt * 1000).toISOString())} Cairo</td>
+                      <td>
+                        <RevokeLink id={l.id} label={`${l.kind} link for ${l.kind === "invite" ? l.name : nameOf(l.userId)}`} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="dash-hint">None. Links disappear once used or expired; the link itself is shown only when it is made.</p>
+          )}
+        </section>
+      </PeopleStatus>
 
       <section aria-labelledby="ppl-log">
         <h2 id="ppl-log">Recent changes</h2>
