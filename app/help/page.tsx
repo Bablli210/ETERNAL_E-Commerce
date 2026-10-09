@@ -180,20 +180,9 @@ export default async function HelpPage() {
           <Way href={policy("privacy-policy")}>Read the privacy policy</Way>
           <p className="mt-4">
             <strong className="font-semibold">Cookies.</strong> The site keeps what it needs to work without asking: your bag, your cookie choice, and the name of the
-            campaign that brought you here. Nothing that identifies you goes to Meta or Google from this site until you say yes, and you can change your mind at any time.
+            campaign that brought you here. Nothing that identifies you goes to Meta or Google from this site until you say yes, and you can change your mind at any time.{" "}
+            <CheckoutCookieNote cookieDomain={process.env.COOKIE_DOMAIN?.trim() || null} checkoutDomain={checkoutDomain} storefrontToken={process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null} />
           </p>
-          <ul className="mt-2 flex list-disc flex-col gap-1 pl-5">
-            <li>
-              <strong className="font-semibold">Analytics</strong>: Google Analytics and Vercel Web Analytics count visits and show which pages work, so we can improve the
-              site.
-            </li>
-            <li>
-              <strong className="font-semibold">Marketing</strong>: the Meta pixel and Meta&rsquo;s Conversions API, and Google&rsquo;s ad measurement, tell Instagram,
-              Facebook and Google which scents you viewed and added to your bag, so our ads reach the right people and we can measure what they sell. The ad you came from
-              (its click id) travels with your order.{" "}
-              <CheckoutCookieNote cookieDomain={process.env.COOKIE_DOMAIN?.trim() || null} checkoutDomain={checkoutDomain} storefrontToken={process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null} />
-            </li>
-          </ul>
           <p className="mt-2">
             When you arrive from a campaign link, we note which campaign it was (its name only, nothing about you) so we know which posts bring visitors. Your choice is
             kept for six months, then we ask again.

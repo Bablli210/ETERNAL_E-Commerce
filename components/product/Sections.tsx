@@ -242,7 +242,7 @@ export function TaleExcerpt({ scent, index }: { scent: Scent; index: string }) {
 export function BoxContents({ index, sampleMl, bottleMl }: { index: string; sampleMl: number; bottleMl: number }) {
   const items = [
     ["Three eaux de parfum", `${sampleMl} ml of each, in its own vial. Enough to wear every one more than once.`],
-    ["Chosen by the house", "We choose the three, so the box stays a surprise until you open it."],
+    ["For him or for her", "You choose who it is for; we choose the three, so the box stays a surprise until you open it."],
     ["Then, your bottle", `When one of them stays with you, its ${bottleMl} ml bottle is in the shop.`],
   ];
   return (

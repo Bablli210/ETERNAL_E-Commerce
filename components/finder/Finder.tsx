@@ -283,7 +283,7 @@ export function Finder({
               {facts.sampleCredit && <p className="mt-2 text-[12px] text-ash">{facts.sampleCredit}</p>}
             </div>
           ) : (
-            mysteryBox?.bottle && (
+            mysteryBox?.bottle?.availableForSale && (
               <div className="grid grid-cols-[72px_minmax(0,1fr)] gap-4 bg-paper p-4">
                 <div className="relative aspect-square overflow-hidden" style={boxImage ? undefined : { backgroundColor: mysteryBox.world.bg }}>
                   {boxImage && <Image src={boxImage} alt="" fill sizes="72px" className="object-cover" />}
@@ -296,13 +296,20 @@ export function Finder({
                   </p>
                 </div>
                 <div className="col-span-2 flex flex-col gap-1">
-                  <AddToBagButton
-                    variant={mysteryBox.bottle}
-                    product={{ productId: mysteryBox.productId, handle: mysteryBox.handle, title: mysteryBox.title, image: mysteryBox.image, lineLabel: mysteryBox.lineLabel, world: mysteryBox.world }}
-                    kind="set"
-                    block
-                    label={`Add the box · ${formatMoney(mysteryBox.bottle.price)}`}
-                  />
+                  {/* For him or for her is chosen on the box's page. */}
+                  {mysteryBox.choices ? (
+                    <Link href={`/products/${mysteryBox.handle}`} className="btn btn-block">
+                      Choose your box · {formatMoney(mysteryBox.bottle.price)}
+                    </Link>
+                  ) : (
+                    <AddToBagButton
+                      variant={mysteryBox.bottle}
+                      product={{ productId: mysteryBox.productId, handle: mysteryBox.handle, title: mysteryBox.title, image: mysteryBox.image, lineLabel: mysteryBox.lineLabel, world: mysteryBox.world }}
+                      kind="set"
+                      block
+                      label={`Add the box · ${formatMoney(mysteryBox.bottle.price)}`}
+                    />
+                  )}
                   <Link href={`/products/${mysteryBox.handle}`} className="mx-auto inline-flex min-h-11 items-center text-[13px] font-semibold">
                     <span className="lnk">What is inside</span>
                   </Link>

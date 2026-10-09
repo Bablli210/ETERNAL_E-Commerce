@@ -146,13 +146,20 @@ function BoxTile({ box }: { box: ScentIndexEntry }) {
       <div className="flex flex-col py-1">
         <p className="eyebrow text-[12px] text-ash">Not sure yet?</p>
         <p className="serif mt-2 text-[22px] font-semibold leading-[1.1] lg:text-[32px]">
-          Three scents to try, <span className="whitespace-nowrap">{formatMoney(box.price)}</span>
+          Three scents to try{box.bottle.availableForSale ? <>, <span className="whitespace-nowrap">{formatMoney(box.price)}</span></> : ", out of stock for now"}
         </p>
         <p className="mt-2 text-[14px] leading-snug text-ash">
-          Three {site.sampleSizeMl} ml eaux de parfum, chosen by the house. Wear them, then choose your bottle.
+          Three {site.sampleSizeMl} ml eaux de parfum{box.choices ? " for him or for her" : ""}, chosen by the house. Wear them, then choose your bottle.
         </p>
         <div className="mt-auto flex flex-col pt-4 lg:max-w-[280px]">
-          <AddToBagButton variant={box.bottle} product={product} source="grid_box" kind="set" size="sm" block label="Add the box" />
+          {/* For him or for her is chosen on the box's page. */}
+          {box.choices ? (
+            <Link href={`/products/${box.handle}`} className="btn btn-sm btn-block">
+              Choose your box
+            </Link>
+          ) : (
+            <AddToBagButton variant={box.bottle} product={product} source="grid_box" kind="set" size="sm" block label="Add the box" />
+          )}
           <Link href={`/products/${box.handle}`} className="mt-1 flex min-h-11 items-center self-start">
             <span className="lnk">What’s inside</span>
           </Link>

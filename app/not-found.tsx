@@ -61,7 +61,7 @@ export default async function NotFound() {
               </Link>
             </li>
           ))}
-          {box?.bottle && (
+          {box?.bottle?.availableForSale && (
             <li>
               <Link href={`/products/${box.handle}`} className={ROW}>
                 <span className="min-w-0 flex-1">

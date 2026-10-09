@@ -1,3 +1,4 @@
+import { scents as scentContent } from "@/content/scents";
 import type { Metadata } from "next";
 import { pageMeta } from "@/lib/metadata";
 import Link from "next/link";
@@ -15,7 +16,7 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { RecentlyViewed } from "@/components/product/RecentlyViewed";
 import { lineWithAudience } from "@/components/product/line";
 import { LineLabel } from "@/components/product/LineLabel";
-import { InspiredBy } from "@/components/product/InspiredBy";
+import { EternalOriginal, InspiredBy } from "@/components/product/InspiredBy";
 import { TrackView } from "@/components/analytics/TrackView";
 import { Price, SectionHead } from "@/components/ui/Primitives";
 import { Icon } from "@/components/ui/Icon";
@@ -30,14 +31,14 @@ export const dynamicParams = true;
 const ORIGINAL_ONE_LINE = 22;
 
 export function generateStaticParams() {
-  return snapshot.products.map((p) => ({ handle: p.handle }));
+  return snapshot.products.filter((p) => !scentContent[p.handle]?.inactive).map((p) => ({ handle: p.handle }));
 }
 
 /** The mystery box sells on what it is, so its words live here rather than in its one-line Shopify description. */
 const box = {
-  hook: "Three scents, chosen by the house.",
+  hook: "Three scents for him or for her, chosen by the house.",
   hookSub: "A first meeting with eternal, before you choose a bottle.",
-  description: `Three ${site.sampleSizeMl} ml eaux de parfum, chosen by the house: a first meeting with eternal before you choose a bottle.`,
+  description: `Three ${site.sampleSizeMl} ml eaux de parfum for him or for her, chosen by the house: a first meeting with eternal before you choose a bottle.`,
 };
 
 /** The product's own words; one without a Shopify description yet still says what it is, rather than the house's line. */
@@ -45,7 +46,7 @@ const describe = (s: Scent) => {
   if (s.kind === "set") return box.description;
   if (s.description.trim()) return s.description.trim();
   const what = s.line ? `${s.title}, an eau de parfum from ${lineWithAudience(s.line, ", ")}.` : `${s.title}, an eau de parfum from ${site.name}.`;
-  return [what, s.inspiredBy && `Inspired by ${s.inspiredBy}.`, s.notesShort.length && `Notes of ${joinNotes(s.notesShort.slice(0, 3)).toLowerCase()}.`, s.signature].filter(Boolean).join(" ");
+  return [what, s.inspiredBy && `Inspired by ${s.inspiredBy}.`, s.isOriginal && "An Eternal Original: our own composition, not inspired by another fragrance.", s.notesShort.length && `Notes of ${joinNotes(s.notesShort.slice(0, 3)).toLowerCase()}.`, s.signature].filter(Boolean).join(" ");
 };
 const absolute = (url: string) => new URL(url, site.url).href;
 
@@ -180,7 +181,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       <section
         className="pdp-hero wrap grid grid-cols-[minmax(0,1fr)] pt-3 pb-14 md:pt-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] lg:gap-16 lg:pt-8"
         data-announce={facts.announcement ? "" : undefined}
-        data-hook={scent.inspiredBy || isSet ? "" : undefined}
+        data-hook={scent.inspiredBy || scent.isOriginal || isSet ? "" : undefined}
         data-hook-long={!isSet && (scent.inspiredBy?.length ?? 0) > ORIGINAL_ONE_LINE ? "" : undefined}
         data-chips={chips.length ? "" : undefined}
         data-size={scent.sample ? "" : undefined}
@@ -193,14 +194,18 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
             <h1 className="min-w-0 text-[28px] leading-[1.1] font-semibold lg:text-[clamp(36px,4vw,56px)]">{scent.title}</h1>
             <Price money={scent.price} className="shrink-0 text-[20px] font-medium lg:mt-4 lg:block lg:text-[22px]" />
           </div>
-          {(scent.inspiredBy || isSet) && (
+          {(scent.inspiredBy || scent.isOriginal || isSet) && (
             <div className="mt-2.5">
               {isSet ? (
                 <p className="text-[15px] leading-[22px]">{box.hook}</p>
+              ) : scent.isOriginal ? (
+                <EternalOriginal className="text-[14px] leading-6 text-ash" />
               ) : (
                 <InspiredBy name={scent.inspiredBy ?? ""} className="text-[14px] leading-6 text-ash" nameClassName="text-[20px]" />
               )}
-              <p className="text-[12px] leading-[18px] text-ash">{isSet ? box.hookSub : "Our own composition, not affiliated with its house."}</p>
+              <p className="text-[12px] leading-[18px] text-ash">
+                {isSet ? box.hookSub : scent.isOriginal ? "Our own composition, not inspired by another fragrance." : "Our own composition, not affiliated with its house."}
+              </p>
             </div>
           )}
           {chips.length > 0 && <p className="mt-2 flex min-h-11 flex-wrap items-center gap-1.5">{chips}</p>}
@@ -220,7 +225,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               ))}
             </ul>
           )}
-          {mysteryBox?.bottle && !scent.sample && (
+          {mysteryBox?.bottle?.availableForSale && !scent.sample && (
             <Link href="/products/mystery-box" className="mt-6 flex items-center gap-3 bg-paper px-4 py-3.5 text-[14px] hover:text-sea">
               <span className="min-w-0 flex-1">
                 Not ready for a bottle?{" "}

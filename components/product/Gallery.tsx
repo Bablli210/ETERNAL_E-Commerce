@@ -13,14 +13,24 @@ function frameAlt(scent: Scent, url: string, altText: string | null): string {
 }
 
 /**
- * Real frames only, in their order (packshot, lifestyle, notes). On a phone
+ * The frame that shows the notes: the local notes still (products/<handle>-3,
+ * public/images/README.md), or a Shopify image whose alt text or file name
+ * says "notes".
+ */
+const isNotesFrame = (scent: Scent, url: string, altText: string | null) =>
+  new RegExp(`/images/products/${scent.handle}-3\\.\\w+$`).test(url) || /\bnotes?\b/i.test(altText ?? "") || /[-_]notes?[-_.]/i.test(url.split("?")[0]);
+
+/**
+ * Real frames only, the notes frame first, at the owner's request, then the rest in their order (packshot, lifestyle). On a phone
  * they swipe with a "1 / 3" counter, sized by .pdp-frame so Add to bag stays
  * on the first screen; from lg they stack. Rendered once for both, so the
  * first frame is the single preloaded image. A scent with no imagery yet
  * shows its colour world and the eternal mark, never a placeholder brief.
  */
 export function Gallery({ scent }: { scent: Scent }) {
-  const imgs = scent.images.slice(0, 4);
+  const all = scent.images.slice(0, 4);
+  const notes = all.findIndex((img) => isNotesFrame(scent, img.url, img.altText));
+  const imgs = notes > 0 ? [all[notes], ...all.filter((_, i) => i !== notes)] : all;
   const solo = imgs.length < 2;
   const frameClass = `pdp-frame ${solo ? "pdp-frame-solo" : ""} relative overflow-hidden lg:aspect-[4/5] lg:h-auto lg:w-full`;
   const sizes = solo ? "(min-width: 1024px) 50vw, calc(100vw - 40px)" : "(min-width: 1024px) 50vw, calc(100vw - 64px)";
