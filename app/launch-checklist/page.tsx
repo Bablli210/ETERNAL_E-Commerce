@@ -83,7 +83,7 @@ export default async function LaunchChecklist() {
         s.kind === "scent" && !s.families.length && !s.moods.length && "scent tags (the finder can’t match it)",
         !s.images.length && "packshot",
         s.images.length < 2 && "second frame",
-        s.kind === "scent" && !s.inspiredBy && "inspired-by",
+        s.kind === "scent" && !s.inspiredBy && !s.isOriginal && "inspired-by",
         s.kind === "scent" && !s.notes && "notes pyramid",
         s.kind === "scent" && !s.comparison && "how ours differs",
         s.kind === "scent" && !s.signature && "signature line",
