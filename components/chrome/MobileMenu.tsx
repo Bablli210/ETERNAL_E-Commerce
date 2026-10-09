@@ -3,13 +3,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
-import { lines, type LineKey } from "@/content/taxonomy";
+import { familyOrder, families, lines, type LineKey } from "@/content/taxonomy";
+import { occasionOrder, occasions, occasionsLive } from "@/content/occasions";
 import { site } from "@/content/site";
 import { facts } from "@/lib/facts";
 import { formatMoney } from "@/lib/format";
 import type { ScentIndexEntry } from "@/lib/catalogue";
+import { ProductImage } from "@/components/product/ProductImage";
 import { Icon } from "@/components/ui/Icon";
-import { Wordmark } from "@/components/ui/Wordmark";
+import { Mark, Wordmark } from "@/components/ui/Wordmark";
 import { useModal } from "./useModal";
 import { WhatsAppLink } from "./WhatsAppLink";
 
@@ -30,14 +32,14 @@ const codLive = facts.paymentMethods.some((m) => /cash on delivery/i.test(m));
 type Follow = (href: string) => (e: React.MouseEvent) => void;
 
 /** Links replace the menu's history entry (useModal), so Back from the page they open skips the closed menu. */
-function Row({ href, follow, thumb, title, sub }: { href: string; follow: Follow; thumb: React.ReactNode; title: React.ReactNode; sub: React.ReactNode }) {
+function Row({ href, follow, thumb, title, sub }: { href: string; follow: Follow; thumb?: React.ReactNode; title: React.ReactNode; sub?: React.ReactNode }) {
   return (
     <li>
-      <Link href={href} replace onClick={follow(href)} className="flex min-h-[76px] items-center gap-4 py-2.5">
-        <span className="relative h-14 w-11 shrink-0 overflow-hidden bg-sand">{thumb}</span>
+      <Link href={href} replace onClick={follow(href)} className={`flex items-center gap-4 py-2.5 ${thumb ? "min-h-[76px]" : "min-h-14"}`}>
+        {thumb && <span className="relative h-14 w-11 shrink-0 overflow-hidden bg-sand">{thumb}</span>}
         <span className="min-w-0 flex-1">
           <span className="block text-[16px] font-medium leading-snug">{title}</span>
-          <span className="block truncate text-[13px] text-ash">{sub}</span>
+          {sub && <span className="block truncate text-[13px] text-ash">{sub}</span>}
         </span>
         <Icon name="chevron-right" size={16} className="shrink-0 text-ash" />
       </Link>
@@ -45,7 +47,30 @@ function Row({ href, follow, thumb, title, sub }: { href: string; follow: Follow
   );
 }
 
-export function MobileMenu({ onClose, counts, box }: { onClose: () => void; counts: Record<LineKey, number>; box: ScentIndexEntry | null }) {
+/** One way to shop, folded under its name; opening one folds the others (details[name]). */
+function Group({ title, children, all }: { title: React.ReactNode; children: React.ReactNode; all: { href: string; label: string; follow: Follow } }) {
+  return (
+    <details name="menu-shop" className="menu-group group border-b border-dune">
+      <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-4 py-3 [&::-webkit-details-marker]:hidden">
+        <span className="serif text-[24px] leading-none">{title}</span>
+        <Icon name="chevron-down" size={18} className="shrink-0 transition-transform duration-200 group-open:rotate-180" />
+      </summary>
+      <div className="pb-3">
+        <ul className="divide-y divide-dune/70 border-t border-dune/70">{children}</ul>
+        <Link href={all.href} replace onClick={all.follow(all.href)} className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold">
+          <span className="lnk">{all.label}</span>
+          <Icon name="arrow-right" size={16} />
+        </Link>
+      </div>
+    </details>
+  );
+}
+
+/**
+ * The phone menu: four ways to shop, each a fold (by line, by scent, by occasion, the Eternal Originals), then the
+ * finder and the mystery box, then the rest of the house.
+ */
+export function MobileMenu({ onClose, counts, box, originals }: { onClose: () => void; counts: Record<LineKey, number>; box: ScentIndexEntry | null; originals: ScentIndexEntry[] }) {
   const panel = useRef<HTMLElement>(null);
   const close = useRef<HTMLButtonElement>(null);
   // Back closes the menu instead of leaving the site.
@@ -63,7 +88,7 @@ export function MobileMenu({ onClose, counts, box }: { onClose: () => void; coun
         </header>
 
         <nav aria-label="Shop" className="px-5">
-          <ul className="divide-y divide-dune border-b border-dune">
+          <Group title="By line" all={{ href: "/shop", label: "All scents", follow }}>
             {AUDIENCES.map(({ key, label }) => (
               <Row
                 key={key}
@@ -78,6 +103,47 @@ export function MobileMenu({ onClose, counts, box }: { onClose: () => void; coun
                 sub={`${counts[key]} scents · ${lines[key].blurb}`}
               />
             ))}
+          </Group>
+          <Group title="By scent" all={{ href: "/shop", label: "All scents", follow }}>
+            {familyOrder.map((k) => (
+              <Row key={k} href={`/shop/${k}`} follow={follow} title={families[k].label} sub={families[k].descriptor} />
+            ))}
+          </Group>
+          {occasionsLive && (
+            <Group title="By occasion" all={{ href: "/shop", label: "All scents", follow }}>
+              {occasionOrder.map((k) => (
+                <Row key={k} href={`/shop/${k}`} follow={follow} title={occasions[k].label} sub={occasions[k].descriptor} />
+              ))}
+            </Group>
+          )}
+          <Group
+            title={
+              <span className="inline-flex items-center gap-2.5">
+                <Mark size={24} className="shrink-0 text-gold-text" />
+                Eternal Originals
+              </span>
+            }
+            all={{ href: "/shop/originals", label: "All Eternal Originals", follow }}
+          >
+            {originals.map((e) => (
+              <Row
+                key={e.handle}
+                href={`/products/${e.handle}`}
+                follow={follow}
+                thumb={<ProductImage src={e.image} alt="" world={e.world} sizes="44px" className="h-full w-full" />}
+                title={e.title}
+                sub={[e.line && AUDIENCES.find((a) => a.key === e.line)?.label, "composed by the house"].filter(Boolean).join(" · ")}
+              />
+            ))}
+          </Group>
+          <ul className="divide-y divide-dune border-b border-dune">
+            <Row
+              href="/finder"
+              follow={follow}
+              thumb={<Image src="/images/finder-band.jpg" alt="" fill sizes="44px" className="object-cover" />}
+              title="Find your scent"
+              sub="A few questions, three matches"
+            />
             {box && (
               <Row
                 href={`/products/${box.handle}`}
@@ -87,25 +153,7 @@ export function MobileMenu({ onClose, counts, box }: { onClose: () => void; coun
                 sub={`Three ${site.sampleSizeMl} ml samples · ${box.bottle?.availableForSale ? formatMoney(box.price) : "out of stock for now"}`}
               />
             )}
-            <Row
-              href="/shop/originals"
-              follow={follow}
-              thumb={<Image src="/images/products/hundred-whispers-3.jpg" alt="" fill sizes="44px" className="object-cover" />}
-              title="Eternal Originals"
-              sub="Five scents composed by the house"
-            />
-            <Row
-              href="/finder"
-              follow={follow}
-              thumb={<Image src="/images/finder-band.jpg" alt="" fill sizes="44px" className="object-cover" />}
-              title="Find your scent"
-              sub="A few questions, three matches"
-            />
           </ul>
-          <Link href="/shop" replace onClick={follow("/shop")} className="mt-1 inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold">
-            <span className="lnk">All scents</span>
-            <Icon name="arrow-right" size={16} />
-          </Link>
         </nav>
 
         <nav aria-label="More" className="mt-3 px-5">

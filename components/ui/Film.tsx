@@ -23,7 +23,9 @@ function preloadFor(src: string, sizes: string, media: string) {
  * reads `public/videos/home-hero.{webm,mp4}` and `public/images/home-hero.*`.
  * A name only becomes a film when both are present, so the poster and the
  * first frame can never disagree. With no clip this is exactly `Figure`: the
- * still if it exists, the labelled placeholder if it does not.
+ * still if it exists, the labelled placeholder if it does not. A clip named
+ * `<name>-intro` plays once before the loop when it exists (its last frame is
+ * the loop's first).
  */
 export function Film({
   name,
@@ -67,6 +69,7 @@ export function Film({
       return (
         <BackgroundVideo
           sources={sources}
+          intro={siteVideo(`${n}-intro`)}
           poster={poster}
           alt={alt}
           className={className}

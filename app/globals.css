@@ -223,8 +223,9 @@ input, select, textarea { font-size: 16px; }
 .badge { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-linen); background: var(--color-sea); }
 .badge-gold { background: var(--color-gold-text); }
 .badge-night { background: var(--color-night); }
-/* An Eternal Original, wherever its card shows: gold on night, apart from New and Bestseller. */
-.badge-original { background: var(--color-night); color: var(--color-gold); }
+/* An Eternal Original on its card's picture: the house's mark and the name in the serif, on a linen label like the
+   bottle's own; set apart from the uppercase New and Bestseller tags. */
+.original-tag { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px 0 9px; font-family: var(--font-serif); font-size: 15px; font-weight: 500; line-height: 1; letter-spacing: 0; color: var(--color-night); background: color-mix(in srgb, var(--color-linen) 94%, transparent); box-shadow: 0 1px 3px rgb(23 22 20 / 0.12); }
 
 /* Native scroll-snap carousels. */
 .snap-row { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }

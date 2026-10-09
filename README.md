@@ -59,7 +59,7 @@ phone, inside Instagram's browser, so every landing page sells on its first scre
 | Ad | Link it to |
 | --- | --- |
 | One scent | `/products/<handle>` |
-| The home page, opening on the bottle the ad shows | `/?hero=<handle>` (vintage-vanilla, linen, mango-eclipse, neroli-code, raw-seduction); without it the home page opens on one of the five at random |
+| The home page, opening on the bottle the ad shows | `/?hero=<handle>` (vintage-vanilla, linen, mango-eclipse, neroli-code, raw-seduction); without it the home page opens on the house film |
 | A carousel of scents | `/shop?h=handle-a,handle-b,handle-c` (only those, in that order) |
 | A line | `/shop/her`, `/shop/him`, `/shop/unisex` |
 | "Find your scent" | `/finder` |
@@ -96,7 +96,7 @@ checkout runs on a subdomain of the site's root domain (the launch checklist sho
 
 | Route | Board |
 | --- | --- |
-| `/` | Home — hero with the featured scent and its price, proof strip, the three lines side by side, where to start, try before you commit (mystery box, finder), moods, featured tale, house film |
+| `/` | Home — the hero film (or the campaign still an ad pins) with its scent and price, proof strip, the three lines side by side, where to start, try before you commit (mystery box, finder), moods, featured tale, house film |
 | `/shop`, `/shop/[collection]` | Collection — one-row head (line banners on her/him/unisex), line and family chips, filter sheet, search by the original, 24 then all, mystery box tile, state in the URL (`?q=`, `?h=`, filters, sort). Collections: `her`, `him`, `unisex`, `bestsellers` ("Where to start"), `new`, `originals` (the Eternal Originals), six families, and five occasions (`date`, `everyday`, `event`, `outdoors`, `beach-side`) once `occasionsLive` is set in `content/occasions.ts` |
 | `/products/[handle]` | Product page — first screen with gallery, name and price, inspired-by, notes and Add to bag; sticky bar; promise list; how it differs, how it smells, wear it, FAQ, pairing, tale, you may also like, recently viewed |
 | `/bag?items=<variant>:<qty>,…` | Rebuilds the bag from a link (retargeting, "send my bag") |

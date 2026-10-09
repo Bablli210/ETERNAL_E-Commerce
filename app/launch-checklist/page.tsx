@@ -16,7 +16,7 @@ export const revalidate = 300;
 export const metadata: Metadata = { title: "Launch checklist", robots: { index: false, follow: false } };
 
 /** Site-wide image slots that should hold a real file before launch. */
-const SITE_IMAGES = [...heroes.flatMap((h) => [`hero-${h.handle}`, `hero-${h.handle}-mobile`]), "line-eterna", "line-eterno", "line-eternal", "finder-band", "mystery-box", "house-film-poster", "og-image"];
+const SITE_IMAGES = [...heroes.flatMap((h) => (h.film ? [h.film, `${h.film}-mobile`] : [`hero-${h.handle}`, `hero-${h.handle}-mobile`])), "line-eterna", "line-eterno", "line-eternal", "finder-band", "mystery-box", "house-film-poster", "og-image"];
 
 /**
  * The environment the ads depend on, read on the server: whether each key is

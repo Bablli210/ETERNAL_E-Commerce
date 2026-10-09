@@ -5,7 +5,7 @@ import { Price } from "@/components/ui/Primitives";
 import { formatMoney, joinNotes } from "@/lib/format";
 import { analyticsItem } from "./analytics-item";
 import { CardLink } from "./CardLink";
-import { EternalOriginal, InspiredBy } from "./InspiredBy";
+import { EternalOriginal, InspiredBy, OriginalTag } from "./InspiredBy";
 import { LineLabel } from "./LineLabel";
 import { ProductImage } from "./ProductImage";
 
@@ -47,7 +47,11 @@ export function ProductCard({
       <div className="relative">
         {/* The link names the product, so the picture stays silent. */}
         <ProductImage src={entry.image} hoverSrc={entry.hoverImage} alt="" world={entry.world} sizes={sizes} priority={priority} className="aspect-square w-full" />
-        {showBadge && <span className={`badge absolute left-3 top-3 text-[12px] ${showBadge === "New" ? "badge-gold" : showBadge === "Eternal Original" ? "badge-original" : ""}`}>{showBadge}</span>}
+        {showBadge === "Eternal Original" ? (
+          <OriginalTag className="absolute left-2.5 top-2.5 lg:left-3 lg:top-3" />
+        ) : (
+          showBadge && <span className={`badge absolute left-3 top-3 text-[12px] ${showBadge === "New" ? "badge-gold" : ""}`}>{showBadge}</span>
+        )}
         {reason && <span className="absolute bottom-3 left-3 bg-linen/90 px-2 py-1 text-[12px] text-night">{reason}</span>}
       </div>
       <div className="flex flex-1 flex-col pt-2.5">

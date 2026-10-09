@@ -200,12 +200,12 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               {isSet ? (
                 <p className="text-[15px] leading-[22px]">{box.hook}</p>
               ) : scent.isOriginal ? (
-                <EternalOriginal className="text-[14px] leading-6 text-ash" />
+                <EternalOriginal className="text-[14px] leading-6 text-ash" nameClassName="text-[20px]" />
               ) : (
                 <InspiredBy name={scent.inspiredBy ?? ""} className="text-[14px] leading-6 text-ash" nameClassName="text-[20px]" />
               )}
               <p className="text-[12px] leading-[18px] text-ash">
-                {isSet ? box.hookSub : scent.isOriginal ? "Our own composition, not inspired by another fragrance." : "Our own composition, not affiliated with its house."}
+                {isSet ? box.hookSub : scent.isOriginal ? "Not inspired by another fragrance: only at eternal." : "Our own composition, not affiliated with its house."}
               </p>
             </div>
           )}

@@ -1,6 +1,7 @@
 import { getImageProps } from "next/image";
 import { preload } from "react-dom";
 import { siteImage } from "@/lib/site-images";
+import { Film } from "@/components/ui/Film";
 import type { Hero } from "@/content/heroes";
 
 /**
@@ -27,5 +28,20 @@ export function HeroStill({ hero, className = "" }: { hero: Hero; className?: st
       {/* eslint-disable-next-line jsx-a11y/alt-text -- the next/image props above carry the alt and the optimised srcset. */}
       <img {...phoneProps} loading="eager" fetchPriority="high" className="object-cover" />
     </picture>
+  );
+}
+
+/**
+ * The house film in place of a still: the wide film from lg and the phone crop below, each with its poster and
+ * intro, and each loading its clip only on the screens that show it. The posters paint first and the film starts
+ * once the page is idle (playbook 3.4).
+ */
+export function HeroFilm({ hero, film }: { hero: Hero; film: string }) {
+  const common = { label: "Hero film", alt: hero.alt, dark: true, priority: true, startWhenIdle: true, sizes: "100vw", placeholderClassName: "slot-corner !border-0 opacity-60", style: { backgroundColor: hero.bg } } as const;
+  return (
+    <>
+      <Film {...common} name={film} media="(min-width: 1024px)" className="absolute inset-0 hidden lg:block" />
+      <Film {...common} name={[`${film}-mobile`, film]} media="(max-width: 1023.98px)" className="absolute inset-0 lg:hidden" />
+    </>
   );
 }

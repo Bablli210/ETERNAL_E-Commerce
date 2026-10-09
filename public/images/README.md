@@ -38,8 +38,8 @@ yet shows its colour world and the e∞ mark on every card.
 
 | File | Used for |
 | --- | --- |
-| `home-hero` | The first hero film's poster (16:9), kept with `videos/home-hero`; the home page now opens on the campaign heroes below |
-| `home-hero-mobile` | The phone crop of that poster, kept with `videos/home-hero-mobile` |
+| `home-hero` | The hero film's poster (16:9, 1920 × 1080): the frame the film's intro ends on and its loop starts from, so it is also what shows with motion off |
+| `home-hero-mobile` | The phone crop of that poster (3:4, the centre of the frame, 1080 × 1440), with `videos/home-hero-mobile` |
 | `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles |
 | `family-fresh`, `family-woody`, `family-amber-spice`, `family-floral`, `family-gourmand`, `family-aquatic` | The six "Shop by scent" tiles (4:3; cropped square on phones), and the finder's notes question. All six are the owner's stills |
 | `finder-band` | Scent finder band |
@@ -55,9 +55,10 @@ yet shows its colour world and the e∞ mark on every card.
 | `hero-<handle>` | A scent's wide campaign still (16:9 or wider), the home hero from 1024 px |
 | `hero-<handle>-mobile` | The same still cut 1.2:1 around the bottle, the home hero on a phone |
 
-The home page opens on one of these at random per visit; `?hero=<handle>`
-pins one. The rotation is the list in `content/heroes.ts` (with each
-still's background colour and alt text): add a still there and here to add it.
+The home page opens on the hero film (`home-hero`); `?hero=<handle>` opens
+it on one of these instead, so an ad's landing shows the bottle the ad showed.
+The list is `content/heroes.ts` (with each still's background colour and alt
+text): add a still there and here to add it.
 Installed for `vintage-vanilla`, `linen`, `mango-eclipse`, `neroli-code` and
 `raw-seduction`.
 

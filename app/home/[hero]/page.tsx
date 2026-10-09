@@ -7,7 +7,7 @@ export const dynamicParams = false;
 
 export const metadata = homeMetadata;
 
-/** One static home page per hero still; proxy.ts rewrites "/" to one of them on every visit. */
+/** One static home page per hero; proxy.ts rewrites "/" to one of them on every visit. */
 export function generateStaticParams() {
   return heroes.map((h) => ({ hero: h.handle }));
 }

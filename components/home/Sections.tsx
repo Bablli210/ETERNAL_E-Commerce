@@ -16,7 +16,7 @@ import { formatMoney, joinNotes, sentenceCase } from "@/lib/format";
 import { siteVideo } from "@/lib/site-videos";
 import { ParallaxSection } from "@/components/motion/Parallax";
 import { HouseFilmPlayer } from "./HouseFilmPlayer";
-import { HeroStill } from "./HeroStill";
+import { HeroFilm, HeroStill } from "./HeroStill";
 import type { Hero as HeroDef } from "@/content/heroes";
 import { SelectList, type ListItem } from "./SelectList";
 import { LineShowcase, type LineShowcaseItem } from "./LineShowcase";
@@ -55,16 +55,21 @@ function HomeHead({ title, sub, action, className = "" }: { title: ReactNode; su
   );
 }
 
+/** "#163A4E" as "22, 58, 78", for rgba(). */
+const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(", ");
+
 /**
- * The first screen (playbook 3.4): one campaign still, its scent named and
- * one tap away, the house in one line, the price floor, one primary action
- * and the finder as a quiet second. Which still shows is chosen per visit
- * (content/heroes.ts). On a phone the still sits above the copy, so the
- * bottle is never under the headline.
+ * The first screen (playbook 3.4): the house film or a campaign still, its
+ * scent named and one tap away, the house in one line, the price floor, one
+ * primary action and the finder as a quiet second. Which one shows is chosen
+ * per visit (content/heroes.ts). On a phone the picture sits above the copy,
+ * so the bottle is never under the headline.
  */
 export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; scent: ScentIndexEntry | null; fromPrice: Money | null; samplePrice: Money | null }) {
   const words = site.tagline.split(" ");
   const bg = hero.bg;
+  // The stills' shades are Night; the film's blue sky deepens into its own band colour instead.
+  const shade = hero.film ? rgb(bg) : "23, 22, 20";
   // Only figures the catalogue or the owner has confirmed; nothing here is a placeholder.
   const offer = [
     fromPrice && `${ml(site.bottleSizeMl)} from ${formatMoney(fromPrice)}`,
@@ -77,11 +82,11 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
       {/* Phone: the still's box hangs off the section, not off the copy's grid row, so it keeps its size while the fonts
           arrive and the copy reflows. */}
       <div data-hero={hero.handle} className="hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3">
-        <HeroStill hero={hero} className="absolute inset-0" />
+        {hero.film ? <HeroFilm hero={hero} film={hero.film} /> : <HeroStill hero={hero} className="absolute inset-0" />}
         {/* Phone: the still fades into the band the copy sits on. Desktop: the copy sits on the still. */}
-        <div aria-hidden="true" className="absolute inset-0 lg:hidden" style={{ backgroundImage: `linear-gradient(to top, ${bg} 6%, transparent 42%), linear-gradient(to bottom, rgba(23, 22, 20, 0.45), transparent 22%)` }} />
+        <div aria-hidden="true" className="absolute inset-0 lg:hidden" style={{ backgroundImage: `linear-gradient(to top, ${bg} 6%, transparent 42%), linear-gradient(to bottom, rgba(${shade}, 0.45), transparent 22%)` }} />
         {/* Desktop: every still keeps its bottle right of centre, so the copy holds the left half on a shade of its own. */}
-        <div aria-hidden="true" className="absolute inset-0 hidden lg:block" style={{ backgroundImage: "linear-gradient(to right, rgba(23, 22, 20, 0.78) 0%, rgba(23, 22, 20, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(23, 22, 20, 0.35), transparent 20%)" }} />
+        <div aria-hidden="true" className="absolute inset-0 hidden lg:block" style={{ backgroundImage: `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)` }} />
       </div>
       <div className="wrap relative col-start-1 row-start-2 pb-6 lg:pb-24">
         <div className="hero-drift max-w-[820px] lg:max-w-[min(540px,40vw)]">

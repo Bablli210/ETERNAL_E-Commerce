@@ -89,6 +89,7 @@ export const site = {
 
 export const nav = [
   { label: "Shop", href: "/shop" },
+  { label: "Eternal Originals", href: "/shop/originals" },
   { label: "Find your scent", href: "/finder" },
   { label: "Tales", href: "/tales" },
 ] as const;

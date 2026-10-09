@@ -6,9 +6,8 @@ import { FBCLID, consentFromCookieHeader, cookieRootFor, fbcFrom } from "@/lib/c
  * Two jobs, each on its own requests (see the matcher).
  *
  * The home page: every request for "/" is rewritten to /home/<handle>, one
- * static page per campaign still (content/heroes.ts), picked at random, so
- * each visit can open on a different bottle at no rendering cost. An ad link
- * pins one with ?hero=<handle>.
+ * static page per hero (content/heroes.ts): the house film, or the campaign
+ * still an ad link pins with ?hero=<handle>.
  *
  * Ad clicks: on page requests that carry a click id or a campaign, keeps
  * the click as first-party cookies set by the server, which outlive Safari's
@@ -24,9 +23,9 @@ const UTM = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_ter
 const DAY = 86_400;
 
 
-/** The home page with the still an ad asked for, or one at random. */
+/** The home page with the still an ad asked for, or the house film. */
 function homeWithHero(url: NextRequest["nextUrl"]) {
-  const hero = heroByHandle(url.searchParams.get("hero")?.toLowerCase()) ?? heroes[Math.floor(Math.random() * heroes.length)];
+  const hero = heroByHandle(url.searchParams.get("hero")?.toLowerCase()) ?? heroes[0];
   const to = url.clone();
   to.pathname = `/home/${hero.handle}`;
   return NextResponse.rewrite(to);

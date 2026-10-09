@@ -9,10 +9,12 @@ import { facts } from "@/lib/facts";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { useCart } from "@/components/cart/CartProvider";
 import { Icon } from "@/components/ui/Icon";
-import { Wordmark } from "@/components/ui/Wordmark";
+import { Mark, Wordmark } from "@/components/ui/Wordmark";
 import { MegaMenu, type FeaturedTiles } from "./MegaMenu";
 import { SearchOverlay, type TaleIndexEntry } from "./SearchOverlay";
 import { MobileMenu } from "./MobileMenu";
+
+const ORIGINALS = "/shop/originals";
 
 /** The bag button's name says what is in it; before the stored bag is read it is just "Bag". */
 const bagLabel = (ready: boolean, n: number) => (ready ? `Bag, ${n} ${n === 1 ? "item" : "items"}` : "Bag");
@@ -105,6 +107,11 @@ export function Header({
     return { eterna: n("eterna"), eterno: n("eterno"), eternal: n("eternal") };
   }, [index]);
   const box = useMemo(() => index.find((e) => e.kind === "set" && e.handle === "mystery-box") ?? null, [index]);
+  // The Eternal Originals for her, for him, then unisex (lib/catalogue.ts getOriginals).
+  const originals = useMemo(() => {
+    const rank = (e: ScentIndexEntry) => (e.line ? ["eterna", "eterno", "eternal"].indexOf(e.line) : 3);
+    return index.filter((e) => e.kind === "scent" && e.isOriginal).sort((a, b) => rank(a) - rank(b));
+  }, [index]);
 
   // "/" is served from /home/<hero> (proxy.ts), so the prerendered header must read that path as home too.
   const isHome = pathname === "/" || pathname.startsWith("/home/");
@@ -141,16 +148,23 @@ export function Header({
             <nav aria-label="Primary" className="hidden gap-7 self-stretch lg:flex">
               {nav.map((item) => {
                 const isShop = item.href === "/shop";
-                const active = pathname === item.href || pathname.startsWith(item.href + "/") || (isShop && pathname.startsWith("/products"));
+                const isOriginals = item.href === ORIGINALS;
+                // The Eternal Originals have their own link, so Shop is not lit on their page.
+                const active = isShop
+                  ? (pathname === "/shop" || pathname.startsWith("/shop/") || pathname.startsWith("/products")) && pathname !== ORIGINALS
+                  : pathname === item.href || pathname.startsWith(item.href + "/");
                 return (
-                  <div key={item.href} className="relative flex" onMouseEnter={isShop ? openMenu : undefined}>
+                  // Four links fit beside the wordmark from 1280 px; below that Tales waits in the footer and the phone menu.
+                  <div key={item.href} className={`relative flex ${item.href === "/tales" ? "max-xl:hidden" : ""}`} onMouseEnter={isShop ? openMenu : undefined}>
                     <Link
                       href={item.href}
                       aria-expanded={isShop ? menu : undefined}
                       aria-haspopup={isShop ? "true" : undefined}
                       onFocus={isShop ? openMenu : undefined}
-                      className={`ui nav-link inline-flex h-[calc(100%+1px)] items-center gap-1 border-b ${active ? "border-current" : "border-transparent"}`}
+                      className={`ui nav-link inline-flex h-[calc(100%+1px)] items-center whitespace-nowrap border-b ${isOriginals ? "gap-2" : "gap-1"} ${active ? "border-current" : "border-transparent"}`}
                     >
+                      {/* The house's mark names its own compositions, apart from the scents inspired by another. */}
+                      {isOriginals && <Mark size={20} className={`shrink-0 ${transparent ? "" : "text-gold-text"}`} />}
                       {item.label}
                       {isShop && <Icon name="chevron-down" size={14} />}
                     </Link>
@@ -194,13 +208,13 @@ export function Header({
               </button>
             </div>
           </div>
-          {menu && <MegaMenu featured={featured} onEnter={openMenu} onLeave={scheduleClose} />}
+          {menu && <MegaMenu featured={featured} originals={originals} onEnter={openMenu} onLeave={scheduleClose} />}
           {search && <SearchOverlay index={index} taleIndex={taleIndex} popular={popular} onClose={closeSearch} />}
         </header>
       </div>
       {/* Reserve the chrome's height on every page but the home hero, which runs under it. */}
       {!isHome && <div aria-hidden="true" className={facts.announcement ? "h-[calc(var(--header-h)+var(--announce-h))]" : "h-[var(--header-h)]"} />}
-      {mobile && <MobileMenu onClose={closeMobile} counts={counts} box={box} />}
+      {mobile && <MobileMenu onClose={closeMobile} counts={counts} box={box} originals={originals} />}
     </>
   );
 }
