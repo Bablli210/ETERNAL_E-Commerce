@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
+import { cookiePurposes } from "@/content/cookies";
 import { checkoutFollows, configureConsent, onConsentOpen, readConsent, saveConsent, syncCheckoutOnce, useConsent, type ConsentSettings } from "@/lib/client/consent";
 
 /**
@@ -110,21 +111,21 @@ export function ConsentBanner(props: ConsentSettings) {
       {details && (
         <fieldset className="mt-4 flex flex-col gap-3 border-t border-dune pt-3">
           <legend className="sr-only">Choose which cookies to allow</legend>
-          <Purpose id={`${id}-necessary`} label="Necessary" checked disabled note="Your bag, this choice, and the name of the campaign that brought you here. Always on." />
+          <Purpose id={`${id}-necessary`} label={cookiePurposes.necessary.label} checked disabled note={cookiePurposes.necessary.note} />
           <Purpose
             id={`${id}-analytics`}
             ref={firstSwitch}
-            label="Analytics"
+            label={cookiePurposes.analytics.label}
             checked={analytics}
             onChange={setAnalytics}
-            note="Google Analytics and Vercel count visits and see which pages work, so we can make the site better."
+            note={cookiePurposes.analytics.note}
           />
           <Purpose
             id={`${id}-marketing`}
-            label="Marketing"
+            label={cookiePurposes.marketing.label}
             checked={marketing}
             onChange={setMarketing}
-            note={`Meta (Instagram, Facebook) and Google see which scents you looked at and added, so our ads reach the right people and we can see what they sold. The ad you came from travels with your order${checkoutFollows() ? ", and checkout follows the same choice" : ". Checkout runs on Shopify, under Shopify’s own cookie settings"}.`}
+            note={`${cookiePurposes.marketing.note}${checkoutFollows() ? ", and checkout follows the same choice" : ". Checkout runs on Shopify, under Shopify’s own cookie settings"}.`}
           />
         </fieldset>
       )}

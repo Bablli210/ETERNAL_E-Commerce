@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CheckoutCookieNote, CookieSettings } from "@/components/analytics/CookieSettings";
+import { cookiePurposes } from "@/content/cookies";
 import { pageMeta } from "@/lib/metadata";
 import type { ReactNode } from "react";
 import Link from "next/link";
@@ -179,10 +180,19 @@ export default async function HelpPage() {
           <p>How we collect and use your details is set out in our privacy policy.</p>
           <Way href={policy("privacy-policy")}>Read the privacy policy</Way>
           <p className="mt-4">
-            <strong className="font-semibold">Cookies.</strong> The site keeps what it needs to work without asking: your bag, your cookie choice, and the name of the
-            campaign that brought you here. Nothing that identifies you goes to Meta or Google from this site until you say yes, and you can change your mind at any time.{" "}
+            <strong className="font-semibold">Cookies.</strong> The site asks before it sets any cookie it doesn&rsquo;t need to work. Nothing that identifies you goes
+            to Meta or Google from this site until you say yes, and you can change your mind at any time.{" "}
             <CheckoutCookieNote cookieDomain={process.env.COOKIE_DOMAIN?.trim() || null} checkoutDomain={checkoutDomain} storefrontToken={process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null} />
           </p>
+          {/* The same three choices, in the same words, as the cookie banner (content/cookies.ts). */}
+          <ul className="mt-2 flex list-disc flex-col gap-1 pl-5">
+            {(["necessary", "analytics", "marketing"] as const).map((k) => (
+              <li key={k}>
+                <strong className="font-semibold">{cookiePurposes[k].label}</strong>: {cookiePurposes[k].note}
+                {k === "marketing" ? "." : ""}
+              </li>
+            ))}
+          </ul>
           <p className="mt-2">
             When you arrive from a campaign link, we note which campaign it was (its name only, nothing about you) so we know which posts bring visitors. Your choice is
             kept for six months, then we ask again.
