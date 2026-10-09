@@ -48,7 +48,20 @@ still to confirm are hidden in the captures.
 
 Checking work: `tools/preview.mjs --at 2,6.5,12` (full-size stills), `--sheet 24`
 (a contact sheet), `--check 7.3` (determinism: the same pixels after painting other
-frames). `tools/profile.mjs` times each render stage.
+frames). `tools/path.mjs` prints the camera's speed and turn rate for every second and
+the largest frame-to-frame changes, so a jolt in the path shows up as a number before
+anything is rendered. `tools/profile.mjs` times each render stage.
+
+The master renders in chunks when a long run is not practical, then joins without
+re-encoding:
+
+```
+node reel/showcase/tools/render.mjs --from 0 --to 10 --out reel/showcase/out/eternal-showcase-master-p1.mp4
+node reel/showcase/tools/render.mjs --from 10 --to 20 --out reel/showcase/out/eternal-showcase-master-p2.mp4
+node reel/showcase/tools/render.mjs --from 20 --to 30 --out reel/showcase/out/eternal-showcase-master-p3.mp4
+printf "file '%s'\n" eternal-showcase-master-p1.mp4 eternal-showcase-master-p2.mp4 eternal-showcase-master-p3.mp4 > reel/showcase/out/parts.txt
+ffmpeg -f concat -safe 0 -i reel/showcase/out/parts.txt -c copy -movflags +faststart reel/showcase/out/eternal-showcase-master.mp4
+```
 
 ## How it is made
 
