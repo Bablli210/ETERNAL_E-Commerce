@@ -32,7 +32,7 @@ yet shows its colour world and the e∞ mark on every card.
 
 | File | Used for |
 | --- | --- |
-| `collection-her`, `collection-him`, `collection-unisex` | The band at the top of `/shop/her`, `/shop/him` and `/shop/unisex`, behind the line's name and the search. 2400 × 1029 (7:3): keep the left half dark and empty for the type, the subject right of centre. It is about 160 px tall on a phone, so the subject must read small |
+| `collection-her`, `collection-him`, `collection-unisex`, `collection-originals` | The band at the top of `/shop/her`, `/shop/him`, `/shop/unisex` and `/shop/originals`, behind the title and the search. 2400 × 1029 (7:3): keep the left half dark and empty for the type, the subject right of centre. It is about 160 px tall on a phone, so the subject must read small |
 
 ## Home page
 

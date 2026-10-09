@@ -13,7 +13,7 @@ const FOR: Record<LineKey, string> = { eterna: "For her", eterno: "For him", ete
 
 /**
  * A collection page for a phone that arrives from an ad. The three line pages
- * open on the line's own still (collection-<slug>, Direction B) as a short
+ * and the Eternal Originals open on their own still (collection-<slug>, Direction B) as a short
  * band that carries the title and the search, so the band costs no more
  * height than a text head. The mystery box sits inside the grid as the
  * low-risk first order; the FAQ answers what stops a first purchase.
@@ -24,7 +24,8 @@ export async function CollectionPage({ def, scents, initial }: { def: Collection
   const byHandle = new Map(house.map((e) => [e.handle, e]));
   const entries = scents.map((s) => byHandle.get(s.handle) ?? toIndexEntry(s));
   const line = def.kind === "line" ? (def.key as LineKey) : null;
-  const still = line ? siteImage(`collection-${def.slug}`) : null;
+  // The lines and the Eternal Originals open on their own still (collection-<slug>).
+  const still = line || def.kind === "originals" ? siteImage(`collection-${def.slug}`) : null;
   const crumbs = [
     { label: "Home", href: "/" as string },
     { label: "Shop", href: "/shop" },

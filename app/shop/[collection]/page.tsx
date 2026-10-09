@@ -25,8 +25,15 @@ export async function generateMetadata({ params }: { params: Promise<{ collectio
   if (!def) return {};
   // The line names differ by one letter, so the tab and the in-app title bar say who each is for.
   const title = def.kind === "line" ? `${def.key === "eternal" ? "Unisex" : `For ${lines[def.key as LineKey].audience.toLowerCase()}`} · ${def.title}` : def.title;
-  // A line previews with its own picture, a mood with its mood still; the rest with the house's.
-  const image = def.kind === "line" ? siteImage([`collection-${def.slug}`, `line-${def.key}`]) : def.kind === "mood" ? siteImage(`mood-${def.key}`) : null;
+  // A line and the Eternal Originals preview with their own picture, a mood with its mood still; the rest with the house's.
+  const image =
+    def.kind === "line"
+      ? siteImage([`collection-${def.slug}`, `line-${def.key}`])
+      : def.kind === "originals"
+        ? siteImage(`collection-${def.slug}`)
+        : def.kind === "mood"
+          ? siteImage(`mood-${def.key}`)
+          : null;
   return pageMeta({ title, description: def.descriptor, path: `/shop/${def.slug}`, image });
 }
 
