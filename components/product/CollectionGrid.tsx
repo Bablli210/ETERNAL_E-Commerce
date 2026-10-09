@@ -215,6 +215,7 @@ export function CollectionGrid({
   descriptor,
   eyebrow,
   banner,
+  bannerSide = "left",
   initial = defaultGridState,
   promo,
   lineCounts,
@@ -235,6 +236,8 @@ export function CollectionGrid({
   eyebrow?: string;
   /** On a line page, its still, shown behind the title as a short band. */
   banner?: ReactNode;
+  /** Where the band's words sit from lg: left of a still whose subject stands right, or right of one whose subject stands left. */
+  bannerSide?: "left" | "right";
   /** The state the server rendered from the URL; every collection page renders per request. */
   initial?: GridState;
   /** The mystery box, offered inside the grid as the low-risk first order. */
@@ -482,11 +485,13 @@ export function CollectionGrid({
       {banner && !selection ? (
         <div className="relative -mx-5 overflow-hidden bg-night text-linen lg:mx-0">
           <div className="absolute inset-0">{banner}</div>
-          <div className="absolute inset-0 bg-gradient-to-r from-night/60 via-night/20 to-transparent" aria-hidden="true" />
-          <div className="relative flex min-h-[160px] flex-col justify-between gap-3 px-5 py-3.5 lg:min-h-[400px] lg:p-10">
+          {/* Night behind the words; on the right it stops short of the still's subject on the left. */}
+          <div className={`absolute inset-0 bg-gradient-to-r from-night/60 via-night/20 to-transparent ${bannerSide === "right" ? "lg:bg-[linear-gradient(to_left,rgba(23,22,20,0.6)_0%,rgba(23,22,20,0.5)_52%,transparent_72%)]" : ""}`} aria-hidden="true" />
+          <div className={`relative flex min-h-[160px] flex-col justify-between gap-3 px-5 py-3.5 lg:min-h-[400px] lg:p-10 ${bannerSide === "right" ? "lg:pl-[48%]" : ""}`}>
             <div>
               {eyebrow && <p className="eyebrow text-[12px] text-linen/80">{eyebrow}</p>}
-              <h1 className="serif mt-1 text-[40px] font-semibold leading-none lg:text-[64px]">{line ? <LineName line={line} size="0.9em" /> : title}</h1>
+              {/* On the right half the title keeps one line: smaller until there is room for 64 px. */}
+              <h1 className={`serif mt-1 text-[40px] font-semibold leading-none lg:text-[64px] ${bannerSide === "right" ? "lg:max-xl:text-[48px]" : ""}`}>{line ? <LineName line={line} size="0.9em" /> : title}</h1>
               <p className="mt-3 hidden max-w-[44ch] text-[17px] leading-relaxed text-linen/80 lg:block">{descriptor}</p>
             </div>
             {/* How many scents, right above the search that narrows them. */}

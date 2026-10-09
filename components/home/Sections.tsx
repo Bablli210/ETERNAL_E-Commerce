@@ -77,16 +77,11 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
   // Every shade is Night, neutral, so it darkens the picture without tinting it (the film's band is Night too).
   const shade = "23, 22, 20";
   // Desktop. A still keeps its bottle right of centre, so the copy holds the left half on a shade of its own. The film
-  // fills the hero too, set 12% right (HeroFilm) so Divina stands right of centre, but it is bright where the copy sits
-  // (white blossom, cloud, a cream close-up), so its shade runs to the copy's own edge before fading over 240 px, and
-  // holds through the header. Tuned on every half-second of the film at 1024-3440 px: the copy and the header stay at
-  // 4.5:1 or better on the brightest frame, and Divina's label stays under a fifth of the shade.
+  // fills the hero too, set 12% right (HeroFilm) so Divina stands right of centre, and shows untouched, at the owner's
+  // request: no shade over it, so the copy (and the header over it) carry a soft text shadow instead.
   // The bottle's left edge sits at about 43.7% of the screen (39% of the film, set 12% wider); the copy stops 32 px short.
-  const copyEdge = "calc(max(80px, 50vw - 640px) + min(520px, 32vw, 43.7vw - 32px - max(80px, 50vw - 640px)))";
-  const desktopShade = hero.film
-    ? `linear-gradient(to bottom, rgba(${shade}, 0.66) 0, rgba(${shade}, 0.62) calc(var(--announce-h) + var(--header-h)), rgba(${shade}, 0) 280px), linear-gradient(to top, rgba(${shade}, 0.3), rgba(${shade}, 0) 18%), linear-gradient(to right, rgba(${shade}, 0.68) 0, rgba(${shade}, 0.62) ${copyEdge}, rgba(${shade}, 0) calc(${copyEdge} + 240px))`
-    : `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)`;
-  // Over the film the softer Dune would need an almost opaque shade; Linen reads at 4.5:1 over one the film shows through.
+  const desktopShade = hero.film ? null : `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)`;
+  // Over the film the softer Dune would not read at all; Linen, with the shadow, as well as the film allows.
   const soft = hero.film ? "text-dune lg:text-linen" : "text-dune";
   // Below lg the picture fades into the band. On a phone, or any landscape screen, the film's sky and cloud are bright
   // to its foot and the copy starts high, so it fades in sooner, keeping the scent's name and its original at 4.5:1; a
@@ -106,17 +101,17 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
           arrive and the copy reflows. */}
       <div data-hero={hero.handle} className="hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3">
         {hero.film ? <HeroFilm hero={hero} film={hero.film} /> : <HeroStill hero={hero} className="absolute inset-0" />}
-        {/* Below lg the picture fades into the band the copy sits on. Desktop: see desktopShade. */}
+        {/* Below lg the picture fades into the band the copy sits on. Desktop: a still's shade (desktopShade); the film has none. */}
         <div aria-hidden="true" className={`absolute inset-0 lg:hidden ${hero.film ? "hidden sm:portrait:block" : ""}`} style={{ backgroundImage: `linear-gradient(to top, ${bg} 6%, transparent 42%), ${topShade}` }} />
         {hero.film && <div aria-hidden="true" className="absolute inset-0 sm:portrait:hidden lg:hidden" style={{ backgroundImage: `${filmPhoneFade}, ${topShade}` }} />}
-        <div aria-hidden="true" className="absolute inset-0 hidden lg:block" style={{ backgroundImage: desktopShade }} />
+        {desktopShade && <div aria-hidden="true" className="absolute inset-0 hidden lg:block" style={{ backgroundImage: desktopShade }} />}
       </div>
       {/* On a short desktop screen the copy is taller than the hero: it keeps clear of the header and the hero grows. */}
-      <div className="wrap relative col-start-1 row-start-2 pb-6 max-lg:isolate lg:mt-[calc(var(--header-h)+var(--announce-h)+16px)] lg:pb-24">
+      <div className={`wrap relative col-start-1 row-start-2 pb-6 max-lg:isolate lg:mt-[calc(var(--header-h)+var(--announce-h)+16px)] lg:pb-24 ${hero.film ? "lg:[text-shadow:0_1px_3px_rgba(23,22,20,0.8),0_0_16px_rgba(23,22,20,0.65),0_0_40px_rgba(23,22,20,0.5)] lg:[&_.btn]:[text-shadow:none]" : ""}`}>
         {/* Below lg the copy sits at the picture's foot and grows with the three-line headline, so the picture's own
             fade cannot know where it starts: this shade rises with the copy and puts its first line on the band. */}
         <div aria-hidden="true" className="absolute inset-x-0 -top-28 bottom-0 -z-10 lg:hidden" style={{ backgroundImage: `linear-gradient(to bottom, transparent, color-mix(in srgb, ${bg} 85%, transparent) 64px, ${bg} 112px)` }} />
-        {/* Over the film the copy ends short of Divina's bottle (copyEdge). */}
+        {/* Over the film the copy ends 32 px short of Divina's bottle, at 43.7% of the screen. */}
         <div className={`max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,32vw,calc(43.7vw_-_32px_-_max(80px,50vw_-_640px)))]" : "lg:max-w-[min(540px,40vw)]"}`}>
           {scent && (
             <SelectList list="home_hero" items={[listItem(scent)]}>
@@ -140,7 +135,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
             </SelectList>
           )}
           {/* Three lines: "Some things are" is the longest, about 7.1 em, so on a wide screen the size follows the
-              copy column (the film's copyEdge, less the column's start) to keep it on one line. */}
+              copy column (its width, as set just above) to keep it on one line. */}
           <h1 className={`display-xl mt-1 max-sm:text-[min(44px,11.2vw)] max-lg:[@media(max-height:760px)]:text-[min(36px,9.6vw)] ${hero.film ? "lg:text-[min(84px,calc(min(520px,32vw,43.7vw_-_32px_-_max(80px,50vw_-_640px))/7.3))]" : "lg:text-[min(84px,calc(min(540px,40vw)/7.3))]"}`}>
             {/* The space sits between the spans, not inside them: a non-breaking space
                 kept the headline on one unbreakable line whenever the words were plain

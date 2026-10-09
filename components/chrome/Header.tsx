@@ -140,7 +140,7 @@ export function Header({
         )}
         <header
           className={`relative h-[var(--header-h)] border-b transition-colors duration-200 ${
-            transparent ? "border-transparent bg-transparent text-linen" : "border-dune bg-linen text-night"
+            transparent ? "border-transparent bg-transparent text-linen [text-shadow:0_1px_3px_rgba(23,22,20,0.55)] [&_svg]:drop-shadow-[0_1px_2px_rgba(23,22,20,0.5)]" : "border-dune bg-linen text-night"
           }`}
         >
           {/* Over the hero, a faint line under the bar from the first link (the menu icon on a phone) to the bag icon, in the
