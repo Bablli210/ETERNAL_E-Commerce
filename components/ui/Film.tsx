@@ -41,6 +41,7 @@ export function Film({
   preload = "auto",
   startWhenIdle = false,
   media,
+  still = true,
 }: {
   name: string | string[];
   label: string;
@@ -58,6 +59,8 @@ export function Film({
   startWhenIdle?: boolean;
   /** Only load the clip (and preload the still) when this media query matches, for slots CSS hides. */
   media?: string;
+  /** false: the caller paints the still (the home hero's one <picture>); this draws only the clip, or nothing without one. */
+  still?: boolean;
 }) {
   // With a media query the preload carries it; the image itself must not preload everywhere.
   const preloadEverywhere = priority && !media;
@@ -65,12 +68,12 @@ export function Film({
     const sources = siteVideo(n);
     const poster = siteImage(n);
     if (sources && poster) {
-      if (priority && media) preloadFor(poster, sizes, media);
+      if (still && priority && media) preloadFor(poster, sizes, media);
       return (
         <BackgroundVideo
           sources={sources}
           intro={siteVideo(`${n}-intro`)}
-          poster={poster}
+          poster={still ? poster : null}
           alt={alt}
           className={className}
           imageClassName={imageClassName}
@@ -84,8 +87,9 @@ export function Film({
       );
     }
   }
-  const still = siteImage(name);
-  if (still && priority && media) preloadFor(still, sizes, media);
+  if (!still) return null;
+  const image = siteImage(name);
+  if (image && priority && media) preloadFor(image, sizes, media);
   return (
     <Figure
       name={name}

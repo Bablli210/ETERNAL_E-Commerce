@@ -6,7 +6,7 @@ import { FBCLID, consentFromCookieHeader, cookieRootFor, fbcFrom } from "@/lib/c
  * Two jobs, each on its own requests (see the matcher).
  *
  * The home page: every request for "/" is rewritten to /home/<handle>, one
- * static page per hero (content/heroes.ts): the house film, or the campaign
+ * static page per hero (content/heroes.ts): the hero film, or the campaign
  * still an ad link pins with ?hero=<handle>.
  *
  * Ad clicks: on page requests that carry a click id or a campaign, keeps
@@ -23,7 +23,7 @@ const UTM = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_ter
 const DAY = 86_400;
 
 
-/** The home page with the still an ad asked for, or the house film. */
+/** The home page with the still an ad asked for, or the hero film. */
 function homeWithHero(url: NextRequest["nextUrl"]) {
   const hero = heroByHandle(url.searchParams.get("hero")?.toLowerCase()) ?? heroes[0];
   const to = url.clone();

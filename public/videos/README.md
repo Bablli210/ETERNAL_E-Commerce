@@ -12,8 +12,12 @@ new one is `<Film name="…" label="…" />` in place of `<Figure />`.
 
 A clip named `<name>-intro` (`.webm` and/or `.mp4`), when there is one, plays
 once before the loop: the loop buffers while it plays and takes over when it
-ends. The intro may open on anything, but its **last** frame must be the loop's
-first, so the hand-over cannot be seen.
+ends (or at once if the intro cannot play). Its **last** frame must be the
+loop's first, so that hand-over cannot be seen. Its first frame need not be the
+poster: the hero film's intro opens on an empty sky, so once the page is idle
+the poster (Divina composed) dissolves into the sky over 1.2 s and the bottle
+rises back into place. That is deliberate; for a slot that should never leave
+its poster, leave the intro out and the loop starts on the poster's frame.
 
 ## The hero film (Hyper Motion, October 2026)
 
@@ -71,12 +75,21 @@ clip, never both.
 
 ## Weight
 
-Phones on mobile data are the audience, so the mobile clip stays under 400 KB
-(playbook 7.1). `home-hero-mobile` is 720 px wide, H.264 CRF 22 (about 310 KB)
-and VP9 WebM (about 280 KB); 720 px covers a 390 px phone at 2x without visible
-loss.
+Phones on mobile data are the audience (playbook 7.1), so each phone file stays
+near 400 KB: `home-hero-mobile` is the loop at 720 × 960 (the centre 3:4 of the
+frame), VP9 about 410 KB and HEVC about 400 KB, and `home-hero-mobile-intro`
+adds about 90–100 KB. 720 px covers a 390 px phone at 2x without visible loss.
+Two passes at a set bitrate, from the 1920 web file:
 
 ```
-ffmpeg -i master.mp4 -vf "scale=720:-2:flags=lanczos" -c:v libx264 -preset slow \
-  -crf 22 -profile:v high -pix_fmt yuv420p -movflags +faststart -an home-hero-mobile.mp4
+VF="crop=810:1080,scale=720:960:flags=lanczos"
+ffmpeg -i loop-1920.mp4 -vf "$VF" -c:v libvpx-vp9 -b:v 155k -pass 1 -row-mt 1 -an -f null /dev/null
+ffmpeg -i loop-1920.mp4 -vf "$VF" -c:v libvpx-vp9 -b:v 155k -pass 2 -row-mt 1 -cpu-used 1 \
+  -auto-alt-ref 1 -lag-in-frames 25 -pix_fmt yuv420p -an home-hero-mobile.webm
+ffmpeg -i loop-1920.mp4 -vf "$VF" -c:v libx265 -preset slow -b:v 175k -x265-params pass=1 -an -f null /dev/null
+ffmpeg -i loop-1920.mp4 -vf "$VF" -c:v libx265 -preset slow -b:v 175k -x265-params pass=2 \
+  -tag:v hvc1 -pix_fmt yuv420p -movflags +faststart -an home-hero-mobile.mp4
 ```
+
+The desktop files are the same commands without the crop, at 1000k (VP9) and
+1100k (HEVC).

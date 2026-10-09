@@ -154,7 +154,7 @@ export function Header({
                   ? (pathname === "/shop" || pathname.startsWith("/shop/") || pathname.startsWith("/products")) && pathname !== ORIGINALS
                   : pathname === item.href || pathname.startsWith(item.href + "/");
                 return (
-                  // Four links fit beside the wordmark from 1280 px; below that Tales waits in the footer and the phone menu.
+                  // Four links fit beside the wordmark from 1280 px; between 1024 and 1279 px Tales is in the footer only.
                   <div key={item.href} className={`relative flex ${item.href === "/tales" ? "max-xl:hidden" : ""}`} onMouseEnter={isShop ? openMenu : undefined}>
                     <Link
                       href={item.href}

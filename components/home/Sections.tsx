@@ -70,6 +70,17 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
   const bg = hero.bg;
   // The stills' shades are Night; the film's blue sky deepens into its own band colour instead.
   const shade = hero.film ? rgb(bg) : "23, 22, 20";
+  // Desktop. A still keeps its bottle right of centre, so the copy holds the left half on a shade of its own. The film
+  // is centred and bright (white blossom and cloud where the copy would sit), so it takes the right 55% and the copy
+  // sits on the band's own colour to its left: the phone's film-above-band layout, turned on its side.
+  const desktopShade = hero.film
+    ? `linear-gradient(to right, rgb(${shade}) 0%, rgba(${shade}, 0) 16%), linear-gradient(to bottom, rgba(${shade}, 0.5), transparent 22%), linear-gradient(to top, rgba(${shade}, 0.45), transparent 16%)`
+    : `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)`;
+  // Phone: the picture fades into the band. The film's sky and cloud are bright to its foot, so it fades in sooner,
+  // keeping the scent's name and its original above the headline at 4.5:1.
+  const phoneFade = hero.film
+    ? `linear-gradient(to top, ${bg} 24%, rgba(${shade}, 0.9) 34%, rgba(${shade}, 0.5) 46%, transparent 62%)`
+    : `linear-gradient(to top, ${bg} 6%, transparent 42%)`;
   // Only figures the catalogue or the owner has confirmed; nothing here is a placeholder.
   const offer = [
     fromPrice && `${ml(site.bottleSizeMl)} from ${formatMoney(fromPrice)}`,
@@ -81,15 +92,16 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
     <ParallaxSection id="hero" className="grain relative grid min-h-[calc(100svh-49px)] grid-rows-[1fr_auto] overflow-hidden text-linen lg:min-h-[92svh]" style={{ backgroundColor: bg }}>
       {/* Phone: the still's box hangs off the section, not off the copy's grid row, so it keeps its size while the fonts
           arrive and the copy reflows. */}
-      <div data-hero={hero.handle} className="hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3">
+      <div data-hero={hero.handle} className={`hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3 ${hero.film ? "lg:ml-[45%]" : ""}`}>
         {hero.film ? <HeroFilm hero={hero} film={hero.film} /> : <HeroStill hero={hero} className="absolute inset-0" />}
-        {/* Phone: the still fades into the band the copy sits on. Desktop: the copy sits on the still. */}
-        <div aria-hidden="true" className="absolute inset-0 lg:hidden" style={{ backgroundImage: `linear-gradient(to top, ${bg} 6%, transparent 42%), linear-gradient(to bottom, rgba(${shade}, 0.45), transparent 22%)` }} />
-        {/* Desktop: every still keeps its bottle right of centre, so the copy holds the left half on a shade of its own. */}
-        <div aria-hidden="true" className="absolute inset-0 hidden lg:block" style={{ backgroundImage: `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)` }} />
+        {/* Phone: the picture fades into the band the copy sits on. Desktop: see desktopShade. */}
+        <div aria-hidden="true" className="absolute inset-0 lg:hidden" style={{ backgroundImage: `${phoneFade}, linear-gradient(to bottom, rgba(${shade}, 0.45), transparent 22%)` }} />
+        <div aria-hidden="true" className="absolute inset-0 hidden lg:block" style={{ backgroundImage: desktopShade }} />
       </div>
-      <div className="wrap relative col-start-1 row-start-2 pb-6 lg:pb-24">
-        <div className="hero-drift max-w-[820px] lg:max-w-[min(540px,40vw)]">
+      {/* On a short desktop screen the copy is taller than the hero: it keeps clear of the header and the hero grows. */}
+      <div className="wrap relative col-start-1 row-start-2 pb-6 lg:mt-[calc(var(--header-h)+var(--announce-h)+16px)] lg:pb-24">
+        {/* Beside the film the copy ends short of its edge: 45% of the screen, less the wrap's margin and 32 px. */}
+        <div className={`hero-drift max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,calc(45vw_-_112px),calc(608px_-_5vw))]" : "lg:max-w-[min(540px,40vw)]"}`}>
           {scent && (
             <SelectList list="home_hero" items={[listItem(scent)]}>
               <Link href={`/products/${scent.handle}`} data-card={scent.handle} className="inline-flex min-h-11 items-center gap-x-2 text-[13px] tracking-[0.02em] text-dune">

@@ -85,11 +85,12 @@ function play(video: HTMLVideoElement | null) {
   );
 }
 
-function Sources({ sources }: { sources: VideoSources }) {
+/** WebM first, then MP4. `onNone` fires on the last one's error: with <source> children, that is how a clip with no format this browser plays reports it (play() then never settles). */
+function Sources({ sources, onNone }: { sources: VideoSources; onNone?: () => void }) {
   return (
     <>
-      {sources.webm && <source src={sources.webm} type="video/webm" />}
-      {sources.mp4 && <source src={sources.mp4} type="video/mp4" />}
+      {sources.webm && <source src={sources.webm} type="video/webm" onError={sources.mp4 ? undefined : onNone} />}
+      {sources.mp4 && <source src={sources.mp4} type="video/mp4" onError={onNone} />}
     </>
   );
 }
@@ -104,7 +105,11 @@ function Sources({ sources }: { sources: VideoSources }) {
  *
  * With an `intro`, that clip plays once first and the loop takes over when it
  * ends: the intro's last frame is the loop's first (and the poster), so the
- * hand-over cannot be seen. The loop buffers while the intro plays.
+ * hand-over cannot be seen. The loop buffers while the intro plays. An intro
+ * that cannot play, or breaks off, hands over to the loop at once.
+ *
+ * `poster={null}` leaves the still to the caller (the home hero paints one
+ * <picture> for both of its slots), so only the clip is drawn here.
  */
 export function BackgroundVideo({
   sources,
@@ -123,7 +128,7 @@ export function BackgroundVideo({
   sources: VideoSources;
   /** A clip that plays once before the loop; its last frame is the loop's first. */
   intro?: VideoSources | null;
-  poster: string;
+  poster: string | null;
   alt?: string;
   className?: string;
   style?: React.CSSProperties;
@@ -141,18 +146,19 @@ export function BackgroundVideo({
   const [playing, setPlaying] = useState(false);
   // Whether the loop has taken over from the intro (from the start when there is none).
   const [looping, setLooping] = useState(!intro);
+  // Motion switched off (or the slot's media query lost) unmounts the clips: when they come back they fade in again.
+  const [wasPlayable, setWasPlayable] = useState(playable);
+  if (wasPlayable !== playable) {
+    setWasPlayable(playable);
+    if (!playable) setPlaying(false);
+  }
   const introRef = useRef<HTMLVideoElement>(null);
   const loopRef = useRef<HTMLVideoElement>(null);
   const toLoop = useCallback(() => void play(loopRef.current), []);
-  const start = useCallback(() => {
-    if (!intro) return void play(loopRef.current);
-    // An intro that cannot play at all (no format this browser takes) goes straight to the loop.
-    play(introRef.current).then((ok) => {
-      if (!ok && introRef.current?.networkState === HTMLMediaElement.NETWORK_NO_SOURCE) toLoop();
-    });
-  }, [intro, toLoop]);
+  // The intro only while it is mounted: once the loop has taken over (or after motion comes back on), the loop resumes.
+  const start = useCallback(() => void play(introRef.current ?? loopRef.current), []);
   useStartWhenIdle(start, startWhenIdle && playable);
-  // Without the idle wait, an intro is started here rather than by autoplay, so a clip no browser format suits still hands over.
+  // Without the idle wait, a film with an intro starts here: neither clip autoplays, so the loop never races the intro.
   useEffect(() => {
     if (playable && intro && !startWhenIdle) start();
   }, [playable, intro, startWhenIdle, start]);
@@ -163,7 +169,7 @@ export function BackgroundVideo({
   const clip = `bg-video absolute inset-px h-[calc(100%-2px)] w-[calc(100%-2px)] object-cover ${imageClassName} ${playing ? "is-playing" : ""}`;
   return (
     <div className={`${positioned ? "" : "relative"} overflow-hidden ${className}`} style={style}>
-      <Image src={poster} alt={alt} fill sizes={sizes} preload={priority} className={`object-cover ${imageClassName}`} />
+      {poster && <Image src={poster} alt={alt} fill sizes={sizes} preload={priority} className={`object-cover ${imageClassName}`} />}
       {playable && (
         <video
           ref={loopRef}
@@ -203,8 +209,9 @@ export function BackgroundVideo({
             }
           }}
           onEnded={toLoop}
+          onError={toLoop}
         >
-          <Sources sources={intro} />
+          <Sources sources={intro} onNone={toLoop} />
         </video>
       )}
     </div>

@@ -225,7 +225,12 @@ input, select, textarea { font-size: 16px; }
 .badge-night { background: var(--color-night); }
 /* An Eternal Original on its card's picture: the house's mark and the name in the serif, on a linen label like the
    bottle's own; set apart from the uppercase New and Bestseller tags. */
-.original-tag { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px 0 9px; font-family: var(--font-serif); font-size: 15px; font-weight: 500; line-height: 1; letter-spacing: 0; color: var(--color-night); background: color-mix(in srgb, var(--color-linen) 94%, transparent); box-shadow: 0 1px 3px rgb(23 22 20 / 0.12); }
+.original-tag { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px 0 9px; white-space: nowrap; font-family: var(--font-serif); font-size: 15px; font-weight: 500; line-height: 1; letter-spacing: 0; color: var(--color-night); background: color-mix(in srgb, var(--color-linen) 94%, transparent); box-shadow: 0 1px 3px rgb(23 22 20 / 0.12); }
+/* Two cards a row on a phone: one size down, so it stays on one line inside a 360 px phone's card (about 127 px of 144). */
+@media (max-width: 639.98px) {
+  .original-tag { gap: 5px; height: 26px; padding: 0 8px 0 7px; font-size: 13px; }
+  .original-tag svg { width: 16px; height: auto; }
+}
 
 /* Native scroll-snap carousels. */
 .snap-row { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }

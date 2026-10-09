@@ -1,7 +1,7 @@
 /**
  * The home page's first screen. proxy.ts rewrites every request for "/" to
  * /home/<handle>, a static page per hero, so the choice costs no server
- * render: the house film (the first entry) unless an ad pins a campaign still
+ * render: the hero film (the first entry) unless an ad pins a campaign still
  * with ?hero=<handle>, so its landing shows the bottle the ad showed.
  *
  * A still lives in public/images: hero-<handle> (the wide still) and
