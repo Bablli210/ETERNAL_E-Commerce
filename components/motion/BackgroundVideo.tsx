@@ -63,16 +63,18 @@ function useStartWhenIdle(start: () => void, enabled: boolean) {
   }, [start, enabled]);
 }
 
-/** Starts a clip muted, buffering it fully; resolves false on a refusal (autoplay off, iOS Low Power Mode). */
-function play(video: HTMLVideoElement | null) {
-  if (!video) return Promise.resolve(false);
+/** Starts a clip muted, buffering it fully; resolves null once it plays, or with the reason it did not. */
+function play(video: HTMLVideoElement): Promise<unknown> {
   video.muted = true;
   video.preload = "auto";
   return video.play().then(
-    () => true,
-    () => false,
+    () => null,
+    (reason: unknown) => reason ?? new Error("play() refused"),
   );
 }
+
+/** Whether the page holds a fresh user gesture, where the browser says (Safari 16.4+, Chrome, Firefox); elsewhere, assume so. */
+const activated = () => (navigator as Navigator & { userActivation?: { isActive: boolean } }).userActivation?.isActive ?? true;
 
 /** The gestures that let a page start a video the browser refused to autoplay. */
 const GESTURES = ["pointerup", "touchend", "click", "keydown"] as const;
@@ -117,6 +119,7 @@ export function BackgroundVideo({
   media,
   imageClassName = "",
   clipFlush = false,
+  clipBleed = false,
 }: {
   sources: VideoSources;
   /** A clip that plays once before the loop; its last frame is the loop's first. */
@@ -140,6 +143,11 @@ export function BackgroundVideo({
    * alone, eligible.
    */
   clipFlush?: boolean;
+  /**
+   * Let the clip run 1 px past every edge, cropped by the box: for a box whose poster is the same size (the phone
+   * hero), so the clip covers it edge to edge and no line of the poster shows around a later frame.
+   */
+  clipBleed?: boolean;
 }) {
   const playable = usePlayable(media);
   const [playing, setPlaying] = useState(false);
@@ -156,25 +164,32 @@ export function BackgroundVideo({
   // Set when the intro turns out to have no format this browser plays; that is known at mount, before the film may start.
   const introDead = useRef(false);
   const started = useRef(false);
-  // A refused start (iOS Low Power Mode, some in-app browsers) is tried again at the visitor's first tap or key, which
-  // the browser counts as permission; this undoes the waiting listeners.
+  // A refused start (NotAllowedError: iOS Low Power Mode, some in-app browsers) is tried again at the visitor's next
+  // tap or key that the browser counts as permission (a scroll's touchend is not), and again after that if it is
+  // refused once more. Nothing waits for a clip that is gone or for a film that may no longer play: `live` is false
+  // once motion is switched off, the slot's media query is lost or the film unmounts, and `unarm` undoes the waiting.
+  const live = useRef(false);
   const unarm = useRef<(() => void) | null>(null);
-  const playClip = useCallback((video: HTMLVideoElement | null) => {
-    void play(video).then((ok) => {
-      if (ok || !video) return;
-      unarm.current?.();
-      const again = () => {
+  const playClip = useCallback((first: HTMLVideoElement | null) => {
+    const attempt = (video: HTMLVideoElement) => {
+      void play(video).then((reason) => {
+        if (!reason) return void unarm.current?.();
+        if ((reason as { name?: string }).name !== "NotAllowedError" || !video.isConnected || !live.current) return;
         unarm.current?.();
-        void play(video);
-      };
-      for (const g of GESTURES) window.addEventListener(g, again, { capture: true, passive: true });
-      unarm.current = () => {
-        for (const g of GESTURES) window.removeEventListener(g, again, { capture: true });
-        unarm.current = null;
-      };
-    });
+        const again = () => {
+          if (!activated()) return;
+          unarm.current?.();
+          if (video.isConnected && live.current) attempt(video);
+        };
+        for (const g of GESTURES) window.addEventListener(g, again, { capture: true, passive: true });
+        unarm.current = () => {
+          for (const g of GESTURES) window.removeEventListener(g, again, { capture: true });
+          unarm.current = null;
+        };
+      });
+    };
+    if (first) attempt(first);
   }, []);
-  useEffect(() => () => unarm.current?.(), []);
   const toLoop = useCallback(() => playClip(loopRef.current), [playClip]);
   // The intro while it is mounted and playable; once the loop has taken over (or after motion comes back on), the loop.
   const start = useCallback(() => {
@@ -186,6 +201,7 @@ export function BackgroundVideo({
   const box = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!playable) return;
+    live.current = true;
     const resume = () => {
       if (!started.current || document.visibilityState !== "visible") return;
       const clip = introRef.current && !introDead.current ? introRef.current : loopRef.current;
@@ -196,6 +212,8 @@ export function BackgroundVideo({
     document.addEventListener("visibilitychange", resume);
     window.addEventListener("pageshow", resume);
     return () => {
+      live.current = false;
+      unarm.current?.();
       seen.disconnect();
       document.removeEventListener("visibilitychange", resume);
       window.removeEventListener("pageshow", resume);
@@ -215,7 +233,8 @@ export function BackgroundVideo({
   const positioned = /(^|\s)(absolute|fixed|sticky)(\s|$)/.test(className);
   // Inset by 1 px so a clip is always a hair smaller than the poster: otherwise sub-pixel rounding can make it the
   // larger paint, and LCP would move to whenever the clip starts.
-  const clip = `bg-video absolute ${clipFlush ? "left-0 top-0 h-[calc(100%-1px)] w-[calc(100%-1px)]" : "inset-px h-[calc(100%-2px)] w-[calc(100%-2px)]"} object-cover ${imageClassName} ${playing ? "is-playing" : ""}`;
+  const edges = clipBleed ? "-inset-px h-[calc(100%+2px)] w-[calc(100%+2px)] max-w-none" : clipFlush ? "left-0 top-0 h-[calc(100%-1px)] w-[calc(100%-1px)]" : "inset-px h-[calc(100%-2px)] w-[calc(100%-2px)]";
+  const clip = `bg-video absolute ${edges} object-cover ${imageClassName} ${playing ? "is-playing" : ""}`;
   return (
     <div ref={box} className={`${positioned ? "" : "relative"} overflow-hidden ${className}`} style={style}>
       {poster && <Image src={poster} alt={alt} fill sizes={sizes} preload={priority} className={`object-cover ${imageClassName}`} />}

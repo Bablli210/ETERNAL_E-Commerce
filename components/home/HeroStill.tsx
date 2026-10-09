@@ -68,10 +68,11 @@ export function HeroFilm({ hero, film }: { hero: Hero; film: string }) {
   const wide = "lg:object-[33%_50%]";
   return (
     <>
-      {/* The 3:4 phone poster covers the phone's box at about the screen's width. */}
-      <HeroPicture wide={film} phone={`${film}-mobile`} phoneSizes="100vw" wideSizes="max(112vw, 164svh)" alt={hero.alt} className="absolute inset-0 lg:-right-[12%]" imgClassName={wide} />
+      {/* On a phone the 3:4 poster covers the whole hero by its height, about one and a half screen widths (the hero
+          is 100svh - 49px tall); on a phone held sideways, by the screen's width. The clip covers it edge to edge. */}
+      <HeroPicture wide={film} phone={`${film}-mobile`} phoneSizes="max(100vw, calc(75svh - 37px))" wideSizes="max(112vw, 164svh)" alt={hero.alt} className="absolute inset-0 lg:-right-[12%]" imgClassName={wide} />
       <Film {...common} name={film} media="(min-width: 1024px)" className="absolute inset-0 -right-[12%] hidden lg:block" imageClassName={wide} clipFlush />
-      <Film {...common} name={[`${film}-mobile`, film]} media="(max-width: 1023.98px)" className="absolute inset-0 lg:hidden" />
+      <Film {...common} name={[`${film}-mobile`, film]} media="(max-width: 1023.98px)" className="absolute inset-0 lg:hidden" clipBleed />
     </>
   );
 }

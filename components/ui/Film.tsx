@@ -43,6 +43,7 @@ export function Film({
   media,
   still = true,
   clipFlush = false,
+  clipBleed = false,
 }: {
   name: string | string[];
   label: string;
@@ -64,6 +65,8 @@ export function Film({
   still?: boolean;
   /** The clip starts at the box's top-left corner, 1 px short of its right and bottom edges (BackgroundVideo). */
   clipFlush?: boolean;
+  /** The clip runs 1 px past every edge, cropped by the box (BackgroundVideo). */
+  clipBleed?: boolean;
 }) {
   // With a media query the preload carries it; the image itself must not preload everywhere.
   const preloadEverywhere = priority && !media;
@@ -87,6 +90,7 @@ export function Film({
           startWhenIdle={startWhenIdle}
           media={media}
           clipFlush={clipFlush}
+          clipBleed={clipBleed}
         />
       );
     }

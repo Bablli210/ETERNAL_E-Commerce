@@ -93,8 +93,10 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
     facts.freeSamples,
   ].filter(Boolean);
   // Phone: the hero and the proof marquee under it (48 px and its hairline) fill the first screen exactly; nothing of the next section shows.
+  // Over the film the copy keeps at least the fixed bar and header's height above it, so on a short or sideways phone,
+  // where the copy is taller than the screen, it starts below them and the hero grows instead.
   return (
-    <ParallaxSection id="hero" className="grain relative grid min-h-[calc(100svh-49px)] grid-rows-[1fr_auto] overflow-hidden text-linen lg:min-h-[92svh]" style={{ backgroundColor: bg }}>
+    <ParallaxSection id="hero" className={`grain relative grid min-h-[calc(100svh-49px)] grid-rows-[1fr_auto] overflow-hidden text-linen lg:min-h-[92svh] ${hero.film ? "max-lg:grid-rows-[minmax(calc(var(--header-h)+var(--announce-h)+16px),1fr)_auto]" : ""}`} style={{ backgroundColor: bg }}>
       {/* Phone: a still's box hangs off the section, not off the copy's grid row, so it keeps its size while the fonts
           arrive and the copy reflows; the film's box is the whole section. */}
       <div data-hero={hero.handle} data-film={hero.film ? "" : undefined} className={`hero-film ${hero.film ? "max-lg:absolute max-lg:inset-0" : "max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%]"} lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3`}>
