@@ -339,9 +339,14 @@ export function CollectionGrid({
       positions.current = null;
       return;
     }
+    // Measured against the grid itself, so a scroll between two layouts is not mistaken for movement.
     const cards = Array.from(grid.querySelectorAll<HTMLElement>("[data-card]"));
+    const g = grid.getBoundingClientRect();
     const next = new Map<string, DOMRect>();
-    cards.forEach((c) => next.set(c.dataset.card!, c.getBoundingClientRect()));
+    cards.forEach((c) => {
+      const r = c.getBoundingClientRect();
+      next.set(c.dataset.card!, new DOMRect(r.left - g.left, r.top - g.top, r.width, r.height));
+    });
     const prev = positions.current;
     positions.current = next;
     if (!prev || !motionAllowed()) return;
