@@ -169,7 +169,7 @@ input, select, textarea { font-size: 16px; }
 .field::placeholder { color: var(--color-ash); }
 .field:focus { border-color: var(--color-night); box-shadow: 0 0 0 1px var(--color-night); }
 .field-dark { background: transparent; border-color: rgba(243, 239, 231, 0.35); color: var(--color-linen); }
-.field-dark::placeholder { color: rgba(243, 239, 231, 0.6); }
+.field-dark::placeholder { color: rgba(243, 239, 231, 0.75); }
 .field-dark:focus { border-color: var(--color-linen); box-shadow: 0 0 0 1px var(--color-linen); }
 
 /* Image slots — hatched blocks labelled with their art direction. */

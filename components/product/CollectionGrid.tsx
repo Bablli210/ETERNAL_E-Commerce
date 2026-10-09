@@ -121,7 +121,7 @@ function SearchField({ value, onChange, onSubmit, dark = false }: { value: strin
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search by the original"
-        className={`field h-11 pl-10 text-[16px] [&::-webkit-search-cancel-button]:appearance-none ${value ? "pr-11" : "pr-3"} ${dark ? "field-dark bg-night/40 backdrop-blur-sm" : ""}`}
+        className={`field h-11 pl-10 text-[16px] [&::-webkit-search-cancel-button]:appearance-none ${value ? "pr-11" : "pr-3"} ${dark ? "field-dark bg-night/55 backdrop-blur-sm" : ""}`}
       />
       <Icon name="search" size={18} className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${dark ? "text-linen/80" : "text-ash"}`} />
       {value && (
@@ -485,9 +485,11 @@ export function CollectionGrid({
       {banner && !selection ? (
         <div className="relative -mx-5 overflow-hidden bg-night text-linen lg:mx-0">
           <div className="absolute inset-0">{banner}</div>
-          {/* Night behind the words; on the right it stops short of the still's subject on the left. */}
-          <div className={`absolute inset-0 bg-gradient-to-r from-night/60 via-night/20 to-transparent ${bannerSide === "right" ? "lg:bg-[linear-gradient(to_left,rgba(23,22,20,0.6)_0%,rgba(23,22,20,0.5)_52%,transparent_72%)]" : ""}`} aria-hidden="true" />
-          <div className={`relative flex min-h-[160px] flex-col justify-between gap-3 px-5 py-3.5 lg:min-h-[400px] lg:p-10 ${bannerSide === "right" ? "lg:pl-[48%]" : ""}`}>
+          {/* Night behind the words. With the words on the right (from md, where the 40 px title fits the right half)
+              it starts only where the still's subject ends, at 46% from the left; on a phone, where the words have to sit
+              over that subject, it is deeper. */}
+          <div className={`absolute inset-0 bg-gradient-to-r from-night/60 via-night/20 to-transparent ${bannerSide === "right" ? "max-md:from-night/80 max-md:via-night/60 max-md:to-night/20 md:bg-[linear-gradient(to_left,rgba(23,22,20,0.6)_0%,rgba(23,22,20,0.5)_50%,transparent_54%)]" : ""}`} aria-hidden="true" />
+          <div className={`relative flex min-h-[160px] flex-col justify-between gap-3 px-5 py-3.5 lg:min-h-[400px] lg:p-10 ${bannerSide === "right" ? "md:pl-[48%] lg:pl-[48%]" : ""}`}>
             <div>
               {eyebrow && <p className="eyebrow text-[12px] text-linen/80">{eyebrow}</p>}
               {/* On the right half the title keeps one line: smaller until there is room for 64 px. */}
@@ -495,7 +497,7 @@ export function CollectionGrid({
               <p className="mt-3 hidden max-w-[44ch] text-[17px] leading-relaxed text-linen/80 lg:block">{descriptor}</p>
             </div>
             {/* How many scents, right above the search that narrows them. */}
-            <div className="w-[72%] max-w-[360px]">
+            <div className={`w-[72%] max-w-[360px] ${bannerSide === "right" ? "md:w-full" : ""}`}>
               <p className="tnum mb-2 text-[13px] text-linen/80" aria-live="polite">
                 {elsewhere.length ? found : searching ? `${plural(filtered.length)} for “${query.trim()}”` : plural(filtered.length)}
               </p>
