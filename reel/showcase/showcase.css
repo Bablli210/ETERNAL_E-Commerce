@@ -1,0 +1,41 @@
+/* The storefront's own faces (app/fonts), as the site sets them: The Seasons for titles,
+   Cabinet Grotesk for small capitals, General Sans for text. The Seasons demo files only
+   carry letters, most digits and , . : ; ? — the same unicode-range as app/fonts.ts keeps
+   it to those, and Cormorant (reel/fonts) draws the rest. */
+@font-face { font-family: "The Seasons"; src: url("../../app/fonts/the-seasons/TheSeasons-Regular-DEMO.woff2") format("woff2"); font-weight: 100 900; font-style: normal; unicode-range: U+0020, U+002C, U+002E, U+0030-0033, U+0035-003B, U+003F, U+0041-005A, U+0061-007A; }
+@font-face { font-family: "The Seasons Italic"; src: url("../../app/fonts/the-seasons/TheSeasons-Italic-DEMO.woff2") format("woff2"); font-weight: 100 900; font-style: italic; unicode-range: U+0020, U+002C, U+002E, U+0030-0033, U+0035-003B, U+003F, U+0041-005A, U+0061-007A; }
+@font-face { font-family: "Cabinet Grotesk"; src: url("../../app/fonts/cabinet-grotesk/CabinetGrotesk-Regular.woff2") format("woff2"); font-weight: 100 900; font-style: normal; }
+@font-face { font-family: "General Sans"; src: url("../../app/fonts/general-sans/GeneralSans-Regular.woff2") format("woff2"); font-weight: 100 900; font-style: normal; }
+
+:root {
+  --linen: #f3efe7; --paper: #faf8f3; --sand: #e4d9c5; --dune: #cdbfa5; --stone: #9e9382;
+  --night: #171614; --gold: #b97a2b; --gold-light: #d9a865;
+  --serif: "The Seasons", "Cormorant Garamond", Georgia, serif;
+  --sub: "Cabinet Grotesk", system-ui, sans-serif;
+  --sans: "General Sans", system-ui, sans-serif;
+}
+html, body { margin: 0; background: #000; overflow: hidden; }
+#stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--night); }
+#gl { position: absolute; inset: 0; width: 1920px; height: 1080px; display: block; }
+#hud { position: absolute; inset: 0; pointer-events: none; color: var(--linen); font-family: var(--sans); -webkit-font-smoothing: antialiased; }
+#hud .el { position: absolute; will-change: transform, opacity; }
+
+/* A section caption: index, a hairline that draws, the title, one line of body. */
+.cap { left: 120px; bottom: 120px; width: 760px; }
+.cap .idx { font-family: var(--sub); font-size: 18px; letter-spacing: 0.22em; color: var(--gold-light); display: flex; align-items: center; gap: 18px; }
+.cap .rule { display: block; width: 96px; height: 1px; background: currentColor; transform-origin: 0 50%; }
+.cap .title { font-family: var(--serif); font-size: 76px; line-height: 1.02; letter-spacing: -0.01em; margin-top: 18px; overflow: hidden; padding-bottom: 0.12em; }
+.cap .title span { display: inline-block; white-space: pre; }
+.cap .body { font-size: 24px; line-height: 1.45; color: rgba(243, 239, 231, 0.78); margin-top: 6px; max-width: 640px; }
+
+#hud .scrim { left: -420px; bottom: -380px; width: 1500px; height: 900px; background: radial-gradient(closest-side, rgba(12, 10, 8, 0.62), rgba(12, 10, 8, 0.34) 55%, rgba(12, 10, 8, 0)); }
+
+/* The title card and the end card. */
+.card { left: 0; right: 0; text-align: center; }
+.card .logo { display: block; margin: 0 auto; fill: var(--linen); }
+.card .line { font-family: var(--sub); font-size: 18px; letter-spacing: 0.3em; text-transform: uppercase; color: rgba(243, 239, 231, 0.82); }
+.card .meta { font-family: var(--sans); font-size: 20px; letter-spacing: 0.04em; color: rgba(243, 239, 231, 0.62); }
+.card .url { font-family: var(--sub); font-size: 18px; letter-spacing: 0.24em; color: var(--gold-light); }
+.card .hair { display: block; width: 64px; height: 1px; margin: 0 auto; background: rgba(243, 239, 231, 0.4); transform-origin: 50% 50%; }
+
+#debug { position: absolute; left: 16px; top: 12px; font: 14px/1.2 monospace; color: #0f0; text-shadow: 0 0 2px #000; }
