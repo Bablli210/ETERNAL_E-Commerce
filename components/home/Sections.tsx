@@ -112,7 +112,10 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
         <div aria-hidden="true" className="absolute inset-0 hidden lg:block" style={{ backgroundImage: desktopShade }} />
       </div>
       {/* On a short desktop screen the copy is taller than the hero: it keeps clear of the header and the hero grows. */}
-      <div className="wrap relative col-start-1 row-start-2 pb-6 lg:mt-[calc(var(--header-h)+var(--announce-h)+16px)] lg:pb-24">
+      <div className="wrap relative col-start-1 row-start-2 pb-6 max-lg:isolate lg:mt-[calc(var(--header-h)+var(--announce-h)+16px)] lg:pb-24">
+        {/* Below lg the copy sits at the picture's foot and grows with the three-line headline, so the picture's own
+            fade cannot know where it starts: this shade rises with the copy and puts its first line on the band. */}
+        <div aria-hidden="true" className="absolute inset-x-0 -top-28 bottom-0 -z-10 lg:hidden" style={{ backgroundImage: `linear-gradient(to bottom, transparent, color-mix(in srgb, ${bg} 85%, transparent) 64px, ${bg} 112px)` }} />
         {/* Over the film the copy ends short of Divina's bottle (copyEdge). */}
         <div className={`max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,32vw,calc(43.7vw_-_32px_-_max(80px,50vw_-_640px)))]" : "lg:max-w-[min(540px,40vw)]"}`}>
           {scent && (
@@ -173,7 +176,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
             </Link>
           </div>
         </div>
-        <a href="#proof" className={`absolute bottom-8 right-5 hidden items-center gap-2 text-[11px] uppercase tracking-[0.14em] lg:right-20 lg:flex ${hero.film ? "text-linen" : "text-dune"}`}>
+        <a href="#proof" className={`absolute bottom-8 right-5 hidden items-center gap-2 text-[11px] uppercase tracking-[0.14em] lg:right-20 lg:flex ${hero.film ? "rounded-full bg-night/70 px-3 py-1.5 text-linen" : "text-dune"}`}>
           Scroll <Icon name="chevron-down" size={14} />
         </a>
       </div>
@@ -297,10 +300,10 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
         <>
           {/* On a phone the band is far taller than the photograph, so the photograph covers it. From lg it shows whole
               (7:3, full width up to 2100 px, about the band's height) at the band's foot, and above it the wall goes on:
-              the photograph's top edge drawn out to the band's top and softened, so no part of it is cropped away. All
-              three are one file. */}
+              the photograph's top edge drawn out to the band's top and softened, so no part of it is cropped away. Wider
+              than 2100 px both fade at their sides into Night. All three are one file. */}
           <Image src={photo} alt="" fill sizes="100vw" className="object-cover object-[25%_50%] lg:hidden" />
-          <div aria-hidden="true" className="absolute inset-x-0 top-0 hidden h-full overflow-hidden lg:block">
+          <div aria-hidden="true" className="absolute inset-x-0 top-0 hidden h-full overflow-hidden lg:block min-[2100px]:inset-x-[calc(50%-1050px)] min-[2100px]:[mask-image:linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)]">
             <Image src={photo} alt="" fill sizes="100vw" className="origin-top scale-y-[14] object-fill blur-xl" />
           </div>
           <div className="absolute bottom-0 left-1/2 hidden aspect-[7/3] w-full max-w-[2100px] -translate-x-1/2 [mask-image:linear-gradient(to_bottom,transparent,#000_16%)] lg:block min-[2100px]:[mask-composite:intersect] min-[2100px]:[mask-image:linear-gradient(to_bottom,transparent,#000_16%),linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)]">
@@ -314,7 +317,7 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
         <div className="flex items-end justify-between gap-4">
           <div className="relative max-w-[640px]">
             {/* A soft cloud of Night behind the words alone, so they read over the bottles and the bright wall. */}
-            {photo && <div aria-hidden="true" className="absolute -inset-x-16 -inset-y-14 rounded-[48px] bg-night/70 blur-2xl" />}
+            {photo && <div aria-hidden="true" className="absolute -inset-x-16 -inset-y-14 rounded-[48px] bg-night/70 blur-xl" />}
             {/* Gold needs near black to read; over the photograph the eyebrow takes Dune, like the line under the title. */}
             <p className={`eyebrow relative text-[12px] ${photo ? "text-dune" : "text-gold"}`}>Only at eternal</p>
             <h2 id="originals-title" className="display-l relative mt-2">
@@ -336,8 +339,9 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
             const card = notes && notes !== e.image ? { ...e, image: notes, hoverImage: e.image } : e;
             return (
               // The picture runs to the panel's edges, so a card's focus ring falls outside it, on the dark band: Linen there.
-              // With a mouse, Add to bag hangs flush from the panel's foot at its full width.
-              <div key={e.handle} className={`bg-linen text-night [--card-actions-gap:0px] [&_.card-link:focus-visible]:after:outline-linen ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}>
+              // With a mouse, Add to bag hangs flush from the panel's foot at its full width, over the photograph, so its
+              // focus ring is drawn inside it, in Linen.
+              <div key={e.handle} className={`bg-linen text-night [--card-actions-gap:0px] [&_.card-link:focus-visible]:after:outline-linen [&_.card-actions_.btn:not(.card-try):focus-visible]:outline-linen [&_.card-actions_.btn:not(.card-try):focus-visible]:-outline-offset-4 ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}>
                 <ProductCard entry={card} badge={false} sizes={i === 0 ? "(min-width: 1024px) 20vw, 100vw" : "(min-width: 1024px) 20vw, 50vw"} bodyClassName="px-2.5 pb-3 lg:px-4 lg:pb-4" />
               </div>
             );
@@ -510,7 +514,7 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
       {banner && (
         <>
           <Image src={banner} alt="" fill sizes="100vw" className="object-cover" />
-          <div aria-hidden="true" className="absolute inset-0 bg-night/65 lg:bg-transparent lg:bg-[linear-gradient(to_left,rgba(23,22,20,0.7)_0%,rgba(23,22,20,0.62)_45%,rgba(23,22,20,0.25)_100%)]" />
+          <div aria-hidden="true" className="absolute inset-0 bg-night/65 lg:bg-transparent lg:bg-[linear-gradient(to_left,rgba(23,22,20,0.78)_0%,rgba(23,22,20,0.74)_55%,rgba(23,22,20,0.3)_100%)]" />
         </>
       )}
       {/* Desktop: the still fills its half of the row, so it starts at the text's first line and ends at its last. Nothing fades in. */}

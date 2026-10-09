@@ -1,6 +1,6 @@
 import "server-only";
-import fs from "node:fs";
 import path from "node:path";
+import { IMAGE_EXTENSIONS, imageVersions } from "./image-versions";
 
 /**
  * Resolves image slots against real files in `public/images/`.
@@ -10,38 +10,22 @@ import path from "node:path";
  * a code change. Nothing is required: a slot with no matching file keeps
  * rendering its labelled placeholder, so images can land in any order.
  *
+ * The address carries its folder's version (lib/image-versions.ts), so a
+ * picture replaced under the same name shows at once instead of its cached copy.
+ *
  * public/images/README.md lists every name the site looks for.
  */
-const ROOT = path.join(process.cwd(), "public", "images");
-const EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".avif", ".svg"];
-
 function scan(): Map<string, string> {
-  const found = new Map<string, string>();
-  const walk = (dir: string, prefix: string) => {
-    let entries: fs.Dirent[];
-    try {
-      entries = fs.readdirSync(dir, { withFileTypes: true });
-    } catch {
-      return; // no images folder yet
-    }
-    for (const entry of entries) {
-      if (entry.name.startsWith(".")) continue;
-      const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
-      if (entry.isDirectory()) {
-        walk(path.join(dir, entry.name), rel);
-        continue;
-      }
-      const ext = path.extname(entry.name).toLowerCase();
-      if (!EXTENSIONS.includes(ext)) continue;
-      const base = rel.slice(0, -ext.length);
-      // First extension wins, in EXTENSIONS order, so an .avif never beats the .jpg it was made from.
-      const existing = found.get(base);
-      if (existing && EXTENSIONS.indexOf(path.extname(existing).toLowerCase()) <= EXTENSIONS.indexOf(ext)) continue;
-      found.set(base, `/images/${rel}`);
-    }
-  };
-  walk(ROOT, "");
-  return found;
+  const found = new Map<string, { ext: string; url: string }>();
+  for (const { rel, url } of imageVersions().files) {
+    const ext = path.extname(rel).toLowerCase();
+    const base = rel.slice(0, -ext.length);
+    // First extension wins, in IMAGE_EXTENSIONS order, so an .avif never beats the .jpg it was made from.
+    const existing = found.get(base);
+    if (existing && IMAGE_EXTENSIONS.indexOf(existing.ext) <= IMAGE_EXTENSIONS.indexOf(ext)) continue;
+    found.set(base, { ext, url });
+  }
+  return new Map([...found].map(([base, { url }]) => [base, url]));
 }
 
 let cached: Map<string, string> | null = null;

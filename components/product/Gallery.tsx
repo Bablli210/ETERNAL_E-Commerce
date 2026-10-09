@@ -5,7 +5,7 @@ import type { Scent } from "@/lib/catalogue";
 
 /** Alt text by what the frame shows: local stills follow public/images/README.md (-2 lifestyle, -3 notes). */
 function frameAlt(scent: Scent, url: string, altText: string | null): string {
-  const local = url.match(new RegExp(`/images/products/${scent.handle}(-\\d)?\\.\\w+$`));
+  const local = url.match(new RegExp(`/images/products/${scent.handle}(-\\d)?\\.\\w+(\\?|$)`));
   if (!local) return altText || scent.title;
   if (local[1] === "-2") return `${scent.title}, the bottle in a scene`;
   if (local[1] === "-3") return scent.notesShort.length ? `${scent.title} among its notes: ${scent.notesShort.join(", ").toLowerCase()}` : `${scent.title} among its notes`;
@@ -18,7 +18,7 @@ function frameAlt(scent: Scent, url: string, altText: string | null): string {
  * says "notes".
  */
 const isNotesFrame = (scent: Scent, url: string, altText: string | null) =>
-  new RegExp(`/images/products/${scent.handle}-3\\.\\w+$`).test(url) || /\bnotes?\b/i.test(altText ?? "") || /[-_]notes?[-_.]/i.test(url.split("?")[0]);
+  new RegExp(`/images/products/${scent.handle}-3\\.\\w+(\\?|$)`).test(url) || /\bnotes?\b/i.test(altText ?? "") || /[-_]notes?[-_.]/i.test(url.split("?")[0]);
 
 /**
  * Real frames only, the notes frame first, at the owner's request, then the rest in their order (packshot, lifestyle). On a phone

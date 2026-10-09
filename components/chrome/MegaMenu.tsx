@@ -11,7 +11,8 @@ import { InspiredBy } from "@/components/product/InspiredBy";
 import { LineLabel } from "@/components/product/LineLabel";
 import { Mark } from "@/components/ui/Wordmark";
 
-export type FeaturedTiles = { bestseller: ScentIndexEntry | null };
+/** `thumbs`: the menu's small stills by site image name (siteImage, so each address carries its version), or null. */
+export type FeaturedTiles = { bestseller: ScentIndexEntry | null; thumbs: Record<string, string | null> };
 
 type MenuLink = { label: string; href: string; line?: "eterna" | "eterno" | "eternal" };
 

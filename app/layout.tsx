@@ -50,7 +50,8 @@ export const viewport: Viewport = { themeColor: "#f3efe7", width: "device-width"
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [index, bestsellers] = await Promise.all([getScentIndex(), getBestsellers(4)]);
-  const featured = { bestseller: bestsellers[0] ? toIndexEntry(bestsellers[0]) : null };
+  const thumbs = Object.fromEntries(["line-eterna", "line-eterno", "line-eternal", "finder-band", "mystery-box"].map((n) => [n, siteImage(n)]));
+  const featured = { bestseller: bestsellers[0] ? toIndexEntry(bestsellers[0]) : null, thumbs };
   const taleIndex = tales.map((t) => ({ slug: t.slug, title: t.title, handle: t.handle, line: t.line }));
 
   return (

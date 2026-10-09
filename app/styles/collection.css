@@ -40,6 +40,8 @@
   @media (min-width: 1024px) and (any-hover: hover) {
     .card-actions { position: absolute; top: 100%; left: 0; right: 0; padding-top: var(--card-actions-gap, 8px); opacity: 0; pointer-events: none; }
     .group:hover .card-actions, .group:focus-within .card-actions { opacity: 1; pointer-events: auto; }
+    /* A grid's last row hangs its button past the grid (8 + 44 px), and what follows starts 48 px below: room for it. */
+    .card-grid { padding-bottom: 16px; }
   }
 
   /* "Try 5 ml": a text link under the Add button, still a 44 px target. */

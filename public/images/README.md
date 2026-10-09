@@ -5,6 +5,10 @@ no code change, no import, no configuration. A slot with no file shows
 nothing to customers (a quiet surface in its colour, or the e∞ mark on a
 product's colour world), so files can arrive in any order and in batches.
 
+Replacing a picture under the same name is safe: each address carries its
+folder's version (`lib/image-versions.ts`), so the new picture shows at once
+instead of a cached copy of the old one.
+
 Names below are **without an extension**. Deliver `.jpg`, `.png`, `.webp` or
 `.avif` — whichever you have. Next.js converts and resizes on the way out, so
 put the full-size original here rather than a pre-shrunk copy.

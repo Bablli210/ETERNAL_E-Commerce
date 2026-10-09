@@ -564,7 +564,7 @@ export function CollectionGrid({
                 “{query.trim()}” isn’t in {where}.
               </p>
               <p className="mt-1 text-[15px] text-ash">Elsewhere in the house:</p>
-              <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
+              <div className="card-grid mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
                 {elsewhere.slice(0, 6).map((e, i) => (
                   <ProductCard key={e.handle} entry={e} priority={i < 2} sizes={CARD_SIZES} list="search" index={i} badge={badges ? undefined : false} />
                 ))}
@@ -587,7 +587,7 @@ export function CollectionGrid({
           </div>
         )
       ) : (
-        <div ref={gridRef} className="mt-4 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
+        <div ref={gridRef} className="card-grid mt-4 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
           {shown.map((e, i) => (
             <Fragment key={e.handle}>
               <ProductCard entry={e} priority={i < 2} sizes={CARD_SIZES} list={listName} index={i} badge={badges ? undefined : false} />

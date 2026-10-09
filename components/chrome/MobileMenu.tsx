@@ -70,7 +70,9 @@ function Group({ title, children, all }: { title: React.ReactNode; children: Rea
  * The phone menu: four ways to shop, each a fold (by line, by scent, by occasion, the Eternal Originals), then the
  * finder and the mystery box, then the rest of the house.
  */
-export function MobileMenu({ onClose, counts, box, originals }: { onClose: () => void; counts: Record<LineKey, number>; box: ScentIndexEntry | null; originals: ScentIndexEntry[] }) {
+export function MobileMenu({ onClose, counts, box, originals, thumbs }: { onClose: () => void; counts: Record<LineKey, number>; box: ScentIndexEntry | null; originals: ScentIndexEntry[]; thumbs: Record<string, string | null> }) {
+  // The thumbnails' addresses come from the server (siteImage), with their versions; a missing still shows none.
+  const thumb = (name: string) => (thumbs[name] ? <Image src={thumbs[name]} alt="" fill sizes="44px" className="object-cover" /> : undefined);
   const panel = useRef<HTMLElement>(null);
   const close = useRef<HTMLButtonElement>(null);
   // Back closes the menu instead of leaving the site.
@@ -94,7 +96,7 @@ export function MobileMenu({ onClose, counts, box, originals }: { onClose: () =>
                 key={key}
                 href={`/shop/${lines[key].slug}`}
                 follow={follow}
-                thumb={<Image src={`/images/line-${key}.jpg`} alt="" fill sizes="44px" className="object-cover" />}
+                thumb={thumb(`line-${key}`)}
                 title={
                   <>
                     {label} · {lines[key].label}
@@ -140,7 +142,7 @@ export function MobileMenu({ onClose, counts, box, originals }: { onClose: () =>
             <Row
               href="/finder"
               follow={follow}
-              thumb={<Image src="/images/finder-band.jpg" alt="" fill sizes="44px" className="object-cover" />}
+              thumb={thumb("finder-band")}
               title="Find your scent"
               sub="A few questions, three matches"
             />
@@ -148,7 +150,7 @@ export function MobileMenu({ onClose, counts, box, originals }: { onClose: () =>
               <Row
                 href={`/products/${box.handle}`}
                 follow={follow}
-                thumb={<Image src="/images/mystery-box.jpg" alt="" fill sizes="44px" className="object-cover" />}
+                thumb={thumb("mystery-box")}
                 title="Mystery box"
                 sub={`Three ${site.sampleSizeMl} ml samples · ${box.bottle?.availableForSale ? formatMoney(box.price) : "out of stock for now"}`}
               />

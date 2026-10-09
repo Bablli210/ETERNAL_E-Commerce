@@ -216,7 +216,7 @@ export function Header({
       </div>
       {/* Reserve the chrome's height on every page but the home hero, which runs under it. */}
       {!isHome && <div aria-hidden="true" className={facts.announcement ? "h-[calc(var(--header-h)+var(--announce-h))]" : "h-[var(--header-h)]"} />}
-      {mobile && <MobileMenu onClose={closeMobile} counts={counts} box={box} originals={originals} />}
+      {mobile && <MobileMenu onClose={closeMobile} counts={counts} box={box} originals={originals} thumbs={featured.thumbs} />}
     </>
   );
 }
