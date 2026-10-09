@@ -154,9 +154,20 @@ export function BackgroundVideo({
   }
   const introRef = useRef<HTMLVideoElement>(null);
   const loopRef = useRef<HTMLVideoElement>(null);
+  // Set when the intro turns out to have no format this browser plays; that is known at mount, before the film may start.
+  const introDead = useRef(false);
+  const started = useRef(false);
   const toLoop = useCallback(() => void play(loopRef.current), []);
-  // The intro only while it is mounted: once the loop has taken over (or after motion comes back on), the loop resumes.
-  const start = useCallback(() => void play(introRef.current ?? loopRef.current), []);
+  // The intro while it is mounted and playable; once the loop has taken over (or after motion comes back on), the loop.
+  const start = useCallback(() => {
+    started.current = true;
+    void play(introDead.current ? loopRef.current : (introRef.current ?? loopRef.current));
+  }, []);
+  // No intro format plays here: before the start, the loop simply goes first; after it, the loop takes over now.
+  const introNone = useCallback(() => {
+    introDead.current = true;
+    if (started.current) toLoop();
+  }, [toLoop]);
   useStartWhenIdle(start, startWhenIdle && playable);
   // Without the idle wait, a film with an intro starts here: neither clip autoplays, so the loop never races the intro.
   useEffect(() => {
@@ -209,9 +220,13 @@ export function BackgroundVideo({
             }
           }}
           onEnded={toLoop}
-          onError={toLoop}
+          // A decode or network failure of the intro itself. React also hands this handler the <source> elements'
+          // errors (a WebM a Safari skips by type), which are not failures: the next source is tried.
+          onError={(e) => {
+            if (e.target === e.currentTarget) toLoop();
+          }}
         >
-          <Sources sources={intro} onNone={toLoop} />
+          <Sources sources={intro} onNone={introNone} />
         </video>
       )}
     </div>

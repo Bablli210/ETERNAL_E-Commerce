@@ -59,7 +59,7 @@ function HomeHead({ title, sub, action, className = "" }: { title: ReactNode; su
 const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(", ");
 
 /**
- * The first screen (playbook 3.4): the house film or a campaign still, its
+ * The first screen (playbook 3.4): the hero film or a campaign still, its
  * scent named and one tap away, the house in one line, the price floor, one
  * primary action and the finder as a quiet second. Which one shows is chosen
  * per visit (content/heroes.ts). On a phone the picture sits above the copy,
@@ -76,11 +76,11 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
   const desktopShade = hero.film
     ? `linear-gradient(to right, rgb(${shade}) 0%, rgba(${shade}, 0) 16%), linear-gradient(to bottom, rgba(${shade}, 0.5), transparent 22%), linear-gradient(to top, rgba(${shade}, 0.45), transparent 16%)`
     : `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)`;
-  // Phone: the picture fades into the band. The film's sky and cloud are bright to its foot, so it fades in sooner,
-  // keeping the scent's name and its original above the headline at 4.5:1.
-  const phoneFade = hero.film
-    ? `linear-gradient(to top, ${bg} 24%, rgba(${shade}, 0.9) 34%, rgba(${shade}, 0.5) 46%, transparent 62%)`
-    : `linear-gradient(to top, ${bg} 6%, transparent 42%)`;
+  // Below lg the picture fades into the band. On a phone, or any landscape screen, the film's sky and cloud are bright
+  // to its foot and the copy starts high, so it fades in sooner, keeping the scent's name and its original at 4.5:1; a
+  // portrait tablet's box keeps the bottle's label above the light fade, and its copy clear of the film.
+  const filmPhoneFade = `linear-gradient(to top, ${bg} 24%, rgba(${shade}, 0.9) 34%, rgba(${shade}, 0.5) 46%, transparent 62%)`;
+  const topShade = `linear-gradient(to bottom, rgba(${shade}, 0.45), transparent 22%)`;
   // Only figures the catalogue or the owner has confirmed; nothing here is a placeholder.
   const offer = [
     fromPrice && `${ml(site.bottleSizeMl)} from ${formatMoney(fromPrice)}`,
@@ -94,8 +94,9 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
           arrive and the copy reflows. */}
       <div data-hero={hero.handle} className={`hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3 ${hero.film ? "lg:ml-[45%]" : ""}`}>
         {hero.film ? <HeroFilm hero={hero} film={hero.film} /> : <HeroStill hero={hero} className="absolute inset-0" />}
-        {/* Phone: the picture fades into the band the copy sits on. Desktop: see desktopShade. */}
-        <div aria-hidden="true" className="absolute inset-0 lg:hidden" style={{ backgroundImage: `${phoneFade}, linear-gradient(to bottom, rgba(${shade}, 0.45), transparent 22%)` }} />
+        {/* Below lg the picture fades into the band the copy sits on. Desktop: see desktopShade. */}
+        <div aria-hidden="true" className={`absolute inset-0 lg:hidden ${hero.film ? "hidden sm:portrait:block" : ""}`} style={{ backgroundImage: `linear-gradient(to top, ${bg} 6%, transparent 42%), ${topShade}` }} />
+        {hero.film && <div aria-hidden="true" className="absolute inset-0 sm:portrait:hidden lg:hidden" style={{ backgroundImage: `${filmPhoneFade}, ${topShade}` }} />}
         <div aria-hidden="true" className="absolute inset-0 hidden lg:block" style={{ backgroundImage: desktopShade }} />
       </div>
       {/* On a short desktop screen the copy is taller than the hero: it keeps clear of the header and the hero grows. */}

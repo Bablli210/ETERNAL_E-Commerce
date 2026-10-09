@@ -61,8 +61,9 @@ export function LineShowcase({ items }: { items: LineShowcaseItem[] }) {
         ))}
       </ul>
       {/* The still repeats the active name's link for a pointer; screen readers and the tab order have the names. Its height
-          sets the row, and the list stretches to it; if the list is ever the taller, the still grows to match. */}
-      <Link href={current.href} aria-hidden="true" tabIndex={-1} className="relative block aspect-[4/5] h-full overflow-hidden" style={current.src ? undefined : { backgroundColor: current.tone }}>
+          sets the row, and the list stretches to it; if the list is ever the taller (always, on a phone), the still grows
+          to match within its own column's width, cropping, instead of widening past the screen's edge. */}
+      <Link href={current.href} aria-hidden="true" tabIndex={-1} className="relative block aspect-[4/5] h-full w-full overflow-hidden" style={current.src ? undefined : { backgroundColor: current.tone }}>
         {items.map((it, i) =>
           it.src ? (
             <Image key={it.key} src={it.src} alt="" fill sizes="(min-width: 1024px) 50vw, 50vw" data-on={i === active ? "" : undefined} className="line-still object-cover" />

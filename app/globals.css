@@ -249,3 +249,8 @@ input, select, textarea { font-size: 16px; }
 
 .sr-only-focusable:not(:focus) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 }
+
+/* A phone on its side: the copy is taller than the screen, so the hero's picture stands above it instead of behind it. */
+@media (orientation: landscape) and (max-height: 560px) and (max-width: 1023.98px) {
+  #hero > .hero-film { position: relative; grid-column: 1; grid-row: 1; height: 72svh; }
+}
