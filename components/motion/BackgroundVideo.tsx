@@ -124,6 +124,7 @@ export function BackgroundVideo({
   startWhenIdle = false,
   media,
   imageClassName = "",
+  clipFlush = false,
 }: {
   sources: VideoSources;
   /** A clip that plays once before the loop; its last frame is the loop's first. */
@@ -141,6 +142,12 @@ export function BackgroundVideo({
   media?: string;
   /** Classes for the poster and the clip together, e.g. an object position. */
   imageClassName?: string;
+  /**
+   * Inset the clip only on its right and bottom edges. For a box that can fill the whole screen (the home hero), where
+   * Chrome counts neither the poster nor a clip that also fills it for LCP; an all-round inset would leave the clip,
+   * alone, eligible.
+   */
+  clipFlush?: boolean;
 }) {
   const playable = usePlayable(media);
   const [playing, setPlaying] = useState(false);
@@ -177,7 +184,7 @@ export function BackgroundVideo({
   const positioned = /(^|\s)(absolute|fixed|sticky)(\s|$)/.test(className);
   // Inset by 1 px so a clip is always a hair smaller than the poster: otherwise sub-pixel rounding can make it the
   // larger paint, and LCP would move to whenever the clip starts.
-  const clip = `bg-video absolute inset-px h-[calc(100%-2px)] w-[calc(100%-2px)] object-cover ${imageClassName} ${playing ? "is-playing" : ""}`;
+  const clip = `bg-video absolute ${clipFlush ? "left-0 top-0 h-[calc(100%-1px)] w-[calc(100%-1px)]" : "inset-px h-[calc(100%-2px)] w-[calc(100%-2px)]"} object-cover ${imageClassName} ${playing ? "is-playing" : ""}`;
   return (
     <div className={`${positioned ? "" : "relative"} overflow-hidden ${className}`} style={style}>
       {poster && <Image src={poster} alt={alt} fill sizes={sizes} preload={priority} className={`object-cover ${imageClassName}`} />}

@@ -83,7 +83,8 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
   // (white blossom, cloud, a cream close-up), so its shade is deeper and runs to the copy's own edge before fading, and
   // holds through the header. Tuned on every half-second of the film at 1024-2560 px: the copy and the header stay at
   // 4.5:1 or better on the brightest frame, and Divina's label stays under a fifth to a quarter of the shade.
-  const copyEdge = "calc(max(80px, 50vw - 640px) + min(520px, 32vw))";
+  // The bottle's left edge sits at about 43.7% of the screen (39% of the film, set 12% wider); the copy stops 32 px short.
+  const copyEdge = "calc(max(80px, 50vw - 640px) + min(520px, 32vw, 43.7vw - 32px - max(80px, 50vw - 640px)))";
   const desktopShade = hero.film
     ? `linear-gradient(to bottom, rgba(${shade}, 0.78) 0, rgba(${shade}, 0.74) calc(var(--announce-h) + var(--header-h)), rgba(${shade}, 0) 280px), linear-gradient(to top, rgba(${shade}, 0.5), rgba(${shade}, 0) 18%), linear-gradient(to right, rgba(${shade}, 0.8) 0, rgba(${shade}, 0.72) ${copyEdge}, rgba(${shade}, 0) calc(${copyEdge} + 320px))`
     : `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)`;
@@ -115,7 +116,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
       {/* On a short desktop screen the copy is taller than the hero: it keeps clear of the header and the hero grows. */}
       <div className="wrap relative col-start-1 row-start-2 pb-6 lg:mt-[calc(var(--header-h)+var(--announce-h)+16px)] lg:pb-24">
         {/* Over the film the copy ends short of Divina's bottle (copyEdge). */}
-        <div className={`max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,32vw)]" : "lg:max-w-[min(540px,40vw)]"}`}>
+        <div className={`max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,32vw,calc(43.7vw_-_32px_-_max(80px,50vw_-_640px)))]" : "lg:max-w-[min(540px,40vw)]"}`}>
           {scent && (
             <SelectList list="home_hero" items={[listItem(scent)]}>
               <Link href={`/products/${scent.handle}`} data-card={scent.handle} className={`inline-flex min-h-11 items-center gap-x-2 text-[13px] tracking-[0.02em] ${soft}`}>
@@ -313,7 +314,8 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
             const notes = siteImage(`products/${e.handle}-3`);
             const card = notes && notes !== e.image ? { ...e, image: notes, hoverImage: e.image } : e;
             return (
-              <div key={e.handle} className={`bg-linen text-night ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}>
+              // The picture runs to the panel's edges, so a card's focus ring falls outside it, on the dark band: Linen there.
+              <div key={e.handle} className={`bg-linen text-night [&_.card-link:focus-visible]:after:outline-linen ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}>
                 <ProductCard entry={card} badge={false} sizes={i === 0 ? "(min-width: 1024px) 20vw, 100vw" : "(min-width: 1024px) 20vw, 50vw"} bodyClassName="px-2.5 pb-3 lg:px-4 lg:pb-4" />
               </div>
             );

@@ -143,8 +143,9 @@ export function Header({
             transparent ? "border-transparent bg-transparent text-linen" : "border-dune bg-linen text-night"
           }`}
         >
-          {/* Over the hero, a faint line under the bar from the first link to the bag, the width of what it underlines. */}
-          <div className={`wrap relative grid h-full grid-cols-[1fr_auto_1fr] items-center max-lg:px-2 ${transparent ? "after:pointer-events-none after:absolute after:inset-x-2 after:bottom-0 after:h-px after:bg-linen/35 lg:after:inset-x-20" : ""}`}>
+          {/* Over the hero, a faint line under the bar from the first link (the menu icon on a phone) to the bag icon, in the
+              header's border row, where a link's own underline draws over it. */}
+          <div className={`wrap relative grid h-full grid-cols-[1fr_auto_1fr] items-center max-lg:px-2 ${transparent ? "after:pointer-events-none after:absolute after:-bottom-px after:left-[19px] after:right-[20px] after:h-px after:bg-linen/35 lg:after:left-20 lg:after:right-[92px]" : ""}`}>
             {/* The links run the header's full height, so the active and hover line sits on its bottom edge. */}
             <nav aria-label="Primary" className="hidden gap-7 self-stretch lg:flex">
               {nav.map((item) => {

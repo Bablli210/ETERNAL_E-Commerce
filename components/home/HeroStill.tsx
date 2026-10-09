@@ -11,13 +11,29 @@ import type { Hero } from "@/content/heroes";
  * the head for the screens that show it, so the download starts before the
  * body is parsed.
  */
-function HeroPicture({ wide: wideName, phone: phoneName, phoneSizes, alt, className = "" }: { wide: string; phone: string; phoneSizes: string; alt: string; className?: string }) {
+function HeroPicture({
+  wide: wideName,
+  phone: phoneName,
+  phoneSizes,
+  wideSizes = "100vw",
+  alt,
+  className = "",
+  imgClassName = "",
+}: {
+  wide: string;
+  phone: string;
+  phoneSizes: string;
+  wideSizes?: string;
+  alt: string;
+  className?: string;
+  imgClassName?: string;
+}) {
   const wide = siteImage(wideName);
   const phone = siteImage(phoneName) ?? wide;
   if (!phone) return null;
   const common = { alt, fill: true } as const;
   const { props: phoneProps } = getImageProps({ ...common, src: phone, sizes: `(min-width: 1024px) 100vw, ${phoneSizes}` });
-  const desktop = wide ? getImageProps({ ...common, src: wide, sizes: "100vw" }).props : null;
+  const desktop = wide ? getImageProps({ ...common, src: wide, sizes: wideSizes }).props : null;
   const PHONE = desktop ? "(max-width: 1023.98px)" : undefined;
   preload(phoneProps.src, { as: "image", imageSrcSet: phoneProps.srcSet, imageSizes: phoneProps.sizes, fetchPriority: "high", media: PHONE });
   if (desktop) preload(desktop.src, { as: "image", imageSrcSet: desktop.srcSet, imageSizes: desktop.sizes, fetchPriority: "high", media: "(min-width: 1024px)" });
@@ -25,7 +41,7 @@ function HeroPicture({ wide: wideName, phone: phoneName, phoneSizes, alt, classN
     <picture className={className}>
       {desktop && <source media="(min-width: 1024px)" srcSet={desktop.srcSet} sizes={desktop.sizes} />}
       {/* eslint-disable-next-line jsx-a11y/alt-text -- the next/image props above carry the alt and the optimised srcset. */}
-      <img {...phoneProps} loading="eager" fetchPriority="high" className="object-cover" />
+      <img {...phoneProps} loading="eager" fetchPriority="high" className={`object-cover ${imgClassName}`} />
     </picture>
   );
 }
@@ -44,11 +60,17 @@ export function HeroStill({ hero, className = "" }: { hero: Hero; className?: st
  */
 export function HeroFilm({ hero, film }: { hero: Hero; film: string }) {
   const common = { label: "Hero film", startWhenIdle: true, still: false, sizes: "100vw" } as const;
+  // Desktop: the film is drawn 12% wider than the hero, so Divina stands right of centre, clear of the copy; on a tall
+  // screen, where it is cut to the hero's height instead, it also sits a third of the way across. The poster's size
+  // follows the box it fills (112% of the width, or about 164% of the height when height-bound), so Chrome counts it
+  // whole for LCP. The clip starts flush with the poster's top-left corner and stops 1 px short of its other edges:
+  // where the poster fills the screen neither counts for LCP, and elsewhere the poster stays the larger paint.
+  const wide = "lg:object-[33%_50%]";
   return (
     <>
       {/* The 3:4 phone poster covers the phone's box at about the screen's width. */}
-      <HeroPicture wide={film} phone={`${film}-mobile`} phoneSizes="100vw" alt={hero.alt} className="absolute inset-0 lg:-right-[12%]" />
-      <Film {...common} name={film} media="(min-width: 1024px)" className="absolute inset-0 -right-[12%] hidden lg:block" />
+      <HeroPicture wide={film} phone={`${film}-mobile`} phoneSizes="100vw" wideSizes="max(112vw, 164svh)" alt={hero.alt} className="absolute inset-0 lg:-right-[12%]" imgClassName={wide} />
+      <Film {...common} name={film} media="(min-width: 1024px)" className="absolute inset-0 -right-[12%] hidden lg:block" imageClassName={wide} clipFlush />
       <Film {...common} name={[`${film}-mobile`, film]} media="(max-width: 1023.98px)" className="absolute inset-0 lg:hidden" />
     </>
   );

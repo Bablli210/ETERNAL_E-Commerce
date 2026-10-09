@@ -42,6 +42,7 @@ export function Film({
   startWhenIdle = false,
   media,
   still = true,
+  clipFlush = false,
 }: {
   name: string | string[];
   label: string;
@@ -61,6 +62,8 @@ export function Film({
   media?: string;
   /** false: the caller paints the still (the home hero's one <picture>); this draws only the clip, or nothing without one. */
   still?: boolean;
+  /** The clip starts at the box's top-left corner, 1 px short of its right and bottom edges (BackgroundVideo). */
+  clipFlush?: boolean;
 }) {
   // With a media query the preload carries it; the image itself must not preload everywhere.
   const preloadEverywhere = priority && !media;
@@ -83,6 +86,7 @@ export function Film({
           preload={preload}
           startWhenIdle={startWhenIdle}
           media={media}
+          clipFlush={clipFlush}
         />
       );
     }

@@ -11,9 +11,11 @@ import type { World } from "@/lib/catalogue";
  * (collection.css); touch-only phones never fetch it. A product without a
  * picture yet shows its colour world and the eternal mark; one with a picture
  * shows nothing behind it, so no colour flashes in before the image.
- * `touchSrc` is what a touch screen shows instead (the notes picture): it
- * cannot hover to it, so it opens on it. One <picture>, so each device
- * downloads only the frame it shows.
+ * `touchSrc` is what a phone-sized touch screen shows instead (the notes
+ * picture): it cannot hover to it, so it opens on it. The query is the
+ * exact complement of the hover layer's (collection.css), so any screen that
+ * can show the hover layer opens on the bottle. One <picture>, so each
+ * device downloads only the frame it shows.
  */
 export function ProductImage({
   src,
@@ -28,7 +30,7 @@ export function ProductImage({
 }: {
   src: string | null;
   hoverSrc?: string | null;
-  /** Shown instead of `src` on a touch screen (hover: none). */
+  /** Shown instead of `src` on a phone-sized touch screen. */
   touchSrc?: string | null;
   alt: string;
   world: World;
@@ -46,7 +48,7 @@ export function ProductImage({
         <>
           {touchSrc ? (
             <picture className="absolute inset-0">
-              <source media="(hover: none)" srcSet={getImageProps({ src: touchSrc, alt: "", fill: true, sizes }).props.srcSet} sizes={sizes} />
+              <source media="(any-hover: none) and (max-width: 1023.98px)" srcSet={getImageProps({ src: touchSrc, alt: "", fill: true, sizes }).props.srcSet} sizes={sizes} />
               <Image src={src} alt={alt} fill sizes={sizes} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} className={`pimg-lift ${fitClass}`} />
             </picture>
           ) : (
