@@ -67,26 +67,24 @@ function HomeHead({ title, sub, action, aside, className = "" }: { title: ReactN
  * The first screen (playbook 3.4): the hero film or a campaign still, its
  * scent named and one tap away, the house in one line, the price floor, one
  * primary action and the finder as a quiet second. Which one shows is chosen
- * per visit (content/heroes.ts). On a phone the picture sits above the copy,
- * so the bottle is never under the headline.
+ * per visit (content/heroes.ts). On a phone a still sits above the copy, so
+ * its bottle is never under the headline; the film covers the whole hero at
+ * every size, the copy over it, at the owner's request.
  */
 export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; scent: ScentIndexEntry | null; fromPrice: Money | null; samplePrice: Money | null }) {
   // The headline keeps the tagline's three lines; its size (below) lets the longest fit the column.
   const lines = site.taglineLines.map((l) => l.split(" "));
   const bg = hero.bg;
-  // Every shade is Night, neutral, so it darkens the picture without tinting it (the film's band is Night too).
+  // A still's shades are Night, neutral, so they darken the picture without tinting it.
   const shade = "23, 22, 20";
   // Desktop. A still keeps its bottle right of centre, so the copy holds the left half on a shade of its own. The film
-  // fills the hero too, set 12% right (HeroFilm) so Divina stands right of centre, and shows untouched, at the owner's
-  // request: no shade over it, so the copy (and the header over it) carry a soft text shadow instead.
+  // fills the hero at every size (on a desktop set 12% right, HeroFilm, so Divina stands right of centre) and shows
+  // untouched, at the owner's request: no shade or glow over it anywhere, only a hairline shadow under the letters.
   // The bottle's left edge sits at about 43.7% of the screen (39% of the film, set 12% wider); the copy stops 32 px short.
   const desktopShade = hero.film ? null : `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)`;
-  // Over the film the softer Dune would not read at all; Linen, with the shadow, as well as the film allows.
-  const soft = hero.film ? "text-dune lg:text-linen" : "text-dune";
-  // Below lg the picture fades into the band. On a phone, or any landscape screen, the film's sky and cloud are bright
-  // to its foot and the copy starts high, so it fades in sooner, keeping the scent's name and its original at 4.5:1; a
-  // portrait tablet's box keeps the bottle's label above the light fade, and its copy clear of the film.
-  const filmPhoneFade = `linear-gradient(to top, ${bg} 24%, rgba(${shade}, 0.9) 34%, rgba(${shade}, 0.5) 46%, transparent 62%)`;
+  // Over the film the softer Dune would not read at all; Linen reads as well as the film allows.
+  const soft = hero.film ? "text-linen" : "text-dune";
+  // Below lg a still fades into the band the copy sits on.
   const topShade = `linear-gradient(to bottom, rgba(${shade}, 0.45), transparent 22%)`;
   // Only figures the catalogue or the owner has confirmed; nothing here is a placeholder.
   const offer = [
@@ -97,20 +95,19 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
   // Phone: the hero and the proof marquee under it (48 px and its hairline) fill the first screen exactly; nothing of the next section shows.
   return (
     <ParallaxSection id="hero" className="grain relative grid min-h-[calc(100svh-49px)] grid-rows-[1fr_auto] overflow-hidden text-linen lg:min-h-[92svh]" style={{ backgroundColor: bg }}>
-      {/* Phone: the still's box hangs off the section, not off the copy's grid row, so it keeps its size while the fonts
-          arrive and the copy reflows. */}
-      <div data-hero={hero.handle} className="hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3">
+      {/* Phone: a still's box hangs off the section, not off the copy's grid row, so it keeps its size while the fonts
+          arrive and the copy reflows; the film's box is the whole section. */}
+      <div data-hero={hero.handle} data-film={hero.film ? "" : undefined} className={`hero-film ${hero.film ? "max-lg:absolute max-lg:inset-0" : "max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%]"} lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3`}>
         {hero.film ? <HeroFilm hero={hero} film={hero.film} /> : <HeroStill hero={hero} className="absolute inset-0" />}
-        {/* Below lg the picture fades into the band the copy sits on. Desktop: a still's shade (desktopShade); the film has none. */}
-        <div aria-hidden="true" className={`absolute inset-0 lg:hidden ${hero.film ? "hidden sm:portrait:block" : ""}`} style={{ backgroundImage: `linear-gradient(to top, ${bg} 6%, transparent 42%), ${topShade}` }} />
-        {hero.film && <div aria-hidden="true" className="absolute inset-0 sm:portrait:hidden lg:hidden" style={{ backgroundImage: `${filmPhoneFade}, ${topShade}` }} />}
+        {/* A still: below lg it fades into the band the copy sits on; from lg its shade (desktopShade). The film has neither. */}
+        {!hero.film && <div aria-hidden="true" className="absolute inset-0 lg:hidden" style={{ backgroundImage: `linear-gradient(to top, ${bg} 6%, transparent 42%), ${topShade}` }} />}
         {desktopShade && <div aria-hidden="true" className="absolute inset-0 hidden lg:block" style={{ backgroundImage: desktopShade }} />}
       </div>
       {/* On a short desktop screen the copy is taller than the hero: it keeps clear of the header and the hero grows. */}
-      <div className={`wrap relative col-start-1 row-start-2 pb-6 max-lg:isolate lg:mt-[calc(var(--header-h)+var(--announce-h)+16px)] lg:pb-24 ${hero.film ? "lg:[text-shadow:0_1px_3px_rgba(23,22,20,0.8),0_0_16px_rgba(23,22,20,0.65),0_0_40px_rgba(23,22,20,0.5)] lg:[&_.btn]:[text-shadow:none]" : ""}`}>
-        {/* Below lg the copy sits at the picture's foot and grows with the three-line headline, so the picture's own
-            fade cannot know where it starts: this shade rises with the copy and puts its first line on the band. */}
-        <div aria-hidden="true" className="absolute inset-x-0 -top-28 bottom-0 -z-10 lg:hidden" style={{ backgroundImage: `linear-gradient(to bottom, transparent, color-mix(in srgb, ${bg} 85%, transparent) 64px, ${bg} 112px)` }} />
+      <div className={`wrap relative col-start-1 row-start-2 pb-6 max-lg:isolate lg:mt-[calc(var(--header-h)+var(--announce-h)+16px)] lg:pb-24 ${hero.film ? "[text-shadow:0_1px_2px_rgba(23,22,20,0.6)] [&_.btn]:[text-shadow:none]" : ""}`}>
+        {/* A still, below lg: the copy sits at the picture's foot and grows with the three-line headline, so the picture's
+            own fade cannot know where it starts: this shade rises with the copy and puts its first line on the band. */}
+        {!hero.film && <div aria-hidden="true" className="absolute inset-x-0 -top-28 bottom-0 -z-10 lg:hidden" style={{ backgroundImage: `linear-gradient(to bottom, transparent, color-mix(in srgb, ${bg} 85%, transparent) 64px, ${bg} 112px)` }} />}
         {/* Over the film the copy ends 32 px short of Divina's bottle, at 43.7% of the screen. */}
         <div className={`max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,32vw,calc(43.7vw_-_32px_-_max(80px,50vw_-_640px)))]" : "lg:max-w-[min(540px,40vw)]"}`}>
           {scent && (
@@ -171,7 +168,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
             </Link>
           </div>
         </div>
-        <a href="#proof" className={`absolute bottom-8 right-5 hidden items-center gap-2 text-[11px] uppercase tracking-[0.14em] lg:right-20 lg:flex ${hero.film ? "rounded-full bg-night/70 px-3 py-1.5 text-linen" : "text-dune"}`}>
+        <a href="#proof" className={`absolute bottom-8 right-5 hidden items-center gap-2 text-[11px] uppercase tracking-[0.14em] lg:right-20 lg:flex ${hero.film ? "text-linen" : "text-dune"}`}>
           Scroll <Icon name="chevron-down" size={14} />
         </a>
       </div>

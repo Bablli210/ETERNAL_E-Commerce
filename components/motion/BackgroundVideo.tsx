@@ -5,17 +5,6 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "
 import { motionAllowed } from "@/lib/motion";
 import type { VideoSources } from "@/lib/site-videos";
 
-type Connection = { saveData?: boolean; effectiveType?: string };
-
-const connection = () => (navigator as Navigator & { connection?: Connection & Partial<EventTarget> }).connection;
-
-/** True on a metered or very slow connection, where a background film is not worth the bytes. */
-function sparing(): boolean {
-  const c = connection();
-  if (!c) return false;
-  return Boolean(c.saveData) || c.effectiveType === "slow-2g" || c.effectiveType === "2g";
-}
-
 function watch(media: string | undefined, cb: () => void) {
   const queries = [window.matchMedia("(prefers-reduced-motion: reduce)")];
   if (media) queries.push(window.matchMedia(media));
@@ -23,12 +12,9 @@ function watch(media: string | undefined, cb: () => void) {
   // The site's own Motion on/off switch writes data-motion onto <html>.
   const observer = new MutationObserver(cb);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-motion"] });
-  const c = connection();
-  c?.addEventListener?.("change", cb);
   return () => {
     for (const q of queries) q.removeEventListener("change", cb);
     observer.disconnect();
-    c?.removeEventListener?.("change", cb);
   };
 }
 
@@ -37,14 +23,17 @@ function watch(media: string | undefined, cb: () => void) {
  * hydration, so the poster is what renders first either way, and false for
  * the rest of the visit under prefers-reduced-motion or with motion switched
  * off — the element is never mounted, so it is never started and never has to
- * be paused. `media` keeps a slot that CSS has hidden from downloading its
- * clip: the desktop and mobile crops of one film cost one download, not two.
+ * be paused. A data saver or a slow connection no longer holds it back, at the
+ * owner's request: the phone clips are small (about half a megabyte in all)
+ * and only start once the page is idle. `media` keeps a slot that CSS has
+ * hidden from downloading its clip: the desktop and mobile crops of one film
+ * cost one download, not two.
  */
 function usePlayable(media?: string): boolean {
   const subscribe = useCallback((cb: () => void) => watch(media, cb), [media]);
   return useSyncExternalStore(
     subscribe,
-    () => motionAllowed() && !sparing() && (!media || window.matchMedia(media).matches),
+    () => motionAllowed() && (!media || window.matchMedia(media).matches),
     () => false,
   );
 }
@@ -74,7 +63,7 @@ function useStartWhenIdle(start: () => void, enabled: boolean) {
   }, [start, enabled]);
 }
 
-/** Starts a clip muted, buffering it fully; a refusal (autoplay off, low-power mode) leaves whatever shows now. */
+/** Starts a clip muted, buffering it fully; resolves false on a refusal (autoplay off, iOS Low Power Mode). */
 function play(video: HTMLVideoElement | null) {
   if (!video) return Promise.resolve(false);
   video.muted = true;
@@ -84,6 +73,9 @@ function play(video: HTMLVideoElement | null) {
     () => false,
   );
 }
+
+/** The gestures that let a page start a video the browser refused to autoplay. */
+const GESTURES = ["pointerup", "touchend", "click", "keydown"] as const;
 
 /** WebM first, then MP4. `onNone` fires on the last one's error: with <source> children, that is how a clip with no format this browser plays reports it (play() then never settles). */
 function Sources({ sources, onNone }: { sources: VideoSources; onNone?: () => void }) {
@@ -164,12 +156,51 @@ export function BackgroundVideo({
   // Set when the intro turns out to have no format this browser plays; that is known at mount, before the film may start.
   const introDead = useRef(false);
   const started = useRef(false);
-  const toLoop = useCallback(() => void play(loopRef.current), []);
+  // A refused start (iOS Low Power Mode, some in-app browsers) is tried again at the visitor's first tap or key, which
+  // the browser counts as permission; this undoes the waiting listeners.
+  const unarm = useRef<(() => void) | null>(null);
+  const playClip = useCallback((video: HTMLVideoElement | null) => {
+    void play(video).then((ok) => {
+      if (ok || !video) return;
+      unarm.current?.();
+      const again = () => {
+        unarm.current?.();
+        void play(video);
+      };
+      for (const g of GESTURES) window.addEventListener(g, again, { capture: true, passive: true });
+      unarm.current = () => {
+        for (const g of GESTURES) window.removeEventListener(g, again, { capture: true });
+        unarm.current = null;
+      };
+    });
+  }, []);
+  useEffect(() => () => unarm.current?.(), []);
+  const toLoop = useCallback(() => playClip(loopRef.current), [playClip]);
   // The intro while it is mounted and playable; once the loop has taken over (or after motion comes back on), the loop.
   const start = useCallback(() => {
     started.current = true;
-    void play(introDead.current ? loopRef.current : (introRef.current ?? loopRef.current));
-  }, []);
+    playClip(introDead.current ? loopRef.current : (introRef.current ?? loopRef.current));
+  }, [playClip]);
+  // A phone pauses the film when the visitor switches apps or locks the screen, and Safari can pause a muted film it
+  // started that scrolls out of view: once the page and the film are back in sight, it plays on.
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!playable) return;
+    const resume = () => {
+      if (!started.current || document.visibilityState !== "visible") return;
+      const clip = introRef.current && !introDead.current ? introRef.current : loopRef.current;
+      if (clip && clip.paused && !clip.ended) playClip(clip);
+    };
+    const seen = new IntersectionObserver((entries) => entries.some((e) => e.isIntersecting) && resume());
+    if (box.current) seen.observe(box.current);
+    document.addEventListener("visibilitychange", resume);
+    window.addEventListener("pageshow", resume);
+    return () => {
+      seen.disconnect();
+      document.removeEventListener("visibilitychange", resume);
+      window.removeEventListener("pageshow", resume);
+    };
+  }, [playable, playClip]);
   // No intro format plays here: before the start, the loop simply goes first; after it, the loop takes over now.
   const introNone = useCallback(() => {
     introDead.current = true;
@@ -186,7 +217,7 @@ export function BackgroundVideo({
   // larger paint, and LCP would move to whenever the clip starts.
   const clip = `bg-video absolute ${clipFlush ? "left-0 top-0 h-[calc(100%-1px)] w-[calc(100%-1px)]" : "inset-px h-[calc(100%-2px)] w-[calc(100%-2px)]"} object-cover ${imageClassName} ${playing ? "is-playing" : ""}`;
   return (
-    <div className={`${positioned ? "" : "relative"} overflow-hidden ${className}`} style={style}>
+    <div ref={box} className={`${positioned ? "" : "relative"} overflow-hidden ${className}`} style={style}>
       {poster && <Image src={poster} alt={alt} fill sizes={sizes} preload={priority} className={`object-cover ${imageClassName}`} />}
       {playable && (
         <video
