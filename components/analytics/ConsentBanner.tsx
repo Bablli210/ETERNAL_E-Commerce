@@ -102,9 +102,10 @@ export function ConsentBanner(props: ConsentSettings) {
         A few cookies, if you agree
       </h2>
       <p className="mt-2 text-[14px] leading-snug text-ash">
-        We&rsquo;d like to count visits and show eternal to you on Instagram, Facebook and Google. Nothing that identifies you goes to Meta or Google from this site until you say yes.{" "}
+        We use cookies and similar technologies. Strictly necessary cookies keep the site working. With your consent, we and our partners also use them for analytics
+        and personalised advertising. No personal data is shared for these purposes unless you accept, and you can withdraw your consent at any time.{" "}
         <Link href="/help#privacy" className="lnk whitespace-nowrap text-night">
-          How we use your data
+          Cookie and privacy information
         </Link>
       </p>
 
@@ -125,7 +126,7 @@ export function ConsentBanner(props: ConsentSettings) {
             label={cookiePurposes.marketing.label}
             checked={marketing}
             onChange={setMarketing}
-            note={`${cookiePurposes.marketing.note}${checkoutFollows() ? ", and checkout follows the same choice" : ". Checkout runs on Shopify, under Shopify’s own cookie settings"}.`}
+            note={`${cookiePurposes.marketing.note} ${checkoutFollows() ? "Checkout follows the same choice." : "Checkout is operated by our e-commerce platform provider under its own cookie settings."}`}
           />
         </fieldset>
       )}
