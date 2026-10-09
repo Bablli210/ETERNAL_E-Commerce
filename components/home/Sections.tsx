@@ -115,7 +115,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
       {/* On a short desktop screen the copy is taller than the hero: it keeps clear of the header and the hero grows. */}
       <div className="wrap relative col-start-1 row-start-2 pb-6 lg:mt-[calc(var(--header-h)+var(--announce-h)+16px)] lg:pb-24">
         {/* Over the film the copy ends short of Divina's bottle (copyEdge). */}
-        <div className={`hero-drift max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,32vw)]" : "lg:max-w-[min(540px,40vw)]"}`}>
+        <div className={`max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,32vw)]" : "lg:max-w-[min(540px,40vw)]"}`}>
           {scent && (
             <SelectList list="home_hero" items={[listItem(scent)]}>
               <Link href={`/products/${scent.handle}`} data-card={scent.handle} className={`inline-flex min-h-11 items-center gap-x-2 text-[13px] tracking-[0.02em] ${soft}`}>

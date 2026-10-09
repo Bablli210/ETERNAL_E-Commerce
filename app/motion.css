@@ -101,11 +101,10 @@
       .toast-enter { animation: m-rise 240ms var(--ease-standard); }
       .toast-exit { animation: m-rise 200ms var(--ease-exit) reverse forwards; }
 
-      /* H1 · hero: words stagger up 80 ms; on scroll the film scales to 1.04 and the text drifts at 0.2×. */
+      /* H1 · hero: words stagger up 80 ms; on scroll the film scales to 1.04. The text scrolls with the page, at the owner's request. */
       .hero-word { --rise: 24px; display: inline-block; opacity: 0; transform: translateY(24px); animation: m-rise 600ms var(--ease-emphasized) forwards; animation-delay: calc(var(--i, 0) * 80ms + 120ms); }
       .hero-film { transform: scale(calc(1 + var(--pp, 0) * 0.04)); transform-origin: center; will-change: transform; }
       .bg-video { transition: opacity var(--dur-xl) var(--ease-standard); }
-      .hero-drift { transform: translate3d(0, calc(var(--sy, 0px) * 0.2), 0); will-change: transform; }
       .parallax-y { transform: translate3d(0, var(--py, 0px), 0); }
 
       /* H3 · line tiles: image scales 1.03, label slides 8 px. */
