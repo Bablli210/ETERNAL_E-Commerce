@@ -41,13 +41,13 @@ export function ProductCard({
   className?: string;
 }) {
   const product = { productId: entry.productId, handle: entry.handle, title: entry.title, image: entry.image, lineLabel: entry.lineLabel, world: entry.world };
-  const showBadge = badge ?? (entry.isBestseller ? "Bestseller" : entry.isNew ? "New" : null);
+  const showBadge = badge ?? (entry.isOriginal ? "Eternal Original" : entry.isBestseller ? "Bestseller" : entry.isNew ? "New" : null);
   return (
     <article className={`group relative flex h-full flex-col ${className}`} data-card={entry.handle}>
       <div className="relative">
         {/* The link names the product, so the picture stays silent. */}
         <ProductImage src={entry.image} hoverSrc={entry.hoverImage} alt="" world={entry.world} sizes={sizes} priority={priority} className="aspect-square w-full" />
-        {showBadge && <span className={`badge absolute left-3 top-3 text-[12px] ${showBadge === "New" ? "badge-gold" : ""}`}>{showBadge}</span>}
+        {showBadge && <span className={`badge absolute left-3 top-3 text-[12px] ${showBadge === "New" ? "badge-gold" : showBadge === "Eternal Original" ? "badge-original" : ""}`}>{showBadge}</span>}
         {reason && <span className="absolute bottom-3 left-3 bg-linen/90 px-2 py-1 text-[12px] text-night">{reason}</span>}
       </div>
       <div className="flex flex-1 flex-col pt-2.5">

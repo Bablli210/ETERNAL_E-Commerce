@@ -79,8 +79,8 @@ export async function HomePage({ hero }: { hero: HeroDef }) {
       <ProofStrip />
       <LineTiles counts={counts} total={scents.length} />
       <WhereToStart entries={onePerLineFirst(picks, 4).map(toIndexEntry)} total={scents.length} />
-      <TryBeforeYouCommit mysteryBox={mysteryBox ? toIndexEntry(mysteryBox) : null} everySampled={everySampled} />
       <EternalOriginals entries={originals.map(toIndexEntry)} />
+      <TryBeforeYouCommit mysteryBox={mysteryBox ? toIndexEntry(mysteryBox) : null} everySampled={everySampled} />
       <ScentTiles />
       {occasionsLive && <OccasionTiles counts={Object.fromEntries(occasionOrder.map((k) => [k, scents.filter((s) => s.occasions.includes(k)).length])) as Record<OccasionKey, number>} />}
       <FeaturedTale scent={featured} />

@@ -102,11 +102,11 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
                 <Icon name="arrow-right" size={14} className="text-linen" />
               </Link>
               {scent.inspiredBy && (
-                <InspiredBy name={scent.inspiredBy} className="-mt-2 mb-1 text-[13px] tracking-[0.02em] text-dune" tone="text-linen" nameClassName="text-[17px]" />
+                <InspiredBy name={scent.inspiredBy} className="mb-3 mt-2 border-t border-linen/25 pt-3 text-[13px] leading-snug tracking-[0.02em] text-dune max-lg:[@media(max-height:760px)]:mb-2 max-lg:[@media(max-height:760px)]:mt-1 max-lg:[@media(max-height:760px)]:pt-2 lg:mb-4 lg:mt-3" tone="text-linen" nameClassName="mt-0.5 text-[17px]" />
               )}
             </SelectList>
           )}
-          <h1 className="display-xl mt-1 max-sm:text-[min(44px,11.2vw)] lg:text-[clamp(56px,5.2vw,84px)]">
+          <h1 className="display-xl mt-1 max-sm:text-[min(44px,11.2vw)] max-lg:[@media(max-height:760px)]:text-[min(36px,9.6vw)] lg:text-[clamp(56px,5.2vw,84px)]">
             {/* The space sits between the spans, not inside them: a non-breaking space
                 kept the headline on one unbreakable line whenever the words were plain
                 inline (reduced motion), so it overflowed instead of wrapping. */}
@@ -221,7 +221,7 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
             // The scent among its notes leads; the bottle comes in on hover.
             const notes = siteImage(`products/${e.handle}-3`);
             const card = notes && notes !== e.image ? { ...e, image: notes, hoverImage: e.image } : e;
-            return <ProductCard key={e.handle} entry={card} badge={e.isNew ? "New" : false} />;
+            return <ProductCard key={e.handle} entry={card} badge={e.isOriginal ? "Eternal Original" : e.isNew ? "New" : false} />;
           })}
         </SelectList>
         <Link href="/shop" className="btn btn-secondary btn-block mt-8 lg:mt-12 lg:w-auto">
@@ -234,29 +234,40 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
 
 /**
  * The Eternal Originals: the five scents the house composed with no original
- * behind them. The section's own tile leads the grid, so five cards and the
- * tile fill two rows on a phone and on a laptop alike.
+ * behind them, on a night band of their own so they stand apart from the rest
+ * of the page. Each card sits on a linen panel; on a phone the first leads
+ * full width and the other four follow two by two.
  */
 export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
   if (!entries.length) return null;
   return (
-    <section className="py-10 lg:py-24">
-      <div className="wrap">
-        <HomeHead title="Eternal Originals" sub={ORIGINALS_DESCRIPTOR} action={{ label: `Shop all ${entries.length}`, href: "/shop/originals" }} />
-        <SelectList list="home_originals" items={entries.map(listItem)} className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-12 lg:grid-cols-3 lg:gap-x-6">
-          <Link href="/shop/originals" className="watermark relative flex aspect-square flex-col justify-end overflow-hidden bg-night p-4 text-linen lg:p-8">
-            <span className="eyebrow relative text-[12px] text-linen/80">Composed by the house</span>
-            <span className="serif relative mt-2 text-[24px] leading-[1.1] lg:text-[40px]">{entries.length === 5 ? "Five" : entries.length} scents that are ours alone</span>
-            <span className="relative mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold">
-              <span className="lnk">Shop the originals</span>
-              <Icon name="arrow-right" size={16} />
-            </span>
+    <section aria-labelledby="originals-title" className="watermark grain relative overflow-hidden bg-night py-12 text-linen lg:py-28">
+      <div className="wrap relative">
+        <div className="flex items-end justify-between gap-4">
+          <div className="max-w-[640px]">
+            <p className="eyebrow text-[12px] text-gold">Only at eternal</p>
+            <h2 id="originals-title" className="display-l mt-2">
+              Eternal Originals
+            </h2>
+            <p className="mt-2 text-[15px] leading-snug text-dune lg:mt-4 lg:text-[17px]">
+              {ORIGINALS_DESCRIPTOR} {entries.length === 5 ? "Five" : entries.length} scents that are ours alone.
+            </p>
+          </div>
+          <Link href="/shop/originals" className="-mb-3 inline-flex min-h-11 shrink-0 items-center gap-1.5 text-[13px] font-semibold text-linen">
+            <span className="lnk">Shop all {entries.length}</span>
+            <Icon name="arrow-right" size={16} />
           </Link>
-          {entries.map((e) => {
+        </div>
+        <SelectList list="home_originals" items={entries.map(listItem)} className="mt-8 grid grid-cols-2 gap-3 lg:mt-12 lg:grid-cols-5 lg:gap-5">
+          {entries.map((e, i) => {
             // As in Where to start: the scent among its notes leads; the bottle comes in on hover.
             const notes = siteImage(`products/${e.handle}-3`);
             const card = notes && notes !== e.image ? { ...e, image: notes, hoverImage: e.image } : e;
-            return <ProductCard key={e.handle} entry={card} badge={e.isNew ? "New" : false} sizes="(min-width: 1024px) 33vw, 50vw" />;
+            return (
+              <div key={e.handle} className={`bg-linen p-2.5 text-night lg:p-4 ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}>
+                <ProductCard entry={card} badge={false} sizes={i === 0 ? "(min-width: 1024px) 20vw, 100vw" : "(min-width: 1024px) 20vw, 50vw"} />
+              </div>
+            );
           })}
         </SelectList>
       </div>
