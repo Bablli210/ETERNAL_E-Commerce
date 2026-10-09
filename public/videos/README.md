@@ -29,10 +29,14 @@ is not used.
 | File | What |
 | --- | --- |
 | `home-hero-intro`, `home-hero` | 1920 × 1080 for screens from 1024 px |
-| `home-hero-mobile-intro`, `home-hero-mobile` | The centre 3:4 of the frame, for phones |
+| `home-hero-mobile-intro`, `home-hero-mobile` | The centre 3:4 of the frame at its full 810 × 1080, for phones |
 
-Desktop is VP9 at about 1 Mbit/s and HEVC at about 1.1 Mbit/s; phones VP9 and
-HEVC at about 160 kbit/s, so each phone file stays near 400 KB.
+The 1920 web files are H.264 at only 2.2 Mbit/s and show an 8 px block grid in
+the fast moments, so they are deblocked first (ffmpeg `spp`, which keeps the
+label lettering sharp) and then encoded: desktop VP9 at 2.5 Mbit/s and HEVC at
+2.8 Mbit/s, phones VP9 at 500 kbit/s and HEVC at 550 kbit/s. A sharper film
+needs a better source than these web files: a higher-bitrate (or 2560) export
+of the intro and the loop, delivered in pieces under about 6 MB each.
 
 ## Rules the encoder follows
 
@@ -62,8 +66,9 @@ HEVC at about 160 kbit/s, so each phone file stays near 400 KB.
 - **Two-pass, by bitrate.** A detailed film re-encoded by CRF from an already
   compressed source comes out several times larger; two passes at a set
   bitrate keep the size known.
-- **Budget.** About 3 MB per format for the desktop film (intro and loop), and
-  about 400 KB per phone file.
+- **Budget.** About 7 MB per format for the desktop film (intro and loop), and
+  about 1.4 MB for the phone's (intro and loop), at the owner's request for a
+  sharper film; it was 3 MB and 500 KB.
 
 ## What the site does with them
 
@@ -75,21 +80,22 @@ clip, never both.
 
 ## Weight
 
-Phones on mobile data are the audience (playbook 7.1), so each phone file stays
-near 400 KB: `home-hero-mobile` is the loop at 720 × 960 (the centre 3:4 of the
-frame), VP9 about 410 KB and HEVC about 400 KB, and `home-hero-mobile-intro`
-adds about 90–100 KB. 720 px covers a 390 px phone at 2x without visible loss.
-Two passes at a set bitrate, from the 1920 web file:
+Phones on mobile data are the audience (playbook 7.1). `home-hero-mobile` is
+the loop at 810 × 1080 (the centre 3:4 of the frame, not scaled), VP9 about
+1.1 MB and HEVC about 1.2 MB, and `home-hero-mobile-intro` adds about 270–300
+KB. Desktop: `home-hero` about 5.6 MB (VP9) or 6.2 MB (HEVC), its intro about
+1.3–1.5 MB. Deblock once, then two passes at a set bitrate:
 
 ```
-VF="crop=810:1080,scale=720:960:flags=lanczos"
-ffmpeg -i loop-1920.mp4 -vf "$VF" -c:v libvpx-vp9 -b:v 155k -pass 1 -row-mt 1 -an -f null /dev/null
-ffmpeg -i loop-1920.mp4 -vf "$VF" -c:v libvpx-vp9 -b:v 155k -pass 2 -row-mt 1 -cpu-used 1 \
+ffmpeg -i loop-1920.mp4 -vf "spp=quality=4:qp=8" -c:v libx264 -preset veryfast -crf 4 -an loop-db.mkv
+VF="crop=810:1080"
+ffmpeg -i loop-db.mkv -vf "$VF" -c:v libvpx-vp9 -b:v 500k -pass 1 -row-mt 1 -cpu-used 4 -an -f null /dev/null
+ffmpeg -i loop-db.mkv -vf "$VF" -c:v libvpx-vp9 -b:v 500k -pass 2 -row-mt 1 -cpu-used 1 \
   -auto-alt-ref 1 -lag-in-frames 25 -pix_fmt yuv420p -an home-hero-mobile.webm
-ffmpeg -i loop-1920.mp4 -vf "$VF" -c:v libx265 -preset slow -b:v 175k -x265-params pass=1 -an -f null /dev/null
-ffmpeg -i loop-1920.mp4 -vf "$VF" -c:v libx265 -preset slow -b:v 175k -x265-params pass=2 \
+ffmpeg -i loop-db.mkv -vf "$VF" -c:v libx265 -preset slow -b:v 550k -x265-params pass=1 -an -f null /dev/null
+ffmpeg -i loop-db.mkv -vf "$VF" -c:v libx265 -preset slow -b:v 550k -x265-params pass=2 \
   -tag:v hvc1 -pix_fmt yuv420p -movflags +faststart -an home-hero-mobile.mp4
 ```
 
-The desktop files are the same commands without the crop, at 1000k (VP9) and
-1100k (HEVC).
+The desktop files are the same commands without the crop, at 2500k (VP9) and
+2800k (HEVC); the intros the same again from the deblocked intro.
