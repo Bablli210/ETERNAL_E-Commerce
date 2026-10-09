@@ -38,12 +38,20 @@ const listItem = (e: ScentIndexEntry): ListItem => ({
 });
 
 /** A compact section head: the title (and one line under it) on the left, one 44 px action on the right. */
-function HomeHead({ title, sub, action, className = "" }: { title: ReactNode; sub?: ReactNode; action?: { label: string; href: string }; className?: string }) {
+function HomeHead({ title, sub, action, aside, className = "" }: { title: ReactNode; sub?: ReactNode; action?: { label: string; href: string }; aside?: ReactNode; className?: string }) {
   return (
     <div className={`flex items-end justify-between gap-4 ${className}`}>
-      <div className="max-w-[640px]">
-        <h2 className="display-l">{title}</h2>
-        {sub && <p className="mt-2 text-[15px] leading-snug text-ash lg:mt-4 lg:text-[17px]">{sub}</p>}
+      <div className={aside ? "min-w-0 flex-1" : "max-w-[640px]"}>
+        {/* `aside` (a button) sits at the end of the title's own line. */}
+        {aside ? (
+          <div className="flex items-center justify-between gap-6">
+            <h2 className="display-l">{title}</h2>
+            {aside}
+          </div>
+        ) : (
+          <h2 className="display-l">{title}</h2>
+        )}
+        {sub && <p className="mt-2 max-w-[640px] text-[15px] leading-snug text-ash lg:mt-4 lg:text-[17px]">{sub}</p>}
       </div>
       {action && (
         <Link href={action.href} className="-mb-3 inline-flex min-h-11 shrink-0 items-center gap-1.5 text-[13px] font-semibold">
@@ -238,7 +246,16 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
   return (
     <section className="pb-10 pt-7 lg:py-24">
       <div className="wrap">
-        <HomeHead title="Where to start" sub="The house’s picks for a first bottle." />
+        {/* On a wide screen the way to every scent sits on the title's line; on a phone it follows the cards. */}
+        <HomeHead
+          title="Where to start"
+          sub="The house’s picks for a first bottle."
+          aside={
+            <Link href="/shop" className="btn btn-secondary shrink-0 max-lg:hidden">
+              See all {total} scents
+            </Link>
+          }
+        />
         <SelectList list="home_where_to_start" items={entries.map(listItem)} className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-12 lg:grid-cols-4 lg:gap-x-6">
           {entries.map((e) => {
             // The scent among its notes leads; the bottle comes in on hover.
@@ -247,7 +264,7 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
             return <ProductCard key={e.handle} entry={card} badge={e.isOriginal ? "Eternal Original" : e.isNew ? "New" : false} />;
           })}
         </SelectList>
-        <Link href="/shop" className="btn btn-secondary btn-block mt-8 lg:mt-12 lg:w-auto">
+        <Link href="/shop" className="btn btn-secondary btn-block mt-8 lg:hidden">
           See all {total} scents
         </Link>
       </div>
