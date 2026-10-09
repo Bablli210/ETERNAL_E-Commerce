@@ -155,7 +155,7 @@ export async function createFilm({ renderer, brand, pages, photos, hud }) {
     { t: 8.9, v: [-0.35, 1.0, -3.7] },
     { t: 10.0, v: [1.6, 1.25, -5.0] },
     { t: 10.9, v: L(home.group, -1.5 - 0.5, -0.42 + 0.1, 9.9) },
-    { t: 13.2, v: L(home.group, -1.5 - 0.5, -0.42 + 0.1, 9.0) },
+    { t: 12.6, v: L(home.group, -1.5 - 0.5, -0.42 + 0.1, 9.0) },
     { t: 14.8, v: shot(shop, 8.5) },
     { t: 17.1, v: shot(product, 8.4) },
     { t: 19.4, v: shot(finder, 8.4) },
@@ -174,7 +174,7 @@ export async function createFilm({ renderer, brand, pages, photos, hud }) {
     { t: 8.9, v: [1.55, 0.88, -8.8] },
     { t: 10.0, v: L(home.group, -2.6, -0.4, 0) },
     { t: 10.9, v: L(home.group, -1.5, -0.42, 0) },
-    { t: 13.2, v: L(home.group, -1.5, -0.42, 0) },
+    { t: 12.6, v: L(home.group, -1.5, -0.42, 0) },
     { t: 14.8, v: aimAt(shop) },
     { t: 17.1, v: aimAt(product) },
     { t: 19.4, v: aimAt(finder) },
@@ -198,7 +198,7 @@ export async function createFilm({ renderer, brand, pages, photos, hud }) {
     { t: 7.95, v: A(BC) },
     { t: 8.8, v: A(BC) },
     { t: 10.4, v: L(home.group, 0, 0, 0) },
-    { t: 13.2, v: L(home.group, 0, 0, 0) },
+    { t: 12.6, v: L(home.group, 0, 0, 0) },
     { t: 14.8, v: L(shop.group, -0.6, 0, 0) },
     { t: 17.1, v: L(product.group, -0.6, 0, 0) },
     { t: 19.4, v: L(finder.group, -0.6, 0, 0) },
@@ -295,7 +295,7 @@ export async function createFilm({ renderer, brand, pages, photos, hud }) {
       s.mat.uniforms.sweepX.value = lerp(-0.2, 1.2, tween(t, on[name] + 0.6, 1.8, ease.inOut));
     }
     // Home: hold on the first screen, then down to the three lines and where to start.
-    const homeScroll = lerp(0, 900, tween(t, 11.0, 1.1, ease.inOut)) + lerp(0, 1110, tween(t, 12.35, 1.2, ease.inOut));
+    const homeScroll = lerp(0, 900, tween(t, 10.85, 1.0, ease.inOut)) + lerp(0, 1110, tween(t, 11.95, 1.1, ease.inOut));
     scrollTo(home.mat, home.meta, homeScroll, 900);
 
     // Phones: rise into place, float, and scroll.
@@ -353,7 +353,7 @@ export async function createFilm({ renderer, brand, pages, photos, hud }) {
 
   function hudPose(t) {
     title.pose(t, 7.95, 9.75);
-    caps.home.pose(t, 10.5, 13.5);
+    caps.home.pose(t, 10.4, 13.3);
     caps.shop.pose(t, 14.05, 16.0);
     caps.product.pose(t, 16.35, 18.3);
     caps.finder.pose(t, 18.65, 20.7);
@@ -362,5 +362,8 @@ export async function createFilm({ renderer, brand, pages, photos, hud }) {
   }
 
   const label = (t) => [...BEATS].reverse().find(([, s]) => t >= s)?.[0] ?? "";
-  return { pose, hud: hudPose, label };
+  // The flight through the mark's eye moves a few hundred pixels a frame: more sub-frames
+  // there, so its motion blur is a smear and not a row of copies.
+  const samples = (t, base) => (base <= 1 ? base : t >= 3.9 && t <= 4.35 ? Math.max(base, 16) : t >= 3.7 && t <= 4.6 ? Math.max(base, 10) : base);
+  return { pose, hud: hudPose, label, samples };
 }
