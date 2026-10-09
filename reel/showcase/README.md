@@ -5,9 +5,11 @@ through a 3D world built from the storefront's own material — the e∞ mark an
 logotypes (extruded from `components/ui`), a modelled 55 ml bottle with its real
 label, the built pages on screens and phones, and the brand faces for every word.
 
-**The film:** `out/eternal-showcase.mp4` (1920×1080, 30 fps, H.264, silent),
-`out/eternal-showcase-web.mp4` (the same, lighter, for embedding with
-`autoplay muted loop playsinline`) and `out/eternal-showcase-poster.jpg`.
+**The film:** `out/eternal-showcase.mp4` (1920×1080, 30 fps, H.264 at 9 Mb/s, 32 MB,
+silent — for the portfolio site and for Behance or Vimeo uploads),
+`out/eternal-showcase-web.mp4` (the same at 3.5 Mb/s, 12.5 MB, for embedding with
+`autoplay muted loop playsinline`) and `out/eternal-showcase-poster.jpg` (the home page
+resting on its three lines, for thumbnails and the `<video poster>`).
 
 ## The sequence
 
@@ -61,6 +63,14 @@ node reel/showcase/tools/render.mjs --from 10 --to 20 --out reel/showcase/out/et
 node reel/showcase/tools/render.mjs --from 20 --to 30 --out reel/showcase/out/eternal-showcase-master-p3.mp4
 printf "file '%s'\n" eternal-showcase-master-p1.mp4 eternal-showcase-master-p2.mp4 eternal-showcase-master-p3.mp4 > reel/showcase/out/parts.txt
 ffmpeg -f concat -safe 0 -i reel/showcase/out/parts.txt -c copy -movflags +faststart reel/showcase/out/eternal-showcase-master.mp4
+```
+
+A fix to one moment only needs that moment rendered again, then spliced into the
+master frame-exact (and `deliver.mjs` run again):
+
+```
+node reel/showcase/tools/render.mjs --from 10.7 --to 13.6 --out reel/showcase/out/fix-master.mp4
+node reel/showcase/tools/splice.mjs reel/showcase/out/eternal-showcase-master.mp4 10.7:reel/showcase/out/fix-master.mp4
 ```
 
 ## How it is made

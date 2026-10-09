@@ -26,6 +26,6 @@ const encode = (out, mbps, preset = "slow") => {
 
 encode(path.join(OUT, "eternal-showcase.mp4"), 9);
 encode(path.join(OUT, "eternal-showcase-web.mp4"), 3.5);
-// The home page on its screen: the moment that says "this is a storefront" at a glance.
-execFileSync("ffmpeg", ["-v", "error", "-y", "-ss", "12.4", "-i", master, "-frames:v", "1", "-q:v", "2", path.join(OUT, "eternal-showcase-poster.jpg")]);
+// The home page on its screen, resting on the three lines: "this is a storefront" at a glance.
+execFileSync("ffmpeg", ["-v", "error", "-y", "-ss", "12.1", "-i", master, "-frames:v", "1", "-q:v", "2", path.join(OUT, "eternal-showcase-poster.jpg")]);
 console.log("out/eternal-showcase-poster.jpg");

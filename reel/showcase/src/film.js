@@ -222,7 +222,8 @@ export async function createFilm({ renderer, brand, pages, photos, hud }) {
 
   // ── Pose. ───────────────────────────────────────────────────────────────────────
   const upVec = V(0, 1, 0);
-  function pose(t) {
+  // slice: the length of shutter one sub-frame stands for (0 for a single-sample still).
+  function pose(t, slice = 0) {
     // Camera, with a slow hand-held breath that settles while the camera flies.
     const p = pos(t), q = aim(t);
     const breath = 1 - envelope(t, 3.5, 5.0, 0.3, 0.4);
@@ -295,8 +296,11 @@ export async function createFilm({ renderer, brand, pages, photos, hud }) {
       s.mat.uniforms.sweepX.value = lerp(-0.2, 1.2, tween(t, on[name] + 0.6, 1.8, ease.inOut));
     }
     // Home: hold on the first screen, then down to the three lines and where to start.
-    const homeScroll = lerp(0, 900, tween(t, 10.85, 1.0, ease.inOut)) + lerp(0, 1110, tween(t, 11.95, 1.1, ease.inOut));
-    scrollTo(home.mat, home.meta, homeScroll, 900);
+    // Each scroll is a function of time; its speed times the sub-frame's slice of the shutter is the smear.
+    const smearOf = (f) => (f(t + 0.002) - f(t - 0.002)) / 0.004 * slice;
+    // Home: the first screen, then the three lines (held, they are the house), then where to start.
+    const homeScroll = (x) => lerp(0, 900, tween(x, 10.7, 1.0, ease.sine)) + lerp(0, 1110, tween(x, 12.4, 1.2, ease.sine));
+    scrollTo(home.mat, home.meta, homeScroll(t), 900, smearOf(homeScroll));
 
     // Phones: rise into place, float, and scroll.
     const ph0 = 20.9;
@@ -314,8 +318,10 @@ export async function createFilm({ renderer, brand, pages, photos, hud }) {
       ph.p.glassMat.opacity = f;
       ph.p.bodyMat.envMapIntensity = r;
     });
-    scrollTo(phones[1].p.mat, phones[1].p.meta, lerp(0, 875, tween(t, 22.4, 1.3, ease.inOut)), 844);
-    scrollTo(phones[0].p.mat, phones[0].p.meta, lerp(0, 520, tween(t, 23.0, 1.2, ease.inOut)), 844);
+    const phoneHome = (x) => lerp(0, 875, tween(x, 22.3, 1.5, ease.sine));
+    const phonePdp = (x) => lerp(0, 520, tween(x, 22.9, 1.3, ease.sine));
+    scrollTo(phones[1].p.mat, phones[1].p.meta, phoneHome(t), 844, smearOf(phoneHome));
+    scrollTo(phones[0].p.mat, phones[0].p.meta, phonePdp(t), 844, smearOf(phonePdp));
     animateText(mobileWord, t, { inAt: 21.2, stagger: 0.09, dur: 1.2, rise: 0.2, depth: 0.5, blur: 10, outAt: 25.0, outDur: 0.7 });
 
     // End: the mark returns, lit by a last pass of light.

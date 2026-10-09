@@ -18,7 +18,7 @@ void main() {
 
 const SCREEN_FRAG = /* glsl */ `
 #include <fog_pars_fragment>
-uniform sampler2D map; uniform float window; uniform float scroll; uniform float reveal; uniform float bright;
+uniform sampler2D map; uniform float window; uniform float scroll; uniform float smear; uniform float reveal; uniform float bright;
 uniform float glare; uniform float radius; uniform float aspect; uniform float island; uniform float opacity;
 uniform float sweepX; uniform float sweepAmt;
 varying vec2 vUv; varying vec3 vN; varying vec3 vV;
@@ -26,7 +26,16 @@ float rbox(vec2 p, vec2 b, float r) { vec2 q = abs(p) - b + r; return length(max
 void main() {
   // window: the fraction of the texture's height on screen; scroll: fraction from its top.
   vec2 uv = vec2(vUv.x, 1.0 - scroll - (1.0 - vUv.y) * window);
-  vec3 col = texture2D(map, uv).rgb * bright;
+  // A scrolling page is smeared along the scroll over this sub-frame's slice of the shutter,
+  // so a fast scroll blurs smoothly instead of showing a few stepped copies.
+  vec3 col;
+  if (smear < 1e-6) col = texture2D(map, uv).rgb;
+  else {
+    col = vec3(0.0);
+    for (int i = 0; i < 16; i++) col += texture2D(map, uv + vec2(0.0, smear * ((float(i) + 0.5) / 16.0 - 0.5))).rgb;
+    col /= 16.0;
+  }
+  col *= bright;
   // Power on: a soft edge of light runs down the screen, the page settling behind it.
   // Below the edge the screen is not there yet: transparent, not black.
   float e = smoothstep(reveal * 1.25 - 0.25, reveal * 1.25, 1.0 - vUv.y);
@@ -59,7 +68,7 @@ export function screenMaterial(tex, { radius = 0, aspect = 1.6, island = 0 } = {
     uniforms: THREE.UniformsUtils.merge([THREE.UniformsLib.fog, {
       map: { value: null }, window: { value: 1 }, scroll: { value: 0 }, reveal: { value: 1 }, bright: { value: 0.86 },
       glare: { value: 1 }, radius: { value: radius }, aspect: { value: aspect }, island: { value: island }, opacity: { value: 1 },
-      sweepX: { value: -1 }, sweepAmt: { value: 0 },
+      sweepX: { value: -1 }, sweepAmt: { value: 0 }, smear: { value: 0 },
     }]),
     // UniformsUtils.merge clones textures; set the map after.
   });
@@ -70,7 +79,9 @@ function setMap(mat, tex) { mat.uniforms.map.value = tex.texture; }
 /**
  * Scroll a screen to `cssY` (css px from the page top). viewCss is the css height on screen.
  */
-export function scrollTo(mat, meta, cssY, viewCss) {
+export function scrollTo(mat, meta, cssY, viewCss, smearCss = 0) {
+  // smearCss: how far (css px) the page moves during one sub-frame's slice of the shutter.
+  mat.uniforms.smear.value = smearCss / meta.cssH;
   const frac = Math.min(1, viewCss / meta.cssH);
   mat.uniforms.window.value = frac;
   mat.uniforms.scroll.value = Math.min(Math.max(cssY / meta.cssH, 0), 1 - frac);

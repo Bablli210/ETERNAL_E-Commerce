@@ -61,7 +61,9 @@ async function boot() {
   const px = new Uint8Array(4);
   async function seek(t, { samples = defaultSamples } = {}) {
     const frame = Math.round(t * FPS);
-    pipeline.frame(t, FPS, film.samples(t, samples), (st) => film.pose(st), frame);
+    const n = film.samples(t, samples);
+    const slice = n > 1 ? 0.5 / FPS / n : 0;
+    pipeline.frame(t, FPS, n, (st) => film.pose(st, slice), frame);
     film.hud(t);
     if (dbg) dbg.textContent = `${t.toFixed(3)}s  f${frame}  ${film.label(t)}`;
     // A one-pixel read waits for the GPU to finish the frame (finish() alone does not on SwiftShader).
@@ -72,11 +74,13 @@ async function boot() {
 
   await seek(Number(params.get("t") ?? 0));
   // The camera at time t, without painting: for checking the path's speed and smoothness.
-  const probe = (t) => {
-    const { camera } = film.pose(t);
+  const probe = (t, slice = 0) => {
+    const { camera, scene } = film.pose(t, slice);
     const d = new THREE.Vector3();
     camera.getWorldDirection(d);
-    return { p: camera.position.toArray(), d: d.toArray(), fov: camera.fov };
+    const smear = [];
+    scene.traverse((o) => { const u = o.material?.uniforms?.smear; if (u?.value) smear.push(u.value); });
+    return { p: camera.position.toArray(), d: d.toArray(), fov: camera.fov, smear };
   };
   window.__film = { fps: FPS, duration: DURATION, seek, probe, label: film.label, times: pipeline.times };
 }
