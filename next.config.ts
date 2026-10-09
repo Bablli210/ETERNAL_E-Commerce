@@ -15,6 +15,14 @@ const nextConfig: NextConfig = {
       { source: "/house", destination: "/", permanent: false },
       // Shop by mood became shop by scent: each mood page forwards to its nearest scent family.
       ...Object.entries(moodToFamily).map(([mood, family]) => ({ source: `/shop/${mood}`, destination: `/shop/${family}`, permanent: true })),
+      // The old Lovable site on myeternal.net (until October 2026). Its three signature scents have no product page here, so each goes to its line.
+      { source: "/fragrance/eternal", destination: "/shop/unisex", permanent: false },
+      { source: "/fragrance/eterna", destination: "/shop/her", permanent: false },
+      { source: "/fragrance/eterno", destination: "/shop/him", permanent: false },
+      // Every other old scent page has the same handle on Shopify, and running Meta ads link here; the query (UTMs, fbclid) carries over.
+      { source: "/fragrance/:handle", destination: "/products/:handle", permanent: true },
+      // The old site's checkout page was its bag.
+      { source: "/checkout", destination: "/bag", permanent: true },
     ];
   },
   async headers() {
