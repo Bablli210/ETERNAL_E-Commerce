@@ -1,10 +1,11 @@
 import type { ElementType } from "react";
 
 /**
- * "INSPIRED BY Bleu de Chanel": which fragrance a scent is inspired by, as plain to see as the scent's own name.
- * A small capital label in the subtitle face, in the colour of the text around it, then the original in the
- * serif, a size up and in full colour (`tone`), so it reads at a glance on a card, in the bag or in search.
- * One look everywhere the original is named.
+ * "INSPIRED BY" over "Bleu de Chanel": which fragrance a scent is inspired by, as plain to see as the scent's own
+ * name. A small capital label in the subtitle face, in the colour of the text around it, on its own line, then the
+ * original under it in the serif, a size up and in full colour (`tone`), so it reads at a glance on a card, in the
+ * bag or on the product page. One look everywhere the original is named. Inside a single line of text
+ * (`as="span"`: the sticky bar, search results, the menu) the two stay on one line.
  */
 export function InspiredBy({
   name,
@@ -22,7 +23,16 @@ export function InspiredBy({
 }) {
   return (
     <Tag className={className}>
-      <span className="inspired-label">Inspired by</span> <span className={`inspired-name ${tone} ${nameClassName}`}>{name}</span>
+      {Tag === "span" ? (
+        <>
+          <span className="inspired-label">Inspired by</span> <span className={`inspired-name ${tone} ${nameClassName}`}>{name}</span>
+        </>
+      ) : (
+        <>
+          <span className="inspired-label block">Inspired by</span>
+          <span className={`inspired-name block ${tone} ${nameClassName}`}>{name}</span>
+        </>
+      )}
     </Tag>
   );
 }

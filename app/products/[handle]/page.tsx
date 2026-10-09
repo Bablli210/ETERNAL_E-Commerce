@@ -25,10 +25,11 @@ export const revalidate = 300;
 export const dynamicParams = true;
 
 /**
- * Longest original that fits on one line after "INSPIRED BY" on a 360 px phone, in The Seasons at 20 px.
- * A longer one wraps, and the page marks it (data-hook-long) so the gallery frame gives that line back.
+ * Longest original that fits on its own line under "INSPIRED BY" on a 360 px phone, in The Seasons at 20 px
+ * (measured: "Creed Aventus (Smokey Edition)" fits, "Lorenzo Pazzaglia Summer Hammer" wraps). A longer one
+ * wraps, and the page marks it (data-hook-long) so the gallery frame gives that line back.
  */
-const ORIGINAL_ONE_LINE = 22;
+const ORIGINAL_ONE_LINE = 30;
 
 export function generateStaticParams() {
   return snapshot.products.filter((p) => !scentContent[p.handle]?.inactive).map((p) => ({ handle: p.handle }));

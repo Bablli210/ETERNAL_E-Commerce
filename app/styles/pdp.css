@@ -17,9 +17,10 @@
       --pdp-size: 0px;
     }
     .pdp-hero[data-announce] { --pdp-chrome: calc(var(--header-h) + var(--announce-h)); }
-    .pdp-hero[data-hook] { --pdp-hook: 52px; }
-    /* An original too long for one line after "INSPIRED BY" takes a second (page.tsx, ORIGINAL_ONE_LINE). */
-    .pdp-hero[data-hook][data-hook-long] { --pdp-hook: 76px; }
+    /* "INSPIRED BY" on its own line, the original under it, then the small line below. */
+    .pdp-hero[data-hook] { --pdp-hook: 76px; }
+    /* An original too long for one line takes a second (page.tsx, ORIGINAL_ONE_LINE). */
+    .pdp-hero[data-hook][data-hook-long] { --pdp-hook: 100px; }
     .pdp-hero[data-chips] { --pdp-chips: 52px; }
     .pdp-hero[data-size] { --pdp-size: 56px; }
 
