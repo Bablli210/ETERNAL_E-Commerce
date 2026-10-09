@@ -63,9 +63,6 @@ function HomeHead({ title, sub, action, aside, className = "" }: { title: ReactN
   );
 }
 
-/** "#163A4E" as "22, 58, 78", for rgba(). */
-const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(", ");
-
 /**
  * The first screen (playbook 3.4): the hero film or a campaign still, its
  * scent named and one tap away, the house in one line, the price floor, one
@@ -74,19 +71,20 @@ const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 
  * so the bottle is never under the headline.
  */
 export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; scent: ScentIndexEntry | null; fromPrice: Money | null; samplePrice: Money | null }) {
-  const words = site.tagline.split(" ");
+  // The headline keeps the tagline's three lines; its size (below) lets the longest fit the column.
+  const lines = site.taglineLines.map((l) => l.split(" "));
   const bg = hero.bg;
-  // The stills' shades are Night; the film's blue sky deepens into its own band colour instead.
-  const shade = hero.film ? rgb(bg) : "23, 22, 20";
+  // Every shade is Night, neutral, so it darkens the picture without tinting it (the film's band is Night too).
+  const shade = "23, 22, 20";
   // Desktop. A still keeps its bottle right of centre, so the copy holds the left half on a shade of its own. The film
   // fills the hero too, set 12% right (HeroFilm) so Divina stands right of centre, but it is bright where the copy sits
-  // (white blossom, cloud, a cream close-up), so its shade is deeper and runs to the copy's own edge before fading, and
-  // holds through the header. Tuned on every half-second of the film at 1024-2560 px: the copy and the header stay at
-  // 4.5:1 or better on the brightest frame, and Divina's label stays under a fifth to a quarter of the shade.
+  // (white blossom, cloud, a cream close-up), so its shade runs to the copy's own edge before fading over 240 px, and
+  // holds through the header. Tuned on every half-second of the film at 1024-3440 px: the copy and the header stay at
+  // 4.5:1 or better on the brightest frame, and Divina's label stays under a fifth of the shade.
   // The bottle's left edge sits at about 43.7% of the screen (39% of the film, set 12% wider); the copy stops 32 px short.
   const copyEdge = "calc(max(80px, 50vw - 640px) + min(520px, 32vw, 43.7vw - 32px - max(80px, 50vw - 640px)))";
   const desktopShade = hero.film
-    ? `linear-gradient(to bottom, rgba(${shade}, 0.78) 0, rgba(${shade}, 0.74) calc(var(--announce-h) + var(--header-h)), rgba(${shade}, 0) 280px), linear-gradient(to top, rgba(${shade}, 0.5), rgba(${shade}, 0) 18%), linear-gradient(to right, rgba(${shade}, 0.8) 0, rgba(${shade}, 0.72) ${copyEdge}, rgba(${shade}, 0) calc(${copyEdge} + 320px))`
+    ? `linear-gradient(to bottom, rgba(${shade}, 0.66) 0, rgba(${shade}, 0.62) calc(var(--announce-h) + var(--header-h)), rgba(${shade}, 0) 280px), linear-gradient(to top, rgba(${shade}, 0.3), rgba(${shade}, 0) 18%), linear-gradient(to right, rgba(${shade}, 0.68) 0, rgba(${shade}, 0.62) ${copyEdge}, rgba(${shade}, 0) calc(${copyEdge} + 240px))`
     : `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)`;
   // Over the film the softer Dune would need an almost opaque shade; Linen reads at 4.5:1 over one the film shows through.
   const soft = hero.film ? "text-dune lg:text-linen" : "text-dune";
@@ -138,16 +136,26 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
               )}
             </SelectList>
           )}
-          <h1 className="display-xl mt-1 max-sm:text-[min(44px,11.2vw)] max-lg:[@media(max-height:760px)]:text-[min(36px,9.6vw)] lg:text-[clamp(56px,5.2vw,84px)]">
+          {/* Three lines: "Some things are" is the longest, about 7.1 em, so on a wide screen the size follows the
+              copy column (the film's copyEdge, less the column's start) to keep it on one line. */}
+          <h1 className={`display-xl mt-1 max-sm:text-[min(44px,11.2vw)] max-lg:[@media(max-height:760px)]:text-[min(36px,9.6vw)] ${hero.film ? "lg:text-[min(84px,calc(min(520px,32vw,43.7vw_-_32px_-_max(80px,50vw_-_640px))/7.3))]" : "lg:text-[min(84px,calc(min(540px,40vw)/7.3))]"}`}>
             {/* The space sits between the spans, not inside them: a non-breaking space
                 kept the headline on one unbreakable line whenever the words were plain
                 inline (reduced motion), so it overflowed instead of wrapping. */}
-            {words.map((w, i) => (
-              <Fragment key={i}>
-                <span className="hero-word" style={{ ["--i" as string]: i }}>
-                  {w}
-                </span>
-                {i < words.length - 1 ? " " : null}
+            {lines.map((line, l) => (
+              <Fragment key={l}>
+                {l > 0 && <br />}
+                {line.map((w, i) => {
+                  const n = lines.slice(0, l).reduce((sum, ws) => sum + ws.length, 0) + i;
+                  return (
+                    <Fragment key={i}>
+                      <span className="hero-word" style={{ ["--i" as string]: n }}>
+                        {w}
+                      </span>
+                      {i < line.length - 1 ? " " : null}
+                    </Fragment>
+                  );
+                })}
               </Fragment>
             ))}
           </h1>
@@ -257,7 +265,7 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
             </Link>
           }
         />
-        <SelectList list="home_where_to_start" items={entries.map(listItem)} className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-12 lg:grid-cols-4 lg:gap-x-6">
+        <SelectList list="home_where_to_start" items={entries.map(listItem)} className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-12 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
           {entries.map((e) => {
             // The scent among its notes leads; the bottle comes in on hover.
             const notes = siteImage(`products/${e.handle}-3`);
@@ -287,19 +295,32 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
     <section aria-labelledby="originals-title" className={`relative overflow-hidden bg-night py-12 text-linen lg:py-28 ${photo ? "" : "watermark grain"}`}>
       {photo && (
         <>
-          <Image src={photo} alt="" fill sizes="100vw" className="object-cover object-[25%_50%]" />
-          {/* Night over the photograph: deepest behind the heading, light enough between the cards for the driftwood to show. */}
-          <div aria-hidden="true" className="absolute inset-0" style={{ backgroundImage: "linear-gradient(to bottom, rgba(23, 22, 20, 0.97) 0%, rgba(23, 22, 20, 0.92) clamp(160px, 26%, 300px), rgba(23, 22, 20, 0.5) clamp(260px, 52%, 520px), rgba(23, 22, 20, 0.45) 75%, rgba(23, 22, 20, 0.6) 100%)" }} />
+          {/* On a phone the band is far taller than the photograph, so the photograph covers it. From lg it shows whole
+              (7:3, full width up to 2100 px, about the band's height) at the band's foot, and above it the wall goes on:
+              the photograph's top edge drawn out to the band's top and softened, so no part of it is cropped away. All
+              three are one file. */}
+          <Image src={photo} alt="" fill sizes="100vw" className="object-cover object-[25%_50%] lg:hidden" />
+          <div aria-hidden="true" className="absolute inset-x-0 top-0 hidden h-full overflow-hidden lg:block">
+            <Image src={photo} alt="" fill sizes="100vw" className="origin-top scale-y-[14] object-fill blur-xl" />
+          </div>
+          <div className="absolute bottom-0 left-1/2 hidden aspect-[7/3] w-full max-w-[2100px] -translate-x-1/2 [mask-image:linear-gradient(to_bottom,transparent,#000_16%)] lg:block min-[2100px]:[mask-composite:intersect] min-[2100px]:[mask-image:linear-gradient(to_bottom,transparent,#000_16%),linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)]">
+            <Image src={photo} alt="" fill sizes="100vw" className="object-cover" />
+          </div>
+          {/* Only a whisper of Night over the photograph; the heading brings its own soft shade (below). */}
+          <div aria-hidden="true" className="absolute inset-0" style={{ backgroundImage: "linear-gradient(to bottom, rgba(23, 22, 20, 0.3) 0%, rgba(23, 22, 20, 0.12) clamp(260px, 52%, 520px), rgba(23, 22, 20, 0.1) 75%, rgba(23, 22, 20, 0.25) 100%)" }} />
         </>
       )}
       <div className="wrap relative">
         <div className="flex items-end justify-between gap-4">
-          <div className="max-w-[640px]">
-            <p className="eyebrow text-[12px] text-gold">Only at eternal</p>
-            <h2 id="originals-title" className="display-l mt-2">
+          <div className="relative max-w-[640px]">
+            {/* A soft cloud of Night behind the words alone, so they read over the bottles and the bright wall. */}
+            {photo && <div aria-hidden="true" className="absolute -inset-x-16 -inset-y-14 rounded-[48px] bg-night/70 blur-2xl" />}
+            {/* Gold needs near black to read; over the photograph the eyebrow takes Dune, like the line under the title. */}
+            <p className={`eyebrow relative text-[12px] ${photo ? "text-dune" : "text-gold"}`}>Only at eternal</p>
+            <h2 id="originals-title" className="display-l relative mt-2">
               Eternal Originals
             </h2>
-            <p className="mt-2 text-[15px] leading-snug text-dune lg:mt-4 lg:text-[17px]">
+            <p className="relative mt-2 text-[15px] leading-snug text-dune lg:mt-4 lg:text-[17px]">
               {ORIGINALS_DESCRIPTOR} {entries.length === 5 ? "Five" : entries.length} scents that are ours alone.
             </p>
           </div>
@@ -315,7 +336,8 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
             const card = notes && notes !== e.image ? { ...e, image: notes, hoverImage: e.image } : e;
             return (
               // The picture runs to the panel's edges, so a card's focus ring falls outside it, on the dark band: Linen there.
-              <div key={e.handle} className={`bg-linen text-night [&_.card-link:focus-visible]:after:outline-linen ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}>
+              // With a mouse, Add to bag hangs flush from the panel's foot at its full width.
+              <div key={e.handle} className={`bg-linen text-night [--card-actions-gap:0px] [&_.card-link:focus-visible]:after:outline-linen ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}>
                 <ProductCard entry={card} badge={false} sizes={i === 0 ? "(min-width: 1024px) 20vw, 100vw" : "(min-width: 1024px) 20vw, 50vw"} bodyClassName="px-2.5 pb-3 lg:px-4 lg:pb-4" />
               </div>
             );
@@ -478,15 +500,17 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
   const tale = scent?.taleSlug ? tales.find((t) => t.slug === scent.taleSlug) : null;
   if (!scent || !tale) return null;
   const sentences = excerptOf(scent.story?.[0] ?? tale.paragraphs[0]);
-  const bg = scent.world.dark ? scent.world.bg : "#163a4e";
-  // The tale's own banner (its page opens on it) behind the band, under its colour, deepest behind the words.
+  // The tale's own banner (its page opens on it) behind the band, in its own colours: only a neutral Night shade over
+  // it, deepest behind the words (on a phone they run the full width, so the shade is even there). Without the banner,
+  // the scent's colour world, or Sea for a light one.
   const banner = siteImage(`tale-${tale.slug}`);
+  const bg = banner ? "#171614" : scent.world.dark ? scent.world.bg : "#163a4e";
   return (
     <section className={`relative overflow-hidden text-linen ${banner ? "" : "grain watermark"}`} style={{ backgroundColor: bg }}>
       {banner && (
         <>
           <Image src={banner} alt="" fill sizes="100vw" className="object-cover" />
-          <div aria-hidden="true" className="absolute inset-0" style={{ backgroundImage: `linear-gradient(to left, rgba(${rgb(bg)}, 0.86) 0%, rgba(${rgb(bg)}, 0.78) 45%, rgba(${rgb(bg)}, 0.5) 100%)` }} />
+          <div aria-hidden="true" className="absolute inset-0 bg-night/65 lg:bg-transparent lg:bg-[linear-gradient(to_left,rgba(23,22,20,0.7)_0%,rgba(23,22,20,0.62)_45%,rgba(23,22,20,0.25)_100%)]" />
         </>
       )}
       {/* Desktop: the still fills its half of the row, so it starts at the text's first line and ends at its last. Nothing fades in. */}

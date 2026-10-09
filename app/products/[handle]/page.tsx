@@ -262,7 +262,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                     }
                   : { label: "All scents", href: "/shop" }
               } />
-            <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-6">
+            <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
               {alsoLike.map((r, i) => (
                 <div key={r.handle} data-reveal style={{ ["--i" as string]: i }}>
                   <ProductCard entry={toIndexEntry(r)} />

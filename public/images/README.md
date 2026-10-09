@@ -40,7 +40,9 @@ yet shows its colour world and the e∞ mark on every card.
 | --- | --- |
 | `home-hero` | The hero film's poster (16:9, 1920 × 1080): the frame the film's intro ends on and its loop starts from, so it is also what shows with motion off |
 | `home-hero-mobile` | The phone crop of that poster (3:4, the centre of the frame, 1080 × 1440), with `videos/home-hero-mobile` |
-| `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles |
+| `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles (4:5 crop of the owner's 3:4 veil portraits) |
+| `occasion-date`, `occasion-everyday`, `occasion-event`, `occasion-outdoors`, `occasion-beach-side` | The five "Shop by occasion" tiles (3:4; the first is cut 2:1 and the rest square on phones) |
+| `originals-band` | The Eternal Originals band (7:3, 2688 × 1152): shown whole at the band's foot on a wide screen, its top edge drawn out above it; covering the band on a phone |
 | `family-fresh`, `family-woody`, `family-amber-spice`, `family-floral`, `family-gourmand`, `family-aquatic` | The six "Shop by scent" tiles (4:3; cropped square on phones), and the finder's notes question. All six are the owner's stills |
 | `finder-band` | Scent finder band |
 | `tale-featured` | Featured tale still. Used when the tale has no `tale-<slug>-card` |

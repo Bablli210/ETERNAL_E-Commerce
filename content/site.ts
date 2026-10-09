@@ -4,9 +4,13 @@
  * renders nothing on the site, and /launch-checklist lists it. Replace the
  * whole string (brackets included) with the confirmed wording to switch it on.
  */
+/** The tagline as the home hero sets it, on three lines. */
+const taglineLines = ["Some things are", "never meant", "to fade."];
+
 export const site = {
   name: "eternal",
-  tagline: "Some things are never meant to fade.",
+  tagline: taglineLines.join(" "),
+  taglineLines,
   /** The meta and link-preview description on every page, so it states nothing still waiting for the owner. */
   description: "eau de parfum in three lines: eterna for her, eterno for him, eternal unisex. A perfume house from Cairo.",
   /**

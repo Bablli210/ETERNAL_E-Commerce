@@ -25,7 +25,8 @@ export const heroes: Hero[] = [
   {
     handle: "divina",
     film: "home-hero",
-    bg: "#163A4E",
+    // Night, not the sky's blue: the film's shade and the phone's band under it stay neutral, so nothing tints the film.
+    bg: "#171614",
     alt: "A bottle of Divina in a clear blue sky, ringed by a pink swirl with gardenia, iris, pink pepper and bergamot",
   },
   { handle: "vintage-vanilla", bg: "#3D2614", alt: "A bottle of Vintage Vanilla in a pool of vanilla custard, with vanilla pods and tonka beans" },

@@ -12,7 +12,8 @@ import { ProductImage } from "./ProductImage";
 /**
  * Everything needed to decide without opening the page, in the playbook's
  * order (4.3): the line with its audience, the name, the original it is
- * inspired by, three notes, the price, then one full-width Add. The whole
+ * inspired by, three notes, the price, then one full-width Add (with a mouse, it
+ * hangs under the card while the card is hovered, so no space waits for it). The whole
  * card is a single link to the product; "Try 5 ml" appears by itself once the
  * scent has a 5 ml variant.
  *
@@ -72,7 +73,8 @@ export function ProductCard({
         {/* The price rides with the buttons at the card's foot, so a row's prices sit level however long its names run. */}
         <div className="mt-auto pt-1">
           <Price money={entry.price} className="whitespace-nowrap text-[15px] font-medium" />
-          <div className="card-actions relative z-[2] flex flex-col pt-3">
+          {/* With a mouse at laptop width these hang under the card, shown on hover or focus (collection.css). */}
+          <div className="card-actions flex flex-col">
             {entry.bottle && (
               <AddToBagButton variant={entry.bottle} product={product} kind={entry.kind === "set" ? "set" : "bottle"} size="sm" block label="Add to bag" />
             )}
