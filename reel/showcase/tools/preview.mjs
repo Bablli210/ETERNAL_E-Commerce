@@ -9,7 +9,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import sharp from "sharp";
-import { serve, openShowcase, CHROMIUM, CHROMIUM_ARGS } from "./serve.mjs";
+import { serve, openShowcase, CHROMIUM } from "./serve.mjs";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(here, "..", "review");
@@ -20,9 +20,9 @@ const samples = Number(opt("samples", 1));
 const tag = opt("tag", "");
 
 const server = await serve();
-const browser = await chromium.launch({ executablePath: CHROMIUM, args: CHROMIUM_ARGS });
+const browser = await chromium.launch({ executablePath: CHROMIUM });
 try {
-  const { page, errors } = await openShowcase(browser, server.url, `?samples=${samples}${args.includes("--debug") ? "&debug" : ""}`);
+  const { page, errors } = await openShowcase(browser, server.url, `?samples=${samples}${args.includes("--debug") ? "&debug" : ""}${opt("query") ? "&" + opt("query") : ""}`);
   const { duration } = await page.evaluate(() => ({ duration: window.__film.duration }));
   const shot = async (t) => {
     const t0 = Date.now();

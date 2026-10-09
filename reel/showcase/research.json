@@ -1,0 +1,456 @@
+{
+ "facts": {
+  "claims": [
+   {
+    "claim": "Orbit took the eternal storefront from design to code. It started with a design direction ('Salt, stone and golden hour', v1, 17 Sep 2026) and a 32-artboard wireframe canvas, then built it as a headless Next.js 16 / React 19 / Tailwind 4 storefront on Vercel. Shopify stays the source of truth for products, prices, stock and checkout.",
+    "evidence": "README.md 1-17; design/README.md; design/canvas.json (32 boards); design/artboards/Direction.dc.html; package.json (next 16.3.5, react 19.3.0, tailwindcss 4.3.3); vercel.json (fra1); lib/shopify/*",
+    "strength": 5,
+    "visual": "Open on the same page in a desktop browser (1440) and a phone (390), both live and scrolling. Caveat: the wireframe boards only render inside the Design canvas runtime (design/README.md line 8), not standalone, so a 'wireframe to built page' moment means capturing the canvas at claude.ai/artifact/JkqZZoedUC3jRjkKDMvy3i."
+   },
+   {
+    "claim": "The site is mobile-first and built for Instagram-ad traffic. On a 390x844 phone the home hero alone sells: the campaign still sits above the copy and the bottle is never under the headline. The first screen shows the scent's name, line and price, the headline, '55 ml from EGP 885 · A free 5 ml with every bottle', 'Shop the scents' and 'Find yours in 60 seconds'. Visits from an ad or from Instagram's in-app browser skip the loading curtain and the word animation, and lose the brand-only sections.",
+    "evidence": "components/home/Sections.tsx 58-142; components/motion/MotionScript.tsx (ad flag: utm_*/fbclid/gclid or Instagram/FBAN/FBAV UA); app/styles/home.css 3-7; README.md 50-64; prerendered .next/server/app/home/linen.html",
+    "strength": 5,
+    "visual": "Phone first screen of the home page held still for a beat, then the proof marquee under the hero sliding (phone only, about 35 px/s): 'Eau de parfum, 55 ml · Cash on delivery · Free delivery over EGP 2,200 · Delivery within 2 working days, Sunday to Thursday · Returns on sealed bottles'."
+   },
+   {
+    "claim": "The product page sells above the fold on a phone. The first screen holds a swipeable gallery with a '1 / 3' counter, the name and price, 'Inspired by … · our own composition', three note chips, a full-width 'Add to bag · EGP X' and a promise list: delivery, cash on delivery (no extra fee, or InstaPay), a free 5 ml, returns, WhatsApp. A sticky add-to-bag bar slides in whenever the main button is off screen. A tap still adds the scent before JavaScript has loaded, through a plain GET form to /bag.",
+    "evidence": "app/products/[handle]/page.tsx 180-235; components/product/BuyBox.tsx 14-45, 78-165 (sticky bar), 167-220 (PromiseList); components/product/Gallery.tsx; components/motion/SnapRow.tsx; app/motion.css 134-153 (D1-D4)",
+    "strength": 5,
+    "visual": "Phone: swipe the gallery, scroll, the sticky bar rises (240 ms). Tap Add: the label turns to 'Added ✓', the bag icon ticks (400 ms) and the bag sheet slides up (320 ms emphasized). Desktop: the two-column page with the buy box sticky beside a stacked gallery whose first frame zooms slowly (1.02 over 8 s). The richest page is /products/shadow-of-the-sea, which has the Wear it meters (longevity 8, sillage 6), the pairing and the tale excerpt."
+   },
+   {
+    "claim": "Orbit designed and built a scent finder: five questions, one per screen, 21 photo answer tiles, three matches. The matching is a real scoring algorithm, not a lookup: the answer to 'who' sets the pool, each question carries a weight, strength is matched against sillage bands, and a variety penalty keeps the three apart. Each match says why it matched and has its own Add button. There is no sign-up. The answers live in the URL, so Back and shared links work, and the matches can be sent to WhatsApp or shared.",
+    "evidence": "content/finder.ts (5 questions, 4+3+6+5+3 = 21 options); lib/finder.ts 72-159 (rankMatches: LINE_EDGE, STRENGTH, VARIETY); components/finder/Finder.tsx 26-79, 229-343 (composing screen, results, WhatsApp, share), 391-449 (tiles)",
+    "strength": 5,
+    "visual": "Phone: tap through the tiles. Screens slide (320 ms emphasized), the 2 px progress bar fills, the chosen tile takes a Night ring and its check draws. Desktop only: 'Composing your matches…' with the e∞ mark drawing (600 ms), then 'Three to start with' with a 'Best match' badge and a gold 'Matched on …' line on each card."
+   },
+   {
+    "claim": "The bag is a bottom sheet on a phone and a drawer from the right on desktop. It has a free-delivery meter to EGP 2,200 and lets the shopper pick the free 5 ml for each bottle (a native select grouped by line). It shows one smart suggestion at a time: 'Make it a bottle', the mystery box, or more from the same line. The footer has 'Checkout · EGP total' and 'Send this bag to WhatsApp', which sends a link that rebuilds the bag in any browser (/bag?items=).",
+    "evidence": "components/cart/CartSheet.tsx 160-236 (samples, suggestion logic), 276-277, 322 (meter), 386-387, 459-487; app/bag/page.tsx 16-61; app/motion.css 82-87, 180-192 (G6, C1-C4)",
+    "strength": 4,
+    "visual": "Desktop: the drawer slides in from the right as the new line highlights and the gold meter fills (600 ms). Phone: the sheet rises from the bottom, 'Add' on the suggestion slides it into the list as a real line, and removing a line collapses it (240 ms)."
+   },
+   {
+    "claim": "Collection pages keep their state in the URL (filters, sort, search, show all), so Back from a product lands on the same card. A chip row covers line and family, with counts. The filter bottom sheet ends with 'Show N scents', and a floating Filter button appears once the chips scroll away. The grid shows 24 cards, then 'Show all', with the mystery box tile inside it. Line pages open on the line's own still, with its logotype as the title.",
+    "evidence": "components/product/CollectionGrid.tsx 22-70, 193-200, 331-335 (P1/P3 FLIP: survivors glide 320 ms, arrivals fade up with 40 ms stagger); components/product/FilterSheet.tsx 12-17; components/product/CollectionPage.tsx 14-19; content/taxonomy.ts 90-98",
+    "strength": 4,
+    "visual": "Desktop or phone: tap a family chip and the cards really re-flow (the FLIP glide), which is a strong 'the site actually moves' shot. Phone: the filter sheet rises with 'Show N scents'. /shop/him opens on the eterno band."
+   },
+   {
+    "claim": "Orbit turned the brand into a coded design system. The nine palette colours are Tailwind @theme tokens (Linen, Paper, Sand, Dune, Stone, Ash, Night, Golden hour, Deep sea), alongside three line tones and an accessible gold text colour. Three self-hosted typefaces map to roles (serif titles, Cabinet Grotesk small capitals, General Sans UI). Buttons are square and 52 px tall, rules are hairlines, grain sits at 3-4% on dark bands, and the e∞ mark appears as a 7% watermark. Ash was darkened to clear 4.5:1 contrast on Sand.",
+    "evidence": "app/globals.css 10-34 (tokens, easings), 68-90 (type roles), 102-206 (buttons, chips, fields, grain, watermark); app/fonts.ts; design/artboards/Direction.dc.html",
+    "strength": 4,
+    "visual": "A clean title card in Linen with the real hex chips and type roles, taken from the site's own tokens (no amber grade), then macro crops of real UI: a square button, a chip row, a hairline, a price set in tabular numerals."
+   },
+   {
+    "claim": "Orbit specified a motion system of 41 named animations: global, home, collection, product, finder, tale and cart (ids G1-G10, H1-H9, P1-P3, D1-D8, F1-F4, T1-T3, C1-C4). It has five duration tokens (120/200/320/600/1200 ms), three easings and a rule that only transform and opacity animate. The site implements most of the spec in CSS: about 28 of the ids are referenced in code. Everything respects prefers-reduced-motion, and the footer carries a Motion on/off switch.",
+    "evidence": "design/artboards/Motion-spec.dc.html (41 ids, tokens, rules); design/artboards/Motion-map.dc.html ('Light, not decoration … like light moving across stone'); app/motion.css 1-195; lib/motion.ts; components/motion/MotionToggle.tsx; components/chrome/Footer.tsx 164",
+    "strength": 4,
+    "visual": "Real interactions captured frame-exact: hero words rising (80 ms stagger), card hover crossfade, finder screen slide, sticky bar, cart meter. A small overlay can name the token ('320 ms · ease-emphasized'), which reads as craft rather than effects."
+   },
+   {
+    "claim": "On the desktop home page, a first visit of the session plays a Linen curtain while the e∞ mark draws in one stroke (600 ms draw, then a 400 ms lift). The headline words rise in turn, and the transparent header turns Linen after 120 px of scroll. The hero scales to 1.04 and its text drifts at 0.2x as it scrolls away. In 'Three lines', hovering a line's logotype nudges it 8 px and crossfades that line's still. In 'Where to start', the cards show the notes still and bring the bottle in on hover.",
+    "evidence": "components/motion/Loader.tsx; app/motion.css 67-72 (G1), 104-110 (H1), 137-140; components/chrome/Header.tsx 53-112; components/home/LineShowcase.tsx 22-74; app/styles/home.css 33-51; components/home/Sections.tsx 212-233",
+    "strength": 4,
+    "visual": "Desktop 1440 at 2x: the mark draws and the curtain lifts into the hero, the headline settles, a slow scroll, the cursor glides over eterna, eterno and eternal while the still crossfades and each name slides."
+   },
+   {
+    "claim": "The home hero has five campaign variants. Every visit to / opens at random on one of five static pages, one per bottle (Vintage Vanilla, Linen, Mango Eclipse, Neroli Code, Raw Seduction), through an edge rewrite that costs no server render. An ad can pin its bottle with ?hero=<handle>. Each variant has a wide desktop still and a 1.2:1 phone crop.",
+    "evidence": "content/heroes.ts; proxy.ts 6-35; components/home/HeroStill.tsx; .next/server/app/home/{linen,mango-eclipse,neroli-code,raw-seduction,vintage-vanilla}.html",
+    "strength": 3,
+    "visual": "A beat-cut montage of the five heroes, desktop and phone side by side. Each one is a real page state, so the cuts are motivated by the product rather than decoration."
+   },
+   {
+    "claim": "Tales, the editorial layer: each published tale belongs to its scent, opens on a wide still with the scent's name rising across it, and has a hairline reading-progress bar. A shoppable card slides in at 40% read (30% on a phone), and a sticky bar on the phone carries the scent. Each scent has its own colour world, which tints its card, gallery and bands.",
+    "evidence": "content/tales.ts (8 written, 4 published: shadow-of-the-sea, wayne, enzo-1898, tonic-club); app/tales/[slug]/page.tsx; components/motion/ReadingProgress.tsx 6-9; components/content/TaleBar.tsx 7-11; content/scents.ts colorWorld",
+    "strength": 3,
+    "visual": "Desktop: scroll a tale (Wayne or Shadow of the Sea). The progress bar tracks, the serif reading text drops a cap, and the buy card slides in beside the text."
+   },
+   {
+    "claim": "Search knows what ad visitors look for. The predictive overlay matches scent names, the original each scent is inspired by, notes, families and moods. Audience words ('for him', 'men', 'unisex', or a line's own name) narrow results to that line, and short joining words never cause false matches.",
+    "evidence": "lib/search.ts 24-82; components/chrome/SearchOverlay.tsx",
+    "strength": 3,
+    "visual": "Phone: open search and type 'woody for him'; the rows filter live, and the panel ends above the keyboard."
+   },
+   {
+    "claim": "The site is honest by construction. Any fact the owner has not confirmed is written in [square brackets] and renders nothing to customers. A build check warns (or fails, in strict mode) if a bracket reaches a prerendered page, and an unlinked, noindex /launch-checklist lists everything still waiting. A 'Bestseller' badge can only come from at least 10 real units sold in 30 days, and there are no fake reviews, timers or stock counts.",
+    "evidence": "lib/facts.ts; scripts/check-placeholders.mjs; app/launch-checklist/page.tsx; lib/catalogue.ts 167-174, 323-335; docs/cro-playbook.md principle 11",
+    "strength": 3,
+    "visual": "Hard to show and best left as a single text overlay line, if used at all (e.g. 'No fake urgency: every claim on the page is confirmed')."
+   },
+   {
+    "claim": "Measurement and consent: a consent banner asks first, with 'no' as easy as 'yes'. GA4, the Meta Pixel and Conversions API server copies (deduplicated by event id) load only after consent. Campaign UTMs, Meta click ids, the in-app flag and the finder's answers travel to Shopify checkout as order attributes, with first-party cookies set at the edge.",
+    "evidence": "README.md 66-90; components/analytics/ConsentBanner.tsx 7-15; lib/client/analytics.ts (13 event types); app/api/meta, app/api/consent; proxy.ts 13-63; app/api/checkout/route.ts 10-22",
+    "strength": 3,
+    "visual": "Not visual; one overlay line at most. Pre-set the eternal_consent cookie during capture so the banner does not cover the shots."
+   },
+   {
+    "claim": "Research-led CRO strategy: a 719-line playbook with 12 principles, an ad-to-landing map, mobile-first specs for each page and a 40-item ICE-scored backlog. It is backed by nine research reports (Instagram traffic, mobile UX, Egypt and MENA, fragrance DTC, trust, speed, and others) plus a sceptical critique that labels every number VERIFIED or UNVERIFIED.",
+    "evidence": "docs/cro-playbook.md (sections 1-10, backlog 8); docs/research/*.md (9 reports + critique.md)",
+    "strength": 3,
+    "visual": "An overlay line ('Research-led: 9 studies → one conversion playbook'). Do not show the document pages themselves."
+   },
+   {
+    "claim": "A private team and client dashboard lives on the same site. People sign in with one of three roles (owner, team, client), and each role gets a server-built view of live Shopify figures (ShopifyQL) and Meta Marketing API figures plus tracking-health checks. Passwords are hashed with scrypt, sign-in is throttled, and accounts are kept in a private Vercel Blob store.",
+    "evidence": "app/dashboard/*; lib/dashboard/{shopify,meta,build,accounts,kdf,throttle}.ts; lib/dashboard/types.ts 140; docs/analytics/README.md",
+    "strength": 3,
+    "visual": "Only with synthetic fixture data (DASHBOARD_FIXTURE_DIR) and never with real figures. Probably leave it out of a storefront film."
+   },
+   {
+    "claim": "The headless setup is built to keep working. A committed snapshot of the live catalogue lets the site build and deploy without credentials. Shopify metafields override the editorial layer one field at a time, checkout falls back to Shopify cart permalinks, and image slots pick up files by name with no code change.",
+    "evidence": "README.md 19-40; lib/catalogue.ts 70-81, 179-310; app/api/checkout/route.ts; lib/site-images.ts",
+    "strength": 2,
+    "visual": "Not visual; possibly a one-line architecture caption."
+   },
+   {
+    "claim": "Accessibility and phone ergonomics: 44 px tap targets, inputs at 16 px or more so iOS never zooms, one visible focus ring, a skip link, and focus trapped in the menu, search, filter and bag sheets. The WhatsApp float steps aside from buy buttons. A Playwright audit script checks tap targets, overflow and stray brackets at 390x844.",
+    "evidence": "app/globals.css 70-74, 135-160; components/chrome/useModal.ts; components/chrome/WhatsAppFloat.tsx 22-61; scripts/audit-mobile.mjs",
+    "strength": 2,
+    "visual": "Implicit in the phone shots; at most one overlay line."
+   },
+   {
+    "claim": "The brand kit's logotypes (eterna, eterno, eternal, the house wordmark and the e∞ mark) were traced to SVG and drawn inline, so the line names render as logotypes in the 'Three lines' list and as titles on the line pages.",
+    "evidence": "README.md 135-139; components/ui/brand-paths.ts, mark-path.ts, LineName.tsx, Wordmark.tsx",
+    "strength": 2,
+    "visual": "The three logotypes stacked in 'Three lines' on desktop. Credit them as the client's marks, implemented by Orbit."
+   }
+  ],
+  "numbers": [
+   "42 scents plus 1 mystery box, 43 products in all (content/catalogue.snapshot.json, captured 2026-10-04); the home page reads 'Shop all 42' (.next/server/app/home/linen.html)",
+   "3 lines: eterna (for her) 11 scents, eterno (for him) 25, eternal (unisex) 6. Computed from tags plus content/scents.ts overrides; the prerendered home shows '11 scents', '25 scents', '6 scents'",
+   "6 scent families: Fresh, Woody, Amber & spice, Floral, Gourmand, Aquatic (content/taxonomy.ts familyOrder). Scents per family: 20/10/10/10/8/6, and families overlap",
+   "6 moods kept only as finder tags; the 6 old /shop/<mood> pages redirect to families (next.config.ts)",
+   "12 collection pages: all, her, him, unisex, 'Where to start', new, and the 6 families (content/taxonomy.ts collections)",
+   "55 ml bottles from EGP 885 to EGP 1,560; mystery box of 3 x 5 ml at EGP 250 (snapshot)",
+   "Scent finder: 5 questions, 21 answer tiles (4+3+6+5+3) and 3 matches; 15 owner finder stills plus 6 family stills (content/finder.ts, public/images/finder-*)",
+   "5 home hero variants, one static page each (content/heroes.ts; .next/server/app/home/*.html)",
+   "8 tales written and 4 published (Shadow of the Sea, Wayne, Enzo 1898, Tonic Club); 2 archived (Forbidden Apple, Mercury); 2 waiting for their stills (Sapphire, Linen) (content/tales.ts; .next/server/app/tales/*.html)",
+   "10 customer-facing page templates: home, all scents, collection, product, bag, finder, tales index, tale, help, 404. Plus /launch-checklist (internal), 8 dashboard pages and 4 API routes (checkout, consent, join, meta) (.next/app-path-routes-manifest.json)",
+   "43 product pages prerendered (.next/server/app/products/*.html)",
+   "Design canvas of 32 artboards, 15 of them interactive: desktop 1440 and phone 390 boards for global chrome, home, collection, product, finder, tale and cart, plus a house board, notes, the direction sheet, direction applied, components, content plan, motion map and motion spec (design/canvas.json)",
+   "Motion spec of 41 named animations, 5 duration tokens (120/200/320/600/1200 ms) and 3 easings (design/artboards/Motion-spec.dc.html; app/motion.css; lib/motion.ts)",
+   "Brand palette of 9 colours, plus 3 line tones (Blush clay #E3CFC4, Sea slate #1F3F50, Bone #E9E4D3) and gold text #8F5B1B (app/globals.css 10-24)",
+   "3 typefaces: The Seasons (titles), Cabinet Grotesk (small capitals), General Sans (body and UI); Cormorant fills glyphs (app/fonts.ts)",
+   "10 per-scent colour worlds defined: 2 from packshots and 8 proposed (content/scents.ts)",
+   "8 house picks power 'Where to start'; 8 new arrivals (created on or after 15 Aug 2026)",
+   "Strategy docs: a 719-line CRO playbook with 12 principles and a 40-item ICE backlog, backed by 9 research reports and 1 critique (docs/)",
+   "About 20.5k lines across 162 TS/TSX files in app/, components/, lib/ and content/ (CSS included in the line count); 74 React components; the team dashboard is about 6.7k lines of that",
+   "13 analytics event types (lib/client/analytics.ts)",
+   "Free delivery over EGP 2,200; cash on delivery with no extra fee, or InstaPay; delivery within 2 working days, Sunday to Thursday; returns on sealed bottles within 14 days; WhatsApp every day, 10 am to 10 pm (content/site.ts, all confirmed and unbracketed)"
+  ],
+  "avoid": [
+   "Any [bracketed] fact in content/site.ts. That includes longevity or wear-test hours ('[Longevity on skin, from a wear test]'), the first-order offer, the delivery cut-off, the sample credit ('[Its price comes off your 55 ml within 60 days]'), the legal name, registration number, tax id, address and contact email. The Shadow of the Sea comparison still contains '[Replace with the perfumer's note.]', so the 'How it differs' section renders on no page.",
+   "'43 scents'. site.scentCount = 43 counts the mystery box; there are 42 scents, and the playbook (5.6, 9.15) says the count must be confirmed with the owner first.",
+   "5 ml sample variants, 'Try 5 ml', 'Try all 3 as 5 ml' or sample credit codes. No product has a 5 ml variant, so the finder offers the mystery box instead. Only 'A free 5 ml with every bottle' is a confirmed offer.",
+   "Results or performance numbers: conversion rate, sales, revenue, ROAS, 'six figures', LCP or Lighthouse scores. Nothing is measured in the repo, and the playbook economics are labelled UNVERIFIED assumptions.",
+   "Reviews, star ratings, 'Bestseller' badges, 'most worn' or 'best-selling'. There are no reviews, and no scent carries a sales badge.",
+   "Claiming the site is live at myeternal.net or fully 'launched'. The custom domain still points to the old site (lib/dashboard/build.ts 163-165), the new site runs at eternal-storefront.vercel.app, and checkout is still on a myshopify.com address (launch checklist).",
+   "The Seasons demo font. It is Fontspring's evaluation-only build (app/fonts.ts, SEASONS_IS_DEMO = true): don't claim it as licensed typography, and don't set film overlays in it, since it lacks the 4, hyphen, apostrophe, ampersand, curly quotes and accents. Using it in a public film may also breach the evaluation licence.",
+   "Taking credit for the brand identity, logos, typefaces, packaging or bottle. The logotypes and mark are the client's brand kit traced to SVG, and 8 of the 10 colour worlds are proposals for the packaging team.",
+   "Taking credit for photography, campaign stills or film. The finder and family stills are the owner's, the tales are adapted from the owner's Scents.pdf, and public/images/README.md refers to an image brief with prompts.",
+   "Features that are not live: the /house page (redirects to /), the house film section (off the home page), a hero video (home now uses stills), 'Shop by mood' (redirects to families), a discovery set, an Arabic or bilingual site, a review module, gift messages, a delivery-date countdown, the COD confirmation loop, or a cart created on first add. The playbook is a plan, not a list of what shipped.",
+   "Motion features from the spec that are not built: a GSAP or View Transitions implementation (the site's motion is all CSS), the proof count-up (it is now a marquee), the reviews drift, the notes pyramid reveal, and the finder's match % count-up and trio pulse.",
+   "Stale copy from the v1 reel and the old build: 'Three lines, one house', 'Most worn this month', 'Shop by mood', 'for both', 'Try six for the price of [price]' (reel/review/site-sections.txt and reel/storyboard.json predate the current site, which says 'unisex').",
+   "Original brand names in overlays (Acqua di Giò Elixir, Clive Christian Crab Apple Blossom, Blue Talisman). They are third-party trademarks; the playbook (5.7) keeps them to page body text only.",
+   "'Find yours in 60 seconds' as a measured fact. It is the site's copy, not a timed result.",
+   "Any real dashboard figures or the client's ad and pixel ids. The repo is public and must never hold real numbers; use fixture data, or leave the dashboard out.",
+   "Timelines such as 'built in N weeks'. The git history is shallow (2026-10-04 to 10-09 only)."
+  ]
+ },
+ "interactions": {
+  "general_setup": "I checked this against the production build already running on localhost:3000. I probed it with playwright-core (from the repo's node_modules) and /opt/pw-browsers/chromium-1194/chrome-linux/chrome.\n\nSERVER: use the running `next start` production build; leave the existing server process alone. Dev mode adds overlays and changes prefetch.\n\nCONTEXTS:\n- Desktop: viewport 1440x900, deviceScaleFactor 2.\n- Phone: viewport 390x844, deviceScaleFactor 3, isMobile:true, hasTouch:true.\n- Always pass reducedMotion:'no-preference'. The old scripts reel/tools/capture-site.mjs and reel/showcase/tools/capture.mjs use 'reduce', so do not copy that line.\n- Keep the default user agent. Never use an Instagram/FBAN/FBAV user agent, and never put utm_*, fbclid or gclid in a URL. MotionScript would set html[data-ad]: the hero words then appear without rising, the ad-drop sections are hidden, and PageFade is skipped in-app.\n- Pin the home still with /?hero=<vintage-vanilla|linen|mango-eclipse|neroli-code|raw-seduction>. Without it, proxy.ts picks one at random on every request.\n- Use a fresh context per shot. Otherwise the bag (localStorage eternal.bag.v1), the free-sample picks (eternal.samples.v1) and recently viewed leak between shots. To pre-fill a bag, open /bag?items=shadow-of-the-sea,wayne (it accepts handles).\n\nSTATE:\n- Consent cookie: ctx.addCookies([{name:'eternal_consent', value:'1.0.0.'+Date.now(), domain:'localhost', path:'/'}]). It must match ^1\\.[01]\\.[01]\\.\\d{10,14}$. This means no banner and no GA, Pixel or Vercel analytics.\n- addInitScript: sessionStorage.setItem('eternal.loaded','1') for every shot except the loader shot.\n- Never set localStorage eternal.motion='off', and never click the footer's 'Motion on' button.\n\nIMAGES:\n- Route /_next/image?url=https%3A%2F%2Fcdn.shopify.com… and https://cdn.shopify.com/… to the product's own photo in public/images/products, as reel/showcase/tools/capture.mjs does.\n- Map a Shopify packshot to <handle>-2 (lifestyle), not -3. Card hover crossfades to the -3 notes still and 'Where to start' cards use -3 as the main image, so a packshot routed to -3 makes the hover show the same picture.\n- Products whose gallery is entirely local and distinct, with no CDN: mango-eclipse, aurora, bloom, ciel, paradox, smoked-aura, ultra-smoke. Products with both a -2 and a -3 locally: divina, enzo-1898, hundred-whispers, linen, mango-eclipse, mystique, neroli-code, raw-seduction, shadow-of-the-sea, tonic-club, vintage-vanilla, wayne.\n- Do not use waitUntil 'load' or 'networkidle'. An unrouted Shopify image hung 'load' for more than 30 s in my probe. Use 'domcontentloaded', then settle: await document.fonts.ready, then decode every <img> in or near view.\n- Pre-warm each page once, because the first AVIF encode is slow. Below-the-fold next/image is loading=lazy, so pre-scroll or set loading='eager' before recording.\n\nSCROLL:\n- html has scroll-behavior:smooth, so scrollTo, scrollIntoView and the finder's own scrollTo({top:0}) animate on the browser's own timing. Inject html{scroll-behavior:auto!important}, drive window.scrollTo({top, behavior:'instant'}) per frame on your own ease, and never use mouse.wheel.\n- Full-page screenshots break the fixed header, the home header's transparent-to-Linen switch, the sticky desktop buy column and the IntersectionObserver reveals. On desktop, [data-reveal] stays at opacity 0 until it scrolls into view. Record those pages by scrolling the live viewport. Use full-page only for static strips, after adding .is-in to every [data-reveal].\n\nCLEAN-UP CSS: inject .wa-float{visibility:hidden!important}. The WhatsApp square pops in 3 s after mount with a pulse. In typed fields the caret blinks on a browser timer (not CSS), so set input{caret-color:transparent} or draw your own caret. Keep the hideBrackets pass as a safety net. lib/facts already renders nothing for a bracketed fact, and the bracketed Shadow of the Sea 'comparison' only removes its 'How it differs' section.\n\nCLOCK (works, verified):\n- Reuse reel/showcase/tools/vclock.mjs. Its init script virtualises setTimeout, setInterval, requestAnimationFrame, performance.now and Date.now, and steps document.getAnimations().\n- Also, once the page has settled, open a CDP session and send Animation.enable and Animation.setPlaybackRate({playbackRate:0}). With rate 0, every CSS animation, CSS transition and element.animate() created by a click is born at currentTime 0 however long Playwright takes: the drawer animations were still at ct=0 after 1 s of real time.\n- Rate 0 alone is not enough. JS timers keep running in real time: the bag's 450 ms reveal fired and the header's 400 ms bag-tick class was already gone. The virtual clock is mandatory for anything with a timer.\n- On first sight, record each animation's birth as vc.now. For animations that start with the page (hero words, tale name, loader), pause all and set currentTime=0 after the settle step.\n- Per frame: do the input (scroll, hover, click, type), then vc.advance(dt), which runs due timers and one round of rAF. Then flush IntersectionObserver: it delivers after a rendering update, so take a throwaway frame or await a real (unpatched) rAF. Then set currentTime = vc.now - birth on every animation, then screenshot.\n- Motion blur: step the clock in fractional ms sub-frames and average them.\n\nBEGINFRAME is not needed. No live page plays a <video>: the hero is a still <picture>, the house film was removed from home, and Film/BackgroundVideo are unused although public/videos/home-hero.* exists. Under --enable-begin-frame-control, Playwright's own click and screenshot tend to hang.\n\nMOBILE INPUT: use page.tap (pointerType touch). page.click or mouse.move fires a mouse pointerover, which makes MotionScript set html[data-hover] and switches on desktop hover frames on phone cards.\n\nDO NOT PLAN ON these motion-spec items. They exist in CSS but nothing on the site triggers them:\n- CountUp\n- .parallax-y\n- the .t2 shoppable-card slide-in on tales (no element carries data-t2)\n- .wash, .img-fade, .slide-x\n- .kenburns (only on the removed house film)\n- the finder check-mark draw (its path lacks the .mark-line class, so the check just appears)\n\nOUT OF SCOPE: /dashboard needs a blob store, an owner account and dev-mode fixtures, and returns a 'no store' screen here.",
+  "interactions": [
+   {
+    "name": "Desktop first-visit loader: the e∞ mark draws, then the Linen curtain lifts",
+    "viewport": "desktop",
+    "page_url": "/?hero=vintage-vanilla",
+    "how_to_trigger": "Fresh desktop context (width 1024 or more) with no init script for eternal.loaded and the consent cookie set. page.goto(url, {waitUntil:'commit'}). MotionScript sees a first-session visit to pathname '/' and sets html[data-loading='1'] before paint. To show it again, open a new context. After settling, reset every animation to currentTime 0 and record about 1.3 s.",
+    "animation_mechanism": "CSS (app/motion.css G1). .loader shows on Linen at z-index 200. The path.mark-line runs m-draw (stroke-dashoffset) for 600 ms on ease-emphasized and then fades out over 200 ms from 510 ms. The path.mark-fill fades in over 200 ms from 420 ms. .loader runs m-curtain (translateY -100%) for 400 ms on emphasized from 600 ms. JS: Loader.tsx deletes data-loading with setTimeout 1020 ms. The hero words (next entry) start rising underneath at the same moment, so the last words are still moving as the curtain lifts.",
+    "capture_method": "vclock plus getAnimations stepping. The 1020 ms timer must be virtual, otherwise the loader disappears mid-shot. Use the CDP rate-0 freeze, or reset all animations to 0 after fonts and the hero image have decoded, so frame 0 is the bare Linen frame.",
+    "on_screen_value": 4,
+    "gotchas": "Desktop only (MotionScript checks innerWidth >= 1024), only the exact path '/', only the first page of a session, never with data-ad. The hero still must be decoded before frame 0 or it pops in under the lifting curtain. The mark is only 128 px wide, so it reads small in a wide frame; a camera push-in in the compositor helps. The whole beat lasts about 1 s."
+   },
+   {
+    "name": "Hero headline: words rise one by one over the campaign still",
+    "viewport": "both",
+    "page_url": "/?hero=vintage-vanilla (desktop), /?hero=raw-seduction (phone)",
+    "how_to_trigger": "Load home with eternal.loaded already set. The animation runs on page load. After the fonts and the hero <picture> img have decoded, pause every span.hero-word animation, set currentTime=0, and step about 1.4 s. The headline is site.tagline 'Some things are never meant to fade.', seven span.hero-word elements.",
+    "animation_mechanism": "CSS (H1). .hero-word runs m-rise (translateY 24px to 0, opacity 0 to 1) for 600 ms on ease-emphasized, delay 120 ms + i x 80 ms, fill forwards. The last word ends at 1.32 s. The header sits transparent over the still with the wordmark in Linen and the announcement bar 'Free delivery on orders over EGP 2,200' above it. Desktop: the copy sits on a left-hand shade over the full-bleed still. Phone: the still fills the top 66% and the copy sits on the hero's colour band, with the proof marquee at the foot.",
+    "capture_method": "getAnimations stepping is enough: there is no JS timer, and the animations start with the document. Pair it with vclock if the same shot then scrolls.",
+    "on_screen_value": 5,
+    "gotchas": "Suppressed by html[data-ad] (Instagram user agent or utm, fbclid or gclid in the URL). Hero handles are limited to the five in content/heroes.ts; any other ?hero= value is random. The hero still is not a video. On the phone hero, the transparent header's Linen icons have little contrast over light stills."
+   },
+   {
+    "name": "Home scroll: header turns solid, announcement bar collapses, hero parallax",
+    "viewport": "both",
+    "page_url": "/?hero=vintage-vanilla",
+    "how_to_trigger": "Per frame, window.scrollTo({top:y, behavior:'instant'}) on your own ease from 0 to past 120 px (for example to 600 px), then vc.advance to run the scroll listeners and rAF.",
+    "animation_mechanism": "React state plus CSS transitions. Header.tsx sets scrolled when scrollY > 120. The header's background, text and border colours transition over 200 ms (transparent with Linen text becomes Linen with Night text). div.ann animates its height 32 px to 0 over 200 ms. Desktop only: useParallax (rAF) writes --pp and --sy on #hero. .hero-film scales to 1 + 0.04 x --pp (in the probe, --pp was 0.483 at scrollY 400). .hero-drift moves the copy at 0.2 x scrollY.",
+    "capture_method": "vclock plus getAnimations stepping. The scroll handlers use rAF, and the header switch starts CSS transitions that must start at 0.",
+    "on_screen_value": 4,
+    "gotchas": "Cannot be done with a full-page screenshot: the header is fixed and scroll-driven. Parallax is desktop only (isDesktop). The phone gets only the header switch. The 'Scroll' hint at the bottom right of the desktop hero is a plain anchor."
+   },
+   {
+    "name": "Three lines: hover swaps the still and nudges the logotype (LineShowcase)",
+    "viewport": "desktop",
+    "page_url": "/?hero=vintage-vanilla (section under the proof strip)",
+    "how_to_trigger": "Scroll the section into view (instant). page.hover('.line-name >> nth=1') for eterno, then nth=2 for eternal, then back to nth=0 for eterna. The mouse path can glide between them. React's onMouseEnter runs setActive(i). On a phone the names are links (a tap navigates); there you can swap with el.dispatchEvent(new MouseEvent('mouseover',{bubbles:true})).",
+    "animation_mechanism": "React state plus CSS transitions (home.css). The .line-name colour goes Stone to Night and its border Dune to Night over 200 ms. .line-text slides 8 px right over 300 ms. .line-arrow fades in and nudges 4 px over 300 ms. img.line-still crossfades (opacity 500 ms) and settles from scale 1.04 to 1 over 900 ms on ease-standard. The names are the kit's 56-96 px eterna/eterno/eternal logotypes; the stills are real lifestyle photographs.",
+    "capture_method": "getAnimations stepping with the CDP rate-0 freeze, so the hover transitions are born at 0. Use vclock as well if the shot also scrolls.",
+    "on_screen_value": 5,
+    "gotchas": "Hover is desktop only; on the phone use the dispatch trick and expect a smaller two-column layout. Every still is in the DOM from the start, but lazy-load them before recording. Don't move the mouse across other .line-name rows on the way, or they flicker on."
+   },
+   {
+    "name": "Home long scroll (hero to footer lockup)",
+    "viewport": "both",
+    "page_url": "/?hero=vintage-vanilla",
+    "how_to_trigger": "Drive window.scrollTo instant per frame through: hero, proof strip, Three lines, 'Where to start' (four cards), 'Try before you commit' (mystery-box card and the Night finder card with the mark watermark), 'Shop by scent' (six ingredient stills), the featured tale (Shadow of the Sea, deep-sea band with grain), Tales, 'Join the house', and the footer lockup (eternal logotype with the tagline in capitals).",
+    "animation_mechanism": "Mostly static layout. The scroll-linked parts are the header switch and parallax (desktop). The 'Join the house' band is [data-reveal] (opacity and 16 px rise over 500 ms, triggered by IntersectionObserver). The phone also has the proof marquee.",
+    "capture_method": "vclock plus getAnimations stepping. Flush IntersectionObserver each frame (throwaway frame or real rAF) so the reveal fires on time.",
+    "on_screen_value": 4,
+    "gotchas": "The page is tall; ease the scroll and dwell on a few sections, don't scroll linearly. On desktop the cards show no Add buttons at rest (they appear on hover). The footer lockup is a good end-card source. TalesTeaser is an ad-drop section and disappears under data-ad."
+   },
+   {
+    "name": "Proof marquee (phone)",
+    "viewport": "mobile",
+    "page_url": "/?hero=raw-seduction",
+    "how_to_trigger": "Runs on load; it is the bottom strip of the first screen.",
+    "animation_mechanism": "CSS keyframes proof-slide (translateX -50%), 32 s linear, infinite, on .proof-track (home.css, below 1024 px only). The strip reads 'Eau de parfum, 55 ml · Cash on delivery · Free delivery over EGP 2,200 · Delivery within 2 working days, Sunday to Thursday · Returns on sealed bottles'. It pauses on hover or :active.",
+    "capture_method": "getAnimations stepping. Keep the infinite animation in the stepped set: currentTime = vc.now - birth.",
+    "on_screen_value": 2,
+    "gotchas": "Static row on desktop. About 35 px/s, so it barely moves in a 2 s shot. A tap or hover on it pauses it."
+   },
+   {
+    "name": "Mega menu drop (Shop)",
+    "viewport": "desktop",
+    "page_url": "/shop or /?hero=… (on home it also turns the transparent header solid)",
+    "how_to_trigger": "page.hover(\"nav[aria-label='Primary'] a[href='/shop']\"). Close it by moving the mouse below the panel; it closes after a 120 ms timer.",
+    "animation_mechanism": "React state plus CSS. .drop-enter runs m-drop (8 px down plus fade) over 200 ms on ease-standard. The two featured tiles ('House pick', 'New in') use .rise-in (m-rise 200 ms, delays 40 and 80 ms via --i). The nav underline border transitions over 150 ms. On home, the header colours also transition over 200 ms. Lists: By line, By scent, Start here.",
+    "capture_method": "vclock (for the 120 ms close timer) plus getAnimations stepping with the rate-0 freeze.",
+    "on_screen_value": 3,
+    "gotchas": "Hidden below the lg breakpoint. The featured tiles use product images, so route the CDN. A hover path that leaves the header closes it."
+   },
+   {
+    "name": "Phone menu drawer",
+    "viewport": "mobile",
+    "page_url": "/?hero=raw-seduction (any page)",
+    "how_to_trigger": "page.tap(\"button[aria-label='Open menu']\"). Close with page.tap(\"button[aria-label='Close menu']\").",
+    "animation_mechanism": "CSS. aside.drawer-left runs m-from-left (translateX -100% to 0) over 320 ms on ease-emphasized at 88% width. The backdrop button.fade-enter fades bg-night/40 over 200 ms. Content: rows with thumbnails (For her · eterna 11 scents, For him · eterno 25, Unisex · eternal), Mystery box, Find your scent, All scents, Tales, Help & delivery, the WhatsApp row and 'Pay cash on delivery'.",
+    "capture_method": "getAnimations stepping with the rate-0 freeze. Pure CSS on mount.",
+    "on_screen_value": 4,
+    "gotchas": "Closing unmounts at once: there is no exit animation, so cut or dissolve. useModal pushes a history entry and locks body scroll. Use tap, not click, to avoid setting data-hover."
+   },
+   {
+    "name": "Search overlay: search by the original you know",
+    "viewport": "both",
+    "page_url": "/shop (or any page)",
+    "how_to_trigger": "Click or tap \"header button[aria-label='Search']\" (the header toggle). Focus lands in #site-search. Type 'Acqua' one character every 4-6 frames with page.keyboard.type of one character per step. Before typing, the panel shows 'Where to start' rows. After typing it shows 'See all 1 result', 'SCENTS (1)' and 'Shadow of the Sea · INSPIRED BY Acqua di Giò Elixir · eterno · for him · EGP 1,050', with the original underlined in gold.",
+    "animation_mechanism": "CSS: the panel div.fade-enter and the backdrop fade over 200 ms (m-fade). The results are React state that re-renders on every keystroke, with no animation. The pending button shows .dots, but only if you submit.",
+    "capture_method": "vclock plus getAnimations stepping. Typing is driven per frame; the 1000 ms idle timer is analytics only.",
+    "on_screen_value": 4,
+    "gotchas": "Only three scents name an original: Shadow of the Sea (Acqua di Giò Elixir), Forbidden Apple (Clive Christian Crab Apple Blossom) and Sapphire (Blue Talisman). With fewer than 10 originals the placeholder reads 'Scent or note'. Hide or draw the caret yourself. Two buttons carry aria-label 'Search' once the panel is open (the toggle and the submit), so scope the selector. Result thumbnails come from the CDN, so route them."
+   },
+   {
+    "name": "Product card hover: notes-still crossfade, image lift, Add to bag rises",
+    "viewport": "desktop",
+    "page_url": "/shop/him, the home 'Where to start' cards, or the PDP 'You may also like' cards",
+    "how_to_trigger": "page.hover(\"article[data-card='wayne']\"). Use article[data-card] because the home hero link also carries data-card. Glide the mouse across several cards in a row.",
+    "animation_mechanism": "CSS transitions (collection.css and motion.css H4). img.pimg-lift scales to 1.03 over 600 ms (ease-standard). img.img-hover fades in over 300 ms, crossfading to the notes still. On desktop, .card-actions (Add to bag) goes from opacity 0 and +8 px to visible over 200 ms. Leaving reverses each.",
+    "capture_method": "getAnimations stepping with the rate-0 freeze (hover transitions are born at 0). Verified in the probe.",
+    "on_screen_value": 4,
+    "gotchas": "At rest on desktop the Add buttons are invisible, and only with motion on: with reduced motion they always show. The hover frame must differ from the main one; see the CDN mapping in setup and prefer scents that have both -2 and -3 locally. The phone has no hover frame and the Add buttons always show."
+   },
+   {
+    "name": "Shop grid: filter chips re-flow the grid (FLIP)",
+    "viewport": "both",
+    "page_url": "/shop (or /shop/him with its line banner)",
+    "how_to_trigger": "page.click(\"[aria-label='Quick filters'] button:has-text('For him')\") (on the phone, page.tap). Hold, then click the same chip to clear it so cards arrive back. Family chips work the same way: 'Woody', 'Aquatic', 'Gourmand'. The labels carry counts, for example 'Fresh 20'.",
+    "animation_mechanism": "React state (URL via replaceState) plus WAAPI in CollectionGrid's useLayoutEffect. Cards that stay glide from their old position with element.animate translate over 320 ms (ease-standard). New cards fade up: opacity 0 and translateY 16 px to rest over 400 ms, delay min(i x 40, 480) ms, fill 'backwards'. The chip turns Night over 160 ms. The probe saw 30+ animations after one tap.",
+    "capture_method": "getAnimations stepping with the rate-0 freeze. element.animate() animations are in document.getAnimations() and are born at 0.",
+    "on_screen_value": 5,
+    "gotchas": "There is no FLIP on first render, only after a change. FLIP measures viewport positions, so don't scroll during the beat. Load the card images first (lazy). Without a hover, desktop cards show no Add buttons. On the phone the chip row scrolls sideways back to the left after a tap. The line pages /shop/her, /shop/him and /shop/unisex open on a dark photographic banner with the line logotype, '25 scents' and the search field: a strong establishing frame."
+   },
+   {
+    "name": "Shop grid: type the original, grid collapses to the match",
+    "viewport": "both",
+    "page_url": "/shop",
+    "how_to_trigger": "Click into main \"form[role='search'] input[type='search']\" (placeholder 'Search by the original'), then type 'Acqua' or 'sea' one character per few frames. The heading becomes 'Results for “Acqua”' and the count updates.",
+    "animation_mechanism": "React state per keystroke, plus the same WAAPI FLIP as the chips: remaining cards glide over 320 ms and arrivals fade up. The field's focus border transitions over 160 ms. A 400 ms debounced URL write has no visual effect.",
+    "capture_method": "vclock (the debounce timer) plus getAnimations stepping with the rate-0 freeze.",
+    "on_screen_value": 4,
+    "gotchas": "Only three originals exist (see the search overlay entry). On a line page that search may say “'X' isn't in eterno · for him” and show matches elsewhere. Hide the caret. The grid search field is the dark variant over the banner on line pages."
+   },
+   {
+    "name": "Phone: floating 'Filter & sort' button and bottom-sheet filters",
+    "viewport": "mobile",
+    "page_url": "/shop/him",
+    "how_to_trigger": "Scroll (instant, per frame) until the chip row has gone under the header (about 800 px). The .shop-float button appears. page.tap('.shop-float button'). Inside the sheet, tap \"[aria-labelledby='filter-sheet-title'] button.chip:has-text('Woody')\". The footer button reads 'Show N scents'; tap it.",
+    "animation_mechanism": "The float button is .bar-enter (m-sheet, translateY 100% to 0, 240 ms ease-standard), mounted from IntersectionObserver state. The sheet is .sheet-enter (m-sheet over 320 ms, ease-emphasized) with the backdrop fading over 200 ms. Chips change colour over 160 ms (aria-pressed: Night). The grid behind re-flows with FLIP under the sheet. 'Show' unmounts the sheet and scrolls to the chip row.",
+    "capture_method": "vclock (IntersectionObserver flush, rAF focus) plus getAnimations stepping.",
+    "on_screen_value": 3,
+    "gotchas": "The sheet has no exit animation (it unmounts). showResults calls window.scrollTo, which is smooth unless overridden. The float only shows while cards are on screen and the chip row is gone."
+   },
+   {
+    "name": "PDP: Add to bag, then the bag drawer slides in",
+    "viewport": "desktop",
+    "page_url": "/products/shadow-of-the-sea",
+    "how_to_trigger": "page.click(\"main form[action='/bag'] button[type=submit] >> nth=0\"). The label reads 'Add to bag · EGP 1,050'. Before clicking, move the cursor onto the button so it shows its hover state (Night to Deep sea over 160 ms). Record about 2 s.",
+    "animation_mechanism": "t=0: the label crossfades to 'Added ✓' (span.price-swap, m-fade 160 ms). The header bag icon runs svg.bag-tick (m-tick: a -3 px hop and a rotate wiggle, 400 ms; a JS 400 ms timer removes the class) and a gold count badge appears. t=450 ms (CartProvider reveal setTimeout): CartSheet mounts. The backdrop fades over 200 ms. aside.cart-panel runs m-from-right over 320 ms on ease-emphasized (460 px panel). The new line runs m-tick-in for 320 ms plus m-highlight (a Sand background fading out over 900 ms). The price tick-ins run 120 ms. The suggestion card rise-in runs 200 ms after a 120 ms delay. t=1400 ms: the button label returns. Drawer content: 'EGP 1,150 away from free delivery' with a gold meter at 48%, the line with 'INSPIRED BY Acqua di Giò Elixir', 'Your free 5 ml' picker, the 'Find your next scent: Mystery Box · gets you free delivery · EGP 250' suggestion, 'Checkout · EGP 1,050', 'Cash on delivery · InstaPay' and 'Send this bag to WhatsApp'.",
+    "capture_method": "vclock is mandatory (the 450, 400 and 1400 ms timers) plus getAnimations stepping with the rate-0 freeze. Verified: with only the CSS freeze, the timers ran in real time and desynced.",
+    "on_screen_value": 5,
+    "gotchas": "The line thumbnail is a Shopify packshot, so route it (it showed broken in the probe without routing). body overflow becomes hidden while the drawer is open. Playwright headless hides scrollbars; confirm, or the page jumps 15 px. Use a fresh context so the bag starts empty. The 'Differs' section is absent because its copy is still bracketed."
+   },
+   {
+    "name": "Bag: quantity +1, free-delivery meter fills, add the suggested mystery box",
+    "viewport": "both",
+    "page_url": "/products/shadow-of-the-sea with the drawer open (previous entry), or /bag?items=shadow-of-the-sea",
+    "how_to_trigger": "page.click(\"[data-bag-sheet] button[aria-label^='Increase quantity']\"). Then click \"[data-bag-sheet] section[aria-label='A suggestion'] button:has-text('Add')\". Optional: \"[data-bag-sheet] button:has-text('Remove')\". On the phone, use tap.",
+    "animation_mechanism": "The qty, line price, total and 'away' figure are keyed spans that re-run .tick-in (m-tick-in, 6 px rise and fade, 120 ms). The gold .meter > i width transitions over 600 ms on ease-standard (48% to 95%, 'EGP 100 away from free delivery'). The header bag icon ticks. A second free-5 ml picker appears. Adding the suggestion slides in a 'Mystery Box' line (m-tick-in 320 ms plus the Sand m-highlight over 900 ms). The meter block unmounts because 'away' reaches 0. The footer shows 'Free delivery' and the total ticks to EGP 2,350. Remove collapses the line (.line-row.removing: grid-template-rows to 0fr plus opacity, 240 ms), and a 240 ms JS timer then deletes it.",
+    "capture_method": "vclock (the remove timer) plus getAnimations stepping with the rate-0 freeze.",
+    "on_screen_value": 4,
+    "gotchas": "At 0 the meter vanishes rather than filling to 100%. The suggestion only appears once per opening. The drawer body scrolls inside the panel, so long bags hide the meter. Checkout is a separate entry."
+   },
+   {
+    "name": "Phone PDP: first screen and gallery swipe with '1 / 3' counter",
+    "viewport": "mobile",
+    "page_url": "/products/mango-eclipse (three distinct local frames) or /products/shadow-of-the-sea (richer copy)",
+    "how_to_trigger": "Load at the top. Wait about 1 s on the first frame, which zooms slowly. Then, per frame, set .pdp-hero .snap-row scrollLeft on your ease toward children[1].offsetLeft - 20 (it has scroll-px-5). Before moving, set style.scrollSnapType='none' and restore it at an exact snap position.",
+    "animation_mechanism": "The first frame is img.zoom-slow (m-zoom, scale 1.02 over 8 s, ease-standard). Native scroll-snap row (SnapRow): the counter (span.tnum, 'right-14') updates through IntersectionObserver at 60% visibility. The next frame peeks at the right edge. Add to bag sits on the first screen (button bottom at y≈750 of 844).",
+    "capture_method": "vclock plus getAnimations stepping. Flush IntersectionObserver each frame so the counter flips at the right moment.",
+    "on_screen_value": 4,
+    "gotchas": "With mandatory snap left on, the browser snaps each intermediate scrollLeft back to a frame. For scents with a Shopify packshot, routing to a local photo duplicates a frame (gallery = packshot, -2, -3), which is why mango-eclipse is the clean swipe (its eyebrow reads 'eternal · unisex · 55 ml'; it has no inspired-by line or chips). overscroll-behavior-x is none on PDPs."
+   },
+   {
+    "name": "Phone PDP: sticky add bar rises, then the bag bottom sheet",
+    "viewport": "mobile",
+    "page_url": "/products/shadow-of-the-sea",
+    "how_to_trigger": "Scroll (instant, per frame) past the main button to about scrollY 900. .pdp-bar appears ('Shadow of the Sea · 55 ml · INSPIRED BY Acqua di Giò Elixir', 'Add to bag · EGP 1,050'). page.tap(\".pdp-bar button[type=submit]\").",
+    "animation_mechanism": "The bar mounts from IntersectionObserver state as .pdp-bar.bar-enter (m-sheet, translateY 100% to 0, 240 ms ease-standard, float shadow). After the tap: the label goes to 'Added', the bag icon ticks, and 450 ms later the cart-panel bottom sheet runs m-sheet over 320 ms on ease-emphasized (up to 92dvh) with the backdrop fading over 200 ms. Line highlight, tick-ins and suggestion as on desktop.",
+    "capture_method": "vclock (450 ms reveal, IntersectionObserver flush) plus getAnimations stepping.",
+    "on_screen_value": 5,
+    "gotchas": "Scroll must be instant: with smooth scroll the bar arrived late in the probe. The WhatsApp float is hidden while the PDP's own button is visible but appears with the bar; hide it with CSS. Use tap."
+   },
+   {
+    "name": "Desktop PDP scroll: sticky buy column, section reveals, Wear-it meters fill",
+    "viewport": "desktop",
+    "page_url": "/products/shadow-of-the-sea",
+    "how_to_trigger": "Per-frame instant scroll from 0 down through 'Wear it', 'Good to know', 'Pair it with Sapphire', the tale excerpt ('The sea signs the ones it gives back.') and 'You may also like'.",
+    "animation_mechanism": "Layout: the gallery stacks vertically (zoom-slow on frame 1) while the info column is lg:sticky top-28. [data-reveal] elements (SectionHead, the wear list, meters, the 7:3 tale still, the excerpt, the also-like cards) get .is-in from IntersectionObserver (20% visible). CSS transitions: opacity and translateY 16 px over 500 ms (ease-standard), staggered by --i x 60 ms. The Longevity 8/10 and Sillage 6/10 meters fill gold (width over 600 ms) when revealed. The .pdp-bar sticky bar slides up (240 ms) once the main button leaves view.",
+    "capture_method": "vclock plus getAnimations stepping. Flush IntersectionObserver per frame. Never full-page (sticky column, reveals).",
+    "on_screen_value": 4,
+    "gotchas": "On the phone, RevealObserver reveals everything below 1.6 screens immediately, so these reveals are a desktop beat. The duplicate gallery frame (Shopify packshot routed locally) is visible in the stacked desktop gallery: remove that one frame for the shot, or start the scroll below it."
+   },
+   {
+    "name": "FAQ accordion 'Good to know'",
+    "viewport": "both",
+    "page_url": "/products/shadow-of-the-sea",
+    "how_to_trigger": "page.click('details.acc > summary >> nth=0'), 'What does it smell like?'. It opens to Top / Heart / Base copy.",
+    "animation_mechanism": "CSS: the chevron svg rotates 180° over 240 ms. Height should ease through ::details-content block-size (interpolate-size, 240 ms), but only the chevron transition showed up in getAnimations in the probe, so the height may snap or not be steppable.",
+    "capture_method": "getAnimations stepping for the chevron. Treat the height as an instant change unless a test proves otherwise.",
+    "on_screen_value": 2,
+    "gotchas": "Low motion. Mainly useful to show the notes copy."
+   },
+   {
+    "name": "Scent finder (desktop): tap a photo tile, screen slides, progress fills",
+    "viewport": "desktop",
+    "page_url": "/finder",
+    "how_to_trigger": "Pre-visit /finder?who=her&q=2 … q=5 so the later tiles are cached. Hover a tile; it lifts 4 px. Optionally hold page.mouse.down() for the .98 press. Then page.click(\"a.tile:has-text('Her')\"), then 'Night' (or 'Daytime'). The notes question takes up to two: click 'Gourmand' and 'Amber & spice', then \"a.btn:has-text('Next')\". Then 'A Paris café at night', then 'Arm’s length'. Back link: \"a:has-text('Back')\".",
+    "animation_mechanism": "React state with the URL as the state (pushState). The chosen tile gets an inset 3 px Night ring and a check badge; the other tile images fade to 60% opacity over 200 ms. On single-choice questions, setTimeout(280 ms) advances. The new screen is keyed .screen-fwd (m-screen-fwd, translateX 24 px plus fade, 320 ms emphasized; .screen-back runs it reversed). The 2 px .progress-fill transitions transform scaleX over 320 ms (emphasized), and the step label goes '1 of 5' to '2 of 5'. .tile:hover lifts -4 px over 200 ms (hover-capable only). :active scales to .98. Tiles are real still-life photographs (rose petals, bark, amber and sea glass…).",
+    "capture_method": "vclock (280 ms advance timer) plus getAnimations stepping with the rate-0 freeze.",
+    "on_screen_value": 5,
+    "gotchas": "Each step calls window.scrollTo({top:0}), which is smooth unless overridden. The check badge appears without drawing (the path lacks .mark-line). Questions have 4, 3, 6, 5 and 3 options with different grids (one row of four at question 1)."
+   },
+   {
+    "name": "Scent finder (phone): the Instagram-ad flow",
+    "viewport": "mobile",
+    "page_url": "/finder",
+    "how_to_trigger": "page.tap(\"a.tile:has-text('Him')\"), tap through: 'Night', then two of the six note tiles (the 'Next' button turns from 45% to Night), then a place, then a strength. Results URL: /finder?who=her&time=night&notes=gourmand,amber&place=paris-cafe&strength=present.",
+    "animation_mechanism": "The same as desktop: selection ring and dimming over 200 ms, the 280 ms auto-advance, .screen-fwd over 320 ms and the progress fill over 320 ms. There is no composing screen on the phone: the results paint at once.",
+    "capture_method": "vclock plus getAnimations stepping. Use page.tap (touch).",
+    "on_screen_value": 5,
+    "gotchas": "Without (hover: hover) there is no hover lift on the phone. Tiles use 16:9 and 4:5 crops in two columns. With page.click, data-hover gets set; use tap."
+   },
+   {
+    "name": "Finder: 'Composing your matches…' mark draw, then the three matches",
+    "viewport": "desktop",
+    "page_url": "/finder?who=her&time=night&notes=gourmand,amber&place=paris-cafe&q=5",
+    "how_to_trigger": "page.click(\"a.tile:has-text('Arm')\"). After 280 ms it advances, and on desktop the composing screen shows for 600 ms. The results read 'Three to start with … From 42 scents, for her · night · gourmand notes · a Paris café · arm’s length.' with match cards: Mystique ('BEST MATCH' badge), Vanilla Blanche, … Each card has 'Matched on …' in gold and 'Add 55 ml · EGP 950'. The mystery-box card sits below.",
+    "animation_mechanism": "React state. COMPOSE_MS is a 600 ms setTimeout. Mark draw-slow: path.mark-line runs m-draw over 1200 ms on emphasized, the mark-fill fades from 840 ms and the line fades out from 1020 ms. The screen is replaced at 600 ms, so the line is about 90% drawn and the fill has not yet appeared. The results section mounts with no entrance animation (a hard swap).",
+    "capture_method": "vclock (the 280 and 600 ms timers) plus getAnimations stepping.",
+    "on_screen_value": 4,
+    "gotchas": "Desktop only, and only with motion on and no in-app user agent. The swap to results is an instant cut; dissolve in the edit if needed. Match card images come from the CDN, so route them."
+   },
+   {
+    "name": "Tale page: scent name rises across the still, reading progress, tale bar",
+    "viewport": "both",
+    "page_url": "/tales/shadow-of-the-sea (also wayne, enzo-1898, forbidden-apple, mercury, tonic-club)",
+    "how_to_trigger": "Load. After the 7:3 still has decoded, reset the animations to 0 and record the name rise. Then scroll (instant, per frame): on desktop the 2 px gold bar tracks the read and the buy card is sticky; on the phone the .tale-bar slides up once #tale-title has scrolled off and leaves when #tale-buy comes into view.",
+    "animation_mechanism": "CSS: p.tale-name runs m-rise (16 px plus fade) over 900 ms on ease-emphasized with a 150 ms delay, at up to 168 px over a radial shade. ReadingProgress (rAF) sets --rp, and .read-progress scaleX transitions over 80 ms linear. TaleBar (rAF state) is .bar-enter (m-sheet, 240 ms). Body text is in The Seasons with a drop cap.",
+    "capture_method": "getAnimations stepping for the name rise. vclock plus stepping for the scroll parts (rAF).",
+    "on_screen_value": 4,
+    "gotchas": "Tales are short on the phone: at scrollY 1400 the progress was already 1.0 and the buy card in view, so the tale bar only shows in a narrow band of scroll. The .t2 card slide-in is not wired."
+   },
+   {
+    "name": "Page-to-page cross-fade (client navigation)",
+    "viewport": "both",
+    "page_url": "/shop/him to /products/wayne (or a home card to a PDP)",
+    "how_to_trigger": "Click a card's name link (article[data-card='wayne'] a.card-link) or any internal Link. Freeze the clock, await page.waitForURL('**/products/wayne') and a page selector, then step.",
+    "animation_mechanism": "CSS G2: PageFade wraps the page in div.page-enter, which runs m-fade over 200 ms (ease-standard) on every client navigation after the first. The header stays put. The new page starts at the top.",
+    "capture_method": "getAnimations stepping with the rate-0 freeze, so the fade is born at 0 whenever the commit lands. vclock keeps the new page's timers in step.",
+    "on_screen_value": 3,
+    "gotchas": "Commit timing depends on prefetch and RSC fetches, so wait with the clock frozen. There is no fade on the first page of a visit or with an in-app user agent. Header panels close on route change."
+   },
+   {
+    "name": "Micro hovers: buttons, text links, nav, Shop-by-scent tiles",
+    "viewport": "desktop",
+    "page_url": "/?hero=vintage-vanilla (hero CTAs, Shop by scent), any page header",
+    "how_to_trigger": "page.hover('a.btn:has-text(\"Shop the scents\")'), the 'Find yours in 60 seconds' .lnk, \"nav[aria-label='Primary'] a\", and the 'Shop by scent' tiles (ul > li > a.group).",
+    "animation_mechanism": "CSS transitions. .btn background Night to Deep sea #163A4E (btn-light goes Linen to Paper) over 160 ms, and .btn-arrow nudges 4 px. .lnk::after underline draws scaleX 0 to 1 over 240 ms. The nav underline border fades in over 150 ms. Family tiles: .hover-lift image scales 1.03 over 600 ms and the .u-draw name underline draws over 300 ms.",
+    "capture_method": "getAnimations stepping with the rate-0 freeze.",
+    "on_screen_value": 3,
+    "gotchas": "Desktop only ((hover: hover)). Useful as a moving cursor beat, too subtle on its own."
+   },
+   {
+    "name": "Checkout: 'Opening checkout…' loading dots",
+    "viewport": "both",
+    "page_url": "bag drawer on any page",
+    "how_to_trigger": "Before clicking, ctx.route('**/api/checkout', () => {}) and never fulfil, so it never redirects to Shopify. Then page.click('.cart-checkout').",
+    "animation_mechanism": "CSS: the button keeps its size and reads 'Opening checkout' plus three .dots i (m-dots, opacity pulse, 1.2 s infinite, staggered 0.2 and 0.4 s).",
+    "capture_method": "getAnimations stepping. vclock as well, because a 10 s reset timer exists.",
+    "on_screen_value": 2,
+    "gotchas": "Must be routed: the real call would leave for Shopify's checkout, which is blocked here. Not worth showing a fake Shopify page."
+   },
+   {
+    "name": "WhatsApp float",
+    "viewport": "both",
+    "page_url": "/shop, /?hero=… (not on a PDP while its Add button is visible)",
+    "how_to_trigger": "Advance the clock 3000 ms after mount.",
+    "animation_mechanism": "JS setTimeout 3000 ms mounts it, then CSS .fade-enter (200 ms) plus .pulse-once (m-pulse, scale 1.04, 800 ms). It hides while any modal, the toast, a focused input, the consent banner or the PDP's own Add button needs the space.",
+    "capture_method": "vclock plus getAnimations stepping.",
+    "on_screen_value": 2,
+    "gotchas": "Hide by default (.wa-float{visibility:hidden!important}) or it pops into long shots. It is a plain Night square."
+   },
+   {
+    "name": "Toast 'Added to bag · …'",
+    "viewport": "both",
+    "page_url": "any",
+    "how_to_trigger": "Hard to reach in normal flows. It only shows when the bag cannot open: another dialog opens within the 450 ms reveal window, for example Add then the menu.",
+    "animation_mechanism": "CSS .toast-enter (m-rise 240 ms). Timers: leave at 3000 ms (.toast-exit, 200 ms on ease-exit), removed at 3250 ms.",
+    "capture_method": "vclock plus getAnimations stepping.",
+    "on_screen_value": 1,
+    "gotchas": "Not worth staging."
+   },
+   {
+    "name": "Consent banner",
+    "viewport": "both",
+    "page_url": "any (no eternal_consent cookie)",
+    "how_to_trigger": "A fresh context without the cookie. It mounts after hydration.",
+    "animation_mechanism": "CSS consent-in: a 16 px rise plus fade over 260 ms (200 ms fade only with reduced motion).",
+    "capture_method": "getAnimations stepping.",
+    "on_screen_value": 1,
+    "gotchas": "Always set the cookie for capture. Showing the banner adds clutter and hides the WhatsApp float."
+   }
+  ]
+ }
+}

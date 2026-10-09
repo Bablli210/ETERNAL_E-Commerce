@@ -1,102 +1,128 @@
-# eternal — the storefront showcase
+# eternal — storefront case study (Orbit)
 
-A 30-second cinematic piece for a portfolio: one continuous camera move, no cuts,
-through a 3D world built from the storefront's own material — the e∞ mark and the
-logotypes (extruded from `components/ui`), a modelled 55 ml bottle with its real
-label, the built pages on screens and phones, and the brand faces for every word.
+A 30-second portfolio film of the storefront Orbit designed and built for eternal. There
+is no CG and no stock: the real site, recorded frame by frame on desktop and on a phone,
+plays in a browser window and a phone set on one Linen table. Only the camera moves, and
+there are three hard cuts. Short numbered statements explain each part, over an original
+score composed in code.
 
-**The film:** `out/eternal-showcase.mp4` (1920×1080, 30 fps, H.264 at 9 Mb/s, 32 MB,
-silent — for the portfolio site and for Behance or Vimeo uploads),
-`out/eternal-showcase-web.mp4` (the same at 3.5 Mb/s, 12.5 MB, for embedding with
-`autoplay muted loop playsinline`) and `out/eternal-showcase-poster.jpg` (the home page
-resting on its three lines, for thumbnails and the `<video poster>`).
+**The film**
 
-## The sequence
-
-| Time | Beat |
+| File | What it is for |
 | --- | --- |
-| 0.0 – 3.6 | The e∞ mark in gold, found by a passing band of light. *A perfume house from Cairo.* |
-| 3.6 – 4.6 | The camera flies through the mark's eye… |
-| 4.6 – 9.6 | …onto the bottle on wet stone, in golden light. *Some things are never meant to fade.* (a rack focus to the line, and back). Title: eternal, e-commerce storefront. |
-| 9.6 – 13.6 | The home page powers on and scrolls: the first screen, three lines, where to start. |
-| 13.6 – 20.6 | A lateral dolly along the shop, a product page and the scent finder. |
-| 20.6 – 25.4 | Three phones: a product, the home page, the bag. *Made for the phone in your hand.* |
-| 25.4 – 30.0 | The camera cranes up from the phones to the mark; the end card holds. |
+| `out/eternal-showcase.mp4` | 1920×1080, 30 fps, H.264 at 7.2 Mb/s with AAC 256 kb/s, under 30 MB. For the portfolio site, Behance and Vimeo. |
+| `out/eternal-showcase-web.mp4` | The same at 3.2 Mb/s, for embedding on a page. It has sound, so mute it if it autoplays. |
+| `out/eternal-showcase-loop.mp4` | The web version fading to bare Linen at the end, so it loops into its first frame. |
+| `out/eternal-showcase-poster.jpg` | Thumbnail and `<video poster>`. |
+| `out/eternal-showcase-poster-bag.jpg` | A still of the drawer and the sheet side by side. |
 
-`src/film.js` is the source of truth: the world's layout, the camera path (keyed
-in time, C1-continuous, so the move never jolts), focus pulls, light cues and every
-beat. Copy for the captions and cards is near the end of it.
+## The sequence (112.5 BPM: a beat is 16 frames, a bar 64)
+
+| Time | Shot | On screen |
+| --- | --- | --- |
+| 0.0–2.1 | The camera starts inside the desktop on the site's own loader. As its curtain lifts, the camera pulls back to both screens. | — |
+| 2.1–4.3 | Title | ORBIT — CASE STUDY · *A storefront for eternal, a perfume house in Cairo.* |
+| 4.3–8.5 | The phone holds the Instagram-ad first screen. The desktop scrolls to the three lines and clicks eterno. The phone taps its scent. | 01 — HOME · *Built phone-first, for shoppers arriving from Instagram ads.* |
+| 8.5–12.8 | The camera follows the desktop into the eterno catalogue. A family chip re-flows the grid, then Raw Seduction is clicked. | 02 — CATALOGUE · *Next.js in front. Shopify for stock and checkout.* · RE-FLOW · 320 MS |
+| 12.8–17.1 | **Cut** to the phone on Raw Seduction. The sticky bar rises, a tap opens the bag sheet. | 03 — PRODUCT PAGE · *Product pages that sell on the first screen.* · *Add to bag follows you down the page.* |
+| 17.1–21.3 | The camera pulls back. The desktop adds the same scent: the drawer beside the sheet, and both free-delivery meters fill. | 04 — BAG · *One bag: a drawer on desktop, a sheet on the phone.* · DRAWER · 320 MS |
+| 21.3–23.5 | **Cut** to the scent finder on the phone: Her, Night. | 05 — SCENT FINDER · *Five questions, three matches.* |
+| 23.5–25.6 | **Cut** to the desktop opening the same link. It answers the last question, the mark composes, three matches arrive. | 05 — SCENT FINDER · *The answers live in the link.* |
+| 25.6–30.0 | The camera pulls back to both screens. | Designed and built by **Orbit** · services · NEXT.JS · SHOPIFY · VERCEL · *Brand marks and photography: eternal.* |
+
+`storyboard.json` is the approved plan: shots, framings, type, the cue sheet and the
+review checklist. `research.json` is the fact base every statement is checked against.
+
+## How it is made
+
+- **Takes of the real site** (`tools/record.mjs`, `tools/takes.mjs`, `tools/vclock.mjs`).
+  Each take is a fresh browser context (desktop 1440×900 at 2×, phone 390×844 at 3×)
+  driven the way a visitor would use it: eased pointer glides, presses, taps and scrolls,
+  timed in film seconds on the beat grid. The page runs on a virtual clock that owns its
+  timers, `requestAnimationFrame`, `performance.now` and `Date.now`. The document timeline
+  is held at rate 0, and every CSS animation and transition is stepped exactly 1/120 s per
+  frame. Between frames the recorder waits, in real time with the clock stopped, for
+  every request and in-view image. The site's own motion is therefore captured as it
+  plays, with nothing popping in.
+- **Logs.** Each frame logs:
+  - the pointer and its computed cursor (arrow or hand);
+  - the press;
+  - the hovered control (to prove only the intended ones are touched);
+  - the URL (for the path-only address pill);
+  - on the phone, the colour of the page's top row (for the status bar).
+
+  Checks run inside the takes: the meters read EGP 1,230, 980 and 260 away, the finder's
+  answers land in the link, and `html[data-ad]` is never set.
+- **The compositor** (`index.html`, `src/`). This is plain DOM at 1920×1080, so shadows are
+  real CSS shadows and type is the browser's own. Each frame is a pure function of time.
+  - `camera.js`: five framings, four moves, three cuts; log-scale zoom with the centre
+    coupled to it; a lean of 2° or less only while moving; never frozen.
+  - `stage.js`: the generic browser window and phone, the cursor and touch marks.
+  - `type.js`: the overlays, placed by baseline from the fonts' own metrics.
+  - `edit.js`: the edit.
+  - `tools/path.mjs` checks the camera before rendering: speed, lean, and continuity
+    except at the cuts.
+- **Render** (`tools/render.mjs`). While anything moves, each frame is three sub-frames
+  (t − 8.3 ms, t, t + 8.3 ms, which are the takes' own 120 Hz frames) averaged 1:2:1,
+  a 180° shutter that never reaches across a cut. A fine monochrome dither stops the
+  Linen from banding. The output is tagged BT.709.
+- **Score** (`music/`). It is composed in code with numpy and scipy:
+  - instruments: FM e-piano, unison-saw pad, sub, a soft house kit and bells;
+  - effects: convolution reverb, ping-pong delay and sidechain;
+  - mastering: two-pass loudnorm to −14 LUFS with true peak at −1 dBTP or lower.
+
+  `tools/cue.mjs` writes `music/cue.json` from the takes' logs. Each click and tap gets a
+  quiet tick (about −30 dBFS) on its exact frame, panned to where that device is on
+  screen. The bag sheet and the drawer each get a breath of air. Swells land on the cuts.
 
 ## Rebuilding it
 
-Needs Node with the repo's `node_modules` (`sharp`), `playwright-core` (link it into
-`node_modules` if it is installed globally), ffmpeg and Chromium (`CHROMIUM_PATH` if it
-is not at `/opt/pw-browsers/...`). WebGL runs on SwiftShader, so it renders the same on
-any machine, GPU or not.
+You need:
+- Node with the repo's `node_modules` (`sharp`, `playwright-core`);
+- Python 3 with numpy and scipy;
+- ffmpeg;
+- Chromium (`CHROMIUM_PATH` if it is not at `/opt/pw-browsers/...`).
 
 ```
-npm run build && npm run start                       # the storefront, for the captures
-node reel/showcase/tools/capture.mjs                 # page captures → assets/site
-node reel/showcase/tools/prepare.mjs                 # textures + brand paths → assets/tex, assets/brand.json
-node reel/showcase/tools/render.mjs --draft          # quick check, 1 sub-frame per frame
-node reel/showcase/tools/render.mjs                  # master, 5 sub-frames per frame (slow: about an hour per worker-pair)
-node reel/showcase/tools/deliver.mjs                 # → eternal-showcase.mp4, -web.mp4, -poster.jpg
+npm run build && npm run start                   # the storefront, on :3000
+node reel/showcase/tools/record.mjs --probe      # quick low-res pass: check positions, hovers, checks
+node reel/showcase/tools/record.mjs --force      # the takes, 120 Hz → assets/rec (about 5 min)
+node reel/showcase/tools/same.mjs                # which frames repeat (motion blur only where needed)
+node reel/showcase/tools/cue.mjs && python3 reel/showcase/music/score.py   # cue → score.wav
+node reel/showcase/tools/path.mjs                # camera in spec?
+node reel/showcase/tools/render.mjs --draft      # quick check
+node reel/showcase/tools/render.mjs              # master (about 7 min)
+node reel/showcase/tools/render.mjs --loop       # the loop variant's master
+node reel/showcase/tools/deliver.mjs             # → the MP4s and posters
 ```
 
-Shopify's image CDN is unreachable from the build environment, so `capture.mjs`
-answers product-image requests with the same product's own photograph from
-`public/images/products` (its notes still, else its lifestyle frame). Bracketed facts
-still to confirm are hidden in the captures.
+To check work:
+- `tools/preview.mjs --at 2,9.6,19.8 --debug` makes stills with the camera readout.
+- `--sheet 24` makes a contact sheet.
+- `--check 9` tests determinism.
 
-Checking work: `tools/preview.mjs --at 2,6.5,12` (full-size stills), `--sheet 24`
-(a contact sheet), `--check 7.3` (determinism: the same pixels after painting other
-frames). `tools/path.mjs` prints the camera's speed and turn rate for every second and
-the largest frame-to-frame changes, so a jolt in the path shows up as a number before
-anything is rendered. `tools/profile.mjs` times each render stage.
-
-The master renders in chunks when a long run is not practical, then joins without
-re-encoding:
-
-```
-node reel/showcase/tools/render.mjs --from 0 --to 10 --out reel/showcase/out/eternal-showcase-master-p1.mp4
-node reel/showcase/tools/render.mjs --from 10 --to 20 --out reel/showcase/out/eternal-showcase-master-p2.mp4
-node reel/showcase/tools/render.mjs --from 20 --to 30 --out reel/showcase/out/eternal-showcase-master-p3.mp4
-printf "file '%s'\n" eternal-showcase-master-p1.mp4 eternal-showcase-master-p2.mp4 eternal-showcase-master-p3.mp4 > reel/showcase/out/parts.txt
-ffmpeg -f concat -safe 0 -i reel/showcase/out/parts.txt -c copy -movflags +faststart reel/showcase/out/eternal-showcase-master.mp4
-```
-
-A fix to one moment only needs that moment rendered again, then spliced into the
-master frame-exact (and `deliver.mjs` run again):
+To fix one moment, render just that span and splice it into the master frame-exactly:
 
 ```
 node reel/showcase/tools/render.mjs --from 10.7 --to 13.6 --out reel/showcase/out/fix-master.mp4
 node reel/showcase/tools/splice.mjs reel/showcase/out/eternal-showcase-master.mp4 10.7:reel/showcase/out/fix-master.mp4
 ```
 
-## How it is made
+Shopify's image CDN is unreachable from the build environment. The recorder therefore
+answers each packshot with one of the product's own local photographs, chosen per take,
+so the desktop and the phone show the same still.
 
-- **One rule:** every frame is a pure function of time (`pose(t)` in `src/film.js`),
-  so frames render out of order, in parallel, and re-render identically.
-- **Render pipeline** (`src/pipeline.js`): each frame averages several sub-frames
-  across a 180° shutter (motion blur) with sub-pixel jitter (anti-aliasing). Each
-  sub-frame is the scene plus a half-resolution bokeh depth of field; bloom and the
-  grade (Khronos PBR Neutral tone mapping, so the page captures keep their colours,
-  vignette, grain, a touch of lateral chromatic aberration) run once on the average.
-- **Typography in the world** (`src/type3d.js`): each word or letter is a plane drawn
-  in the brand faces at its true advance, so lines can rise word by word, arrive out of
-  focus and catch a band of light without losing the face's spacing. Small type
-  (captions, cards) is DOM over the canvas, for crispness (`src/hud.js`).
-- **The bottle** (`src/brand3d.js`): lathed glass with a heavy base and transmission,
-  the juice, a lacquered dome cap and a wrap label drawn from the real logotype paths.
-- **The light**: a studio of softboxes for reflections (`src/atmos.js`), a key, a rim,
-  a band of light that signs the mark at the start and comes to rest on it at the end,
-  shafts and drifting motes that size their own bokeh.
+## Deliberate choices, and what to confirm before publishing
 
-## Deliberate choices
-
-- **Silent**: it reads without sound. If a bed is added, one beatless ambient piece,
-  mixed low, with a soft swell as the camera passes through the mark (3.6–4.6 s).
-- **The Seasons is Fontspring's demo build**, as on the site (`app/fonts.ts`): licence
-  the web/desktop font before publishing the film publicly, as for the site's launch.
-- **Prices appear only where the site shows them** (the captured pages); no claim on
-  screen that the site does not make.
+- **No other brand's name on screen.** The card line naming the fragrance a scent is
+  inspired by is hidden in the captures. Everything else is the site as built.
+- **No domain.** The address pill shows only the path and query, because the store is
+  not yet live on its own domain.
+- **Credit hygiene.** Orbit is credited for direction, wireframes, design system,
+  motion, front-end and Shopify integration. *Brand marks and photography: eternal.*
+- **To confirm:**
+  - The Seasons (the client's serif, visible inside every capture) is Fontspring's
+    evaluation build, as on the site. License it before the film is public.
+  - Confirm the Fontshare licences for General Sans and Cabinet Grotesk cover video.
+  - If Orbit has an SVG logo, it replaces the typeset signature at the same cap height
+    (`src/type.js`).

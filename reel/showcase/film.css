@@ -1,0 +1,66 @@
+/* The showcase film's stage: one Linen table, a browser window and a phone set on it,
+   the camera above. Overlay type is Orbit's voice, in two grotesks only: General Sans and
+   Cabinet Grotesk (Fontshare). The client's serif appears only inside the recorded pages. */
+@font-face { font-family: "Cabinet Grotesk"; src: url("../../app/fonts/cabinet-grotesk/CabinetGrotesk-Regular.woff2") format("woff2"); font-weight: 400; }
+@font-face { font-family: "General Sans"; src: url("../../app/fonts/general-sans/GeneralSans-Regular.woff2") format("woff2"); font-weight: 400; }
+
+:root {
+  --linen: #f3efe7; --paper: #faf8f3; --sand: #e4d9c5; --dune: #cdbfa5; --stone: #9e9382; --ash: #5f584f;
+  --night: #171614; --gold: #b97a2b; --gold-text: #8f5b1b;
+  --sub: "Cabinet Grotesk", system-ui, sans-serif;
+  --sans: "General Sans", system-ui, sans-serif;
+}
+html, body { margin: 0; background: var(--linen); overflow: hidden; }
+#stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--linen); font-family: var(--sans); font-weight: 400; color: var(--night); -webkit-font-smoothing: antialiased; font-synthesis: none; }
+#stage * { box-sizing: border-box; }
+.abs { position: absolute; left: 0; top: 0; }
+
+/* ── the table and the camera ── */
+.world { position: absolute; left: 0; top: 0; width: 1px; height: 1px; transform-origin: 0 0; }
+/* A broad Paper falloff from the upper left, fixed to the table: camera moves reveal a surface, not a fill. */
+.table { position: absolute; left: -4000px; top: -3000px; width: 10000px; height: 8000px; background: radial-gradient(1500px 1100px at 4300px 3080px, rgba(250, 248, 243, 0.75), rgba(250, 248, 243, 0.32) 45%, rgba(250, 248, 243, 0) 100%); }
+
+/* ── browser window: 1134 × 748.75, chrome 40, the page at 1440 × 900 css × 0.7875 ── */
+.browser { position: absolute; left: 120px; top: 281px; width: 1134px; height: 748.75px; border-radius: 12px; background: var(--paper); overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(23, 22, 20, 0.1), 4px 1px 2px rgba(23, 22, 20, 0.1), 4px 10px 24px rgba(23, 22, 20, 0.07), 4px 34px 70px -14px rgba(23, 22, 20, 0.16); }
+.browser .bar { position: absolute; left: 0; top: 0; width: 100%; height: 40px; background: var(--paper); border-bottom: 1px solid var(--sand); }
+.browser .dot { position: absolute; top: 15px; width: 10px; height: 10px; border-radius: 50%; background: var(--dune); }
+.browser .pill { position: absolute; left: 340px; top: 7px; width: 454px; height: 26px; border-radius: 6px; background: var(--linen); border: 1px solid var(--sand); display: flex; align-items: center; padding: 0 14px 0 12px; gap: 8px; }
+.browser .pill svg { flex: none; }
+.browser .pill span { flex: 1; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font: 400 14px/1 var(--sans); color: var(--ash); letter-spacing: 0.005em; text-align: center; padding-right: 22px; }
+.browser .view { position: absolute; left: 0; top: 40px; width: 1134px; height: 708.75px; overflow: hidden; background: var(--linen); }
+
+/* ── phone: 418 × 919 css, placed at 0.94; generic, no notch, no logo, no buttons ── */
+.phone { position: absolute; left: 1407px; top: 166px; width: 418px; height: 919px; transform-origin: 0 0; border-radius: 58px; background: var(--night);
+  box-shadow: 4.26px 2.13px 3.19px rgba(23, 22, 20, 0.14), 4.26px 14.9px 29.8px rgba(23, 22, 20, 0.1), 4.26px 46.8px 85.1px -17px rgba(23, 22, 20, 0.2); }
+.phone .rim { position: absolute; inset: 0; border-radius: 58px; padding: 1.5px; background: linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.04));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.phone .glass { position: absolute; left: 14px; top: 14px; width: 390px; height: 891px; border-radius: 44px; overflow: hidden; background: var(--linen); }
+.phone .status { position: absolute; left: 0; top: 0; width: 390px; height: 47px; display: flex; align-items: center; justify-content: space-between; padding: 6px 30px 0 34px; }
+.phone .status .time { font: 400 15px/1 var(--sans); letter-spacing: 0.01em; }
+.phone .status .icons { display: flex; align-items: center; gap: 6px; }
+.phone .cam { position: absolute; left: 190px; top: 18px; width: 10px; height: 10px; border-radius: 50%; background: #0b0a09; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06); }
+.phone .view { position: absolute; left: 0; top: 47px; width: 390px; height: 844px; overflow: hidden; }
+
+.scr { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; }
+
+/* ── input marks: the only things drawn over the site ── */
+.cursor { position: absolute; left: 0; top: 0; width: 24px; height: 24px; overflow: visible; filter: drop-shadow(0 1px 1px rgba(23, 22, 20, 0.28)); }
+.touch { position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: rgba(23, 22, 20, 0.14); box-shadow: inset 0 0 0 1.5px rgba(23, 22, 20, 0.25); }
+
+/* ── type: screen space, above the table ── */
+.type { position: absolute; left: 0; top: 0; white-space: pre; }
+.t-label { font: 400 20px/1 var(--sub); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ash); }
+.t-label b { font-weight: 400; color: var(--gold-text); }
+.t-statement { font: 400 56px/62px var(--sans); letter-spacing: -0.015em; color: var(--night); }
+.t-synced { font: 400 30px/40px var(--sans); color: var(--night); }
+.t-synced i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); margin-right: 14px; vertical-align: middle; position: relative; top: -3px; }
+.t-chip { font: 400 18px/1 var(--sub); letter-spacing: 0.14em; text-transform: uppercase; color: var(--night); background: var(--paper); border: 1px solid var(--dune); padding: 8px 12px 7px; }
+.t-credit { font: 400 40px/48px var(--sans); color: var(--night); }
+.t-signature { font: 400 144px/1 var(--sans); letter-spacing: -0.03em; color: var(--night); }
+.t-services { font: 400 24px/34px var(--sans); color: var(--ash); }
+.t-stack { font: 400 18px/1 var(--sub); letter-spacing: 0.16em; text-transform: uppercase; color: var(--ash); }
+.t-fine { font: 400 16px/1 var(--sans); color: var(--ash); }
+.rule { position: absolute; left: 0; top: 0; height: 1px; background: var(--dune); }
+
+#debug { position: absolute; right: 12px; bottom: 10px; z-index: 99; font: 13px/1.2 monospace; color: #0a0; background: rgba(255, 255, 255, 0.8); padding: 2px 6px; }

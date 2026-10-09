@@ -1,6 +1,5 @@
 // A static server rooted at the repository, so the showcase reads the site's own
-// fonts (app/fonts), photographs (public/images) and the direction film's
-// Cormorant files (reel/fonts) without copying them.
+// fonts (app/fonts) without copying them, and the recorded takes (assets/rec).
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
@@ -26,8 +25,6 @@ export function serve(root = ROOT) {
 }
 
 export const CHROMIUM = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
-// WebGL through ANGLE on SwiftShader: the same software rasteriser on every machine, so frames match.
-export const CHROMIUM_ARGS = ["--use-angle=swiftshader", "--enable-unsafe-swiftshader", "--ignore-gpu-blocklist", "--disable-gpu-vsync"];
 
 /** Open the showcase in a page and wait until it is ready. Throws the film's own error if it fails. */
 export async function openShowcase(browser, base, query = "") {

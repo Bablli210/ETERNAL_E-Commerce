@@ -51,10 +51,14 @@ next-env.d.ts
 # Built dashboard page (docs/analytics/dashboard/build.py)
 docs/analytics/dashboard/eternal-performance.html
 
-# showcase reel: page captures and render scratch (rebuild with reel/showcase/tools/capture.mjs)
+# showcase film: recorded takes and render scratch (rebuild with reel/showcase/tools/record.mjs, render.mjs)
 /reel/showcase/assets/
 /reel/showcase/out/.segments/
 /reel/showcase/out/*draft*.mp4
 /reel/showcase/out/*master*.mp4
 /reel/showcase/out/parts.txt
+# the score's renders (rebuild with reel/showcase/music/score.py)
+/reel/showcase/out/*.wav
+/reel/showcase/out/stems/
+/reel/showcase/out/score*.png
 /reel/showcase/review/

@@ -1,37 +1,41 @@
-// The camera path's speed, frame by frame: linear speed (world units/s) and turn rate
-// (degrees/s), with the biggest frame-to-frame changes, so a jolt shows up as a number.
+// Checks the camera before anything is rendered: screen speed, lean, and that velocity is
+// continuous everywhere except at the three cuts.
 //   node reel/showcase/tools/path.mjs
-import { chromium } from "playwright-core";
-import { serve, openShowcase, CHROMIUM, CHROMIUM_ARGS } from "./serve.mjs";
+import { camera, CUTS } from "../src/camera.js";
 
-const server = await serve();
-const browser = await chromium.launch({ executablePath: CHROMIUM, args: CHROMIUM_ARGS });
-try {
-  const { page } = await openShowcase(browser, server.url);
-  const rows = await page.evaluate(() => {
-    const { fps, duration, probe } = window.__film;
-    const out = [];
-    for (let f = 0; f <= Math.round(duration * fps); f++) out.push(probe(f / fps));
-    return out;
-  });
-  const fps = 30;
-  const sp = [], tr = [];
-  for (let i = 1; i < rows.length; i++) {
-    const a = rows[i - 1], b = rows[i];
-    sp.push(Math.hypot(b.p[0] - a.p[0], b.p[1] - a.p[1], b.p[2] - a.p[2]) * fps);
-    const dot = Math.min(1, a.d[0] * b.d[0] + a.d[1] * b.d[1] + a.d[2] * b.d[2]);
-    tr.push((Math.acos(dot) * 180) / Math.PI * fps);
-  }
-  const line = [];
-  for (let s = 0; s < 30; s++) {
-    const seg = (arr) => Math.max(...arr.slice(s * fps, (s + 1) * fps));
-    line.push(`${String(s).padStart(2)}s  speed ${seg(sp).toFixed(2).padStart(5)} u/s  turn ${seg(tr).toFixed(1).padStart(5)} °/s`);
-  }
-  console.log(line.join("\n"));
-  const jerk = (arr) => arr.slice(1).map((v, i) => ({ f: i + 1, d: Math.abs(v - arr[i]) })).sort((x, y) => y.d - x.d).slice(0, 5);
-  console.log("largest speed changes (u/s per frame):", jerk(sp).map((j) => `${(j.f / fps).toFixed(2)}s:${j.d.toFixed(3)}`).join("  "));
-  console.log("largest turn changes (°/s per frame):", jerk(tr).map((j) => `${(j.f / fps).toFixed(2)}s:${j.d.toFixed(2)}`).join("  "));
-} finally {
-  await browser.close();
-  server.close();
+const FPS = 120, END = 30;
+// The picture's speed: how fast table points under the frame's centre and corners move on screen.
+const pts = [[960, 540], [0, 0], [1920, 0], [0, 1080], [1920, 1080]];
+const table = (c, [x, y]) => [(x - 960) / c.k + c.cx, (y - 540) / c.k + c.cy];
+const screen = (c, [x, y]) => [960 + c.k * (x - c.cx), 540 + c.k * (y - c.cy)];
+const speedAt = (t, h = 1 / FPS) => {
+  const a = camera(t), b = camera(t + h);
+  return Math.max(...pts.map((p) => { const q = table(a, p), r = screen(b, q); return Math.hypot(r[0] - p[0], r[1] - p[1]) / h; }));
+};
+const isCut = (t, h) => CUTS.some((c) => t < c && t + h >= c);
+
+let maxSpeed = 0, maxSpeedAt = 0, maxLean = 0, maxLeanAt = 0, worstJump = 0, worstJumpAt = 0;
+let restLean = 0;
+const perSecond = [];
+for (let i = 0; i < END * FPS; i++) {
+  const t = i / FPS;
+  const c = camera(t);
+  if (isCut(t, 1 / FPS) || isCut(t - 1 / FPS, 1 / FPS) || isCut(t + 1 / FPS, 1 / FPS)) continue;
+  const v = speedAt(t);
+  if (v > maxSpeed) { maxSpeed = v; maxSpeedAt = t; }
+  if (Math.abs(c.lean) > maxLean) { maxLean = Math.abs(c.lean); maxLeanAt = t; }
+  if (v < 20) restLean = Math.max(restLean, Math.abs(c.lean));
+  // Acceleration in screen px/s²: a jump in velocity shows as a spike.
+  const jump = Math.abs(speedAt(t + 1 / FPS) - v) * FPS;
+  if (jump > worstJump) { worstJump = jump; worstJumpAt = t; }
+  const s = Math.floor(t);
+  perSecond[s] = Math.max(perSecond[s] ?? 0, v);
 }
+console.log("max picture speed per second (px/s):");
+console.log(perSecond.map((v, s) => `${String(s).padStart(2)}s ${v.toFixed(0).padStart(5)} ${"#".repeat(Math.round(v / 40))}`).join("\n"));
+console.log(`\nmax speed ${maxSpeed.toFixed(0)} px/s at ${maxSpeedAt.toFixed(3)} s (limit 1500)`);
+console.log(`max lean ${maxLean.toFixed(2)}° at ${maxLeanAt.toFixed(3)} s (limit 2); lean while at rest ${restLean.toFixed(3)}°`);
+console.log(`largest acceleration ${worstJump.toFixed(0)} px/s² at ${worstJump ? worstJumpAt.toFixed(3) : "-"} s (cuts excluded: ${CUTS.join(", ")})`);
+const ok = maxSpeed <= 1500 && maxLean <= 2.0001 && restLean < 0.05;
+console.log(ok ? "camera: ok" : "camera: OUT OF SPEC");
+process.exitCode = ok ? 0 : 1;
