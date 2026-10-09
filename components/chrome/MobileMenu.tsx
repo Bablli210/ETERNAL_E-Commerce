@@ -84,9 +84,16 @@ export function MobileMenu({ onClose, counts, box }: { onClose: () => void; coun
                 follow={follow}
                 thumb={<Image src="/images/mystery-box.jpg" alt="" fill sizes="44px" className="object-cover" />}
                 title="Mystery box"
-                sub={`Three ${site.sampleSizeMl} ml samples · ${formatMoney(box.price)}`}
+                sub={`Three ${site.sampleSizeMl} ml samples · ${box.bottle?.availableForSale ? formatMoney(box.price) : "out of stock for now"}`}
               />
             )}
+            <Row
+              href="/shop/originals"
+              follow={follow}
+              thumb={<Image src="/images/products/hundred-whispers-3.jpg" alt="" fill sizes="44px" className="object-cover" />}
+              title="Eternal Originals"
+              sub="Five scents composed by the house"
+            />
             <Row
               href="/finder"
               follow={follow}

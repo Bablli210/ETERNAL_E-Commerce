@@ -26,3 +26,15 @@ export function InspiredBy({
     </Tag>
   );
 }
+
+/**
+ * Where an inspired scent names its original, one of the Eternal Originals says it is the house's own:
+ * the same small capital label, so the row reads the same on every card.
+ */
+export function EternalOriginal({ as: Tag = "p", className = "" }: { as?: ElementType; className?: string }) {
+  return (
+    <Tag className={className}>
+      <span className="inspired-label">Eternal Original</span>
+    </Tag>
+  );
+}

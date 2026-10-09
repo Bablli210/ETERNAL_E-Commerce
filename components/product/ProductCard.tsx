@@ -5,7 +5,7 @@ import { Price } from "@/components/ui/Primitives";
 import { formatMoney, joinNotes } from "@/lib/format";
 import { analyticsItem } from "./analytics-item";
 import { CardLink } from "./CardLink";
-import { InspiredBy } from "./InspiredBy";
+import { EternalOriginal, InspiredBy } from "./InspiredBy";
 import { LineLabel } from "./LineLabel";
 import { ProductImage } from "./ProductImage";
 
@@ -59,6 +59,7 @@ export function ProductCard({
           </CardLink>
         </h3>
         {entry.inspiredBy && <InspiredBy name={entry.inspiredBy} className="text-[13px] leading-snug text-ash lg:text-[14px]" />}
+        {entry.isOriginal && <EternalOriginal className="text-[13px] leading-snug text-ash lg:text-[14px]" />}
         {entry.notesShort.length > 0 && <p className="line-clamp-2 text-[13px] leading-snug text-ash">{joinNotes(entry.notesShort.slice(0, 3))}</p>}
         <Price money={entry.price} className="mt-1 whitespace-nowrap text-[15px] font-medium" />
         <div className="card-actions relative z-[2] mt-auto flex flex-col pt-3">

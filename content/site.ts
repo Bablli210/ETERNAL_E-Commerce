@@ -22,7 +22,7 @@ export const site = {
   locale: "en-EG",
 
   /** One confirmed offer for the bar above the header, matched to the running ads. */
-  announcement: "Free delivery on orders over EGP 2,200",
+  announcement: "Free delivery on orders over EGP 2,190",
   /**
    * The free 5 ml that ships with each bottle, so the customer tries another
    * scent. Shown in the hero, on a bottle's buy box and in the bag (one per
@@ -40,10 +40,11 @@ export const site = {
   deliveryIncluded: false as boolean | null,
   /**
    * Free delivery from this bag subtotal, in EGP. It must match the free rate
-   * in Shopify's shipping settings (minimum order price 2,200). null hides the
-   * bag meter and every free-delivery line.
+   * in Shopify (the automatic discount "Free delivery over EGP …", minimum
+   * subtotal 2,190; the announcement above says the same). null hides the bag
+   * meter and every free-delivery line.
    */
-  freeShippingThreshold: 2200 as number | null,
+  freeShippingThreshold: 2190 as number | null,
   /** Couriers deliver Sunday to Thursday; Friday and Saturday are off. */
   deliveryTime: "within 2 working days, Sunday to Thursday",
   /** Unopened bottles only, so a return can be resold. */
@@ -100,6 +101,7 @@ export const footerColumns = [
       { label: "For her", line: "eterna", href: "/shop/her" },
       { label: "For him", line: "eterno", href: "/shop/him" },
       { label: "Unisex", line: "eternal", href: "/shop/unisex" },
+      { label: "Eternal Originals", href: "/shop/originals" },
       { label: "Mystery box", href: "/products/mystery-box" },
       { label: "Find your scent", href: "/finder" },
       { label: "Where to start", href: "/shop/bestsellers" },

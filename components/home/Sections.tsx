@@ -5,10 +5,10 @@ import { Eyebrow, Price } from "@/components/ui/Primitives";
 import { Figure } from "@/components/ui/Figure";
 import { Icon } from "@/components/ui/Icon";
 import { ProductCard } from "@/components/product/ProductCard";
-import { AddToBagButton } from "@/components/cart/AddToBagButton";
 import { site } from "@/content/site";
 import { confirmed, facts } from "@/lib/facts";
-import { families, familyOrder, familyStills, lines, type LineKey } from "@/content/taxonomy";
+import { families, familyOrder, familyStills, lines, ORIGINALS_DESCRIPTOR, type LineKey } from "@/content/taxonomy";
+import { occasionOrder, occasions, type OccasionKey } from "@/content/occasions";
 import { tales } from "@/content/tales";
 import type { Scent, ScentIndexEntry } from "@/lib/catalogue";
 import type { Money } from "@/lib/shopify/types";
@@ -233,6 +233,77 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
 }
 
 /**
+ * The Eternal Originals: the five scents the house composed with no original
+ * behind them. The section's own tile leads the grid, so five cards and the
+ * tile fill two rows on a phone and on a laptop alike.
+ */
+export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
+  if (!entries.length) return null;
+  return (
+    <section className="py-10 lg:py-24">
+      <div className="wrap">
+        <HomeHead title="Eternal Originals" sub={ORIGINALS_DESCRIPTOR} action={{ label: `Shop all ${entries.length}`, href: "/shop/originals" }} />
+        <SelectList list="home_originals" items={entries.map(listItem)} className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-12 lg:grid-cols-3 lg:gap-x-6">
+          <Link href="/shop/originals" className="watermark relative flex aspect-square flex-col justify-end overflow-hidden bg-night p-4 text-linen lg:p-8">
+            <span className="eyebrow relative text-[12px] text-linen/80">Composed by the house</span>
+            <span className="serif relative mt-2 text-[24px] leading-[1.1] lg:text-[40px]">{entries.length === 5 ? "Five" : entries.length} scents that are ours alone</span>
+            <span className="relative mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold">
+              <span className="lnk">Shop the originals</span>
+              <Icon name="arrow-right" size={16} />
+            </span>
+          </Link>
+          {entries.map((e) => {
+            // As in Where to start: the scent among its notes leads; the bottle comes in on hover.
+            const notes = siteImage(`products/${e.handle}-3`);
+            const card = notes && notes !== e.image ? { ...e, image: notes, hoverImage: e.image } : e;
+            return <ProductCard key={e.handle} entry={card} badge={e.isNew ? "New" : false} sizes="(min-width: 1024px) 33vw, 50vw" />;
+          })}
+        </SelectList>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Shop by occasion: five occasions, each a collection of hand-picked scents
+ * (content/occasions.ts), laid out like Shop by scent. Off until the owner
+ * approves the lists.
+ */
+export function OccasionTiles({ counts }: { counts: Record<OccasionKey, number> }) {
+  return (
+    <section className="py-10 lg:py-24">
+      <div className="wrap">
+        <HomeHead title="Shop by occasion" sub="Start from where you are going." />
+        <ul className="mt-6 grid grid-cols-2 gap-x-2 gap-y-5 lg:mt-12 lg:grid-cols-5 lg:gap-x-6">
+          {occasionOrder.map((k, i) => {
+            const o = occasions[k];
+            return (
+              <li key={k} className={i === 0 ? "col-span-2 lg:col-span-1" : undefined}>
+                <Link href={`/shop/${k}`} className="group block">
+                  <div className={`relative overflow-hidden ${i === 0 ? "aspect-[2/1] lg:aspect-[3/4]" : "aspect-square lg:aspect-[3/4]"}`} style={{ backgroundColor: o.world.bg }}>
+                    <Figure
+                      name={o.still}
+                      label={`${o.label} — still`}
+                      sizes="(min-width: 1024px) 20vw, 50vw"
+                      className="absolute inset-0"
+                      imageClassName="hover-lift"
+                      placeholderClassName="slot-corner !border-0 opacity-80"
+                      style={{ backgroundColor: o.world.bg }}
+                    />
+                  </div>
+                  <span className="u-draw serif mt-2 inline-block text-[19px] leading-tight lg:mt-3 lg:text-[28px]">{o.label}</span>
+                  {counts[k] > 0 && <span className="mt-0.5 block text-[12px] text-ash">{counts[k]} scents</span>}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+/**
  * Two ways to lower the risk of a first order: the mystery box, added to the
  * bag right here, and the finder. The finder only promises a 5 ml trio when
  * every scent really has a 5 ml to add.
@@ -256,21 +327,18 @@ export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryB
               <div className="flex flex-col py-1">
                 <h3 className="display-m">The mystery box</h3>
                 <p className="mt-2 text-[14px] leading-snug text-ash lg:text-[15px]">
-                  Three {ml(site.sampleSizeMl)} scents chosen by the house, in a matte black box. For the curious, and for gifts.
+                  Three {ml(site.sampleSizeMl)} scents for him or for her, chosen by the house, in a matte black box. For the curious, and for gifts.
                 </p>
-                <Price money={box.price} className="mt-auto pt-3 text-[16px] font-semibold" />
+                {box.bottle.availableForSale ? (
+                  <Price money={box.price} className="mt-auto pt-3 text-[16px] font-semibold" />
+                ) : (
+                  <p className="mt-auto pt-3 text-[14px] text-ash">For him and for her: out of stock for now.</p>
+                )}
               </div>
               <div className="col-span-2 mt-3 flex flex-col lg:mt-6">
-                <AddToBagButton
-                  source="home"
-                  variant={box.bottle}
-                  product={{ productId: box.productId, handle: box.handle, title: box.title, image: box.image, lineLabel: box.lineLabel, world: box.world }}
-                  kind="set"
-                  block
-                  label={`Add the mystery box · ${formatMoney(box.price)}`}
-                />
-                <Link href={`/products/${box.handle}`} className="mt-1 inline-flex min-h-11 items-center justify-center text-[13px] font-semibold">
-                  <span className="lnk">What’s inside</span>
+                {/* The box comes for him or for her: the choice is made on its page, so the button goes there. */}
+                <Link href={`/products/${box.handle}`} className="btn btn-block">
+                  {box.bottle.availableForSale ? `Choose your box · ${formatMoney(box.price)}` : "See the box"}
                 </Link>
               </div>
             </article>
