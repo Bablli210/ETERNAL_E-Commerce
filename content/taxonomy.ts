@@ -101,7 +101,7 @@ export const collections: CollectionDef[] = [
   { slug: "new", kind: "new", title: "New arrivals", descriptor: "The latest compositions to join the house." },
   { slug: "originals", kind: "originals", title: "Eternal Originals", descriptor: ORIGINALS_DESCRIPTOR },
   ...familyOrder.map((k) => ({ slug: k, kind: "family" as const, key: k, title: families[k].label, descriptor: families[k].descriptor })),
-  // Shop by occasion, once the owner has approved its lists (content/occasions.ts).
+  // Shop by occasion (content/occasions.ts), while occasionsLive is on.
   ...(occasionsLive ? occasionOrder.map((k) => ({ slug: k, kind: "occasion" as const, key: k, title: occasions[k].label, descriptor: occasions[k].descriptor })) : []),
 ];
 

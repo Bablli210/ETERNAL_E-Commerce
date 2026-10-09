@@ -266,8 +266,7 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
 
 /**
  * Shop by occasion: five occasions, each a collection of hand-picked scents
- * (content/occasions.ts), laid out like Shop by scent. Off until the owner
- * approves the lists.
+ * (content/occasions.ts), laid out like Shop by scent.
  */
 export function OccasionTiles({ counts }: { counts: Record<OccasionKey, number> }) {
   return (

@@ -1,17 +1,16 @@
 /**
  * Shop by occasion: five occasions, each a hand-picked list of scents (by
- * Shopify handle). The lists are a proposal drawn from each scent's notes and
+ * Shopify handle), approved by the owner in October 2026, drawn from each scent's notes and
  * tags (the finder's time of day and places): warm amber, vanilla and smoke for
  * a date; clean musks and soft woods for every day; the scents that project for
  * an event; citrus and green notes outdoors; sea salt and tropical fruit by the
  * water. A scent may sit in two occasions.
  *
- * `occasionsLive` stays false until the owner approves the lists: until then no
- * page, menu link or home section shows them.
+ * `occasionsLive` switches the pages, menu links and home section on or off.
  */
 export type OccasionKey = "date" | "everyday" | "event" | "outdoors" | "beach-side";
 
-export const occasionsLive = false;
+export const occasionsLive = true;
 
 export const occasions: Record<OccasionKey, { key: OccasionKey; label: string; descriptor: string; still: string[]; world: { bg: string; accent: string; dark: boolean }; handles: string[] }> = {
   date: {

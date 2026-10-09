@@ -26,7 +26,7 @@ const lists = [
     title: "By scent",
     links: familyOrder.map((k) => ({ label: families[k].label, href: `/shop/${k}` })),
   },
-  // Shop by occasion, once the owner approves its lists (content/occasions.ts).
+  // Shop by occasion (content/occasions.ts).
   ...(occasionsLive ? [{ title: "By occasion", links: occasionOrder.map((k) => ({ label: occasions[k].label, href: `/shop/${k}` })) }] : []),
   {
     title: "Start here",
