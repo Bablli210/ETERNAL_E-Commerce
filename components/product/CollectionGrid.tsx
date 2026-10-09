@@ -216,6 +216,7 @@ export function CollectionGrid({
   eyebrow,
   banner,
   bannerSide = "left",
+  bannerWhole = false,
   initial = defaultGridState,
   promo,
   lineCounts,
@@ -238,6 +239,8 @@ export function CollectionGrid({
   banner?: ReactNode;
   /** Where the band's words sit from lg: left of a still whose subject stands right, or right of one whose subject stands left. */
   bannerSide?: "left" | "right";
+  /** The band takes its still's own 7:3 shape, so the whole still shows (taller than the usual band). */
+  bannerWhole?: boolean;
   /** The state the server rendered from the URL; every collection page renders per request. */
   initial?: GridState;
   /** The mystery box, offered inside the grid as the low-risk first order. */
@@ -489,7 +492,7 @@ export function CollectionGrid({
               it starts only where the still's subject ends, at 46% from the left; on a phone, where the words have to sit
               over that subject, it is deeper. */}
           <div className={`absolute inset-0 bg-gradient-to-r from-night/60 via-night/20 to-transparent ${bannerSide === "right" ? "max-md:from-night/80 max-md:via-night/60 max-md:to-night/20 md:bg-[linear-gradient(to_left,rgba(23,22,20,0.6)_0%,rgba(23,22,20,0.5)_50%,transparent_54%)]" : ""}`} aria-hidden="true" />
-          <div className={`relative flex min-h-[160px] flex-col justify-between gap-3 px-5 py-3.5 lg:min-h-[400px] lg:p-10 ${bannerSide === "right" ? "md:pl-[48%] lg:pl-[48%]" : ""}`}>
+          <div className={`relative flex min-h-[160px] flex-col justify-between gap-3 px-5 py-3.5 lg:min-h-[400px] lg:p-10 ${bannerSide === "right" ? "md:pl-[48%] lg:pl-[48%]" : ""} ${bannerWhole ? "aspect-[7/3]" : ""}`}>
             <div>
               {eyebrow && <p className="eyebrow text-[12px] text-linen/80">{eyebrow}</p>}
               {/* On the right half the title keeps one line: smaller until there is room for 64 px. */}

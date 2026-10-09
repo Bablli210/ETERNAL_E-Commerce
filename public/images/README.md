@@ -37,7 +37,7 @@ yet shows its colour world and the e∞ mark on every card.
 | File | Used for |
 | --- | --- |
 | `collection-her`, `collection-him`, `collection-unisex` | The band at the top of `/shop/her`, `/shop/him` and `/shop/unisex`, behind the title and the search. 2400 × 1029 (7:3): keep the left half dark and empty for the type, the subject right of centre. It is about 160 px tall on a phone, so the subject must read small |
-| `originals-band` | Also the band at the top of `/shop/originals` (see Home page): its bottles stand left, so there the words take the right half from 1024 px. `collection-originals` is no longer shown |
+| `collection-originals` | The band at the top of `/shop/originals`: the originals on driftwood (7:3, 2688 × 1152), shown whole (the band takes its shape). Its bottles stand on the left, so from 768 px the words take the right half |
 
 ## Home page
 
@@ -47,7 +47,7 @@ yet shows its colour world and the e∞ mark on every card.
 | `home-hero-mobile` | The phone crop of that poster (3:4, the centre of the frame, 1080 × 1440), with `videos/home-hero-mobile` |
 | `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles (4:5 crop of the owner's 3:4 veil portraits) |
 | `occasion-date`, `occasion-everyday`, `occasion-event`, `occasion-outdoors`, `occasion-beach-side` | The five "Shop by occasion" tiles (3:4; the first is cut 2:1 and the rest square on phones) |
-| `originals-band` | The Eternal Originals band (7:3, 2688 × 1152): shown whole at the band's foot on a wide screen, its top edge drawn out above it; covering the band on a phone |
+| `originals-band` | The Eternal Originals band behind the five original scents (7:3, 2688 × 1152): a woman with a bottle's shadow across her face, covering the band. Keep its left third dark for the heading |
 | `family-fresh`, `family-woody`, `family-amber-spice`, `family-floral`, `family-gourmand`, `family-aquatic` | The six "Shop by scent" tiles (4:3; cropped square on phones), and the finder's notes question. All six are the owner's stills |
 | `finder-band` | Scent finder band |
 | `tale-featured` | Featured tale still. Used when the tale has no `tale-<slug>-card` |

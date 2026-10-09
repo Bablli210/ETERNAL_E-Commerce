@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ collectio
     def.kind === "line"
       ? siteImage([`collection-${def.slug}`, `line-${def.key}`])
       : def.kind === "originals"
-        ? siteImage("originals-band")
+        ? siteImage(`collection-${def.slug}`)
         : def.kind === "mood"
           ? siteImage(`mood-${def.key}`)
           : null;

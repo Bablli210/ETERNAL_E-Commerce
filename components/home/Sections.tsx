@@ -282,7 +282,7 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
 /**
  * The Eternal Originals: the five scents the house composed with no original
  * behind them, on a band of their own so they stand apart from the rest of
- * the page: the originals on driftwood (originals-band), or Night without it.
+ * the page: a woman with a bottle's shadow across her face (originals-band), or Night without it.
  * Each card is a linen panel with its picture to the edges; on a phone the
  * first leads full width and the other four follow two by two.
  */
@@ -293,17 +293,9 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
     <section aria-labelledby="originals-title" className={`relative overflow-hidden bg-night py-12 text-linen lg:py-28 ${photo ? "" : "watermark grain"}`}>
       {photo && (
         <>
-          {/* On a phone the band is far taller than the photograph, so the photograph covers it. From lg it shows whole
-              (7:3, full width up to 2100 px, about the band's height) at the band's foot, and above it the wall goes on:
-              the photograph's top edge drawn out to the band's top and softened, so no part of it is cropped away. Wider
-              than 2100 px both fade at their sides into Night. All three are one file. */}
-          <Image src={photo} alt="" fill sizes="100vw" className="object-cover object-[25%_50%] lg:hidden" />
-          <div aria-hidden="true" className="absolute inset-x-0 top-0 hidden h-full overflow-hidden lg:block min-[2100px]:inset-x-[calc(50%-1050px)] min-[2100px]:[mask-image:linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)]">
-            <Image src={photo} alt="" fill sizes="100vw" className="origin-top scale-y-[14] object-fill blur-xl" />
-          </div>
-          <div className="absolute bottom-0 left-1/2 hidden aspect-[7/3] w-full max-w-[2100px] -translate-x-1/2 [mask-image:linear-gradient(to_bottom,transparent,#000_16%)] lg:block min-[2100px]:[mask-composite:intersect] min-[2100px]:[mask-image:linear-gradient(to_bottom,transparent,#000_16%),linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)]">
-            <Image src={photo} alt="" fill sizes="100vw" className="object-cover" />
-          </div>
+          {/* The photograph covers the band: its left third is near black, so the heading sits there, and the face with
+              the bottle's shadow across it stands right of centre (on a phone's tall band, a slice through the shadow). */}
+          <Image src={photo} alt="" fill sizes="100vw" className="object-cover object-[60%_30%]" />
           {/* Only a whisper of Night over the photograph; the heading brings its own soft shade (below). */}
           <div aria-hidden="true" className="absolute inset-0" style={{ backgroundImage: "linear-gradient(to bottom, rgba(23, 22, 20, 0.3) 0%, rgba(23, 22, 20, 0.12) clamp(260px, 52%, 520px), rgba(23, 22, 20, 0.1) 75%, rgba(23, 22, 20, 0.25) 100%)" }} />
         </>
@@ -311,7 +303,7 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
       <div className="wrap relative">
         <div className="flex items-end justify-between gap-4">
           <div className="relative max-w-[640px]">
-            {/* A soft cloud of Night behind the words alone, so they read over the bottles and the bright wall. */}
+            {/* A soft cloud of Night behind the words alone, so they read wherever the photograph is bright. */}
             {photo && <div aria-hidden="true" className="absolute -inset-x-16 -inset-y-14 rounded-[48px] bg-night/70 blur-xl" />}
             {/* Gold needs near black to read; over the photograph the eyebrow takes Dune, like the line under the title. */}
             <p className={`eyebrow relative text-[12px] ${photo ? "text-dune" : "text-gold"}`}>Only at eternal</p>
@@ -322,9 +314,11 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
               {ORIGINALS_DESCRIPTOR} {entries.length === 5 ? "Five" : entries.length} scents that are ours alone.
             </p>
           </div>
-          <Link href="/shop/originals" className="-mb-3 inline-flex min-h-11 shrink-0 items-center gap-1.5 text-[13px] font-semibold text-linen">
-            <span className="lnk">Shop all {entries.length}</span>
-            <Icon name="arrow-right" size={16} />
+          <Link href="/shop/originals" className="relative -mb-3 inline-flex min-h-11 shrink-0 items-center gap-1.5 text-[13px] font-semibold text-linen">
+            {/* Over the photograph the link can fall on the lit cheek: a small soft cloud of Night of its own. */}
+            {photo && <span aria-hidden="true" className="absolute -inset-x-4 inset-y-1 rounded-full bg-night/60 blur-md" />}
+            <span className="lnk relative">Shop all {entries.length}</span>
+            <Icon name="arrow-right" size={16} className="relative" />
           </Link>
         </div>
         <SelectList list="home_originals" items={entries.map(listItem)} className="mt-8 grid grid-cols-2 gap-3 lg:mt-12 lg:grid-cols-5 lg:gap-5">
