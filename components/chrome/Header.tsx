@@ -143,7 +143,8 @@ export function Header({
             transparent ? "border-transparent bg-transparent text-linen" : "border-dune bg-linen text-night"
           }`}
         >
-          <div className="wrap grid h-full grid-cols-[1fr_auto_1fr] items-center max-lg:px-2">
+          {/* Over the hero, a faint line under the bar from the first link to the bag, the width of what it underlines. */}
+          <div className={`wrap relative grid h-full grid-cols-[1fr_auto_1fr] items-center max-lg:px-2 ${transparent ? "after:pointer-events-none after:absolute after:inset-x-2 after:bottom-0 after:h-px after:bg-linen/35 lg:after:inset-x-20" : ""}`}>
             {/* The links run the header's full height, so the active and hover line sits on its bottom edge. */}
             <nav aria-label="Primary" className="hidden gap-7 self-stretch lg:flex">
               {nav.map((item) => {

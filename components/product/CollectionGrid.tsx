@@ -149,7 +149,7 @@ function BoxTile({ box }: { box: ScentIndexEntry }) {
           Three scents to try{box.bottle.availableForSale ? <>, <span className="whitespace-nowrap">{formatMoney(box.price)}</span></> : ", out of stock for now"}
         </p>
         <p className="mt-2 text-[14px] leading-snug text-ash">
-          Three {site.sampleSizeMl} ml eaux de parfum{box.choices ? " for him or for her" : ""}, chosen by the house. Wear them, then choose your bottle.
+          Three {site.sampleSizeMl} ml eau de parfum samples{box.choices ? " for him or for her" : ""}, chosen by the house. Wear them, then choose your bottle.
         </p>
         <div className="mt-auto flex flex-col pt-4 lg:max-w-[280px]">
           {/* For him or for her is chosen on the box's page. */}
@@ -486,15 +486,16 @@ export function CollectionGrid({
           <div className="relative flex min-h-[160px] flex-col justify-between gap-3 px-5 py-3.5 lg:min-h-[400px] lg:p-10">
             <div>
               {eyebrow && <p className="eyebrow text-[12px] text-linen/80">{eyebrow}</p>}
-              <div className="mt-1 flex flex-wrap items-baseline gap-x-3">
-                <h1 className="serif text-[40px] font-semibold leading-none lg:text-[64px]">{line ? <LineName line={line} size="0.9em" /> : title}</h1>
-                <p className="tnum text-[13px] text-linen/80" aria-live="polite">
-                  {elsewhere.length ? found : searching ? `${plural(filtered.length)} for “${query.trim()}”` : plural(filtered.length)}
-                </p>
-              </div>
+              <h1 className="serif mt-1 text-[40px] font-semibold leading-none lg:text-[64px]">{line ? <LineName line={line} size="0.9em" /> : title}</h1>
               <p className="mt-3 hidden max-w-[44ch] text-[17px] leading-relaxed text-linen/80 lg:block">{descriptor}</p>
             </div>
-            <div className="w-[72%] max-w-[360px]">{field}</div>
+            {/* How many scents, right above the search that narrows them. */}
+            <div className="w-[72%] max-w-[360px]">
+              <p className="tnum mb-2 text-[13px] text-linen/80" aria-live="polite">
+                {elsewhere.length ? found : searching ? `${plural(filtered.length)} for “${query.trim()}”` : plural(filtered.length)}
+              </p>
+              {field}
+            </div>
           </div>
         </div>
       ) : (

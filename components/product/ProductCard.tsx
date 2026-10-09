@@ -29,6 +29,7 @@ export function ProductCard({
   list,
   index,
   className = "",
+  bodyClassName = "",
 }: {
   entry: ScentIndexEntry;
   priority?: boolean;
@@ -39,6 +40,8 @@ export function ProductCard({
   list?: string;
   index?: number;
   className?: string;
+  /** Padding for the words under the picture, when the card sits on a panel and the picture runs to its edges. */
+  bodyClassName?: string;
 }) {
   const product = { productId: entry.productId, handle: entry.handle, title: entry.title, image: entry.image, lineLabel: entry.lineLabel, world: entry.world };
   const showBadge = badge ?? (entry.isOriginal ? "Eternal Original" : entry.isBestseller ? "Bestseller" : entry.isNew ? "New" : null);
@@ -46,7 +49,8 @@ export function ProductCard({
     <article className={`group relative flex h-full flex-col ${className}`} data-card={entry.handle}>
       <div className="relative">
         {/* The link names the product, so the picture stays silent. */}
-        <ProductImage src={entry.image} hoverSrc={entry.hoverImage} alt="" world={entry.world} sizes={sizes} priority={priority} className="aspect-square w-full" />
+        {/* A touch screen cannot hover to the notes picture, so it opens on it (unless the card already does). */}
+        <ProductImage src={entry.image} hoverSrc={entry.hoverImage} touchSrc={entry.notesImage && entry.notesImage !== entry.image ? entry.notesImage : null} alt="" world={entry.world} sizes={sizes} priority={priority} className="aspect-square w-full" />
         {showBadge === "Eternal Original" ? (
           <OriginalTag className="absolute left-2.5 top-2.5 lg:left-3 lg:top-3" />
         ) : (
@@ -54,7 +58,7 @@ export function ProductCard({
         )}
         {reason && <span className="absolute bottom-3 left-3 bg-linen/90 px-2 py-1 text-[12px] text-night">{reason}</span>}
       </div>
-      <div className="flex flex-1 flex-col pt-2.5">
+      <div className={`flex flex-1 flex-col pt-2.5 ${bodyClassName}`}>
         {/* A product without a line keeps the row, so names and prices line up across the grid. */}
         <p className="text-[12px] leading-4 text-ash">{entry.line ? <LineLabel line={entry.line} /> : "\u00a0"}</p>
         <h3 className="serif text-[20px] leading-[1.15] lg:text-[26px]">
@@ -65,14 +69,17 @@ export function ProductCard({
         {entry.inspiredBy && <InspiredBy name={entry.inspiredBy} className="text-[13px] leading-snug text-ash lg:text-[14px]" />}
         {entry.isOriginal && <EternalOriginal className="text-[13px] leading-snug text-ash lg:text-[14px]" />}
         {entry.notesShort.length > 0 && <p className="line-clamp-2 text-[13px] leading-snug text-ash">{joinNotes(entry.notesShort.slice(0, 3))}</p>}
-        <Price money={entry.price} className="mt-1 whitespace-nowrap text-[15px] font-medium" />
-        <div className="card-actions relative z-[2] mt-auto flex flex-col pt-3">
-          {entry.bottle && (
-            <AddToBagButton variant={entry.bottle} product={product} kind={entry.kind === "set" ? "set" : "bottle"} size="sm" block label="Add to bag" />
-          )}
-          {entry.sample && (
-            <AddToBagButton variant={entry.sample} product={product} kind="sample" size="sm" look="secondary" className="card-try" label={`Try ${entry.sample.label} · ${formatMoney(entry.sample.price)}`} />
-          )}
+        {/* The price rides with the buttons at the card's foot, so a row's prices sit level however long its names run. */}
+        <div className="mt-auto pt-1">
+          <Price money={entry.price} className="whitespace-nowrap text-[15px] font-medium" />
+          <div className="card-actions relative z-[2] flex flex-col pt-3">
+            {entry.bottle && (
+              <AddToBagButton variant={entry.bottle} product={product} kind={entry.kind === "set" ? "set" : "bottle"} size="sm" block label="Add to bag" />
+            )}
+            {entry.sample && (
+              <AddToBagButton variant={entry.sample} product={product} kind="sample" size="sm" look="secondary" className="card-try" label={`Try ${entry.sample.label} · ${formatMoney(entry.sample.price)}`} />
+            )}
+          </div>
         </div>
       </div>
     </article>

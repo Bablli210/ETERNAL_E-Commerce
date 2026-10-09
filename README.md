@@ -1,6 +1,6 @@
 # eternal — storefront
 
-The headless storefront for **eternal**, a Cairo house of eaux de parfum in three lines
+The headless storefront for **eternal**, a Cairo house of eau de parfum in three lines
 (eterna for her, eterno for him, eternal for both). Built from the wireframes and design
 direction in [`design/`](design/README.md): Next.js on Vercel in front of the existing
 Shopify store, which stays the source of truth for products, prices, inventory and checkout.

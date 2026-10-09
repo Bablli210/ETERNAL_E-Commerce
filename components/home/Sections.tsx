@@ -71,11 +71,16 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
   // The stills' shades are Night; the film's blue sky deepens into its own band colour instead.
   const shade = hero.film ? rgb(bg) : "23, 22, 20";
   // Desktop. A still keeps its bottle right of centre, so the copy holds the left half on a shade of its own. The film
-  // is centred and bright (white blossom and cloud where the copy would sit), so it takes the right 55% and the copy
-  // sits on the band's own colour to its left: the phone's film-above-band layout, turned on its side.
+  // fills the hero too, set 12% right (HeroFilm) so Divina stands right of centre, but it is bright where the copy sits
+  // (white blossom, cloud, a cream close-up), so its shade is deeper and runs to the copy's own edge before fading, and
+  // holds through the header. Tuned on every half-second of the film at 1024-2560 px: the copy and the header stay at
+  // 4.5:1 or better on the brightest frame, and Divina's label stays under a fifth to a quarter of the shade.
+  const copyEdge = "calc(max(80px, 50vw - 640px) + min(520px, 32vw))";
   const desktopShade = hero.film
-    ? `linear-gradient(to right, rgb(${shade}) 0%, rgba(${shade}, 0) 16%), linear-gradient(to bottom, rgba(${shade}, 0.5), transparent 22%), linear-gradient(to top, rgba(${shade}, 0.45), transparent 16%)`
+    ? `linear-gradient(to bottom, rgba(${shade}, 0.78) 0, rgba(${shade}, 0.74) calc(var(--announce-h) + var(--header-h)), rgba(${shade}, 0) 280px), linear-gradient(to top, rgba(${shade}, 0.5), rgba(${shade}, 0) 18%), linear-gradient(to right, rgba(${shade}, 0.8) 0, rgba(${shade}, 0.72) ${copyEdge}, rgba(${shade}, 0) calc(${copyEdge} + 320px))`
     : `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)`;
+  // Over the film the softer Dune would need an almost opaque shade; Linen reads at 4.5:1 over one the film shows through.
+  const soft = hero.film ? "text-dune lg:text-linen" : "text-dune";
   // Below lg the picture fades into the band. On a phone, or any landscape screen, the film's sky and cloud are bright
   // to its foot and the copy starts high, so it fades in sooner, keeping the scent's name and its original at 4.5:1; a
   // portrait tablet's box keeps the bottle's label above the light fade, and its copy clear of the film.
@@ -92,7 +97,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
     <ParallaxSection id="hero" className="grain relative grid min-h-[calc(100svh-49px)] grid-rows-[1fr_auto] overflow-hidden text-linen lg:min-h-[92svh]" style={{ backgroundColor: bg }}>
       {/* Phone: the still's box hangs off the section, not off the copy's grid row, so it keeps its size while the fonts
           arrive and the copy reflows. */}
-      <div data-hero={hero.handle} className={`hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3 ${hero.film ? "lg:ml-[45%]" : ""}`}>
+      <div data-hero={hero.handle} className="hero-film max-lg:absolute max-lg:inset-x-0 max-lg:top-0 max-lg:h-[66%] lg:relative lg:col-start-1 lg:row-start-1 lg:row-end-3">
         {hero.film ? <HeroFilm hero={hero} film={hero.film} /> : <HeroStill hero={hero} className="absolute inset-0" />}
         {/* Below lg the picture fades into the band the copy sits on. Desktop: see desktopShade. */}
         <div aria-hidden="true" className={`absolute inset-0 lg:hidden ${hero.film ? "hidden sm:portrait:block" : ""}`} style={{ backgroundImage: `linear-gradient(to top, ${bg} 6%, transparent 42%), ${topShade}` }} />
@@ -101,11 +106,11 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
       </div>
       {/* On a short desktop screen the copy is taller than the hero: it keeps clear of the header and the hero grows. */}
       <div className="wrap relative col-start-1 row-start-2 pb-6 lg:mt-[calc(var(--header-h)+var(--announce-h)+16px)] lg:pb-24">
-        {/* Beside the film the copy ends short of its edge: 45% of the screen, less the wrap's margin and 32 px. */}
-        <div className={`hero-drift max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,calc(45vw_-_112px),calc(608px_-_5vw))]" : "lg:max-w-[min(540px,40vw)]"}`}>
+        {/* Over the film the copy ends short of Divina's bottle (copyEdge). */}
+        <div className={`hero-drift max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,32vw)]" : "lg:max-w-[min(540px,40vw)]"}`}>
           {scent && (
             <SelectList list="home_hero" items={[listItem(scent)]}>
-              <Link href={`/products/${scent.handle}`} data-card={scent.handle} className="inline-flex min-h-11 items-center gap-x-2 text-[13px] tracking-[0.02em] text-dune">
+              <Link href={`/products/${scent.handle}`} data-card={scent.handle} className={`inline-flex min-h-11 items-center gap-x-2 text-[13px] tracking-[0.02em] ${soft}`}>
                 <span className="font-semibold text-linen">{scent.title}</span>
                 {scent.line && (
                   <>
@@ -120,7 +125,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
                 <Icon name="arrow-right" size={14} className="text-linen" />
               </Link>
               {scent.inspiredBy && (
-                <InspiredBy name={scent.inspiredBy} className="mb-3 mt-2 border-t border-linen/25 pt-3 text-[13px] leading-snug tracking-[0.02em] text-dune max-lg:[@media(max-height:760px)]:mb-2 max-lg:[@media(max-height:760px)]:mt-1 max-lg:[@media(max-height:760px)]:pt-2 lg:mb-4 lg:mt-3" tone="text-linen" nameClassName="mt-0.5 text-[17px]" />
+                <InspiredBy name={scent.inspiredBy} className={`mb-3 mt-2 border-t border-linen/25 pt-3 text-[13px] leading-snug tracking-[0.02em] ${soft} max-lg:[@media(max-height:760px)]:mb-2 max-lg:[@media(max-height:760px)]:mt-1 max-lg:[@media(max-height:760px)]:pt-2 lg:mb-4 lg:mt-3`} tone="text-linen" nameClassName="mt-0.5 text-[17px]" />
               )}
             </SelectList>
           )}
@@ -138,8 +143,8 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
             ))}
           </h1>
           {/* A short phone (Instagram's browser, small Androids) drops this line so the bottle stays clear of the copy. */}
-          <p className="mt-3 max-w-[46ch] text-[15px] leading-normal text-dune max-lg:[@media(max-height:760px)]:hidden lg:mt-6 lg:text-[17px]">
-            eaux de parfum from Cairo, in three lines: eterna for her, eterno for him, eternal unisex.
+          <p className={`mt-3 max-w-[46ch] text-[15px] leading-normal ${soft} max-lg:[@media(max-height:760px)]:hidden lg:mt-6 lg:text-[17px]`}>
+            eau de parfum from Cairo, in three lines: eterna for her, eterno for him, eternal unisex.
           </p>
           {offer.length > 0 && <p className="tnum mt-2 text-[13px] font-semibold tracking-[0.02em] text-linen">{offer.join(" · ")}</p>}
           <div className="mt-5 flex flex-wrap items-center gap-x-6 lg:mt-8">
@@ -151,7 +156,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
             </Link>
           </div>
         </div>
-        <a href="#proof" className="absolute bottom-8 right-5 hidden items-center gap-2 text-[11px] uppercase tracking-[0.14em] text-dune lg:right-20 lg:flex">
+        <a href="#proof" className={`absolute bottom-8 right-5 hidden items-center gap-2 text-[11px] uppercase tracking-[0.14em] lg:right-20 lg:flex ${hero.film ? "text-linen" : "text-dune"}`}>
           Scroll <Icon name="chevron-down" size={14} />
         </a>
       </div>
@@ -252,14 +257,23 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
 
 /**
  * The Eternal Originals: the five scents the house composed with no original
- * behind them, on a night band of their own so they stand apart from the rest
- * of the page. Each card sits on a linen panel; on a phone the first leads
- * full width and the other four follow two by two.
+ * behind them, on a band of their own so they stand apart from the rest of
+ * the page: the originals on driftwood (originals-band), or Night without it.
+ * Each card is a linen panel with its picture to the edges; on a phone the
+ * first leads full width and the other four follow two by two.
  */
 export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
   if (!entries.length) return null;
+  const photo = siteImage("originals-band");
   return (
-    <section aria-labelledby="originals-title" className="watermark grain relative overflow-hidden bg-night py-12 text-linen lg:py-28">
+    <section aria-labelledby="originals-title" className={`relative overflow-hidden bg-night py-12 text-linen lg:py-28 ${photo ? "" : "watermark grain"}`}>
+      {photo && (
+        <>
+          <Image src={photo} alt="" fill sizes="100vw" className="object-cover object-[25%_50%]" />
+          {/* Night over the photograph: deepest behind the heading, light enough between the cards for the driftwood to show. */}
+          <div aria-hidden="true" className="absolute inset-0" style={{ backgroundImage: "linear-gradient(to bottom, rgba(23, 22, 20, 0.97) 0%, rgba(23, 22, 20, 0.92) clamp(160px, 26%, 300px), rgba(23, 22, 20, 0.5) clamp(260px, 52%, 520px), rgba(23, 22, 20, 0.45) 75%, rgba(23, 22, 20, 0.6) 100%)" }} />
+        </>
+      )}
       <div className="wrap relative">
         <div className="flex items-end justify-between gap-4">
           <div className="max-w-[640px]">
@@ -282,8 +296,8 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
             const notes = siteImage(`products/${e.handle}-3`);
             const card = notes && notes !== e.image ? { ...e, image: notes, hoverImage: e.image } : e;
             return (
-              <div key={e.handle} className={`bg-linen p-2.5 text-night lg:p-4 ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}>
-                <ProductCard entry={card} badge={false} sizes={i === 0 ? "(min-width: 1024px) 20vw, 100vw" : "(min-width: 1024px) 20vw, 50vw"} />
+              <div key={e.handle} className={`bg-linen text-night ${i === 0 ? "col-span-2 lg:col-span-1" : ""}`}>
+                <ProductCard entry={card} badge={false} sizes={i === 0 ? "(min-width: 1024px) 20vw, 100vw" : "(min-width: 1024px) 20vw, 50vw"} bodyClassName="px-2.5 pb-3 lg:px-4 lg:pb-4" />
               </div>
             );
           })}
@@ -371,7 +385,8 @@ export function TryBeforeYouCommit({ mysteryBox: box, everySampled }: { mysteryB
               </div>
             </article>
           )}
-          <article className="watermark relative flex flex-col justify-between gap-6 overflow-hidden bg-night p-6 text-linen lg:p-10">
+          {/* Its top and foot match the box's, so on a wide screen the two headings, and the two 52 px buttons, sit on one line. */}
+          <article className="watermark relative flex flex-col justify-between gap-6 overflow-hidden bg-night p-6 text-linen lg:px-10 lg:pb-6 lg:pt-7">
             <div className="relative">
               <h3 className="display-m">Not sure which is yours?</h3>
               <p className="mt-2 max-w-[44ch] text-[15px] leading-relaxed text-dune">
@@ -445,8 +460,16 @@ export function FeaturedTale({ scent }: { scent: Scent | null }) {
   if (!scent || !tale) return null;
   const sentences = excerptOf(scent.story?.[0] ?? tale.paragraphs[0]);
   const bg = scent.world.dark ? scent.world.bg : "#163a4e";
+  // The tale's own banner (its page opens on it) behind the band, under its colour, deepest behind the words.
+  const banner = siteImage(`tale-${tale.slug}`);
   return (
-    <section className="grain watermark relative overflow-hidden text-linen" style={{ backgroundColor: bg }}>
+    <section className={`relative overflow-hidden text-linen ${banner ? "" : "grain watermark"}`} style={{ backgroundColor: bg }}>
+      {banner && (
+        <>
+          <Image src={banner} alt="" fill sizes="100vw" className="object-cover" />
+          <div aria-hidden="true" className="absolute inset-0" style={{ backgroundImage: `linear-gradient(to left, rgba(${rgb(bg)}, 0.86) 0%, rgba(${rgb(bg)}, 0.78) 45%, rgba(${rgb(bg)}, 0.5) 100%)` }} />
+        </>
+      )}
       {/* Desktop: the still fills its half of the row, so it starts at the text's first line and ends at its last. Nothing fades in. */}
       <div className="wrap relative grid gap-8 py-12 lg:grid-cols-2 lg:gap-12 lg:py-24">
         <Figure

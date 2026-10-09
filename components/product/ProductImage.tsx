@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image, { getImageProps } from "next/image";
 import { Mark } from "@/components/ui/Wordmark";
 import type { World } from "@/lib/catalogue";
 
@@ -11,10 +11,14 @@ import type { World } from "@/lib/catalogue";
  * (collection.css); touch-only phones never fetch it. A product without a
  * picture yet shows its colour world and the eternal mark; one with a picture
  * shows nothing behind it, so no colour flashes in before the image.
+ * `touchSrc` is what a touch screen shows instead (the notes picture): it
+ * cannot hover to it, so it opens on it. One <picture>, so each device
+ * downloads only the frame it shows.
  */
 export function ProductImage({
   src,
   hoverSrc = null,
+  touchSrc = null,
   alt,
   world,
   sizes = "(min-width: 1024px) 25vw, 50vw",
@@ -24,6 +28,8 @@ export function ProductImage({
 }: {
   src: string | null;
   hoverSrc?: string | null;
+  /** Shown instead of `src` on a touch screen (hover: none). */
+  touchSrc?: string | null;
   alt: string;
   world: World;
   /** @deprecated Ignored: a product without a picture shows the mark, never a label. */
@@ -38,7 +44,14 @@ export function ProductImage({
     <div className={`relative overflow-hidden ${className}`} style={src ? undefined : { backgroundColor: world.bg }}>
       {src ? (
         <>
-          <Image src={src} alt={alt} fill sizes={sizes} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} className={`pimg-lift ${fitClass}`} />
+          {touchSrc ? (
+            <picture className="absolute inset-0">
+              <source media="(hover: none)" srcSet={getImageProps({ src: touchSrc, alt: "", fill: true, sizes }).props.srcSet} sizes={sizes} />
+              <Image src={src} alt={alt} fill sizes={sizes} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} className={`pimg-lift ${fitClass}`} />
+            </picture>
+          ) : (
+            <Image src={src} alt={alt} fill sizes={sizes} loading={priority ? "eager" : "lazy"} fetchPriority={priority ? "high" : "auto"} className={`pimg-lift ${fitClass}`} />
+          )}
           {hoverSrc && (
             <span className="pimg-hover" aria-hidden="true">
               <Image src={hoverSrc} alt="" fill sizes={sizes} className={`img-hover ${fitClass}`} />

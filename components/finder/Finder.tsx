@@ -267,7 +267,7 @@ export function Finder({
 
         <ol className="mt-6 grid gap-6 md:mt-10 md:grid-cols-3 md:gap-x-6">
           {matches.map((m, i) => (
-            <li key={m.entry.handle}>
+            <li key={m.entry.handle} className="flex">
               <MatchCard match={m} position={i} />
             </li>
           ))}
@@ -478,9 +478,10 @@ function MatchCard({ match, position }: { match: Match; position: number }) {
   const select = () =>
     track({ name: "select_item", list: "finder", index: position, item: { productId: e.productId, variantId: e.bottle?.numericId ?? e.productId, name: e.title, price: parseFloat(e.price.amount), variant: e.bottle?.label, category: e.lineLabel } });
   return (
-    <article className="group grid grid-cols-[112px_minmax(0,1fr)] gap-4 md:grid-cols-1 md:gap-0">
+    // Side by side, the three cards run the row's height and each Add button sits at its card's foot, level with the others.
+    <article className="group grid w-full grid-cols-[112px_minmax(0,1fr)] gap-4 md:grid-cols-1 md:grid-rows-[auto_1fr] md:gap-0">
       <Link href={`/products/${e.handle}`} onClick={select} tabIndex={-1} aria-hidden="true" className="relative block self-start">
-        <ProductImage src={e.image} hoverSrc={e.hoverImage} alt="" world={e.world} sizes="(min-width: 768px) 30vw, 112px" className="aspect-square w-full" />
+        <ProductImage src={e.image} hoverSrc={e.hoverImage} touchSrc={e.notesImage && e.notesImage !== e.image ? e.notesImage : null} alt="" world={e.world} sizes="(min-width: 768px) 30vw, 112px" className="aspect-square w-full" />
         {position === 0 && <span className="badge absolute left-2 top-2">Best match</span>}
       </Link>
       <div className="flex min-w-0 flex-col md:pt-4">
@@ -503,7 +504,7 @@ function MatchCard({ match, position }: { match: Match; position: number }) {
         {e.notesShort.length > 0 && <p className="mt-1 text-[14px] leading-snug text-ash">{joinNotes(e.notesShort)}</p>}
         {match.reasons.length > 0 && <p className="mt-1 text-[12px] leading-snug text-gold-text">Matched on {match.reasons.join(", ")}</p>}
         {e.bottle && (
-          <div className="mt-3">
+          <div className="mt-3 md:mt-auto md:pt-3">
             <AddToBagButton variant={e.bottle} product={product} size="sm" block label={`Add ${e.bottle.label} · ${formatMoney(e.bottle.price)}`} />
           </div>
         )}

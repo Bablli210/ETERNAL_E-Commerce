@@ -39,7 +39,7 @@ export function generateStaticParams() {
 const box = {
   hook: "Three scents for him or for her, chosen by the house.",
   hookSub: "A first meeting with eternal, before you choose a bottle.",
-  description: `Three ${site.sampleSizeMl} ml eaux de parfum for him or for her, chosen by the house: a first meeting with eternal before you choose a bottle.`,
+  description: `Three ${site.sampleSizeMl} ml eau de parfum samples for him or for her, chosen by the house: a first meeting with eternal before you choose a bottle.`,
 };
 
 /** The product's own words; one without a Shopify description yet still says what it is, rather than the house's line. */
@@ -139,7 +139,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   ];
 
   const bottleLabel = scent.bottle?.label ?? `${site.bottleSizeMl} ml`;
-  const size = isSet ? `${sizeLabel(bottleLabel)} · eaux de parfum` : `${bottleLabel} eau de parfum`;
+  const size = isSet ? `${sizeLabel(bottleLabel)} · eau de parfum` : `${bottleLabel} eau de parfum`;
   const eyebrow = line ? (
     <>
       <LineLabel line={line} /> · {size}

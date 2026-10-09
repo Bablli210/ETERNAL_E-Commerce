@@ -50,6 +50,8 @@ export type Scent = {
   images: ShopifyImage[];
   image: ShopifyImage | null;
   hoverImage: string | null;
+  /** The notes sculpture (products/<handle>-3): what a card shows first on a touch screen, which cannot hover to it. */
+  notesImage: string | null;
   price: Money;
   variants: Variant[];
   bottle: Variant | null;
@@ -313,6 +315,7 @@ function enrich(p: ShopifyProduct): Scent {
     images,
     image: images[0] ?? null,
     hoverImage: hover && hover !== images[0]?.url ? hover : null,
+    notesImage: localFrames[2],
     price: bottle?.price ?? p.priceRange.minVariantPrice,
     variants,
     bottle,
@@ -483,6 +486,7 @@ export type ScentIndexEntry = {
   price: Money;
   image: string | null;
   hoverImage: string | null;
+  notesImage: string | null;
   world: World;
   kind: Scent["kind"];
   isBestseller: boolean;
@@ -509,6 +513,7 @@ export const toIndexEntry = (s: Scent): ScentIndexEntry => ({
   price: s.price,
   image: s.image?.url ?? null,
   hoverImage: s.hoverImage,
+  notesImage: s.notesImage,
   world: s.world,
   kind: s.kind,
   isBestseller: s.isBestseller,

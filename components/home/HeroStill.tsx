@@ -47,8 +47,8 @@ export function HeroFilm({ hero, film }: { hero: Hero; film: string }) {
   return (
     <>
       {/* The 3:4 phone poster covers the phone's box at about the screen's width. */}
-      <HeroPicture wide={film} phone={`${film}-mobile`} phoneSizes="100vw" alt={hero.alt} className="absolute inset-0" />
-      <Film {...common} name={film} media="(min-width: 1024px)" className="absolute inset-0 hidden lg:block" />
+      <HeroPicture wide={film} phone={`${film}-mobile`} phoneSizes="100vw" alt={hero.alt} className="absolute inset-0 lg:-right-[12%]" />
+      <Film {...common} name={film} media="(min-width: 1024px)" className="absolute inset-0 -right-[12%] hidden lg:block" />
       <Film {...common} name={[`${film}-mobile`, film]} media="(max-width: 1023.98px)" className="absolute inset-0 lg:hidden" />
     </>
   );
