@@ -29,7 +29,9 @@ const isNotesFrame = (scent: Scent, url: string, altText: string | null) =>
  */
 export function Gallery({ scent }: { scent: Scent }) {
   const all = scent.images.slice(0, 4);
-  const notes = all.findIndex((img) => isNotesFrame(scent, img.url, img.altText));
+  // The catalogue's notes frame first (it also knows Shopify's <handle>-3 by name), then any frame that says "notes".
+  const matched = scent.notesImage ? all.findIndex((img) => img.url === scent.notesImage) : -1;
+  const notes = matched >= 0 ? matched : all.findIndex((img) => isNotesFrame(scent, img.url, img.altText));
   const imgs = notes > 0 ? [all[notes], ...all.filter((_, i) => i !== notes)] : all;
   const solo = imgs.length < 2;
   const frameClass = `pdp-frame ${solo ? "pdp-frame-solo" : ""} relative overflow-hidden lg:aspect-[4/5] lg:h-auto lg:w-full`;

@@ -202,14 +202,16 @@ const FRAME_ALT = ["bottle", "bottle in a scene", "among its notes", "in its box
 /**
  * Which of those four frames a Shopify image is, or null when nothing says.
  * Its file name says first (<handle>, -2, -3 or -4, as the local files are
- * named, with or without the _suffix Shopify adds to a name it already has):
- * that is the same picture as the local file. Its alt text says next ("among
- * its notes", "in a scene", "in its box").
+ * named, or _2 to _4 from a name with a space; with or without the _<uuid>
+ * Shopify adds to a name it already has): that is the same picture as the
+ * local file. A name with "notes" in it (as the gallery reads it) and then
+ * the alt text ("among its notes", "in a scene", "in its box") say next.
  */
 function frameOf(handle: string, img: ShopifyImage): { frame: number; byName: boolean } | null {
   const file = img.url.split("?")[0].split("/").pop() ?? "";
-  const named = file.match(new RegExp(`^${handle}(?:-([2-4]))?(?:_[\\w-]+)?\\.\\w+$`, "i"));
+  const named = file.match(new RegExp(`^${handle}(?:[-_]([2-4]))?(?:_[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12})?\\.\\w+$`, "i"));
   if (named) return { frame: named[1] ? Number(named[1]) - 1 : 0, byName: true };
+  if (/[-_]notes?[-_.]/i.test(file)) return { frame: 2, byName: false };
   const alt = img.altText ?? "";
   const frame = /\bnotes?\b/i.test(alt) ? 2 : /\bin a scene\b/i.test(alt) ? 1 : /\b(in its box|packaging)\b/i.test(alt) ? 3 : null;
   return frame === null ? null : { frame, byName: false };
