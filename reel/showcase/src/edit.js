@@ -4,7 +4,7 @@
 // Takes are the real site recorded frame-exactly (tools/takes.mjs); each plays at its own
 // film time, holding its first and last frames.
 import { el, browser, phone, loadTake, DESK_SCALE } from "./stage.js";
-import { camera, worldTransform, CUTS } from "./camera.js";
+import { camera, worldTransform, CUTS, F } from "./camera.js";
 import { block, chip, endCard } from "./type.js";
 import { clamp } from "./ease.js";
 
@@ -12,25 +12,31 @@ export const FPS = 30;
 export const DURATION = 30;
 const LOOP = new URLSearchParams(location.search).has("loop");
 
+// Times are output frames, F(n) = n / 30, so nothing can land between a frame and its cut.
 export const BLOCKS = [
-  { zone: "band", at: 2.1333, out: 4.8, label: "Orbit — Case study", lines: ["A storefront for eternal,", "a perfume house in Cairo."] },
-  { zone: "band", at: 5.3333, out: 8.5333, num: "01", label: "Home", lines: ["Built phone-first, for shoppers", "arriving from Instagram ads."] },
-  { zone: "left", at: 9.6, out: 12.8, num: "02", label: "Catalogue", lines: ["Next.js in front.", "Shopify for stock", "and checkout."] },
-  { zone: "right", at: 12.8, out: 17.0667, num: "03", label: "Product page", lines: ["Product pages that sell", "on the first screen."], synced: { at: 14.9333, text: "Add to bag follows you down the page." } },
-  { zone: "band", at: 18.1333, out: 21.3333, num: "04", label: "Bag", lines: ["One bag: a drawer on desktop,", "a sheet on the phone."] },
-  { zone: "right", at: 21.3333, out: 23.4667, num: "05", label: "Scent finder", lines: ["Five questions,", "three matches."] },
-  { zone: "left", at: 23.4667, out: 25.6, num: "05", label: "Scent finder", lines: ["The answers live", "in the link."] },
+  { zone: "band", at: F(64), out: F(153), label: "Orbit — Case study", lines: ["A storefront for eternal,", "a perfume house in Cairo."] },
+  // The phone shows the ad landing (an ad pins its own bottle, content/heroes.ts), beside the desktop's film.
+  { zone: "band", at: F(160), out: F(256), num: "01", label: "Home", lines: ["Built phone-first: an Instagram ad", "lands on the bottle it showed."] },
+  { zone: "left", at: F(288), out: CUTS[0], num: "02", label: "Catalogue", lines: ["Next.js in front.", "Shopify for stock", "and checkout."] },
+  { zone: "right", at: CUTS[0], out: F(512), num: "03", label: "Product page", lines: ["Product pages that sell", "on the first screen."], synced: { at: F(448), text: "Add to bag follows you down the page." } },
+  { zone: "band", at: F(544), out: CUTS[1], num: "04", label: "Bag", lines: ["The bag: a drawer on desktop,", "a sheet on the phone."] },
+  // The one short hold: the shot is a bar long, between two cuts.
+  { zone: "right", at: CUTS[1], out: CUTS[2], num: "05", label: "Scent finder", lines: ["Five questions,", "three matches."] },
+  { zone: "left", at: CUTS[2], out: F(792), num: "05", label: "Scent finder", lines: ["The answers live", "in the link."] },
 ];
 export const CHIPS = [
-  // Level with the Woody chip, under the browser, on the click frame.
-  { text: "Re-flow · 320 ms · ease-standard", at: 10.6667, out: 12.8, x: 900, y: 942 },
-  // On the drawer's first frame (the 450 ms reveal after the 18.667 click), at the right end of the label line.
-  { text: "Drawer · 320 ms · ease-emphasized", at: 19.1167, out: 21.3333, x: 1254, y: 75, align: "right" },
+  // Level with the Woody chip, below the browser and its shadow, on the click frame.
+  { text: "Re-flow · 320 ms", at: F(320), out: CUTS[0], x: 900, y: 968 },
+  // On the drawer's first frame (the 450 ms reveal after the F(560) click), at the right end of the label line.
+  { text: "Drawer · 320 ms", at: F(574), out: CUTS[1], x: 1254, y: 75, align: "right" },
 ];
-export const END = { label: 26.6667, signature: 27.7333 };
+export const END = { label: F(800), signature: F(832) };
+// While the desktop plays the hero film (until its scroll at F(128)), every sub-frame shows the take
+// at the frame's own time: a 24 fps film then never double-exposes, and the loader's curtain stays crisp.
+const SNAP_UNTIL = F(128);
 
 export async function createEdit(stage) {
-  const [D1, D3, D4, P1, P2, P3] = await Promise.all(["v2-d1", "v2-d3", "v2-d4", "v2-p1", "v2-p2", "v2-p3"].map(loadTake));
+  const [D1, D3, D4, P1, P2, P3, P4] = await Promise.all(["v2-d1", "v2-d3", "v2-d4", "v2-p1", "v2-p2", "v2-p3", "v2-p4"].map(loadTake));
   const world = el("div", "world", stage);
   el("div", "table", world);
   const win = browser(world);
@@ -42,55 +48,73 @@ export async function createEdit(stage) {
   const fade = el("div", "abs", stage, { width: "1920px", height: "1080px", background: "var(--linen)", opacity: "0" });
 
   const desk = (t) => (t < 12.9 ? D1 : t < CUTS[2] ? D3 : D4);
-  const hand = (t) => (t < 9.6 ? P1 : t < CUTS[1] ? P2 : P3);
+  // The phone is off screen from the third cut until the final pull-back brings it back on the results.
+  const hand = (t) => (t < 9.6 ? P1 : t < CUTS[1] ? P2 : t < F(768) ? P3 : P4);
 
-  function pose(t) {
+  /** Paint film time t; `centre` is the output frame this sub-frame belongs to. */
+  function pose(t, centre = t) {
     const cam = camera(t);
     world.style.transform = worldTransform(cam);
     const d = desk(t);
     // The full-resolution frames only while the camera is close to the desktop (the loader).
     const level = d === D1 && cam.k * DESK_SCALE > 0.95 ? "full" : "mid";
-    win.pose(d, t, { level });
+    win.pose(d, d === D1 && centre < SNAP_UNTIL ? centre : t, { level });
     ph.pose(hand(t), t);
     for (const b of blocks) b.pose(t);
     for (const c of chips) c.pose(t);
     end.pose(t);
-    fade.style.opacity = LOOP ? String(clamp((t - 29.6) / 0.4)) : "0";
+    fade.style.opacity = LOOP ? String(clamp((t - 29.6) / (F(899) - 29.6))) : "0";
     return [win.ready(), ph.ready()];
   }
+
   /**
-   * Sub-frames this output frame needs for its 180° shutter: 3 (t − 8.3 ms, t, t + 8.3 ms)
-   * while the camera, a screen or the pointer moves, 1 when everything holds still.
+   * The shutter: 180° at 30 fps, so a frame gathers ±1/120 s. While the camera moves, 9 poses
+   * across it (the camera is continuous, so its blur is too); while only a page or the pointer
+   * moves, 5 taps (the 240 Hz takes' own frames); 1 when everything holds still. Weights are
+   * triangular, and no tap reaches across a cut.
    */
   const H = 1 / 120;
-  function samples(t) {
+  const corners = [[0, 0], [1920, 0], [0, 1080], [1920, 1080], [960, 540]];
+  function cameraTravel(t) {
     const a = camera(t - H), b = camera(t + H);
-    const corner = (c, x, y) => [960 + c.k * (x - c.cx), 540 + c.k * (y - c.cy)];
-    for (const [x, y] of [[0, 0], [1920, 1080]]) {
-      const p = corner(a, x / a.k + a.cx - 960 / a.k, y / a.k + a.cy - 540 / a.k), q = corner(b, x / a.k + a.cx - 960 / a.k, y / a.k + a.cy - 540 / a.k);
-      if (Math.hypot(p[0] - q[0], p[1] - q[1]) > 0.2 || Math.abs(a.lean - b.lean) > 0.001) return 3;
+    let m = 0;
+    for (const [x, y] of corners) {
+      const X = (x - 960) / a.k + a.cx, Y = (y - 540) / a.k + a.cy;
+      m = Math.max(m, Math.hypot(960 + b.k * (X - b.cx) - x, 540 + b.k * (Y - b.cy) - y));
     }
-    for (const take of [desk(t - H), desk(t + H), hand(t - H), hand(t + H)]) {
-      const i0 = take.index(t - H), i1 = take.index(t + H);
-      for (let i = i0 + 1; i <= i1; i++) if (!take.same[i]) return 3;
-      const e0 = take.log[i0], e1 = take.log[i1];
-      if (e0.x !== e1.x || e0.y !== e1.y || e0.down !== e1.down) return 3;
-    }
-    if (desk(t - H) !== desk(t + H) || hand(t - H) !== hand(t + H)) return 3;
-    return 1;
+    return m + Math.abs(a.lean - b.lean) * 30;
   }
-  /** [time, weight] pairs for frame t: 1:2:1 across the shutter, never reaching across a cut. */
+  function pageMoves(t) {
+    if (desk(t - H) !== desk(t + H) || hand(t - H) !== hand(t + H)) return true;
+    for (const take of new Set([desk(t - H), desk(t + H), hand(t - H), hand(t + H)])) {
+      if (take === D1 && t < SNAP_UNTIL) continue;
+      const i0 = take.index(t - H), i1 = take.index(t + H);
+      for (let i = i0 + 1; i <= i1; i++) if (!take.same[i]) return true;
+      const e0 = take.log[i0], e1 = take.log[i1];
+      if (e0.x !== e1.x || e0.y !== e1.y || e0.down !== e1.down) return true;
+    }
+    return false;
+  }
+  function samples(t) {
+    const travel = cameraTravel(t);
+    if (travel > 3) return 9;
+    return travel > 0.3 || pageMoves(t) ? 5 : 1;
+  }
+  /** [time, weight, frame centre] for each sub-frame of output frame t. */
   function subframes(t) {
-    if (samples(t) === 1) return [[t, 1]];
-    const shot = (x) => CUTS.filter((c) => x >= c - 1e-6).length;
-    let w0 = 1, w1 = 2, w2 = 1;
-    if (shot(t - H) !== shot(t)) { w1 += w0; w0 = 0; }
-    if (shot(t + H) !== shot(t)) { w1 += w2; w2 = 0; }
-    return [[t - H, w0], [t, w1], [t + H, w2]].filter(([, w]) => w > 0);
+    const n = samples(t);
+    if (n === 1) return [[t, 1, t]];
+    const shot = (x) => CUTS.filter((c) => x >= c - 1e-9).length;
+    const half = (n - 1) / 2, out = [];
+    for (let k = 0; k < n; k++) {
+      const x = t + ((k - half) / half) * H;
+      if (shot(x) === shot(t)) out.push([x, half + 1 - Math.abs(k - half), t]);
+    }
+    return out;
   }
   const label = (t) => {
     const c = camera(t);
     return `k ${c.k.toFixed(3)} · (${c.cx.toFixed(0)}, ${c.cy.toFixed(0)}) · lean ${c.lean.toFixed(2)}° · ${desk(t).id}/${hand(t).id}`;
   };
-  return { pose, label, samples, subframes, takes: { D1, D3, D4, P1, P2, P3 } };
+  return { pose, label, samples, subframes, takes: { D1, D3, D4, P1, P2, P3, P4 } };
 }

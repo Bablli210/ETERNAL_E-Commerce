@@ -5,9 +5,10 @@
 //   node reel/showcase/tools/render.mjs --loop             # the web-loop variant (fades to Linen)
 //   node reel/showcase/tools/render.mjs --from 9 --to 14 --out reel/showcase/out/part-master.mp4
 //
-// While anything moves, a frame is three sub-frames (t − 8.3 ms, t, t + 8.3 ms, the
-// recorded takes' own 120 Hz frames) averaged 1:2:1, a 180° shutter, never across a cut
-// (__film.subframes). Then a fine monochrome dither (σ 1.2/255, seeded per frame) so the
+// While anything moves, a frame averages sub-frames across a 180° shutter (±8.3 ms) with
+// triangular weights: 9 camera poses during camera moves, 5 taps (the takes' 240 Hz frames)
+// when only a page moves; never across a cut (__film.subframes). Then a fine monochrome
+// dither (σ 1.2/255, seeded per frame) so the
 // Linen gradients never band. Frames are a pure function of time; workers split the range.
 import fs from "node:fs";
 import path from "node:path";
@@ -46,8 +47,8 @@ async function frameBuffer(page, cdp, t, f, draft) {
   const shot = async () => (await sharp(Buffer.from((await cdp.send("Page.captureScreenshot", { format: "png", optimizeForSpeed: true })).data, "base64")).removeAlpha().raw().toBuffer({ resolveWithObject: true }));
   const subs = draft ? [[t, 1]] : await page.evaluate((x) => window.__film.subframes(x), t);
   let acc = null, meta = null, total = 0;
-  for (const [x, w] of subs) {
-    await page.evaluate((y) => window.__film.seek(y), x);
+  for (const [x, w, centre = t] of subs) {
+    await page.evaluate(([y, c]) => window.__film.seek(y, c), [x, centre]);
     const { data, info } = await shot();
     meta = info;
     if (!acc) acc = new Float32Array(data.length);

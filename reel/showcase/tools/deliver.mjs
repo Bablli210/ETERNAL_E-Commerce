@@ -23,19 +23,21 @@ const tags = ["-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc",
 const encode = (out, mbps, audioK, src = master) => {
   const log = path.join(OUT, ".segments", "pass");
   fs.mkdirSync(path.dirname(log), { recursive: true });
-  const v = ["-c:v", "libx264", "-preset", "slow", "-profile:v", "high", "-level:v", "4.1", "-tune", "film", "-pix_fmt", "yuv420p", "-b:v", `${mbps}M`, "-maxrate", `${(mbps * 1.8).toFixed(1)}M`, "-bufsize", `${mbps * 3}M`, "-x264-params", "aq-mode=3:aq-strength=0.8", "-g", "60", ...tags, "-passlogfile", log];
+  const v = ["-c:v", "libx264", "-preset", "slow", "-profile:v", "high", "-level:v", "4.1", "-tune", "film", "-pix_fmt", "yuv420p", "-b:v", `${mbps}M`, "-maxrate", `${(mbps * 1.8).toFixed(1)}M`, "-bufsize", `${mbps * 3}M`, "-x264-params", "aq-mode=3:aq-strength=0.8:deadzone-inter=6:deadzone-intra=6:ipratio=1.1:pbratio=1.1", "-g", "60", ...tags, "-passlogfile", log];
   execFileSync("ffmpeg", ["-v", "error", "-y", "-i", src, ...v, "-pass", "1", "-an", "-f", "mp4", "/dev/null"]);
   execFileSync("ffmpeg", ["-v", "error", "-y", "-i", src, "-i", score, "-map", "0:v", "-map", "1:a", ...v, "-pass", "2", "-c:a", "aac", "-b:a", `${audioK}k`, "-ar", "48000", "-shortest", "-movflags", "+faststart", out]);
   console.log(`${path.relative(process.cwd(), out)} · ${(fs.statSync(out).size / 1048576).toFixed(1)} MB`);
 };
 
-encode(path.join(OUT, "eternal-showcase.mp4"), 7.2, 256);
+encode(path.join(OUT, "eternal-showcase.mp4"), 7.6, 256);
 encode(path.join(OUT, "eternal-showcase-web.mp4"), 3.2, 160);
 const loopMaster = path.join(OUT, "eternal-showcase-loop-master.mp4");
-if (fs.existsSync(loopMaster)) encode(path.join(OUT, "eternal-showcase-loop.mp4"), 3.2, 160, loopMaster);
+if (!fs.existsSync(loopMaster)) throw new Error(`missing ${loopMaster}: render the loop's last second (render.mjs --loop --from 29.4 --out …) and splice it onto a copy of the master`);
+encode(path.join(OUT, "eternal-showcase-loop.mp4"), 3.2, 160, loopMaster);
 // Posters: frame 885 (the end card) and frame 594 (the drawer and the sheet, side by side).
+// JPEG means BT.601 full range, so the BT.709 video is converted to it, or reds and blues shift.
 const still = (frame, name) => {
-  execFileSync("ffmpeg", ["-v", "error", "-y", "-i", master, "-vf", `select=eq(n\\,${frame}),scale=in_color_matrix=bt709:in_range=tv:out_range=pc`, "-frames:v", "1", "-q:v", "2", path.join(OUT, name)]);
+  execFileSync("ffmpeg", ["-v", "error", "-y", "-i", master, "-vf", `select=eq(n\\,${frame}),scale=in_color_matrix=bt709:in_range=tv:out_color_matrix=bt601:out_range=pc,format=yuvj420p`, "-frames:v", "1", "-q:v", "2", path.join(OUT, name)]);
   console.log(`out/${name}`);
 };
 still(885, "eternal-showcase-poster.jpg");

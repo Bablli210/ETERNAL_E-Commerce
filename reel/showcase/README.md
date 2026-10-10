@@ -22,13 +22,13 @@ score composed in code.
 | --- | --- | --- |
 | 0.0–2.1 | The camera starts inside the desktop on the site's own loader. Its curtain lifts on the hero film (Divina rising through pink drops), and the camera pulls back to both screens. The phone holds the Instagram-ad landing, which an ad pins to Raw Seduction's still. | — |
 | 2.1–4.3 | Title | ORBIT — CASE STUDY · *A storefront for eternal, a perfume house in Cairo.* |
-| 4.3–8.5 | The phone holds the Instagram-ad first screen. The desktop scrolls to the three lines and clicks eterno. The phone taps its scent. | 01 — HOME · *Built phone-first, for shoppers arriving from Instagram ads.* |
+| 4.3–8.5 | The phone holds the Instagram-ad first screen. The desktop scrolls to the three lines and clicks eterno. The phone taps its scent. | 01 — HOME · *Built phone-first: an Instagram ad lands on the bottle it showed.* |
 | 8.5–12.8 | The camera follows the desktop into the eterno catalogue. A family chip re-flows the grid, then Raw Seduction, an Eternal Original, is clicked. | 02 — CATALOGUE · *Next.js in front. Shopify for stock and checkout.* · RE-FLOW · 320 MS |
 | 12.8–17.1 | **Cut** to the phone on Raw Seduction. The sticky bar rises, a tap opens the bag sheet, and its suggestion (Enzo 1898) is added. | 03 — PRODUCT PAGE · *Product pages that sell on the first screen.* · *Add to bag follows you down the page.* |
-| 17.1–21.3 | The camera pulls back. The desktop adds the same scent: the drawer beside the sheet, and both free-delivery meters fill. | 04 — BAG · *One bag: a drawer on desktop, a sheet on the phone.* · DRAWER · 320 MS |
+| 17.1–21.3 | The camera pulls back. The desktop adds the same scent: the drawer beside the sheet, and both free-delivery meters fill. | 04 — BAG · *The bag: a drawer on desktop, a sheet on the phone.* · DRAWER · 320 MS |
 | 21.3–23.5 | **Cut** to the scent finder on the phone: Her, Night. | 05 — SCENT FINDER · *Five questions, three matches.* |
-| 23.5–25.6 | **Cut** to the desktop opening the same link. It answers the last question, the mark composes, three matches arrive. | 05 — SCENT FINDER · *The answers live in the link.* |
-| 25.6–30.0 | The camera pulls back to both screens. | Designed and built by **Orbit** · services · NEXT.JS · SHOPIFY · VERCEL · *Brand marks, photography and film: eternal.* |
+| 23.5–25.6 | **Cut** to the desktop, which picks the finder up from a link carrying the answers. It answers the last question, the mark composes, three matches arrive. | 05 — SCENT FINDER · *The answers live in the link.* |
+| 25.6–30.0 | The camera pulls back to both screens, both on the three matches. | Designed and built by **Orbit** · services · NEXT.JS · SHOPIFY · VERCEL · *Brand marks, photography and film: eternal.* |
 
 `storyboard.json` is the approved plan: shots, framings, type, the cue sheet and the
 review checklist. `research.json` is the fact base every statement is checked against.

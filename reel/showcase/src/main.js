@@ -18,8 +18,8 @@ async function boot() {
   let dbg = null;
   if (params.has("debug")) { dbg = document.createElement("div"); dbg.id = "debug"; stage.append(dbg); }
 
-  async function seek(t) {
-    const waits = edit.pose(t);
+  async function seek(t, centre = t) {
+    const waits = edit.pose(t, centre);
     if (dbg) dbg.textContent = `${t.toFixed(3)}s  f${Math.round(t * FPS)}  ${edit.label(t)}`;
     await Promise.all(waits);
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));

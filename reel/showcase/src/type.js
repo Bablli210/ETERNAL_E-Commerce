@@ -48,10 +48,11 @@ function line(layer, cls, html, { x, baseline, capTop, font, size, lh, at, out, 
   };
 }
 
+// Positions from storyboard.json type_system: label cap-top, then the first statement baseline `gap` below it.
 const ZONES = {
-  band: { x: 120, capTop: 84, measure: 1130 },
-  left: { x: 120, centre: 540, measure: 490 },
-  right: { x: 700, capTop: 300, measure: 1020 },
+  band: { x: 120, capTop: 84, gap: 76, measure: 1130 },
+  left: { x: 120, centre: 540, gap: 80, measure: 490 },
+  right: { x: 700, capTop: 300, gap: 90, measure: 1020 },
 };
 const STEP = 0.08; // stagger
 const LABEL = { font: SUB, size: 20, lh: 20 };
@@ -60,7 +61,7 @@ const STATEMENT = { font: SANS, size: 56, lh: 62 };
 /** A numbered block: label, statement lines, and an optional line synced to an event. */
 export function block(layer, { zone, at, out, num, label, lines, synced }) {
   const z = ZONES[zone];
-  const gap = 80; // label cap-top → first baseline
+  const gap = z.gap; // label cap-top → first baseline
   const cap = z.capTop ?? z.centre - (gap + (lines.length - 1) * 62) / 2;
   const items = [];
   const lab = num ? `<b>${num}</b> — ${label}` : label;

@@ -11,7 +11,11 @@ export const FRAMING = {
   PHONE: { cx: 2132, cy: 598, k: 1.14 },
   WIDE: { cx: 514, cy: 568, k: 0.66 },
 };
-export const CUTS = [12.8, 21.333, 23.467].map((t) => Math.round(t * 30) / 30);
+// Every time in the edit is an output frame (F(n) = n / 30), so a boundary can never fall
+// between a frame and its cut (a 4-decimal literal once rounded past frame 704 and left a
+// one-frame double exposure on the third cut).
+export const F = (n) => n / 30;
+export const CUTS = [F(384), F(640), F(704)];
 
 /** Zoom to k2 about a fixed table point P: the point stays where it is on screen. */
 const about = (c, P, k2) => ({ cx: P[0] + (c.cx - P[0]) * (c.k / k2), cy: P[1] + (c.cy - P[1]) * (c.k / k2), k: k2 });
@@ -52,9 +56,9 @@ const OPEN_K1 = 2.15;
 const openShare = Math.log(OPEN_K1 / OPEN.k) / Math.log(SPLIT.k / OPEN.k); // the creep's share of the zoom
 const openMove = move(OPEN, SPLIT, (u) => u);
 const creepSlope = openShare / 0.8; // per second
-const pullK = hermite((creepSlope * (2.133 - 0.8)) / (1 - openShare));
+const pullK = hermite((creepSlope * (F(64) - 0.8)) / (1 - openShare));
 function opening(t) {
-  const u = t < 0.8 ? creepSlope * t : openShare + (1 - openShare) * pullK((t - 0.8) / (2.1333 - 0.8));
+  const u = t < 0.8 ? creepSlope * t : openShare + (1 - openShare) * pullK((t - 0.8) / (F(64) - 0.8));
   return openMove(u);
 }
 
@@ -63,43 +67,43 @@ const s0 = SPLIT;
 const s1 = shift(about(s0, [960, 540], 1.006), 0, -4);
 const s2 = shift(about(s1, [960, 540], 1.012), -4, 0);
 const s3 = about(s2, THREE_LINES, 1.018);
-const splitDrift = driftTrack([{ t: 2.1333, c: s0 }, { t: 4.2667, c: s1 }, { t: 6.4, c: s2 }, { t: 8.5333, c: s3 }]);
+const splitDrift = driftTrack([{ t: F(64), c: s0 }, { t: F(128), c: s1 }, { t: F(192), c: s2 }, { t: F(256), c: s3 }]);
 
 const d0 = DESK;
 const d1 = about(d0, [960, 540], 1.006);
 const d2 = about(d1, GRID, 1.015);
-const deskDrift = driftTrack([{ t: 9.6, c: d0 }, { t: 10.6667, c: d1 }, { t: 12.8, c: d2 }]);
+const deskDrift = driftTrack([{ t: F(288), c: d0 }, { t: F(320), c: d1 }, { t: CUTS[0], c: d2 }]);
 
 const p0 = PHONE;
 const p1 = shift(about(p0, PHONE_C, 1.15), 0, -6);
 const p2 = about(p1, PHONE_C, 1.16);
-const phoneDrift = driftTrack([{ t: 12.8, c: p0 }, { t: 14.9333, c: p1 }, { t: 17.0667, c: p2 }]);
+const phoneDrift = driftTrack([{ t: CUTS[0], c: p0 }, { t: F(448), c: p1 }, { t: F(512), c: p2 }]);
 
 const b0 = SPLIT;
 const b1 = about(b0, BETWEEN, 1.015);
-const bagDrift = driftTrack([{ t: 18.6667, c: b0 }, { t: 19.2, c: b0 }, { t: 21.3333, c: b1 }]);
+const bagDrift = driftTrack([{ t: F(560), c: b0 }, { t: F(576), c: b0 }, { t: CUTS[1], c: b1 }]);
 
 const f0 = PHONE;
 const f1 = about(f0, PHONE_C, 1.155);
-const finderDrift = driftTrack([{ t: 21.3333, c: f0 }, { t: 23.4667, c: f1 }]);
+const finderDrift = driftTrack([{ t: CUTS[1], c: f0 }, { t: CUTS[2], c: f1 }]);
 
 const r1 = about(DESK, RESULTS, 1.03);
 const toWide = move(r1, WIDE, pullEase);
 const w1 = about(WIDE, [WIDE.cx, WIDE.cy], 0.663); // breathe about the frame centre
 
 const SEGMENTS = [
-  { a: 0, b: 2.1333, f: opening },
-  { a: 2.1333, b: 8.5333, f: splitDrift },
-  { a: 8.5333, b: 9.6, move: move(s3, DESK, sine), lean: 1 },
-  { a: 9.6, b: 12.8, f: deskDrift },
-  { a: 12.8, b: 17.0667, f: phoneDrift },
-  { a: 17.0667, b: 18.6667, move: move(p2, SPLIT, sine), lean: 1 },
-  { a: 18.6667, b: 21.3333, f: bagDrift },
-  { a: 21.3333, b: 23.4667, f: finderDrift },
+  { a: 0, b: F(64), f: opening },
+  { a: F(64), b: F(256), f: splitDrift },
+  { a: F(256), b: F(288), move: move(s3, DESK, sine), lean: 1 },
+  { a: F(288), b: CUTS[0], f: deskDrift },
+  { a: CUTS[0], b: F(512), f: phoneDrift },
+  { a: F(512), b: F(560), move: move(p2, SPLIT, sine), lean: 1 },
+  { a: F(560), b: CUTS[1], f: bagDrift },
+  { a: CUTS[1], b: CUTS[2], f: finderDrift },
   // A small push toward the results while the matches are composed (eased at both ends: no kick).
-  { a: 23.4667, b: 25.6, f: (t) => (t < 24.28 ? DESK : move(DESK, r1, sine)((t - 24.28) / 0.6)) },
-  { a: 25.6, b: 27.4, move: toWide, lean: 0.75 },
-  { a: 27.4, b: 30.01, f: (t) => move(WIDE, w1, sine)((t - 27.4) / 2.6) },
+  { a: CUTS[2], b: F(768), f: (t) => (t < 24.28 ? DESK : move(DESK, r1, sine)((t - 24.28) / 0.6)) },
+  { a: F(768), b: F(822), move: toWide, lean: 0.75 },
+  { a: F(822), b: 30.01, f: (t) => move(WIDE, w1, sine)((t - F(822)) / (30 - F(822))) },
 ];
 
 function base(t) {

@@ -141,15 +141,16 @@ export function phone(world) {
       const lum = (0.2126 * top[0] + 0.7152 * top[1] + 0.0722 * top[2]) / 255;
       const want = lum < 0.5 ? "#f3efe7" : "#171614";
       if (ink !== want) { ink = want; time.style.color = want; icons.innerHTML = ICONS(want); }
-      // A tap: a soft Night disc on the logged point, in 2 frames before, out over 240 ms.
+      // A tap: a soft two-tone disc on the logged point, in 150 ms before (so it lands on the control,
+      // not on the page it opens), out over 240 ms.
       let o = 0, s = 1, x = 0, y = 0;
       for (const m of take.marks) {
         if (m.do !== "tap") continue;
         const d = t - m.at;
-        if (d < -0.067 || d > 0.34) continue;
+        if (d < -0.15 || d > 0.34) continue;
         x = m.x; y = m.y;
-        o = d < 0 ? clamp((d + 0.067) / 0.067) : 1 - ease.standard(clamp((d - 0.1) / 0.24));
-        s = lerp(0.85, 1, ease.standard(clamp((d + 0.067) / 0.12)));
+        o = d < 0 ? clamp((d + 0.15) / 0.1) : 1 - ease.standard(clamp((d - 0.1) / 0.24));
+        s = lerp(0.85, 1, ease.standard(clamp((d + 0.15) / 0.15)));
       }
       mark.style.opacity = String(o);
       mark.style.transform = `translate(${x.toFixed(2)}px, ${y.toFixed(2)}px) scale(${s.toFixed(4)})`;

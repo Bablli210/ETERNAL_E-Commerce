@@ -285,7 +285,7 @@ async function runTake(browser, take) {
     await quiet();
     const state = await page.evaluate(([pt, watch]) => {
       window.__vc.step();
-      const o = { sy: Math.round(scrollY), url: location.pathname + location.search };
+      const o = { sy: Math.round(scrollY), url: location.pathname + location.search, at: [scrollX, scrollY] };
       if (pt) {
         const e = document.elementFromPoint(pt[0], pt[1]);
         o.cur = e ? getComputedStyle(e).cursor : "auto";
@@ -295,14 +295,18 @@ async function runTake(browser, take) {
       if (watch) { try { o.w = (0, eval)(watch)(); } catch (e) { o.w = String(e); } }
       return o;
     }, [pointer, take.watch ?? null]);
+    const [sx, syExact] = state.at;
+    delete state.at;
     const entry = { i, t: +t.toFixed(4), ...state };
     if (pointer) { entry.x = +pointer[0].toFixed(2); entry.y = +pointer[1].toFixed(2); entry.down = press.down; }
     log.push(entry);
-    const shot = Buffer.from((await cdp.send("Page.captureScreenshot", { format: "png", optimizeForSpeed: true })).data, "base64");
+    // At the device's own pixel density: without a scaled clip, CDP returns css-pixel (1×) shots. The clip is in document coordinates.
+    const shot = Buffer.from((await cdp.send("Page.captureScreenshot", { format: "png", optimizeForSpeed: true, clip: { x: sx, y: syExact, width: css.width, height: css.height, scale: dpr } })).data, "base64");
     const name = `${String(i).padStart(5, "0")}.jpg`;
     const keepFull = i <= fullUntil;
     writes.push((async () => {
       const { data, info } = await sharp(shot).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+      if (info.width !== css.width * dpr || info.height !== css.height * dpr) throw new Error(`${take.id} frame ${i}: captured ${info.width}×${info.height}, expected ${css.width * dpr}×${css.height * dpr}`);
       const raw = { raw: { width: info.width, height: info.height, channels: 3 } };
       if (phone) {
         // The status bar is tinted from the page's top pixel row (its centre 60 %).

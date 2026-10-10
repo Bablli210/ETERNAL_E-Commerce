@@ -19,13 +19,15 @@ export const TAKES = [
   // once the page is idle, on the virtual clock), down to the three lines, the pointer reads
   // eterno and clicks into its catalogue; there a family chip re-flows the grid, the page runs
   // down to Raw Seduction (an Eternal Original) and the card is clicked.
-  { id: "v2-d1", device: "desktop", url: "/", loader: true, t0: 0, until: 12.9, full: 2.2,
+  // Recorded at 240 Hz: its scrolls are fast, and the shutter's five taps then sit 4 ms apart.
+  { id: "v2-d1", device: "desktop", url: "/", loader: true, t0: 0, until: 12.9, full: 2.2, fps: 240,
     // Each Shopify packshot is answered with the product's scene still (-2), so no gallery repeats a frame.
     routes: { default: ["-2", "-3", ""] },
     // The pointer stays off controls except the ones each moment is about: it waits in the
     // right margin, travels through clear Linen and the grid's gutters, and lands on target.
     timeline: [
-      { at: F(128), do: "scroll", to: { sel: "h2:has-text('Three lines') >> visible=true", off: -110 }, dur: F(32), ease: "inOut" },
+      // Scrolls ease on a sine: their peak speed is half a cubic's, so they blur instead of strobing.
+      { at: F(128), do: "scroll", to: { sel: "h2:has-text('Three lines') >> visible=true", off: -110 }, dur: F(32), ease: "sine" },
       { at: F(176), do: "move", to: [1392, 560] },
       // Onto the eterno logotype; after the click the same point is clear Linen on the eterno page (between its search field and chips).
       { at: F(186), do: "glide", to: [300, 577], via: [[900, 556]], dur: F(22) },
@@ -33,14 +35,14 @@ export const TAKES = [
       { at: F(240), do: "up" },
       // On the eterno page the pointer is over the banner, clear of the search field and the chips.
       { at: F(270), do: "glide", to: [1046, 330], via: [[700, 572]], dur: F(18) },
-      { at: F(288), do: "scroll", to: 420, dur: F(16), ease: "inOut" },
+      { at: F(288), do: "scroll", to: 420, dur: F(16), ease: "sine" },
       { at: F(302), do: "glide", to: { sel: SHOP_CHIP("Woody") }, via: [[1046, 250], [900, 166], [760, 152], [380, 150]], dur: F(14) },
       { at: F(318), do: "down" },
       { at: F(320), do: "up" },
       { at: F(328), do: "check", note: "woody filter, 9 cards", fn: "() => location.search.includes('family=woody') && document.querySelectorAll('article[data-card]').length === 9 || [location.search, document.querySelectorAll('article[data-card]').length]" },
       // Up off the chips (the active chip moves to the front), across clear Linen, and down the gutter between columns 3 and 4.
       { at: F(321), do: "glide", to: [1046, 300], via: [[340, 150], [690, 152], [1046, 170], [1046, 240]], dur: F(14) },
-      { at: F(336), do: "scroll", to: { sel: RAW, off: -250 }, dur: F(24), ease: "inOut" },
+      { at: F(336), do: "scroll", to: { sel: RAW, off: -250 }, dur: F(24), ease: "sine" },
       // Raw Seduction now sits in column 4: from the gutter straight onto its photograph.
       { at: F(360), do: "glide", to: { sel: `${RAW} .pimg-lift` }, dur: F(10) },
       { at: F(374), do: "down" },
@@ -85,11 +87,11 @@ export const TAKES = [
     ] },
 
   // P2 · phone product page: down the page, the sticky bar rises, a tap, the bag sheet, the suggestion added.
-  { id: "v2-p2", device: "phone", url: "/products/raw-seduction", t0: F(384), until: 21.4, warm: 4.333,
+  { id: "v2-p2", device: "phone", url: "/products/raw-seduction", t0: F(384), until: 21.4, warm: 4.333, fps: 240,
     routes: { "raw-seduction": ["-2"] },
     watch: "() => !!document.querySelector('.pdp-bar')",
     timeline: [
-      { at: F(416), do: "scroll", to: { expr: BAR_AT.replace("+ 0.5;", "+ 52;") }, cross: { y: { expr: BAR_AT }, at: F(448) }, ease: "inOut" },
+      { at: F(416), do: "scroll", to: { expr: BAR_AT.replace("+ 0.5;", "+ 52;") }, cross: { y: { expr: BAR_AT }, at: F(448) }, ease: "sine" },
       { at: F(464), do: "tap", target: ".pdp-bar button[type=submit]" },
       { at: F(490), do: "check", note: "sheet meter: 1,220 away", fn: AWAY("1,220") },
       { at: F(592), do: "tap", target: "[data-bag-sheet] section[aria-label='A suggestion'] button:has-text('Add')" },
@@ -102,5 +104,13 @@ export const TAKES = [
       { at: F(656), do: "tap", target: "a.tile:has-text('Her')" },
       { at: F(688), do: "tap", target: "a.tile:has-text('Night')" },
       { at: 23.7, do: "check", note: "answers in the link", fn: "() => location.search === '?who=her&time=night&q=3' || location.search" },
+    ] },
+
+  // P4 · phone, off screen during the desktop's finish, opens the same results link, so both
+  // screens show the three matches under the end card.
+  { id: "v2-p4", device: "phone", url: "/finder?who=her&time=night&notes=gourmand&place=paris-cafe&strength=present", t0: F(768), until: 26.2, warm: 1.0,
+    routes: { mystique: ["-2"], "vanilla-blanche": ["-3"], paradox: [""] },
+    timeline: [
+      { at: 26.1, do: "check", note: "phone on the three matches", fn: "() => /Three to start with/.test(document.body.innerText) || location.search" },
     ] },
 ];
