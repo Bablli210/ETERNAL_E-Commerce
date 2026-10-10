@@ -19,7 +19,7 @@ export const TAKES = [
   // once the page is idle, on the virtual clock), down to the three lines, the pointer reads
   // eterno and clicks into its catalogue; there a family chip re-flows the grid, the page runs
   // down to Raw Seduction (an Eternal Original) and the card is clicked.
-  // Recorded at 240 Hz: its scrolls are fast, and the shutter's five taps then sit 4 ms apart.
+  // Recorded at 240 Hz: its scrolls are fast, so the shutter's taps cross-fade frames only 4 ms apart.
   { id: "v2-d1", device: "desktop", url: "/", loader: true, t0: 0, until: 12.9, full: 2.2, fps: 240,
     // Each Shopify packshot is answered with the product's scene still (-2), so no gallery repeats a frame.
     routes: { default: ["-2", "-3", ""] },

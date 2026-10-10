@@ -5,9 +5,9 @@
 //   node reel/showcase/tools/render.mjs --loop             # the web-loop variant (fades to Linen)
 //   node reel/showcase/tools/render.mjs --from 9 --to 14 --out reel/showcase/out/part-master.mp4
 //
-// While anything moves, a frame averages sub-frames across a 180° shutter (±8.3 ms) with
-// triangular weights: 9 camera poses during camera moves, 5 taps (the takes' 240 Hz frames)
-// when only a page moves; never across a cut (__film.subframes). Then a fine monochrome
+// While anything moves, a frame averages 9 sub-frames across a 180° shutter (±8.3 ms) with
+// triangular weights: camera poses, and screens cross-faded between their recorded frames.
+// One sample at rest or on a click; never across a cut (__film.subframes). Then a fine monochrome
 // dither (σ 1.2/255, seeded per frame) so the
 // Linen gradients never band. Frames are a pure function of time; workers split the range.
 import fs from "node:fs";
