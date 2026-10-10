@@ -43,7 +43,7 @@ yet shows its colour world and the e∞ mark on every card.
 
 | File | Used for |
 | --- | --- |
-| `home-hero` | The hero film's poster (16:9, 1920 × 1080): the frame the film's intro ends on and its loop starts from, so it is also what shows with motion off |
+| `home-hero` | The hero film's poster (16:9, 2560 × 1440, frame 120 of the master): the frame the film's intro ends on and its loop starts from, so it is also what shows with motion off |
 | `home-hero-mobile` | The phone crop of that poster (3:4, the centre of the frame, 1080 × 1440), with `videos/home-hero-mobile` |
 | `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles (4:5 crop of the owner's 3:4 veil portraits) |
 | `occasion-date`, `occasion-everyday`, `occasion-event`, `occasion-outdoors`, `occasion-beach-side` | The five "Shop by occasion" tiles (3:4; the first is cut 2:1 and the rest square on phones) |

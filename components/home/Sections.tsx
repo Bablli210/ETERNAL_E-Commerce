@@ -113,7 +113,7 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
         {!hero.film && <div aria-hidden="true" className="absolute inset-x-0 -top-28 bottom-0 -z-10 lg:hidden" style={{ backgroundImage: `linear-gradient(to bottom, transparent, color-mix(in srgb, ${bg} 85%, transparent) 64px, ${bg} 112px)` }} />}
         {/* The film, below lg, at the owner's request: a Night gradient that rises with the copy, clear 160 px above it and
             deepening behind it toward the foot, so the words read over the film while it still shows through. */}
-        {hero.film && <div aria-hidden="true" className="absolute inset-x-0 -top-40 bottom-0 -z-10 lg:hidden" style={{ backgroundImage: "linear-gradient(to bottom, rgba(23, 22, 20, 0) 0, rgba(23, 22, 20, 0.6) 160px, rgba(23, 22, 20, 0.85) 100%)" }} />}
+        {hero.film && <div aria-hidden="true" className="absolute inset-x-0 -top-40 bottom-0 -z-10 lg:hidden" style={{ backgroundImage: "linear-gradient(to bottom, rgba(23, 22, 20, 0) 0, rgba(23, 22, 20, 0.7) 160px, rgba(23, 22, 20, 0.85) 100%)" }} />}
         {/* Over the film the copy ends 32 px short of Divina's bottle, at 43.7% of the screen. */}
         <div className={`max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,32vw,calc(43.7vw_-_32px_-_max(80px,50vw_-_640px)))]" : "lg:max-w-[min(540px,40vw)]"}`}>
           {scent && (
