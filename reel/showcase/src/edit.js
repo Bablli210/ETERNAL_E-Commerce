@@ -26,9 +26,10 @@ export const BLOCKS = [
 ];
 export const CHIPS = [
   // Level with the Woody chip, below the browser and its shadow, on the click frame.
-  { text: "Re-flow · 320 ms", at: F(320), out: CUTS[0], x: 900, y: 968 },
+  // One frame early, so the rise is under way on the first frame of the animation it names.
+  { text: "Re-flow · 320 ms", at: F(319), out: CUTS[0], x: 900, y: 968 },
   // On the drawer's first frame (the 450 ms reveal after the F(560) click), at the right end of the label line.
-  { text: "Drawer · 320 ms", at: F(574), out: CUTS[1], x: 1254, y: 75, align: "right" },
+  { text: "Drawer · 320 ms", at: F(573), out: CUTS[1], x: 1254, y: 75, align: "right" },
 ];
 export const END = { label: F(800), signature: F(832) };
 // While the desktop plays the hero film (until its scroll at F(128)), every sub-frame shows the take
@@ -58,7 +59,8 @@ export async function createEdit(stage) {
     const d = desk(t);
     // The full-resolution frames only while the camera is close to the desktop (the loader).
     const level = d === D1 && cam.k * DESK_SCALE > 0.95 ? "full" : "mid";
-    win.pose(d, d === D1 && centre < SNAP_UNTIL ? centre : t, { level });
+    // Frame 0 is bare Linen: the loader's first paint (a dot where its stroke will start) lasts 4 ms on the site.
+    win.pose(d, d === D1 && centre < SNAP_UNTIL ? centre : t, { level, blank: centre < 1 / 60 });
     ph.pose(hand(t), t);
     for (const b of blocks) b.pose(t);
     for (const c of chips) c.pose(t);
@@ -68,10 +70,11 @@ export async function createEdit(stage) {
   }
 
   /**
-   * The shutter: 180° at 30 fps, so a frame gathers ±1/120 s. While the camera moves, 9 poses
-   * across it (the camera is continuous, so its blur is too); while only a page or the pointer
-   * moves, 5 taps (the 240 Hz takes' own frames); 1 when everything holds still. Weights are
-   * triangular, and no tap reaches across a cut.
+   * The shutter: 180° at 30 fps, so a frame gathers ±1/120 s. While anything moves, 9 taps across
+   * it with triangular weights: the camera is continuous, and screens cross-fade between their
+   * recorded frames (240 Hz for the scroll takes), so both blur instead of strobing. One sample
+   * when everything holds still, or when a click or tap switches the page's state inside the
+   * shutter. No tap reaches across a cut.
    */
   const H = 1 / 120;
   const corners = [[0, 0], [1920, 0], [0, 1080], [1920, 1080], [960, 540]];
@@ -95,10 +98,18 @@ export async function createEdit(stage) {
     }
     return false;
   }
+  /** A click or tap inside the shutter: the page changes state at once (a real 30 fps capture shows one side). */
+  function clicks(t) {
+    for (const take of new Set([desk(t), hand(t)])) {
+      for (const m of take.marks) if ((m.do === "up" || m.do === "tap") && m.at > t - H - 1e-9 && m.at <= t + H + 1e-9) return true;
+    }
+    return false;
+  }
   function samples(t) {
     const travel = cameraTravel(t);
     if (travel > 3) return 9;
-    return travel > 0.3 || pageMoves(t) ? 5 : 1;
+    if (clicks(t)) return 1;
+    return travel > 0.3 || pageMoves(t) ? 9 : 1;
   }
   /** [time, weight, frame centre] for each sub-frame of output frame t. */
   function subframes(t) {

@@ -47,7 +47,7 @@ execFileSync("ffmpeg", [
   "-filter_complex", chains.join(";"), "-map", "[v]",
   "-c:v", "libx264", "-preset", "slow", "-crf", "12", "-profile:v", "high", "-tune", "film", "-pix_fmt", "yuv420p",
   "-x264-params", "aq-mode=3:aq-strength=0.9:deblock=-1,-1", "-g", "60",
-  "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "iec61966-2-1", "-color_range", "tv",
+  "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709", "-color_range", "tv",
   "-r", String(FPS), "-movflags", "+faststart", tmp,
 ]);
 const out = frames(tmp);

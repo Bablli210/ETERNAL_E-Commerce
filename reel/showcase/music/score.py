@@ -203,10 +203,13 @@ def render(cue):
     for (t, note, vel, p) in cue.get("bells", []):
         place(tops, stereo(bell(note_hz(note), 0.5, vel), p), t, 0.7)
     for (a, b) in cue.get("air", []):
-        # A low breath that rises with the curtain and eases out over 0.3 s instead of stopping.
-        sw = swell(b - a, seed=sd(), lo=200, hi=2400)
-        tail = sw[:, -1:] * np.exp(-np.arange(n_of(0.3)) / (0.08 * SR))
-        place(fx, np.hstack([sw, tail]), a, 0.25)
+        # A low breath that rises with the curtain and eases out over 0.3 s instead of stopping:
+        # the same noise runs on past the peak and decays.
+        sw = swell(b - a + 0.3, seed=sd(), lo=200, hi=2400)
+        k = n_of(b - a)
+        peak = np.abs(sw[:, max(0, k - n_of(0.05)):k]).max() / max(1e-9, np.abs(sw).max())
+        sw[:, k:] *= np.exp(-np.arange(sw.shape[1] - k) / (0.08 * SR))
+        place(fx, sw / max(1e-9, peak), a, 0.25)
     for (t, note, vel) in cue.get("felt", []):
         place(keys, tremolo(stereo(epiano(note_hz(note), 1.6, vel, seed=sd()), 0.0), 4.0, 0.12), t)
 

@@ -186,7 +186,9 @@ async function runTake(browser, take) {
   const checks = [];
   const check = async (fn, note, t) => { let ok; try { ok = await page.evaluate(`(${fn})()`); } catch (e) { ok = `error: ${e.message.split("\n")[0]}`; } checks.push({ t, note, ok }); if (ok !== true) console.log(`  ${take.id} @${t ?? "setup"}: CHECK ${note} → ${JSON.stringify(ok)}`); };
   if (take.loader) await check("() => document.documentElement.dataset.loading === '1'", "loader is up");
-  await check("() => !document.documentElement.hasAttribute('data-ad')", "no data-ad");
+  // Only an ad landing carries data-ad (MotionScript: utm/fbclid/gclid or an in-app browser); everything else must not.
+  if (take.ad) await check("() => document.documentElement.dataset.ad === '1'", "ad landing (data-ad)");
+  else await check("() => !document.documentElement.hasAttribute('data-ad')", "no data-ad");
   // Warm up: hydrate, reveal what is in view, let entrance motion (or a page's slow zoom) run.
   const warmSteps = Math.round((take.warm ?? 0) * 30);
   for (let i = 0; i < warmSteps; i++) {

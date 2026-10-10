@@ -79,7 +79,9 @@ export const TAKES = [
 
   // P1 · phone, the Instagram-ad first screen (an ad pins its own bottle: Raw Seduction's still, not the film):
   // the headline rises, the marquee runs, then a tap on the hero's scent.
-  { id: "v2-p1", device: "phone", url: "/?hero=raw-seduction", t0: 1.0, until: 9.6,
+  // A real ad visit (utm on the link, as Meta's ads carry): the site then reads the headline at
+  // once (no word rise) and drops the brand-only sections, as it does for every ad landing.
+  { id: "v2-p1", device: "phone", url: "/?hero=raw-seduction&utm_source=instagram&utm_medium=paid_social", ad: true, t0: 1.0, until: 9.6,
     routes: { "raw-seduction": ["-2"] },
     timeline: [
       { at: F(248), do: "tap", target: "#hero a[data-card]" },
@@ -99,7 +101,8 @@ export const TAKES = [
     ] },
 
   // P3 · phone finder: Her, then Night; the answers go into the link.
-  { id: "v2-p3", device: "phone", url: "/finder", t0: F(640), until: 23.8,
+  // Warmed up, so the page (and its dark footer) is at rest when the cut lands on it.
+  { id: "v2-p3", device: "phone", url: "/finder", t0: F(640), until: 23.8, warm: 0.6,
     timeline: [
       { at: F(656), do: "tap", target: "a.tile:has-text('Her')" },
       { at: F(688), do: "tap", target: "a.tile:has-text('Night')" },

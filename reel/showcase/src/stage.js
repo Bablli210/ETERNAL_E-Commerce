@@ -41,20 +41,41 @@ export async function loadTake(id) {
   return meta;
 }
 
-/** A screen showing a take: one <img>, swapped per frame, decoded before the frame is shot. */
+/**
+ * A screen showing a take. Between two recorded frames it cross-fades them by the fraction
+ * (a sub-frame at 1/480 s sits halfway between two 240 Hz frames), so the shutter's taps
+ * blend into a continuous blur. Images are decoded before the frame is shot.
+ */
 function screen(parent) {
-  const img = el("img", "scr", parent);
-  img.decoding = "sync";
-  img.alt = "";
-  let pending = null;
-  return {
-    show(src) {
-      if (img.getAttribute("src") === src) return;
-      img.setAttribute("src", src);
-      pending = img.decode().catch(() => {});
-    },
-    ready: () => pending ?? Promise.resolve(),
+  const a = el("img", "scr", parent);
+  const b = el("img", "scr", parent);
+  for (const im of [a, b]) { im.decoding = "sync"; im.alt = ""; }
+  const pending = [];
+  const set = (im, src) => {
+    if (im.getAttribute("src") === src) return;
+    im.setAttribute("src", src);
+    pending.push(im.decode().catch(() => {}));
   };
+  return {
+    /** Frame srcA, with srcB over it at opacity `mix` (0 = srcA alone); `hidden` shows the bare view. */
+    show(srcA, srcB = null, mix = 0, hidden = false) {
+      set(a, srcA);
+      a.style.opacity = hidden ? "0" : "1";
+      if (srcB && mix > 0.001 && !hidden) { set(b, srcB); b.style.opacity = mix.toFixed(4); b.style.display = "block"; }
+      else b.style.display = "none";
+    },
+    ready: () => Promise.all(pending.splice(0)),
+  };
+}
+
+/** Where film time t falls in a take: the frame before it, the frame after, and how far between. */
+export function framePos(take, t) {
+  const x = Math.min(Math.max((t - take.t0) * take.fps, 0), take.frames - 1);
+  let i = Math.floor(x + 1e-6);
+  let f = x - i;
+  if (f < 1e-3) f = 0;
+  if (f > 1 - 1e-3) { i += 1; f = 0; }
+  return { i: Math.min(i, take.frames - 1), j: Math.min(i + 1, take.frames - 1), f };
 }
 
 // ── The browser window ───────────────────────────────────────────────────────
@@ -74,14 +95,17 @@ export function browser(world) {
   return {
     root,
     /** Show take `take` at film time t: the frame, its URL in the pill, the pointer. */
-    pose(take, t, { level = "mid", pointerOn = true } = {}) {
-      const i = take.index(t);
-      scr.show(take.src(i, level));
-      const e = take.log[i];
+    pose(take, t, { level = "mid", pointerOn = true, blank = false } = {}) {
+      const { i, j, f } = framePos(take, t);
+      scr.show(take.src(i, level), take.src(j, level), f, blank);
+      const e = f >= 0.5 ? take.log[j] : take.log[i];
       const u = e.url ?? take.url;
       if (url.textContent !== u) url.textContent = u;
-      const vis = pointerOn ? clamp((t - take.firstPointer) / 0.15) : 0;
-      pointer.pose(e, vis);
+      const vis = pointerOn && !blank ? clamp((t - take.firstPointer) / 0.15) : 0;
+      // The pointer moves continuously between its logged positions.
+      const p = take.log[i], q = take.log[j];
+      const at = p.x !== undefined && q.x !== undefined ? { ...e, x: lerp(p.x, q.x, f), y: lerp(p.y, q.y, f) } : e;
+      pointer.pose(at, vis);
     },
     ready: () => scr.ready(),
   };
@@ -134,9 +158,9 @@ export function phone(world) {
     root,
     /** Show take `take` at film time t: the frame, the status bar tinted from the page's top row, the touch marks. */
     pose(take, t) {
-      const i = take.index(t);
-      scr.show(take.src(i, "mid"));
-      const top = take.log[i].top ?? [23, 22, 20];
+      const { i, j, f } = framePos(take, t);
+      scr.show(take.src(i, "mid"), take.src(j, "mid"), f);
+      const top = take.log[f >= 0.5 ? j : i].top ?? [23, 22, 20];
       status.style.background = `rgb(${top.join(",")})`;
       const lum = (0.2126 * top[0] + 0.7152 * top[1] + 0.0722 * top[2]) / 255;
       const want = lum < 0.5 ? "#f3efe7" : "#171614";

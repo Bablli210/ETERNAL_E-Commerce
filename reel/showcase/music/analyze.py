@@ -16,10 +16,12 @@ from scipy import signal
 from scipy.io import wavfile
 
 path = sys.argv[1]
-bpm = float(sys.argv[sys.argv.index("--bpm") + 1]) if "--bpm" in sys.argv else 112
+bpm = float(sys.argv[sys.argv.index("--bpm") + 1]) if "--bpm" in sys.argv else 112.5
 sr, x = wavfile.read(path)
+kind = x.dtype.kind  # float WAVs are already in [-1, 1]; only integer PCM is scaled
 x = x.astype(np.float64)
-x /= np.abs(x).max() if x.dtype.kind == "f" else (2 ** 31 if np.abs(x).max() > 2 ** 16 else 2 ** 15)
+if kind != "f":
+    x /= 2 ** 31 if np.abs(x).max() > 2 ** 16 else 2 ** 15
 mono = x.mean(axis=1) if x.ndim == 2 else x
 bar = 4 * 60 / bpm
 
