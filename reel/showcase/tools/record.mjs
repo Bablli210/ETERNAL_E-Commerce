@@ -34,9 +34,17 @@ const ONLY = argv.find((a, i) => !a.startsWith("--") && !(argv[i - 1] ?? "").sta
 const OUT = path.join(here, "..", "assets", PROBE ? "probe" : "rec");
 const exe = process.env.CHROMIUM_PATH ?? "/opt/pw-browsers/chromium-1194/chrome-linux/chrome";
 const IPHONE = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1";
-// Capture hygiene, plus one redaction: the line naming the third-party fragrance a scent is
-// inspired by is hidden, so no other house's trademark appears in the film.
-const CSS = "html{scroll-behavior:auto!important} .wa-float, a[href*='wa.me'][class*='fixed']{visibility:hidden!important} input,textarea{caret-color:transparent!important} ::-webkit-scrollbar{display:none} html{scrollbar-width:none} :has(> .inspired-label){display:none!important}";
+// Capture hygiene, plus one redaction: each "Inspired by <name>" line is hidden, so no other
+// house's trademark appears in the film. The house's own labels ("Eternal Original", "Not
+// inspired by another fragrance: only at eternal.") stay. REDACT_INIT marks the lines.
+const CSS = "html{scroll-behavior:auto!important} .wa-float, a[href*='wa.me'][class*='fixed']{visibility:hidden!important} input,textarea{caret-color:transparent!important} ::-webkit-scrollbar{display:none} html{scrollbar-width:none} [data-film-redact], p:has(> [data-film-redact] + span:last-child){display:none!important}";
+const REDACT_INIT = () => {
+  const mark = () => {
+    for (const l of document.querySelectorAll(".inspired-label, dt")) if (/^\s*inspired by\s*$/i.test(l.textContent)) l.parentElement?.setAttribute("data-film-redact", "");
+  };
+  new MutationObserver(mark).observe(document, { subtree: true, childList: true, characterData: true });
+  document.addEventListener("DOMContentLoaded", mark);
+};
 
 // ── Images: Shopify's CDN is unreachable here, so each packshot is answered with one of
 // the product's own local stills, chosen per take (routes: {handle: [suffixes]}).
@@ -140,6 +148,7 @@ async function runTake(browser, take) {
   if (!take.loader) await ctx.addInitScript(() => { try { sessionStorage.setItem("eternal.loaded", "1"); } catch {} });
   await ctx.addInitScript(VCLOCK_INIT);
   await ctx.addInitScript(HYGIENE_INIT);
+  await ctx.addInitScript(REDACT_INIT);
   await ctx.addInitScript((c) => { const s = () => { const st = document.createElement("style"); st.textContent = c; (document.head || document.documentElement).append(st); }; if (document.documentElement) s(); else document.addEventListener("DOMContentLoaded", s); }, CSS);
   // A take's image routes can change mid-take ({do: "route"}), e.g. once a product page is about to open.
   const routes = structuredClone(take.routes ?? {});
@@ -152,7 +161,8 @@ async function runTake(browser, take) {
   await cdp.send("Animation.enable");
   await cdp.send("Animation.setPlaybackRate", { playbackRate: 0 });
   const inflight = new Map();
-  page.on("request", (r) => inflight.set(r, Date.now()));
+  // Films stream on open-ended range requests; their frames are waited for by vc.media instead.
+  page.on("request", (r) => { if (!r.url().includes("/videos/")) inflight.set(r, Date.now()); });
   page.on("requestfinished", (r) => inflight.delete(r));
   page.on("requestfailed", (r) => inflight.delete(r));
   const errors = [];

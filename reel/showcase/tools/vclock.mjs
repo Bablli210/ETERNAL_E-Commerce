@@ -23,6 +23,9 @@ export const VCLOCK_INIT = () => {
   window.cancelAnimationFrame = (id) => { vc.rafs.delete(id); };
   performance.now = () => vc.now;
   Date.now = () => epochReal + vc.now;
+  // Idle callbacks run on the clock too (the hero film starts "once the page is idle"): at the next step.
+  window.requestIdleCallback = (fn) => window.setTimeout(() => fn({ didTimeout: false, timeRemaining: () => 50 }), 1);
+  window.cancelIdleCallback = (id) => window.clearTimeout(id);
   const run = (fn, a) => { try { typeof fn === "function" ? fn(...a) : (0, eval)(fn); } catch (e) { console.error(e); } };
   /** Advance the clock by ms: fire due timers in order, then one round of rAF at the new time. */
   vc.advance = (ms) => {
@@ -81,7 +84,7 @@ export const VCLOCK_INIT = () => {
     const s = { playing, start: vc.now, offset: 0 };
     media.set(el, s);
     // A new source starts from its beginning.
-    el.addEventListener("emptied", () => { s.offset = 0; s.start = vc.now; });
+    el.addEventListener("emptied", () => { s.offset = 0; s.start = vc.now; s.frame = undefined; });
     return s;
   };
   MP.play = function () {
@@ -101,7 +104,13 @@ export const VCLOCK_INIT = () => {
     realPause.call(this);
   };
   Object.defineProperty(MP, "paused", { configurable: true, get() { const s = media.get(this); return s ? !s.playing : pausedGet.call(this); } });
-  /** Seek every playing medium to the clock; resolves once each has its frame (bounded by `limit` ms). */
+  /**
+   * Seek every playing medium to the clock; resolves once each has its frame (bounded by `limit` ms).
+   * A film changes picture only once per film frame (vc.mediaFps, 24 by default), so it is seeked
+   * only when that frame changes, to the frame's centre (WebM's 1 ms timecodes round frame starts),
+   * and not at all while it is off screen.
+   */
+  vc.mediaFps = 24;
   vc.media = (limit = 4000) => {
     const waits = [];
     for (const el of document.querySelectorAll("video, audio")) {
@@ -121,9 +130,16 @@ export const VCLOCK_INIT = () => {
           if (s.playing) { s.playing = false; s.offset = d; queueMicrotask(() => { fire(el, "pause"); fire(el, "ended"); }); }
         }
       }
-      if (el.readyState >= 1 && Math.abs(el.currentTime - t) > 1e-4) {
-        waits.push(new Promise((ok) => el.addEventListener("seeked", ok, { once: true })));
-        el.currentTime = t;
+      const r = el.getBoundingClientRect();
+      const seen = r.width > 0 && r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth;
+      const frame = Math.floor(t * vc.mediaFps + 1e-6);
+      const at = (frame + 0.5) / vc.mediaFps;
+      if (el.readyState >= 1 && seen && (s.frame !== frame || el.readyState < 2)) {
+        s.frame = frame;
+        if (Math.abs(el.currentTime - at) > 1e-4) {
+          waits.push(new Promise((ok) => el.addEventListener("seeked", ok, { once: true })));
+          el.currentTime = Number.isFinite(d) ? Math.min(at, d) : at;
+        }
       }
     }
     return Promise.race([Promise.all(waits), new Promise((ok) => real.setTimeout(ok, limit))]).then(() => waits.length);

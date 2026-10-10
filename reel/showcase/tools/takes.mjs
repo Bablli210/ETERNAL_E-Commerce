@@ -11,34 +11,38 @@ const ADD = "main form[action='/bag'] button[type=submit] >> nth=0";
 const PLUS = "[data-bag-sheet] button[aria-label^='Increase quantity']";
 // Where the phone's sticky bar mounts: the main button's top passing under the pinned header (BuyBox.tsx).
 const BAR_AT = "() => { const b = document.querySelector(\"main form[action='/bag'] button[type=submit]\"); const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--chrome-top')) || 0; return b.getBoundingClientRect().top + scrollY - top + 0.5; }";
-const AWAY = (n) => `() => /EGP ${n} away from free delivery/.test(document.body.innerText) || (document.body.innerText.match(/EGP [\\d,]+ away[^\\n]*/) || ['no meter'])[0]`;
+// Money is set with a no-break space after EGP (lib/format.ts), so the checks match any space.
+const AWAY = (n) => `() => /EGP\\s${n} away from free delivery/.test(document.body.innerText) || (document.body.innerText.match(/EGP\\s[\\d,]+ away[^\\n]*/) || ['no meter'])[0]`;
 
 export const TAKES = [
-  // D1 · desktop, first visit: the loader's mark and curtain, the hero, down to the three
-  // lines, the pointer reads eterno and clicks into its catalogue; there a family chip
-  // re-flows the grid, the page runs down to Raw Seduction and the card is clicked.
-  { id: "v2-d1", device: "desktop", url: "/?hero=raw-seduction", loader: true, t0: 0, until: 12.9, full: 2.2,
-    // Cards show the bottle in a scene and cross-fade to the notes still; the product page opens on the notes still.
+  // D1 · desktop, first visit: the loader's mark and curtain lift on the hero film (it starts
+  // once the page is idle, on the virtual clock), down to the three lines, the pointer reads
+  // eterno and clicks into its catalogue; there a family chip re-flows the grid, the page runs
+  // down to Raw Seduction (an Eternal Original) and the card is clicked.
+  { id: "v2-d1", device: "desktop", url: "/", loader: true, t0: 0, until: 12.9, full: 2.2,
+    // Each Shopify packshot is answered with the product's scene still (-2), so no gallery repeats a frame.
     routes: { default: ["-2", "-3", ""] },
     // The pointer stays off controls except the ones each moment is about: it waits in the
     // right margin, travels through clear Linen and the grid's gutters, and lands on target.
     timeline: [
       { at: F(128), do: "scroll", to: { sel: "h2:has-text('Three lines') >> visible=true", off: -110 }, dur: F(32), ease: "inOut" },
       { at: F(176), do: "move", to: [1392, 560] },
-      { at: F(186), do: "glide", to: [540, 515], via: [[900, 534]], dur: F(22) },
+      // Onto the eterno logotype; after the click the same point is clear Linen on the eterno page (between its search field and chips).
+      { at: F(186), do: "glide", to: [300, 577], via: [[900, 556]], dur: F(22) },
       { at: F(238), do: "down" },
       { at: F(240), do: "up" },
       // On the eterno page the pointer is over the banner, clear of the search field and the chips.
-      { at: F(270), do: "glide", to: [1046, 330], dur: F(18) },
+      { at: F(270), do: "glide", to: [1046, 330], via: [[700, 572]], dur: F(18) },
       { at: F(288), do: "scroll", to: 420, dur: F(16), ease: "inOut" },
       { at: F(302), do: "glide", to: { sel: SHOP_CHIP("Woody") }, via: [[1046, 250], [900, 166], [760, 152], [380, 150]], dur: F(14) },
       { at: F(318), do: "down" },
       { at: F(320), do: "up" },
       { at: F(328), do: "check", note: "woody filter, 9 cards", fn: "() => location.search.includes('family=woody') && document.querySelectorAll('article[data-card]').length === 9 || [location.search, document.querySelectorAll('article[data-card]').length]" },
-      { at: F(322), do: "glide", to: [720, 300], via: [[340, 150], [690, 152]], dur: F(14) },
+      // Up off the chips (the active chip moves to the front), across clear Linen, and down the gutter between columns 3 and 4.
+      { at: F(321), do: "glide", to: [1046, 300], via: [[340, 150], [690, 152], [1046, 170], [1046, 240]], dur: F(14) },
       { at: F(336), do: "scroll", to: { sel: RAW, off: -250 }, dur: F(24), ease: "inOut" },
-      { at: F(360), do: "glide", to: [608, 428], via: [[720, 392]], dur: F(10) },
-      { at: F(374), do: "route", set: { "raw-seduction": ["-3"] } },
+      // Raw Seduction now sits in column 4: from the gutter straight onto its photograph.
+      { at: F(360), do: "glide", to: { sel: `${RAW} .pimg-lift` }, dur: F(10) },
       { at: F(374), do: "down" },
       { at: F(376), do: "up" },
       { at: F(386), do: "check", note: "on raw seduction", fn: "() => location.pathname === '/products/raw-seduction' || location.pathname" },
@@ -46,7 +50,7 @@ export const TAKES = [
 
   // D3 · desktop product page, fresh with an empty bag: Add to bag, the drawer, +1 fills the meter.
   { id: "v2-d3", device: "desktop", url: "/products/raw-seduction", t0: F(512), until: 21.4, warm: 4.333,
-    routes: { "raw-seduction": ["-3"] },
+    routes: { "raw-seduction": ["-2"] },
     setup: [{ do: "move", to: [480, 650] }],
     timeline: [
       { at: F(528), do: "glide", to: { sel: ADD, dx: 60 }, via: [[700, 420]], dur: F(21) },
@@ -71,9 +75,10 @@ export const TAKES = [
       { at: 25.2, do: "check", note: "three matches", fn: "() => /Three to start with/.test(document.body.innerText) && location.search.includes('strength=present') || location.search" },
     ] },
 
-  // P1 · phone, the Instagram-ad first screen: the headline rises, the marquee runs, then a tap on the hero's scent.
+  // P1 · phone, the Instagram-ad first screen (an ad pins its own bottle: Raw Seduction's still, not the film):
+  // the headline rises, the marquee runs, then a tap on the hero's scent.
   { id: "v2-p1", device: "phone", url: "/?hero=raw-seduction", t0: 1.0, until: 9.6,
-    routes: { "raw-seduction": ["-3"] },
+    routes: { "raw-seduction": ["-2"] },
     timeline: [
       { at: F(248), do: "tap", target: "#hero a[data-card]" },
       { at: 9.5, do: "check", note: "phone on raw seduction", fn: "() => location.pathname === '/products/raw-seduction' || location.pathname" },
@@ -81,7 +86,7 @@ export const TAKES = [
 
   // P2 · phone product page: down the page, the sticky bar rises, a tap, the bag sheet, the suggestion added.
   { id: "v2-p2", device: "phone", url: "/products/raw-seduction", t0: F(384), until: 21.4, warm: 4.333,
-    routes: { "raw-seduction": ["-3"] },
+    routes: { "raw-seduction": ["-2"] },
     watch: "() => !!document.querySelector('.pdp-bar')",
     timeline: [
       { at: F(416), do: "scroll", to: { expr: BAR_AT.replace("+ 0.5;", "+ 52;") }, cross: { y: { expr: BAR_AT }, at: F(448) }, ease: "inOut" },

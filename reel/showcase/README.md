@@ -20,15 +20,15 @@ score composed in code.
 
 | Time | Shot | On screen |
 | --- | --- | --- |
-| 0.0–2.1 | The camera starts inside the desktop on the site's own loader. As its curtain lifts, the camera pulls back to both screens. | — |
+| 0.0–2.1 | The camera starts inside the desktop on the site's own loader. Its curtain lifts on the hero film (Divina rising through pink drops), and the camera pulls back to both screens. The phone holds the Instagram-ad landing, which an ad pins to Raw Seduction's still. | — |
 | 2.1–4.3 | Title | ORBIT — CASE STUDY · *A storefront for eternal, a perfume house in Cairo.* |
 | 4.3–8.5 | The phone holds the Instagram-ad first screen. The desktop scrolls to the three lines and clicks eterno. The phone taps its scent. | 01 — HOME · *Built phone-first, for shoppers arriving from Instagram ads.* |
-| 8.5–12.8 | The camera follows the desktop into the eterno catalogue. A family chip re-flows the grid, then Raw Seduction is clicked. | 02 — CATALOGUE · *Next.js in front. Shopify for stock and checkout.* · RE-FLOW · 320 MS |
-| 12.8–17.1 | **Cut** to the phone on Raw Seduction. The sticky bar rises, a tap opens the bag sheet. | 03 — PRODUCT PAGE · *Product pages that sell on the first screen.* · *Add to bag follows you down the page.* |
+| 8.5–12.8 | The camera follows the desktop into the eterno catalogue. A family chip re-flows the grid, then Raw Seduction, an Eternal Original, is clicked. | 02 — CATALOGUE · *Next.js in front. Shopify for stock and checkout.* · RE-FLOW · 320 MS |
+| 12.8–17.1 | **Cut** to the phone on Raw Seduction. The sticky bar rises, a tap opens the bag sheet, and its suggestion (Enzo 1898) is added. | 03 — PRODUCT PAGE · *Product pages that sell on the first screen.* · *Add to bag follows you down the page.* |
 | 17.1–21.3 | The camera pulls back. The desktop adds the same scent: the drawer beside the sheet, and both free-delivery meters fill. | 04 — BAG · *One bag: a drawer on desktop, a sheet on the phone.* · DRAWER · 320 MS |
 | 21.3–23.5 | **Cut** to the scent finder on the phone: Her, Night. | 05 — SCENT FINDER · *Five questions, three matches.* |
 | 23.5–25.6 | **Cut** to the desktop opening the same link. It answers the last question, the mark composes, three matches arrive. | 05 — SCENT FINDER · *The answers live in the link.* |
-| 25.6–30.0 | The camera pulls back to both screens. | Designed and built by **Orbit** · services · NEXT.JS · SHOPIFY · VERCEL · *Brand marks and photography: eternal.* |
+| 25.6–30.0 | The camera pulls back to both screens. | Designed and built by **Orbit** · services · NEXT.JS · SHOPIFY · VERCEL · *Brand marks, photography and film: eternal.* |
 
 `storyboard.json` is the approved plan: shots, framings, type, the cue sheet and the
 review checklist. `research.json` is the fact base every statement is checked against.
@@ -51,7 +51,8 @@ review checklist. `research.json` is the fact base every statement is checked ag
   - the URL (for the path-only address pill);
   - on the phone, the colour of the page's top row (for the status bar).
 
-  Checks run inside the takes: the meters read EGP 1,230, 980 and 260 away, the finder's
+  Checks run inside the takes: the meters read EGP 1,220, 121 and 250 away (free delivery from
+  EGP 2,190), the desktop lands on Raw Seduction, the finder's
   answers land in the link, and `html[data-ad]` is never set.
 - **The compositor** (`index.html`, `src/`). This is plain DOM at 1920×1080, so shadows are
   real CSS shadows and type is the browser's own. Each frame is a pure function of time.
@@ -114,12 +115,16 @@ so the desktop and the phone show the same still.
 
 ## Deliberate choices, and what to confirm before publishing
 
-- **No other brand's name on screen.** The card line naming the fragrance a scent is
-  inspired by is hidden in the captures. Everything else is the site as built.
+- **No other brand's name on screen.** Each "Inspired by <name>" line is hidden in the
+  captures (`REDACT_INIT` in `tools/record.mjs` marks them). The house's own labels, such as
+  "Eternal Original" and "Not inspired by another fragrance: only at eternal.", stay, as
+  does everything else the site shows.
+- **The hero film** plays on the recorder's clock like everything else: the page sees it
+  playing, and each step seeks it to its 24 fps frame (`vc.media` in `tools/vclock.mjs`).
 - **No domain.** The address pill shows only the path and query, because the store is
   not yet live on its own domain.
 - **Credit hygiene.** Orbit is credited for direction, wireframes, design system,
-  motion, front-end and Shopify integration. *Brand marks and photography: eternal.*
+  motion, front-end and Shopify integration. *Brand marks, photography and film: eternal.*
 - **To confirm:**
   - The Seasons (the client's serif, visible inside every capture) is Fontspring's
     evaluation build, as on the site. License it before the film is public.

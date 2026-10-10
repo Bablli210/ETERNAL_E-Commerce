@@ -42,7 +42,7 @@ const hermite = (s0) => (p) => (-2 * p ** 3 + 3 * p ** 2) + s0 * (p ** 3 - 2 * p
 
 const { OPEN, SPLIT, DESK, PHONE, WIDE } = FRAMING;
 const THREE_LINES = [407, 800]; // the eterno row on the desktop, on the table
-const GRID = [559, 652]; // the eterno grid's raw-seduction column
+const GRID = [1072, 637]; // Raw Seduction in the Woody grid (column 4), on the table
 const PHONE_C = [1603, 598]; // the phone's centre
 const BETWEEN = [1330, 600]; // between the drawer and the sheet
 const RESULTS = [687, 700]; // the finder's results row

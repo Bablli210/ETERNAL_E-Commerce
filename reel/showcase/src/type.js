@@ -92,7 +92,7 @@ export function endCard(layer, at) {
     line(layer, "t-services", "Direction · Wireframes · Design system", { x, baseline: 650, font: SANS, size: 24, lh: 34, at: at.signature + 0.347, out: 99 }),
     line(layer, "t-services", "Motion · Front-end · Shopify integration", { x, baseline: 684, font: SANS, size: 24, lh: 34, at: at.signature + 0.347 + STEP / 2, out: 99 }),
     line(layer, "t-stack", "Next.js · Shopify · Vercel", { x, baseline: 730, font: SUB, size: 18, lh: 18, at: at.signature + 0.427, out: 99 }),
-    line(layer, "t-fine", "Brand marks and photography: eternal.", { x, baseline: 790, font: SANS, size: 16, lh: 16, at: at.signature + 0.507, out: 99 }),
+    line(layer, "t-fine", "Brand marks, photography and film: eternal.", { x, baseline: 790, font: SANS, size: 16, lh: 16, at: at.signature + 0.507, out: 99 }),
   ];
   const rule = el("div", "rule", layer, { left: `${x}px`, top: "600px", width: "480px" });
   const ruleAt = at.signature + 0.267;
