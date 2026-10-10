@@ -1,3 +1,5 @@
+import { occasionOrder, occasions, occasionsLive } from "./occasions";
+
 export type LineKey = "eterna" | "eterno" | "eternal";
 
 export const lines: Record<
@@ -83,9 +85,12 @@ export type CollectionDef = {
   slug: string;
   title: string;
   descriptor: string;
-  kind: "all" | "line" | "family" | "mood" | "bestsellers" | "new";
+  kind: "all" | "line" | "family" | "mood" | "bestsellers" | "new" | "originals" | "occasion";
   key?: string;
 };
+
+/** The house's own compositions, said the same way on the home page, the menu and their collection. */
+export const ORIGINALS_DESCRIPTOR = "Our own compositions, not inspired by another fragrance.";
 
 export const collections: CollectionDef[] = [
   { slug: "all", kind: "all", title: "All scents", descriptor: "Every scent in the house, across the three lines." },
@@ -94,7 +99,10 @@ export const collections: CollectionDef[] = [
   { slug: "unisex", kind: "line", key: "eternal", title: "eternal", descriptor: "Unisex — shared signatures that sit close to the skin." },
   { slug: "bestsellers", kind: "bestsellers", title: "Where to start", descriptor: "The house’s picks for a first bottle, across the three lines." },
   { slug: "new", kind: "new", title: "New arrivals", descriptor: "The latest compositions to join the house." },
+  { slug: "originals", kind: "originals", title: "Eternal Originals", descriptor: ORIGINALS_DESCRIPTOR },
   ...familyOrder.map((k) => ({ slug: k, kind: "family" as const, key: k, title: families[k].label, descriptor: families[k].descriptor })),
+  // Shop by occasion (content/occasions.ts), while occasionsLive is on.
+  ...(occasionsLive ? occasionOrder.map((k) => ({ slug: k, kind: "occasion" as const, key: k, title: occasions[k].label, descriptor: occasions[k].descriptor })) : []),
 ];
 
 /**

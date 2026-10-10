@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { site } from "@/content/site";
 import { tales } from "@/content/tales";
-import { getBestsellers, getNewArrivals, getScentIndex, toIndexEntry } from "@/lib/catalogue";
+import { getBestsellers, getScentIndex, toIndexEntry } from "@/lib/catalogue";
 import { checkoutDomain } from "@/lib/shopify/client";
 import { siteImage } from "@/lib/site-images";
 import { fontVariables } from "./fonts";
@@ -49,11 +49,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#f3efe7", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [index, bestsellers, newArrivals] = await Promise.all([getScentIndex(), getBestsellers(4), getNewArrivals(1)]);
-  const featured = {
-    bestseller: bestsellers[0] ? toIndexEntry(bestsellers[0]) : null,
-    newIn: newArrivals[0] ? toIndexEntry(newArrivals[0]) : null,
-  };
+  const [index, bestsellers] = await Promise.all([getScentIndex(), getBestsellers(4)]);
+  const thumbs = Object.fromEntries(["line-eterna", "line-eterno", "line-eternal", "finder-band", "mystery-box"].map((n) => [n, siteImage(n)]));
+  const featured = { bestseller: bestsellers[0] ? toIndexEntry(bestsellers[0]) : null, thumbs };
   const taleIndex = tales.map((t) => ({ slug: t.slug, title: t.title, handle: t.handle, line: t.line }));
 
   return (

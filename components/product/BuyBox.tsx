@@ -8,7 +8,7 @@ import { facts } from "@/lib/facts";
 import { track } from "@/lib/client/analytics";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { formatMoney, sizeLabel } from "@/lib/format";
-import { InspiredBy } from "./InspiredBy";
+import { EternalOriginal, InspiredBy } from "./InspiredBy";
 import { LineLabel } from "./LineLabel";
 
 /**
@@ -24,6 +24,8 @@ import { LineLabel } from "./LineLabel";
 export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: number | null }) {
   const cart = useCart();
   const [size, setSize] = useState<"bottle" | "sample">("bottle");
+  // The mystery box: for him or for her, the first one in stock chosen to start.
+  const [choice, setChoice] = useState(() => entry.choices?.find((c) => c.variant?.availableForSale)?.key ?? entry.choices?.[0]?.key ?? null);
   const [added, setAdded] = useState(false);
   // The label fades only when it changes, never on the first paint of an ad's landing.
   const [swapped, setSwapped] = useState(false);
@@ -59,7 +61,9 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
     };
   }, [sticky]);
 
-  const variant = size === "sample" && entry.sample ? entry.sample : entry.bottle;
+  const chosen = entry.choices?.find((c) => c.key === choice) ?? null;
+  // A choice Shopify has no variant for yet stands on the box's own variant, which the catalogue marks sold out.
+  const variant = chosen ? (chosen.variant ?? (entry.bottle ? { ...entry.bottle, label: chosen.label, availableForSale: false } : null)) : size === "sample" && entry.sample ? entry.sample : entry.bottle;
   if (!variant) return null;
   const kind = entry.kind === "set" ? "set" : size === "sample" ? "sample" : "bottle";
   const price = formatMoney(variant.price);
@@ -72,7 +76,7 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
     setAdded(true);
     window.setTimeout(() => setAdded(false), 1400);
   };
-  const label = !variant.availableForSale ? "Sold out" : added ? null : `Add to bag · ${price}`;
+  const label = !variant.availableForSale ? (chosen ? `${chosen.label} · out of stock` : "Sold out") : added ? null : `Add to bag · ${price}`;
   const item = `${variant.numericId}:1`;
 
   return (
@@ -80,7 +84,36 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
       <form action="/bag" method="get" onSubmit={add("pdp")} className="contents">
         <input type="hidden" name="source" value="pdp" />
         {/* With two sizes the checked one is the item, so a size tapped before hydration is the one added. */}
-        {entry.sample ? (
+        {entry.choices ? (
+          <fieldset>
+            <legend className="mb-2 text-[13px] text-ash">Choose your box</legend>
+            <div className="grid grid-cols-2 gap-2">
+              {entry.choices.map((c) => {
+                const on = choice === c.key;
+                const inStock = Boolean(c.variant?.availableForSale);
+                return (
+                  <label key={c.key} className={`size-opt flex h-11 cursor-pointer items-center justify-between gap-2 bg-paper px-3 text-[13px] ${on ? "shadow-[inset_0_0_0_2px_var(--color-night)]" : "shadow-[inset_0_0_0_1px_var(--color-dune)]"}`}>
+                    <input
+                      type="radio"
+                      name="choice"
+                      value={c.key}
+                      checked={on}
+                      onChange={() => {
+                        setSwapped(true);
+                        setChoice(c.key);
+                      }}
+                      className="sr-only"
+                    />
+                    <span className="font-semibold">{c.label}</span>
+                    <span className={`truncate text-ash ${inStock ? "tnum" : ""}`}>{inStock && c.variant ? formatMoney(c.variant.price) : "Out of stock"}</span>
+                  </label>
+                );
+              })}
+            </div>
+            {/* One radio group for both choices; the chosen one's variant is the item, once it is in stock. */}
+            {chosen?.variant?.availableForSale && <input type="hidden" name="items" value={`${chosen.variant.numericId}:1`} />}
+          </fieldset>
+        ) : entry.sample ? (
           <fieldset>
             <legend className="sr-only">Size</legend>
             <div className="grid grid-cols-2 gap-2">
@@ -115,7 +148,7 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
         )}
 
         <button ref={mainRef} type="submit" className="btn w-full" disabled={!variant.availableForSale} aria-live="polite">
-          <span key={`${size}-${added}`} className={`${swapped ? "price-swap " : ""}inline-flex items-center gap-2`}>
+          <span key={`${size}-${choice}-${added}`} className={`${swapped ? "price-swap " : ""}inline-flex items-center gap-2`}>
             {label ?? (
               <>
                 Added <Icon name="check" size={16} />
@@ -141,6 +174,11 @@ export function BuyBox({ entry, lowStock }: { entry: ScentIndexEntry; lowStock: 
                   <>
                     {" · "}
                     <InspiredBy as="span" name={entry.inspiredBy} />
+                  </>
+                ) : entry.isOriginal ? (
+                  <>
+                    {" · "}
+                    <EternalOriginal as="span" />
                   </>
                 ) : entry.line ? (
                   <>

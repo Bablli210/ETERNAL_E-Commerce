@@ -13,7 +13,7 @@ const FOR: Record<LineKey, string> = { eterna: "For her", eterno: "For him", ete
 
 /**
  * A collection page for a phone that arrives from an ad. The three line pages
- * open on the line's own still (collection-<slug>, Direction B) as a short
+ * and the Eternal Originals open on their own still (collection-<slug>, Direction B) as a short
  * band that carries the title and the search, so the band costs no more
  * height than a text head. The mystery box sits inside the grid as the
  * low-risk first order; the FAQ answers what stops a first purchase.
@@ -24,7 +24,10 @@ export async function CollectionPage({ def, scents, initial }: { def: Collection
   const byHandle = new Map(house.map((e) => [e.handle, e]));
   const entries = scents.map((s) => byHandle.get(s.handle) ?? toIndexEntry(s));
   const line = def.kind === "line" ? (def.key as LineKey) : null;
-  const still = line ? siteImage(`collection-${def.slug}`) : null;
+  // The lines and the Eternal Originals open on their own still (collection-<slug>). The Originals' is the driftwood
+  // photograph, shown whole (the band takes its 7:3 shape) with its bottles on the left, so from md the words take the right.
+  const originals = def.kind === "originals";
+  const still = line || originals ? siteImage(`collection-${def.slug}`) : null;
   const crumbs = [
     { label: "Home", href: "/" as string },
     { label: "Shop", href: "/shop" },
@@ -56,7 +59,9 @@ export async function CollectionPage({ def, scents, initial }: { def: Collection
           scope={line ? lineWithAudience(line) : def.title}
           descriptor={def.descriptor}
           eyebrow={line ? FOR[line] : undefined}
-          banner={still ? <Image src={still} alt="" fill sizes="(min-width: 1440px) 1280px, 100vw" preload fetchPriority="high" className="object-cover object-[72%_50%]" /> : undefined}
+          banner={still ? <Image src={still} alt="" fill sizes="(min-width: 1440px) 1280px, 100vw" preload fetchPriority="high" className={`object-cover ${originals ? "object-[30%_50%]" : "object-[72%_50%]"}`} /> : undefined}
+          bannerSide={originals ? "right" : "left"}
+          bannerWhole={originals}
           initial={initial}
           promo={box?.bottle?.availableForSale ? toIndexEntry(box) : null}
           lineCounts={lineCounts}

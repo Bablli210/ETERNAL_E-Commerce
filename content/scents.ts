@@ -16,8 +16,15 @@ export type NoteStage = { stage: "Top" | "Heart" | "Base"; name: string; copy: s
 
 export type ScentContent = {
   line?: LineKey;
-  /** Only where the original is confirmed; the page names it in its body, never in a title. */
+  /**
+   * "House Original", exactly as the owner's approved sheet writes it. It wins
+   * over a Shopify inspired_by metafield: the sheet is the record.
+   */
   inspiredBy?: string;
+  /** One of the Eternal Originals: the house's own composition, inspired by no other fragrance. */
+  original?: boolean;
+  /** Not sold: kept out of the catalogue the site shows, whatever Shopify says. */
+  inactive?: boolean;
   comparison?: string;
   signature?: string;
   /** Three real notes, top to base: each renders as a chip, so never a phrase. */
@@ -40,8 +47,9 @@ export type ScentContent = {
 
 export const scents: Record<string, ScentContent> = {
   "shadow-of-the-sea": {
+    line: "eterno",
+    inspiredBy: "Armani Acqua di Giò Elixir",
     pick: true,
-    inspiredBy: "Acqua di Giò Elixir",
     comparison:
       "Ours keeps the bergamot opening but leans into the incense and ambery woods, so the drydown is smokier and sits closer to the skin. [Replace with the perfumer’s note.]",
     signature: "You can smell the ones the sea decided to give back.",
@@ -61,17 +69,20 @@ export const scents: Record<string, ScentContent> = {
     featured: true,
   },
   destiny: {
+    line: "eterna",
+    inspiredBy: "Armani My Way",
     pick: true,
     colorWorld: { bg: "#A9C4E4", accent: "#3F6FA8", dark: false, source: "packshot" },
     notesShort: ["Orange blossom", "tuberose", "vanilla"],
   },
   "caribbean-punch": {
+    line: "eternal",
+    inspiredBy: "Lorenzo Pazzaglia Summer Hammer",
     pick: true,
     colorWorld: { bg: "#F0E3CC", accent: "#D9843A", dark: false, source: "packshot" },
     notesShort: ["Mango", "coconut", "sandalwood"],
   },
   "forbidden-apple": {
-    // The owner: eterno. Shopify tags it both "eterna" and "for him"; this settles it.
     line: "eterno",
     inspiredBy: "Clive Christian Crab Apple Blossom",
     signature: "The memory you shouldn’t revisit is the one that still owns you.",
@@ -79,6 +90,8 @@ export const scents: Record<string, ScentContent> = {
     notesShort: ["Apple blossom", "rhubarb", "driftwood"],
   },
   wayne: {
+    line: "eterno",
+    original: true,
     pick: true,
     signature: "Don’t be the man she notices. Be the man she asks about.",
     colorWorld: { bg: "#2B2A28", accent: "#B97A2B", dark: true, source: "proposed" },
@@ -86,19 +99,24 @@ export const scents: Record<string, ScentContent> = {
     tale: "wayne",
   },
   mercury: {
+    line: "eterno",
+    inspiredBy: "Bvlgari Tygar",
     signature: "Wherever you arrive, belong there.",
     colorWorld: { bg: "#C7C3CE", accent: "#6F5E8A", dark: false, source: "proposed" },
     notesShort: ["Grapefruit", "amberwood", "musk"],
   },
   sapphire: {
+    line: "eterno",
+    inspiredBy: "Ex Nihilo Blue Talisman",
     pick: true,
-    inspiredBy: "Blue Talisman",
     signature: "They don’t remind people of a perfume. They remind people of you.",
     colorWorld: { bg: "#1B3F8F", accent: "#DCE6F5", dark: true, source: "proposed" },
     notesShort: ["Pear", "ginger", "white musk"],
     tale: "sapphire",
   },
   "enzo-1898": {
+    line: "eterno",
+    inspiredBy: "Chanel Allure Superleggera",
     pick: true,
     signature: "He looks like money was never the problem.",
     colorWorld: { bg: "#2F5A4E", accent: "#6B3A2B", dark: true, source: "proposed" },
@@ -106,30 +124,55 @@ export const scents: Record<string, ScentContent> = {
     tale: "enzo-1898",
   },
   "tonic-club": {
+    line: "eterno",
+    inspiredBy: "Maison Francis Kurkdjian Gentle Fluidity Silver",
     signature: "Monaco has enough money. Wear something it remembers.",
     colorWorld: { bg: "#DDE9C8", accent: "#3E5A2E", dark: false, source: "proposed" },
     notesShort: ["Juniper", "nutmeg", "ambery woods"],
     tale: "tonic-club",
   },
   linen: {
+    line: "eterno",
+    inspiredBy: "Prada L'Homme EDT",
     signature: "First impressions don’t wait for your résumé.",
     colorWorld: { bg: "#F2EFE8", accent: "#9A968D", dark: false, source: "proposed" },
     notesShort: ["Neroli", "iris", "cedar"],
     tale: "linen",
   },
-  divina: { notesShort: ["Pink pepper", "gardenia", "sandalwood"] },
-  fiji: { notesShort: ["Citrus", "aquatic florals", "ambergris"] },
-  carbon: { notesShort: ["Bergamot", "Sichuan pepper", "cedar"] },
+  divina: { line: "eterna", inspiredBy: "Burberry Goddess", notesShort: ["Pink pepper", "gardenia", "sandalwood"] },
+  fiji: { line: "eternal", original: true, notesShort: ["Citrus", "aquatic florals", "ambergris"] },
+  carbon: { line: "eterno", inspiredBy: "Dior Sauvage", notesShort: ["Bergamot", "Sichuan pepper", "cedar"] },
   /** Three scents in one box: no line and no notes of its own. */
   "mystery-box": { notesShort: [] },
-  "hundred-whispers": { pick: true, notesShort: ["Peach", "coconut", "tuberose"] },
-  "vintage-vanilla": { pick: true },
-  // Untagged in Shopify; the owner gave each one's line (Oct 2026). Notes and tags still to come.
-  aurora: { line: "eterna" },
-  bloom: { line: "eterna" },
-  paradox: { line: "eterna" },
-  ciel: { line: "eterno" },
-  "smoked-aura": { line: "eterno" },
-  "ultra-smoke": { line: "eterno" },
-  "mango-eclipse": { line: "eternal" },
+  "hundred-whispers": { line: "eterna", original: true, pick: true, notesShort: ["Peach", "coconut", "tuberose"] },
+  "vintage-vanilla": { line: "eterna", inspiredBy: "Matière Première Vanilla Powder", pick: true },
+  // Lines and originals from the owner's approved "Inspired by" sheet (Oct 2026). Notes and tags still to come for the newer ones.
+  aurora: { line: "eterna", inspiredBy: "Givenchy L'Interdit EDP" },
+  bloom: { line: "eterna", inspiredBy: "Victoria's Secret Bombshell" },
+  paradox: { line: "eterna", inspiredBy: "Prada Paradoxe" },
+  ciel: { line: "eterno", inspiredBy: "Roja Elysium" },
+  "smoked-aura": { line: "eterno", inspiredBy: "Creed Aventus (Smokey Edition)" },
+  /** Inactive on the owner's sheet: off the site (no page, card or search) while Shopify still lists it. */
+  "ultra-smoke": { line: "eterno", inactive: true },
+  "mango-eclipse": { line: "eternal", inspiredBy: "Unique'e Luxury Mangonificent" },
+  hera: { line: "eterna", inspiredBy: "Burberry Her" },
+  "secret-no-7": { line: "eterna", inspiredBy: "Jean Paul Gaultier La Belle" },
+  "vanilla-blanche": { line: "eterna", inspiredBy: "Kayali Vanilla 28" },
+  atlantis: { line: "eterno", inspiredBy: "Issey Miyake Le Sel d'Issey" },
+  atomic: { line: "eterno", inspiredBy: "Paco Rabanne Invictus Rouge" },
+  cipher: { line: "eterno", inspiredBy: "Nishane Hacivat" },
+  eden: { line: "eterno", inspiredBy: "Jean Paul Gaultier Le Beau Paradise Garden" },
+  "golden-hour": { line: "eterno", inspiredBy: "Creed Millésime Impérial" },
+  icon: { line: "eterno", inspiredBy: "Creed Aventus" },
+  poseidon: { line: "eterno", inspiredBy: "Spirit of Dubai Bahar" },
+  "zesty-ginger": { line: "eterno", inspiredBy: "Louis Vuitton L'Immensité" },
+  "aqua-marine": { line: "eternal", inspiredBy: "Louis Vuitton Afternoon Swim" },
+  citron: { line: "eternal", inspiredBy: "Byredo Bal d'Afrique Absolu" },
+  element: { line: "eternal", inspiredBy: "Maison Francis Kurkdjian Baccarat Rouge 540" },
+  harmony: { line: "eternal", inspiredBy: "Louis Vuitton Symphony" },
+  "neroli-code": { line: "eternal", inspiredBy: "Guerlain Néroli Outrenoir" },
+  oasis: { line: "eternal", inspiredBy: "Louis Vuitton Imagination" },
+  "shore-club": { line: "eternal", inspiredBy: "Louis Vuitton Pacific Chill" },
+  mystique: { line: "eterna", original: true },
+  "raw-seduction": { line: "eterno", original: true },
 };

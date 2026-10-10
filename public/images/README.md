@@ -5,6 +5,10 @@ no code change, no import, no configuration. A slot with no file shows
 nothing to customers (a quiet surface in its colour, or the e∞ mark on a
 product's colour world), so files can arrive in any order and in batches.
 
+Replacing a picture under the same name is safe: each address carries its
+folder's version (`lib/image-versions.ts`), so the new picture shows at once
+instead of a cached copy of the old one.
+
 Names below are **without an extension**. Deliver `.jpg`, `.png`, `.webp` or
 `.avif` — whichever you have. Next.js converts and resizes on the way out, so
 put the full-size original here rather than a pre-shrunk copy.
@@ -32,15 +36,18 @@ yet shows its colour world and the e∞ mark on every card.
 
 | File | Used for |
 | --- | --- |
-| `collection-her`, `collection-him`, `collection-unisex` | The band at the top of `/shop/her`, `/shop/him` and `/shop/unisex`, behind the line's name and the search. 2400 × 1029 (7:3): keep the left half dark and empty for the type, the subject right of centre. It is about 160 px tall on a phone, so the subject must read small |
+| `collection-her`, `collection-him`, `collection-unisex` | The band at the top of `/shop/her`, `/shop/him` and `/shop/unisex`, behind the title and the search. 2400 × 1029 (7:3): keep the left half dark and empty for the type, the subject right of centre. It is about 160 px tall on a phone, so the subject must read small |
+| `collection-originals` | The band at the top of `/shop/originals`: the originals on driftwood (7:3, 2688 × 1152), shown whole (the band takes its shape). Its bottles stand on the left, so from 768 px the words take the right half |
 
 ## Home page
 
 | File | Used for |
 | --- | --- |
-| `home-hero` | The first hero film's poster (16:9), kept with `videos/home-hero`; the home page now opens on the campaign heroes below |
-| `home-hero-mobile` | The phone crop of that poster, kept with `videos/home-hero-mobile` |
-| `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles |
+| `home-hero` | The hero film's poster (16:9, 2560 × 1440, frame 120 of the master): the frame the film's intro ends on and its loop starts from, so it is also what shows with motion off |
+| `home-hero-mobile` | The phone crop of that poster (3:4, the centre of the frame, 1080 × 1440), with `videos/home-hero-mobile` |
+| `line-eterna`, `line-eterno`, `line-eternal` | The three line tiles (4:5 crop of the owner's 3:4 veil portraits) |
+| `occasion-date`, `occasion-everyday`, `occasion-event`, `occasion-outdoors`, `occasion-beach-side` | The five "Shop by occasion" tiles (3:4; the first is cut 2:1 and the rest square on phones) |
+| `originals-band` | The Eternal Originals band behind the five original scents (7:3, 2688 × 1152): a woman with a bottle's shadow across her face, covering the band. Keep its left third dark for the heading |
 | `family-fresh`, `family-woody`, `family-amber-spice`, `family-floral`, `family-gourmand`, `family-aquatic` | The six "Shop by scent" tiles (4:3; cropped square on phones), and the finder's notes question. All six are the owner's stills |
 | `finder-band` | Scent finder band |
 | `tale-featured` | Featured tale still. Used when the tale has no `tale-<slug>-card` |
@@ -55,9 +62,10 @@ yet shows its colour world and the e∞ mark on every card.
 | `hero-<handle>` | A scent's wide campaign still (16:9 or wider), the home hero from 1024 px |
 | `hero-<handle>-mobile` | The same still cut 1.2:1 around the bottle, the home hero on a phone |
 
-The home page opens on one of these at random per visit; `?hero=<handle>`
-pins one. The rotation is the list in `content/heroes.ts` (with each
-still's background colour and alt text): add a still there and here to add it.
+The home page opens on the hero film (`home-hero`); `?hero=<handle>` opens
+it on one of these instead, so an ad's landing shows the bottle the ad showed.
+The list is `content/heroes.ts` (with each still's background colour and alt
+text): add a still there and here to add it.
 Installed for `vintage-vanilla`, `linen`, `mango-eclipse`, `neroli-code` and
 `raw-seduction`.
 

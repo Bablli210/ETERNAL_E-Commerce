@@ -121,7 +121,7 @@ function SearchField({ value, onChange, onSubmit, dark = false }: { value: strin
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search by the original"
-        className={`field h-11 pl-10 text-[16px] [&::-webkit-search-cancel-button]:appearance-none ${value ? "pr-11" : "pr-3"} ${dark ? "field-dark bg-night/40 backdrop-blur-sm" : ""}`}
+        className={`field h-11 pl-10 text-[16px] [&::-webkit-search-cancel-button]:appearance-none ${value ? "pr-11" : "pr-3"} ${dark ? "field-dark bg-night/55 backdrop-blur-sm" : ""}`}
       />
       <Icon name="search" size={18} className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${dark ? "text-linen/80" : "text-ash"}`} />
       {value && (
@@ -146,13 +146,20 @@ function BoxTile({ box }: { box: ScentIndexEntry }) {
       <div className="flex flex-col py-1">
         <p className="eyebrow text-[12px] text-ash">Not sure yet?</p>
         <p className="serif mt-2 text-[22px] font-semibold leading-[1.1] lg:text-[32px]">
-          Three scents to try, <span className="whitespace-nowrap">{formatMoney(box.price)}</span>
+          Three scents to try{box.bottle.availableForSale ? <>, <span className="whitespace-nowrap">{formatMoney(box.price)}</span></> : ", out of stock for now"}
         </p>
         <p className="mt-2 text-[14px] leading-snug text-ash">
-          Three {site.sampleSizeMl} ml eaux de parfum, chosen by the house. Wear them, then choose your bottle.
+          Three {site.sampleSizeMl} ml eau de parfum samples{box.choices ? " for him or for her" : ""}, chosen by the house. Wear them, then choose your bottle.
         </p>
         <div className="mt-auto flex flex-col pt-4 lg:max-w-[280px]">
-          <AddToBagButton variant={box.bottle} product={product} source="grid_box" kind="set" size="sm" block label="Add the box" />
+          {/* For him or for her is chosen on the box's page. */}
+          {box.choices ? (
+            <Link href={`/products/${box.handle}`} className="btn btn-sm btn-block">
+              Choose your box
+            </Link>
+          ) : (
+            <AddToBagButton variant={box.bottle} product={product} source="grid_box" kind="set" size="sm" block label="Add the box" />
+          )}
           <Link href={`/products/${box.handle}`} className="mt-1 flex min-h-11 items-center self-start">
             <span className="lnk">What’s inside</span>
           </Link>
@@ -208,6 +215,8 @@ export function CollectionGrid({
   descriptor,
   eyebrow,
   banner,
+  bannerSide = "left",
+  bannerWhole = false,
   initial = defaultGridState,
   promo,
   lineCounts,
@@ -228,6 +237,10 @@ export function CollectionGrid({
   eyebrow?: string;
   /** On a line page, its still, shown behind the title as a short band. */
   banner?: ReactNode;
+  /** Where the band's words sit from lg: left of a still whose subject stands right, or right of one whose subject stands left. */
+  bannerSide?: "left" | "right";
+  /** The band takes its still's own 7:3 shape, so the whole still shows (taller than the usual band). */
+  bannerWhole?: boolean;
   /** The state the server rendered from the URL; every collection page renders per request. */
   initial?: GridState;
   /** The mystery box, offered inside the grid as the low-risk first order. */
@@ -480,19 +493,24 @@ export function CollectionGrid({
       {banner && !selection ? (
         <div className="relative -mx-5 overflow-hidden bg-night text-linen lg:mx-0">
           <div className="absolute inset-0">{banner}</div>
-          <div className="absolute inset-0 bg-gradient-to-r from-night/60 via-night/20 to-transparent" aria-hidden="true" />
-          <div className="relative flex min-h-[160px] flex-col justify-between gap-3 px-5 py-3.5 lg:min-h-[400px] lg:p-10">
+          {/* Night behind the words. With the words on the right (from md, where the 40 px title fits the right half)
+              it starts only where the still's subject ends, at 46% from the left; on a phone, where the words have to sit
+              over that subject, it is deeper. */}
+          <div className={`absolute inset-0 bg-gradient-to-r from-night/60 via-night/20 to-transparent ${bannerSide === "right" ? "max-md:from-night/80 max-md:via-night/60 max-md:to-night/20 md:bg-[linear-gradient(to_left,rgba(23,22,20,0.6)_0%,rgba(23,22,20,0.5)_50%,transparent_54%)]" : ""}`} aria-hidden="true" />
+          <div className={`relative flex min-h-[160px] flex-col justify-between gap-3 px-5 py-3.5 lg:min-h-[400px] lg:p-10 ${bannerSide === "right" ? "md:pl-[48%] lg:pl-[48%]" : ""} ${bannerWhole ? "aspect-[7/3]" : ""}`}>
             <div>
               {eyebrow && <p className="eyebrow text-[12px] text-linen/80">{eyebrow}</p>}
-              <div className="mt-1 flex flex-wrap items-baseline gap-x-3">
-                <h1 className="serif text-[40px] font-semibold leading-none lg:text-[64px]">{line ? <LineName line={line} size="0.9em" /> : title}</h1>
-                <p className="tnum text-[13px] text-linen/80" aria-live="polite">
-                  {elsewhere.length ? found : searching ? `${plural(filtered.length)} for “${query.trim()}”` : plural(filtered.length)}
-                </p>
-              </div>
+              {/* On the right half the title keeps one line: smaller until there is room for 64 px. */}
+              <h1 className={`serif mt-1 text-[40px] font-semibold leading-none lg:text-[64px] ${bannerSide === "right" ? "lg:max-xl:text-[48px]" : ""}`}>{line ? <LineName line={line} size="0.9em" /> : title}</h1>
               <p className="mt-3 hidden max-w-[44ch] text-[17px] leading-relaxed text-linen/80 lg:block">{descriptor}</p>
             </div>
-            <div className="w-[72%] max-w-[360px]">{field}</div>
+            {/* How many scents, right above the search that narrows them. */}
+            <div className={`w-[72%] max-w-[360px] ${bannerSide === "right" ? "md:w-full" : ""}`}>
+              <p className="tnum mb-2 text-[13px] text-linen/80" aria-live="polite">
+                {elsewhere.length ? found : searching ? `${plural(filtered.length)} for “${query.trim()}”` : plural(filtered.length)}
+              </p>
+              {field}
+            </div>
           </div>
         </div>
       ) : (
@@ -561,7 +579,7 @@ export function CollectionGrid({
                 “{query.trim()}” isn’t in {where}.
               </p>
               <p className="mt-1 text-[15px] text-ash">Elsewhere in the house:</p>
-              <div className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
+              <div className="card-grid mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
                 {elsewhere.slice(0, 6).map((e, i) => (
                   <ProductCard key={e.handle} entry={e} priority={i < 2} sizes={CARD_SIZES} list="search" index={i} badge={badges ? undefined : false} />
                 ))}
@@ -584,7 +602,7 @@ export function CollectionGrid({
           </div>
         )
       ) : (
-        <div ref={gridRef} className="mt-4 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
+        <div ref={gridRef} className="card-grid mt-4 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-8 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
           {shown.map((e, i) => (
             <Fragment key={e.handle}>
               <ProductCard entry={e} priority={i < 2} sizes={CARD_SIZES} list={listName} index={i} badge={badges ? undefined : false} />

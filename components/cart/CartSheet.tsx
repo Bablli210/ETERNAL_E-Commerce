@@ -212,7 +212,8 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
     }
 
     // 2. The mystery box, the low-commitment way to choose the next bottle.
-    if (box?.bottle?.availableForSale && !handles.has(BOX) && !spent.has(BOX)) {
+    // A box that comes for him or for her is chosen on its own page, not added from here.
+    if (box?.bottle?.availableForSale && !box.choices && !handles.has(BOX) && !spent.has(BOX)) {
       // When the box is what stands between this bag and free delivery, the note says so.
       const freeWith = away !== null && away > 0 && parseFloat(box.bottle.price.amount) >= away;
       return { key: BOX, eyebrow: "Find your next scent", entry: box, variant: box.bottle, note: `Three 5 ml scents, chosen by the house${freeWith ? " · gets you free delivery" : ""}`, image: box.image ?? boxImage };

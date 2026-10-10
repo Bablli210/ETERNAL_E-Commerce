@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { FeaturedTale, Hero, LineTiles, ProofStrip, ScentTiles, TalesTeaser, TryBeforeYouCommit, WhereToStart } from "@/components/home/Sections";
-import { getBestsellers, getCatalogue, getFeaturedScent, getLineCounts, getScent, toIndexEntry, type Scent } from "@/lib/catalogue";
+import { EternalOriginals, FeaturedTale, Hero, LineTiles, OccasionTiles, ProofStrip, ScentTiles, TalesTeaser, TryBeforeYouCommit, WhereToStart } from "@/components/home/Sections";
+import { getBestsellers, getCatalogue, getFeaturedScent, getLineCounts, getOriginals, getScent, toIndexEntry, type Scent } from "@/lib/catalogue";
+import { occasionOrder, occasionsLive, type OccasionKey } from "@/content/occasions";
 import type { Money } from "@/lib/shopify/types";
 import type { Hero as HeroDef } from "@/content/heroes";
 import { site } from "@/content/site";
@@ -57,7 +58,15 @@ function lowest(prices: (Money | null | undefined)[]): Money | null {
  * phone screens down.
  */
 export async function HomePage({ hero }: { hero: HeroDef }) {
-  const [heroScent, featured, picks, counts, mysteryBox, { scents }] = await Promise.all([getScent(hero.handle), getFeaturedScent(), getBestsellers(8), getLineCounts(), getScent("mystery-box"), getCatalogue()]);
+  const [heroScent, featured, picks, counts, mysteryBox, { scents }, originals] = await Promise.all([
+    getScent(hero.handle),
+    getFeaturedScent(),
+    getBestsellers(8),
+    getLineCounts(),
+    getScent("mystery-box"),
+    getCatalogue(),
+    getOriginals(),
+  ]);
   const fromPrice = lowest(scents.map((s) => (s.bottle?.availableForSale ? s.bottle.price : null)));
   // A 5 ml offer appears by itself once a scent has a 5 ml variant; the finder's trio needs every scent to have one.
   const samplePrice = lowest(scents.map((s) => (s.sample?.availableForSale ? s.sample.price : null)));
@@ -70,8 +79,10 @@ export async function HomePage({ hero }: { hero: HeroDef }) {
       <ProofStrip />
       <LineTiles counts={counts} total={scents.length} />
       <WhereToStart entries={onePerLineFirst(picks, 4).map(toIndexEntry)} total={scents.length} />
+      <EternalOriginals entries={originals.map(toIndexEntry)} />
       <TryBeforeYouCommit mysteryBox={mysteryBox ? toIndexEntry(mysteryBox) : null} everySampled={everySampled} />
       <ScentTiles />
+      {occasionsLive && <OccasionTiles counts={Object.fromEntries(occasionOrder.map((k) => [k, scents.filter((s) => s.occasions.includes(k)).length])) as Record<OccasionKey, number>} />}
       <FeaturedTale scent={featured} />
       {/* The house film section is off the home page for now, at the owner's request; HouseFilm stays in Sections.tsx to bring back. */}
       <TalesTeaser exclude={featured?.taleSlug ?? null} />

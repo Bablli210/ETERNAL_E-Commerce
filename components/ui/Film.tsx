@@ -23,7 +23,9 @@ function preloadFor(src: string, sizes: string, media: string) {
  * reads `public/videos/home-hero.{webm,mp4}` and `public/images/home-hero.*`.
  * A name only becomes a film when both are present, so the poster and the
  * first frame can never disagree. With no clip this is exactly `Figure`: the
- * still if it exists, the labelled placeholder if it does not.
+ * still if it exists, the labelled placeholder if it does not. A clip named
+ * `<name>-intro` plays once before the loop when it exists (its last frame is
+ * the loop's first).
  */
 export function Film({
   name,
@@ -39,6 +41,9 @@ export function Film({
   preload = "auto",
   startWhenIdle = false,
   media,
+  still = true,
+  clipFlush = false,
+  clipBleed = false,
 }: {
   name: string | string[];
   label: string;
@@ -56,6 +61,12 @@ export function Film({
   startWhenIdle?: boolean;
   /** Only load the clip (and preload the still) when this media query matches, for slots CSS hides. */
   media?: string;
+  /** false: the caller paints the still (the home hero's one <picture>); this draws only the clip, or nothing without one. */
+  still?: boolean;
+  /** The clip starts at the box's top-left corner, 1 px short of its right and bottom edges (BackgroundVideo). */
+  clipFlush?: boolean;
+  /** The clip runs 1 px past every edge, cropped by the box (BackgroundVideo). */
+  clipBleed?: boolean;
 }) {
   // With a media query the preload carries it; the image itself must not preload everywhere.
   const preloadEverywhere = priority && !media;
@@ -63,11 +74,12 @@ export function Film({
     const sources = siteVideo(n);
     const poster = siteImage(n);
     if (sources && poster) {
-      if (priority && media) preloadFor(poster, sizes, media);
+      if (still && priority && media) preloadFor(poster, sizes, media);
       return (
         <BackgroundVideo
           sources={sources}
-          poster={poster}
+          intro={siteVideo(`${n}-intro`)}
+          poster={still ? poster : null}
           alt={alt}
           className={className}
           imageClassName={imageClassName}
@@ -77,12 +89,15 @@ export function Film({
           preload={preload}
           startWhenIdle={startWhenIdle}
           media={media}
+          clipFlush={clipFlush}
+          clipBleed={clipBleed}
         />
       );
     }
   }
-  const still = siteImage(name);
-  if (still && priority && media) preloadFor(still, sizes, media);
+  if (!still) return null;
+  const image = siteImage(name);
+  if (image && priority && media) preloadFor(image, sizes, media);
   return (
     <Figure
       name={name}

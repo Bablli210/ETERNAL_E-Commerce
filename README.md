@@ -1,6 +1,6 @@
 # eternal — storefront
 
-The headless storefront for **eternal**, a Cairo house of eaux de parfum in three lines
+The headless storefront for **eternal**, a Cairo house of eau de parfum in three lines
 (eterna for her, eterno for him, eternal for both). Built from the wireframes and design
 direction in [`design/`](design/README.md): Next.js on Vercel in front of the existing
 Shopify store, which stays the source of truth for products, prices, inventory and checkout.
@@ -26,12 +26,15 @@ content/scents.ts  (colour worlds, inspired-by, tales, notes) ────┘
 ```
 
 - `lib/catalogue.ts` merges Shopify product data with the editorial layer in `content/`.
-  Product **metafields** in the `custom` namespace (`inspired_by`, `color_world`,
+  Product **metafields** in the `custom` namespace (`color_world`,
   `signature_line`, `story`, `top_notes`, `heart_notes`, `base_notes`, `notes_copy`,
   `longevity`, `sillage`, `season`, `occasion`, `time_of_day`, `scent_family`,
   `mood_words`, `comparison_note`) win over `content/scents.ts` whenever they exist, so the
   catalogue can move to metafields one field at a time.
-- Lines, families and moods are derived from product **tags** (`eterna` / `eterno` /
+- Each scent's line, its original ("House Original") and whether it is one of the Eternal Originals come
+  from the owner's approved sheet in `content/scents.ts`, which wins over Shopify tags and the
+  `inspired_by` metafield. A scent marked `inactive` there (Ultra Smoke) stays off the site.
+- Families and moods are derived from product **tags** (`eterna` / `eterno` /
   `for her` / `for him` / `unisex`, and `aquatic`, `woody`, `amber`, …) as mapped in
   `content/taxonomy.ts`.
 - The **bag** is client-side (localStorage). **Checkout** posts the bag to
@@ -56,7 +59,7 @@ phone, inside Instagram's browser, so every landing page sells on its first scre
 | Ad | Link it to |
 | --- | --- |
 | One scent | `/products/<handle>` |
-| The home page, opening on the bottle the ad shows | `/?hero=<handle>` (vintage-vanilla, linen, mango-eclipse, neroli-code, raw-seduction); without it the home page opens on one of the five at random |
+| The home page, opening on the bottle the ad shows | `/?hero=<handle>` (vintage-vanilla, linen, mango-eclipse, neroli-code, raw-seduction); without it the home page opens on the hero film (`videos/home-hero`) |
 | A carousel of scents | `/shop?h=handle-a,handle-b,handle-c` (only those, in that order) |
 | A line | `/shop/her`, `/shop/him`, `/shop/unisex` |
 | "Find your scent" | `/finder` |
@@ -93,8 +96,8 @@ checkout runs on a subdomain of the site's root domain (the launch checklist sho
 
 | Route | Board |
 | --- | --- |
-| `/` | Home — hero with the featured scent and its price, proof strip, the three lines side by side, where to start, try before you commit (mystery box, finder), moods, featured tale, house film |
-| `/shop`, `/shop/[collection]` | Collection — one-row head (line banners on her/him/unisex), line and family chips, filter sheet, search by the original, 24 then all, mystery box tile, state in the URL (`?q=`, `?h=`, filters, sort). Collections: `her`, `him`, `unisex`, `bestsellers` ("Where to start"), `new`, six families, six moods |
+| `/` | Home — the hero film (or the campaign still an ad pins) with its scent and price, proof strip, the three lines side by side, where to start, the Eternal Originals, try before you commit (mystery box, finder), shop by scent, shop by occasion, featured tale, more tales |
+| `/shop`, `/shop/[collection]` | Collection — one-row head (line banners on her/him/unisex), line and family chips, filter sheet, search by the original, 24 then all, mystery box tile, state in the URL (`?q=`, `?h=`, filters, sort). Collections: `her`, `him`, `unisex`, `bestsellers` ("Where to start"), `new`, `originals` (the Eternal Originals), six families, and five occasions (`date`, `everyday`, `event`, `outdoors`, `beach-side`) once `occasionsLive` is set in `content/occasions.ts` |
 | `/products/[handle]` | Product page — first screen with gallery, name and price, inspired-by, notes and Add to bag; sticky bar; promise list; how it differs, how it smells, wear it, FAQ, pairing, tale, you may also like, recently viewed |
 | `/bag?items=<variant>:<qty>,…` | Rebuilds the bag from a link (retargeting, "send my bag") |
 | `/finder` | Scent finder — five questions with the state in the URL, three matches with Add, the mystery box when 5 ml samples do not exist yet |

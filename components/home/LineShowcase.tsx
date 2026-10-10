@@ -24,7 +24,7 @@ export type LineShowcaseItem = {
  * from the brand kit, and one still on the right. The list runs exactly the
  * still's height in three equal rows, each name under its own rule and one more
  * rule under eternal, so the four rules are evenly spaced from the still's top
- * edge to its bottom. Hovering or focusing a name darkens its rule, nudges it right and brings in
+ * edge to its bottom, each line centred between its two. Hovering or focusing a name darkens its rule, nudges it right and brings in
  * that line's still; each name is the link to its line, so a tap on a phone
  * goes straight there. Every still is in the page from the start, so the swap
  * never waits on a download.
@@ -42,27 +42,31 @@ export function LineShowcase({ items }: { items: LineShowcaseItem[] }) {
               onMouseEnter={() => setActive(i)}
               onFocus={() => setActive(i)}
               data-on={i === active ? "" : undefined}
-              className="line-name group flex h-full items-start justify-between gap-3 border-t py-4 lg:py-8"
+              className="line-name group flex h-full flex-col justify-center border-t py-4 lg:py-8"
             >
-              <span className="line-text min-w-0">
-                {/* The t is the name's height; eternal's l rises above it, as in the logotype. */}
-                <span className="block text-[30px] leading-none sm:text-[40px] lg:text-[clamp(56px,6vw,96px)]">
-                  <LineName line={it.key} size="1em" />
+              {/* Each line sits in the middle of its row, between the rule above it and the one below. */}
+              <span className="flex items-start justify-between gap-3">
+                <span className="line-text min-w-0">
+                  {/* The t is the name's height; eternal's l rises above it, as in the logotype. */}
+                  <span className="block text-[30px] leading-none sm:text-[40px] lg:text-[clamp(56px,6vw,96px)]">
+                    <LineName line={it.key} size="1em" />
+                  </span>
+                  <span className="mt-1.5 block text-[13px] font-semibold text-night lg:mt-3 lg:text-[15px]">{it.audience}</span>
+                  <span className="block text-[12px] text-ash lg:text-[14px]">
+                    {it.count} scents<span className="hidden lg:inline"> · {it.blurb}</span>
+                  </span>
                 </span>
-                <span className="mt-1.5 block text-[13px] font-semibold text-night lg:mt-3 lg:text-[15px]">{it.audience}</span>
-                <span className="block text-[12px] text-ash lg:text-[14px]">
-                  {it.count} scents<span className="hidden lg:inline"> · {it.blurb}</span>
-                </span>
+                {/* Level with the middle of the name. */}
+                <Icon name="arrow-right" size={28} aria-hidden="true" className="line-arrow hidden shrink-0 lg:mt-[calc(clamp(56px,6vw,96px)/2_-_14px)] lg:block" />
               </span>
-              {/* Level with the middle of the name, as each row's content sits at its top. */}
-              <Icon name="arrow-right" size={28} aria-hidden="true" className="line-arrow hidden shrink-0 lg:mt-[calc(clamp(56px,6vw,96px)/2_-_14px)] lg:block" />
             </Link>
           </li>
         ))}
       </ul>
       {/* The still repeats the active name's link for a pointer; screen readers and the tab order have the names. Its height
-          sets the row, and the list stretches to it; if the list is ever the taller, the still grows to match. */}
-      <Link href={current.href} aria-hidden="true" tabIndex={-1} className="relative block aspect-[4/5] h-full overflow-hidden" style={current.src ? undefined : { backgroundColor: current.tone }}>
+          sets the row, and the list stretches to it; if the list is ever the taller (always, on a phone), the still grows
+          to match within its own column's width, cropping, instead of widening past the screen's edge. */}
+      <Link href={current.href} aria-hidden="true" tabIndex={-1} className="relative block aspect-[4/5] h-full w-full overflow-hidden" style={current.src ? undefined : { backgroundColor: current.tone }}>
         {items.map((it, i) =>
           it.src ? (
             <Image key={it.key} src={it.src} alt="" fill sizes="(min-width: 1024px) 50vw, 50vw" data-on={i === active ? "" : undefined} className="line-still object-cover" />

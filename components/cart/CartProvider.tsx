@@ -315,7 +315,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const reconcile = useCallback<CartContextValue["reconcile"]>((index) => {
     sampleTitles.current = new Map(index.map((e) => [e.handle, e.title]));
     const live = new Map<string, { entry: ScentIndexEntry; price: Money; availableForSale: boolean }>();
-    for (const entry of index) for (const v of [entry.bottle, entry.sample]) if (v) live.set(v.id, { entry, price: v.price, availableForSale: v.availableForSale });
+    // The mystery box's For him and For her are variants of their own, beside its "bottle".
+    for (const entry of index)
+      for (const v of [entry.bottle, entry.sample, ...(entry.choices ?? []).map((c) => c.variant)]) if (v) live.set(v.id, { entry, price: v.price, availableForSale: v.availableForSale });
     if (!live.size) return;
     const prev = parseLines(readRaw(KEY));
     let changed = false;

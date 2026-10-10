@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
+import { cookiePurposes } from "@/content/cookies";
 import { checkoutFollows, configureConsent, onConsentOpen, readConsent, saveConsent, syncCheckoutOnce, useConsent, type ConsentSettings } from "@/lib/client/consent";
 
 /**
@@ -101,30 +102,31 @@ export function ConsentBanner(props: ConsentSettings) {
         A few cookies, if you agree
       </h2>
       <p className="mt-2 text-[14px] leading-snug text-ash">
-        We&rsquo;d like to count visits and show eternal to you on Instagram, Facebook and Google. Nothing that identifies you goes to Meta or Google from this site until you say yes.{" "}
+        We use cookies and similar technologies. Strictly necessary cookies keep the site working. With your consent, we and our partners also use them for analytics
+        and personalised advertising. No personal data is shared for these purposes unless you accept, and you can withdraw your consent at any time.{" "}
         <Link href="/help#privacy" className="lnk whitespace-nowrap text-night">
-          How we use your data
+          Cookie and privacy information
         </Link>
       </p>
 
       {details && (
         <fieldset className="mt-4 flex flex-col gap-3 border-t border-dune pt-3">
           <legend className="sr-only">Choose which cookies to allow</legend>
-          <Purpose id={`${id}-necessary`} label="Necessary" checked disabled note="Your bag, this choice, and the name of the campaign that brought you here. Always on." />
+          <Purpose id={`${id}-necessary`} label={cookiePurposes.necessary.label} checked disabled note={cookiePurposes.necessary.note} />
           <Purpose
             id={`${id}-analytics`}
             ref={firstSwitch}
-            label="Analytics"
+            label={cookiePurposes.analytics.label}
             checked={analytics}
             onChange={setAnalytics}
-            note="Google Analytics and Vercel count visits and see which pages work, so we can make the site better."
+            note={cookiePurposes.analytics.note}
           />
           <Purpose
             id={`${id}-marketing`}
-            label="Marketing"
+            label={cookiePurposes.marketing.label}
             checked={marketing}
             onChange={setMarketing}
-            note={`Meta (Instagram, Facebook) and Google see which scents you looked at and added, so our ads reach the right people and we can see what they sold. The ad you came from travels with your order${checkoutFollows() ? ", and checkout follows the same choice" : ". Checkout runs on Shopify, under Shopify’s own cookie settings"}.`}
+            note={`${cookiePurposes.marketing.note} ${checkoutFollows() ? "Checkout follows the same choice." : "Checkout is operated by our e-commerce platform provider under its own cookie settings."}`}
           />
         </fieldset>
       )}

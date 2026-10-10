@@ -26,5 +26,11 @@ export function CheckoutCookieNote(p: { cookieDomain: string | null; checkoutDom
     () => checkoutFollowsChoice(window.location.hostname, p.cookieDomain, p.checkoutDomain, p.storefrontToken),
     () => false,
   );
-  return <>{follows ? "Shopify’s checkout follows the same choice; until you make one, it uses Shopify’s own cookie settings." : "Checkout runs on Shopify, under Shopify’s own cookie settings."}</>;
+  return (
+    <>
+      {follows
+        ? "Checkout follows the same choice; until you make one, it applies our e-commerce platform provider’s default cookie settings."
+        : "Checkout is operated by our e-commerce platform provider under its own cookie settings."}
+    </>
+  );
 }

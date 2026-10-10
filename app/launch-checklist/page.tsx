@@ -16,7 +16,7 @@ export const revalidate = 300;
 export const metadata: Metadata = { title: "Launch checklist", robots: { index: false, follow: false } };
 
 /** Site-wide image slots that should hold a real file before launch. */
-const SITE_IMAGES = [...heroes.flatMap((h) => [`hero-${h.handle}`, `hero-${h.handle}-mobile`]), "line-eterna", "line-eterno", "line-eternal", "finder-band", "mystery-box", "house-film-poster", "og-image"];
+const SITE_IMAGES = [...heroes.flatMap((h) => (h.film ? [h.film, `${h.film}-mobile`] : [`hero-${h.handle}`, `hero-${h.handle}-mobile`])), "line-eterna", "line-eterno", "line-eternal", "finder-band", "mystery-box", "house-film-poster", "og-image"];
 
 /**
  * The environment the ads depend on, read on the server: whether each key is
@@ -83,7 +83,7 @@ export default async function LaunchChecklist() {
         s.kind === "scent" && !s.families.length && !s.moods.length && "scent tags (the finder can’t match it)",
         !s.images.length && "packshot",
         s.images.length < 2 && "second frame",
-        s.kind === "scent" && !s.inspiredBy && "inspired-by",
+        s.kind === "scent" && !s.inspiredBy && !s.isOriginal && "inspired-by",
         s.kind === "scent" && !s.notes && "notes pyramid",
         s.kind === "scent" && !s.comparison && "how ours differs",
         s.kind === "scent" && !s.signature && "signature line",

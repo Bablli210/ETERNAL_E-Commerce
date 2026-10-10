@@ -163,7 +163,7 @@ function BuyCard({ entry, product, box }: { entry: ScentIndexEntry; product: Bag
         {entry.sample ? (
           <AddToBagButton variant={entry.sample} product={product} source="tale" kind="sample" look="secondary" block label={`Try ${entry.sample.label} · ${formatMoney(entry.sample.price)}`} />
         ) : (
-          box?.bottle && (
+          box?.bottle?.availableForSale && (
             <Link href={`/products/${box.handle}`} className="flex min-h-12 items-center gap-3 bg-linen px-4 py-3 text-[14px] hover:text-sea">
               <span className="min-w-0 flex-1">
                 Not ready for a bottle? <span className="text-ash">The mystery box: three {site.sampleSizeMl} ml scents chosen by the house, {formatMoney(box.bottle.price)}.</span>

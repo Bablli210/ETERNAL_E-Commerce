@@ -29,14 +29,15 @@ export default async function TalesPage() {
             const scent = scents[i];
             return (
               <li key={t.slug} className="flex flex-col">
-                <Link href={`/tales/${t.slug}`} className="group flex flex-col">
+                {/* The tale fills the card's height, so every card's "Read the tale" and its scent sit level across the row. */}
+                <Link href={`/tales/${t.slug}`} className="group flex flex-1 flex-col">
                   <TaleStill slug={t.slug} label={t.heroArt} sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw" />
                   <p className="mt-4 text-[12px] tracking-[0.02em] text-ash">
                     <LineLabel line={t.line} /> · {t.readTime}
                   </p>
                   <h2 className="serif mt-1 text-[28px] leading-[1.1] group-hover:text-sea">{t.title}</h2>
                   <p className="mt-2 line-clamp-3 text-[15px] leading-relaxed text-ash">{t.paragraphs[0]}</p>
-                  <span className="mt-2 inline-flex min-h-11 items-center gap-1.5 self-start text-[13px] font-semibold">
+                  <span className="mt-auto inline-flex min-h-11 items-center gap-1.5 self-start pt-2 text-[13px] font-semibold">
                     <span className="lnk">Read the tale</span> <Icon name="arrow-right" size={14} />
                   </span>
                 </Link>

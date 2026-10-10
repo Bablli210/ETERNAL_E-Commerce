@@ -4,6 +4,7 @@ import snapshotJson from "@/content/catalogue.snapshot.json";
 import { scents as editorial, type NoteStage } from "@/content/scents";
 import { families, familyOrder, moods, moodOrder, lines, collectionBySlug, type CollectionDef, type FamilyKey, type LineKey, type MoodKey } from "@/content/taxonomy";
 import { taleForHandle } from "@/content/tales";
+import { occasionOrder, occasions, type OccasionKey } from "@/content/occasions";
 import { shopifyConfigured } from "./shopify/client";
 import { fetchAllProducts } from "./shopify/queries";
 import type { CatalogueSnapshot, Money, ShopifyImage, ShopifyProduct } from "./shopify/types";
@@ -24,6 +25,20 @@ export type Variant = {
 
 export type World = { bg: string; accent: string; dark: boolean };
 
+/** One of the mystery box's two choices, with the Shopify variant that sells it (null until Shopify has one). */
+export type BoxChoice = { key: "him" | "her"; label: string; variant: Pick<Variant, "id" | "numericId" | "label" | "price" | "availableForSale"> | null };
+
+/**
+ * The mystery box comes for him or for her. Each choice sells through a box
+ * variant whose title or option names it ("For him", "Male", "Men"…); a
+ * choice with no such variant shows as out of stock, and so does the whole
+ * box while neither choice can be bought.
+ */
+const BOX_CHOICES: { key: BoxChoice["key"]; label: string; match: RegExp }[] = [
+  { key: "him", label: "For him", match: /\b(him|male|men|man)\b/i },
+  { key: "her", label: "For her", match: /\b(her|female|women|woman)\b/i },
+];
+
 export type Scent = {
   id: string;
   handle: string;
@@ -35,6 +50,8 @@ export type Scent = {
   images: ShopifyImage[];
   image: ShopifyImage | null;
   hoverImage: string | null;
+  /** The notes sculpture (products/<handle>-3): what a card shows first on a touch screen, which cannot hover to it. */
+  notesImage: string | null;
   price: Money;
   variants: Variant[];
   bottle: Variant | null;
@@ -47,6 +64,12 @@ export type Scent = {
   moods: MoodKey[];
   world: World;
   inspiredBy: string | null;
+  /** One of the Eternal Originals: the house's own composition, inspired by no other fragrance. */
+  isOriginal: boolean;
+  /** Shop by occasion (content/occasions.ts). */
+  occasions: OccasionKey[];
+  /** The mystery box's For him / For her choice; null on every other product. */
+  choices: BoxChoice[] | null;
   comparison: string | null;
   signature: string | null;
   notesShort: string[];
@@ -181,8 +204,9 @@ function enrich(p: ShopifyProduct): Scent {
   const tags = p.tags.map((t) => t.toLowerCase());
   const kind: Scent["kind"] = p.handle === "mystery-box" || p.handle === "discovery-set" ? "set" : "scent";
 
+  // The owner's sheet (content/scents.ts) settles the line first, then a line metafield, then the tags.
   const lineMeta = meta(p, "line")?.toLowerCase() as LineKey | undefined;
-  const line = (lineMeta && lines[lineMeta] ? lineMeta : null) ?? ed.line ?? lineFromTags(tags);
+  const line = ed.line ?? (lineMeta && lines[lineMeta] ? lineMeta : null) ?? lineFromTags(tags);
 
   const familyMeta = metaList(p, "scent_family");
   const familyKeys = familyMeta
@@ -205,7 +229,7 @@ function enrich(p: ShopifyProduct): Scent {
           ? { bg: lines[line].tone, accent: lines[line].toneDark ? "#F3EFE7" : "#171614", dark: lines[line].toneDark }
           : { bg: "#E4D9C5", accent: "#171614", dark: false };
 
-  const variants: Variant[] = p.variants.map((v) => {
+  let variants: Variant[] = p.variants.map((v) => {
     const k = variantKind(v.title, p.handle);
     const size = v.selectedOptions?.find((o) => /size/i.test(o.name))?.value;
     return {
@@ -220,6 +244,20 @@ function enrich(p: ShopifyProduct): Scent {
       kind: k,
     };
   });
+  let choices: BoxChoice[] | null = null;
+  if (p.handle === "mystery-box") {
+    const named = (v: Variant, c: (typeof BOX_CHOICES)[number]) =>
+      c.match.test(v.title) || Boolean(p.variants.find((x) => x.id === v.id)?.selectedOptions?.some((o) => c.match.test(o.value)));
+    choices = BOX_CHOICES.map((c) => {
+      const v = variants.find((x) => named(x, c));
+      return { key: c.key, label: c.label, variant: v ? { id: v.id, numericId: v.numericId, label: c.label, price: v.price, availableForSale: v.availableForSale } : null };
+    });
+    // A box variant that names neither choice cannot be bought: the shopper has to choose.
+    const chosen = new Set(choices.flatMap((c) => (c.variant ? [c.variant.id] : [])));
+    variants = variants.map((v) => (chosen.has(v.id) ? v : { ...v, availableForSale: false }));
+    const pickable = choices.find((c) => c.variant?.availableForSale)?.variant ?? choices.find((c) => c.variant)?.variant;
+    if (pickable) variants = [...variants.filter((v) => v.id === pickable.id), ...variants.filter((v) => v.id !== pickable.id)];
+  }
   const bottle = variants.find((v) => v.kind === "bottle") ?? variants.find((v) => v.kind === "set") ?? variants[0] ?? null;
   const sample = variants.find((v) => v.kind === "sample") ?? null;
 
@@ -277,6 +315,7 @@ function enrich(p: ShopifyProduct): Scent {
     images,
     image: images[0] ?? null,
     hoverImage: hover && hover !== images[0]?.url ? hover : null,
+    notesImage: localFrames[2],
     price: bottle?.price ?? p.priceRange.minVariantPrice,
     variants,
     bottle,
@@ -288,7 +327,11 @@ function enrich(p: ShopifyProduct): Scent {
     families: familyKeys,
     moods: moodKeys,
     world,
-    inspiredBy: meta(p, "inspired_by") ?? ed.inspiredBy ?? null,
+    // The owner's approved sheet wins over the metafield; an original names none.
+    inspiredBy: ed.original ? null : (ed.inspiredBy ?? meta(p, "inspired_by") ?? null),
+    isOriginal: Boolean(ed.original),
+    occasions: occasionOrder.filter((k) => occasions[k].handles.includes(p.handle)),
+    choices,
     comparison: meta(p, "comparison_note") ?? ed.comparison ?? null,
     signature: meta(p, "signature_line") ?? ed.signature ?? tale?.signature ?? null,
     notesShort,
@@ -311,7 +354,11 @@ function enrich(p: ShopifyProduct): Scent {
 
 export const getCatalogue = cache(async (): Promise<{ all: Scent[]; scents: Scent[]; live: boolean }> => {
   const { products, live } = await getRawProducts();
-  const all = products.map(enrich).sort((a, b) => a.title.localeCompare(b.title));
+  // A product the owner marked inactive (content/scents.ts) stays off the site, whatever Shopify says.
+  const all = products
+    .filter((p) => !editorial[p.handle]?.inactive)
+    .map(enrich)
+    .sort((a, b) => a.title.localeCompare(b.title));
   return { all, scents: all.filter((s) => s.kind === "scent"), live };
 });
 
@@ -332,6 +379,14 @@ export async function getBestsellers(limit = 8): Promise<Scent[]> {
     .filter((s) => s.isBestseller || s.isPick)
     .sort((a, b) => Number(b.isBestseller) - Number(a.isBestseller))
     .slice(0, limit);
+}
+
+const LINE_RANK: Record<LineKey, number> = { eterna: 0, eterno: 1, eternal: 2 };
+
+/** The Eternal Originals, for her, for him, then unisex, as the owner's sheet lists them. */
+export async function getOriginals(): Promise<Scent[]> {
+  const { scents } = await getCatalogue();
+  return scents.filter((s) => s.isOriginal).sort((a, b) => (a.line ? LINE_RANK[a.line] : 3) - (b.line ? LINE_RANK[b.line] : 3));
 }
 
 export async function getNewArrivals(limit = 12): Promise<Scent[]> {
@@ -362,6 +417,12 @@ export async function getCollection(slug: string): Promise<{ def: CollectionDef;
       break;
     case "new":
       picked = await getNewArrivals(12);
+      break;
+    case "originals":
+      picked = await getOriginals();
+      break;
+    case "occasion":
+      picked = scents.filter((s) => s.occasions.includes(def.key as OccasionKey));
       break;
   }
   // Products with imagery first, so the first rows always show a bottle.
@@ -414,6 +475,8 @@ export type ScentIndexEntry = {
   line: LineKey | null;
   lineLabel: string | null;
   inspiredBy: string | null;
+  isOriginal: boolean;
+  choices: BoxChoice[] | null;
   notesShort: string[];
   tags: string[];
   families: FamilyKey[];
@@ -423,6 +486,7 @@ export type ScentIndexEntry = {
   price: Money;
   image: string | null;
   hoverImage: string | null;
+  notesImage: string | null;
   world: World;
   kind: Scent["kind"];
   isBestseller: boolean;
@@ -439,6 +503,8 @@ export const toIndexEntry = (s: Scent): ScentIndexEntry => ({
   line: s.line,
   lineLabel: s.lineLabel,
   inspiredBy: s.inspiredBy,
+  isOriginal: s.isOriginal,
+  choices: s.choices,
   notesShort: s.notesShort,
   tags: s.tags,
   families: s.families,
@@ -447,6 +513,7 @@ export const toIndexEntry = (s: Scent): ScentIndexEntry => ({
   price: s.price,
   image: s.image?.url ?? null,
   hoverImage: s.hoverImage,
+  notesImage: s.notesImage,
   world: s.world,
   kind: s.kind,
   isBestseller: s.isBestseller,

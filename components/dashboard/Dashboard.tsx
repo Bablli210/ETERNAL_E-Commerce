@@ -86,7 +86,7 @@ export function Dashboard({
       <main className="dash-main" id="dash-main">
         {notice ? <div className="dash-notice">{notice}</div> : null}
         <div className="intro">
-          <p className="label">eternal · eaux de parfum · Cairo</p>
+          <p className="label">eternal · eau de parfum · Cairo</p>
           <h1>How the house is selling</h1>
           <p className="lede">
             Sales and customers from Shopify, advertising from Meta, and the state of the tracking that feeds both. Figures are read live and refreshed every

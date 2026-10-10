@@ -26,8 +26,10 @@ function parseItems(raw: string, index: ScentIndexEntry[]): { lines: CartLine[];
     if (entry.bottle) {
       const hit: Hit = { entry, variant: entry.bottle, kind: entry.kind === "set" ? "set" : "bottle" };
       byVariant.set(entry.bottle.numericId, hit);
-      byHandle.set(entry.handle, hit);
+      // A box that comes for him or for her can't be added by its handle alone: the shopper chooses on its page.
+      if (!entry.choices) byHandle.set(entry.handle, hit);
     }
+    for (const c of entry.choices ?? []) if (c.variant) byVariant.set(c.variant.numericId, { entry, variant: c.variant, kind: "set" });
     if (entry.sample) byVariant.set(entry.sample.numericId, { entry, variant: entry.sample, kind: "sample" });
   }
   const lines = new Map<string, CartLine>();
