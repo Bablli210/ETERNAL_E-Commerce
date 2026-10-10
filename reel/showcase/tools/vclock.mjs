@@ -67,6 +67,67 @@ export const VCLOCK_INIT = () => {
     }))]);
     return imgs.filter((i) => !i.complete).length;
   };
+
+  // Video and audio play on the virtual clock too. The element itself stays paused; the page
+  // sees it playing (play(), paused, play/pause/ended events), and every step seeks it to where
+  // it would be, so a film on the page plays exactly in time with everything else.
+  const MP = HTMLMediaElement.prototype;
+  const realPause = MP.pause;
+  const pausedGet = Object.getOwnPropertyDescriptor(MP, "paused").get;
+  const media = new Map(); // element → { playing, start (vc ms), offset (s) }
+  const fire = (el, type) => el.dispatchEvent(new Event(type));
+  const vtime = (el, s) => (s.playing ? s.offset + ((vc.now - s.start) / 1000) * (el.playbackRate || 1) : s.offset);
+  const track = (el, playing) => {
+    const s = { playing, start: vc.now, offset: 0 };
+    media.set(el, s);
+    // A new source starts from its beginning.
+    el.addEventListener("emptied", () => { s.offset = 0; s.start = vc.now; });
+    return s;
+  };
+  MP.play = function () {
+    const s = media.get(this) ?? track(this, false);
+    if (!s.playing) {
+      s.offset = this.currentTime || 0;
+      s.start = vc.now;
+      s.playing = true;
+      queueMicrotask(() => { fire(this, "play"); fire(this, "playing"); });
+    }
+    if (!pausedGet.call(this)) realPause.call(this);
+    return Promise.resolve();
+  };
+  MP.pause = function () {
+    const s = media.get(this);
+    if (s && s.playing) { s.offset = vtime(this, s); s.playing = false; queueMicrotask(() => fire(this, "pause")); }
+    realPause.call(this);
+  };
+  Object.defineProperty(MP, "paused", { configurable: true, get() { const s = media.get(this); return s ? !s.playing : pausedGet.call(this); } });
+  /** Seek every playing medium to the clock; resolves once each has its frame (bounded by `limit` ms). */
+  vc.media = (limit = 4000) => {
+    const waits = [];
+    for (const el of document.querySelectorAll("video, audio")) {
+      let s = media.get(el);
+      if (!s) {
+        // Started by the browser (autoplay) rather than by play(): take it over from here.
+        if (pausedGet.call(el) && !(el.autoplay && el.readyState >= 1)) continue;
+        s = track(el, true);
+      }
+      if (!pausedGet.call(el)) realPause.call(el);
+      let t = vtime(el, s);
+      const d = el.duration;
+      if (Number.isFinite(d) && d > 0 && t >= d) {
+        if (el.loop) t %= d;
+        else {
+          t = d;
+          if (s.playing) { s.playing = false; s.offset = d; queueMicrotask(() => { fire(el, "pause"); fire(el, "ended"); }); }
+        }
+      }
+      if (el.readyState >= 1 && Math.abs(el.currentTime - t) > 1e-4) {
+        waits.push(new Promise((ok) => el.addEventListener("seeked", ok, { once: true })));
+        el.currentTime = t;
+      }
+    }
+    return Promise.race([Promise.all(waits), new Promise((ok) => real.setTimeout(ok, limit))]).then(() => waits.length);
+  };
 };
 
 /**

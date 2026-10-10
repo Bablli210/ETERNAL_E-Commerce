@@ -165,6 +165,8 @@ async function runTake(browser, take) {
       await new Promise((ok) => setTimeout(ok, 8));
     }
     await page.evaluate(() => window.__vc.images(4000));
+    // Films on the page: seek each to the clock and wait for its frame.
+    if (await page.evaluate(() => window.__vc.media(6000))) await page.evaluate(() => window.__vc.flush());
   };
 
   await page.goto(BASE + take.url, { waitUntil: take.loader ? "commit" : "domcontentloaded" });
@@ -212,12 +214,17 @@ async function runTake(browser, take) {
       a.done = true;
       if (a.do === "scroll") {
         const from = await page.evaluate(() => scrollY);
-        let to = a.to;
-        if (typeof to === "object") to = Math.round((await docCentre(page, to.sel))[1] - (await (await locate(page, to.sel)).boundingBox()).height / 2 + (to.off ?? 0));
+        // Targets come from the page where they can: {sel, off} (an element's top + off), or {expr} (a function's result).
+        const value = async (v) => (typeof v === "number" ? v : v.expr ? await page.evaluate(`(${v.expr})()`) : Math.round((await docCentre(page, v.sel))[1] - (await (await locate(page, v.sel)).boundingBox()).height / 2 + (v.off ?? 0)));
+        const to = await value(a.to);
         let dur = a.dur;
         const ease = EASE[a.ease ?? "inOut"];
         // Cross a threshold on an exact frame (the sticky bar mounts when the main button passes under the header).
-        if (a.cross) dur = (a.cross.at - a.at) / invert(ease, (a.cross.y - from) / (to - from));
+        if (a.cross) {
+          const cy = await value(a.cross.y);
+          dur = (a.cross.at - a.at) / invert(ease, (cy - from) / (to - from));
+          marks.push({ at: a.at, do: "cross", y: cy, at2: a.cross.at });
+        }
         scroll = { from, to, t0: a.at, dur, ease };
         marks.push({ at: a.at, do: "scroll", from, to, dur });
       } else if (a.do === "glide") {

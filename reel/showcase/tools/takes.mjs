@@ -9,6 +9,9 @@ const SHOP_CHIP = (name) => `[aria-label='Quick filters'] button:has-text('${nam
 const RAW = "article[data-card='raw-seduction']";
 const ADD = "main form[action='/bag'] button[type=submit] >> nth=0";
 const PLUS = "[data-bag-sheet] button[aria-label^='Increase quantity']";
+// Where the phone's sticky bar mounts: the main button's top passing under the pinned header (BuyBox.tsx).
+const BAR_AT = "() => { const b = document.querySelector(\"main form[action='/bag'] button[type=submit]\"); const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--chrome-top')) || 0; return b.getBoundingClientRect().top + scrollY - top + 0.5; }";
+const AWAY = (n) => `() => /EGP ${n} away from free delivery/.test(document.body.innerText) || (document.body.innerText.match(/EGP [\\d,]+ away[^\\n]*/) || ['no meter'])[0]`;
 
 export const TAKES = [
   // D1 · desktop, first visit: the loader's mark and curtain, the hero, down to the three
@@ -49,11 +52,12 @@ export const TAKES = [
       { at: F(528), do: "glide", to: { sel: ADD, dx: 60 }, via: [[700, 420]], dur: F(21) },
       { at: F(558), do: "down" },
       { at: F(560), do: "up" },
-      { at: F(585), do: "check", note: "drawer: bag (1), 1,230 away", fn: "() => /Your bag \\(1\\)/.test(document.body.innerText) && /1,230 away/.test(document.body.innerText)" },
+      { at: F(585), do: "check", note: "drawer: bag (1)", fn: "() => /Your bag \\(1\\)/.test(document.body.innerText)" },
+      { at: F(585), do: "check", note: "drawer meter: 1,220 away", fn: AWAY("1,220") },
       { at: F(597), do: "glide", to: { sel: PLUS }, via: [[1300, 300]], dur: F(9) },
       { at: F(606), do: "down" },
       { at: F(608), do: "up" },
-      { at: F(636), do: "check", note: "desktop meter: 260 away", fn: "() => /260 away/.test(document.body.innerText) && /1,940/.test(document.body.innerText)" },
+      { at: F(636), do: "check", note: "desktop meter: 250 away (2 × 970 = 1,940 of 2,190)", fn: AWAY("250") },
     ] },
 
   // D4 · desktop finder, opened from the link the phone started: the last answer, composing, three matches.
@@ -75,16 +79,16 @@ export const TAKES = [
       { at: 9.5, do: "check", note: "phone on raw seduction", fn: "() => location.pathname === '/products/raw-seduction' || location.pathname" },
     ] },
 
-  // P2 · phone product page: down the page, the sticky bar rises, a tap, the bag sheet, the Mystery Box added.
+  // P2 · phone product page: down the page, the sticky bar rises, a tap, the bag sheet, the suggestion added.
   { id: "v2-p2", device: "phone", url: "/products/raw-seduction", t0: F(384), until: 21.4, warm: 4.333,
     routes: { "raw-seduction": ["-3"] },
     watch: "() => !!document.querySelector('.pdp-bar')",
     timeline: [
-      { at: F(416), do: "scroll", to: 640, cross: { y: 589, at: F(448) }, ease: "inOut" },
+      { at: F(416), do: "scroll", to: { expr: BAR_AT.replace("+ 0.5;", "+ 52;") }, cross: { y: { expr: BAR_AT }, at: F(448) }, ease: "inOut" },
       { at: F(464), do: "tap", target: ".pdp-bar button[type=submit]" },
-      { at: F(490), do: "check", note: "sheet: 1,230 away", fn: "() => /1,230 away/.test(document.body.innerText)" },
+      { at: F(490), do: "check", note: "sheet meter: 1,220 away", fn: AWAY("1,220") },
       { at: F(592), do: "tap", target: "[data-bag-sheet] section[aria-label='A suggestion'] button:has-text('Add')" },
-      { at: F(630), do: "check", note: "phone meter: 980 away", fn: "() => /980 away/.test(document.body.innerText)" },
+      { at: F(630), do: "check", note: "phone meter after the suggestion: 121 away", fn: AWAY("121") },
     ] },
 
   // P3 · phone finder: Her, then Night; the answers go into the link.
