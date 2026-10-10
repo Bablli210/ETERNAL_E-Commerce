@@ -79,7 +79,8 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
   const shade = "23, 22, 20";
   // Desktop. A still keeps its bottle right of centre, so the copy holds the left half on a shade of its own. The film
   // fills the hero at every size (on a desktop set 12% right, HeroFilm, so Divina stands right of centre) and shows
-  // untouched, at the owner's request: no shade or glow over it anywhere, only a hairline shadow under the letters.
+  // untouched on a desktop, at the owner's request: no shade or glow over it, only a hairline shadow under the letters;
+  // on a phone a Night gradient rises behind the copy (below).
   // The bottle's left edge sits at about 43.7% of the screen (39% of the film, set 12% wider); the copy stops 32 px short.
   const desktopShade = hero.film ? null : `linear-gradient(to right, rgba(${shade}, 0.78) 0%, rgba(${shade}, 0.5) 30%, transparent 52%), linear-gradient(to bottom, rgba(${shade}, 0.35), transparent 20%)`;
   // Over the film the softer Dune would not read at all; Linen reads as well as the film allows.
@@ -110,6 +111,9 @@ export function Hero({ hero, scent, fromPrice, samplePrice }: { hero: HeroDef; s
         {/* A still, below lg: the copy sits at the picture's foot and grows with the three-line headline, so the picture's
             own fade cannot know where it starts: this shade rises with the copy and puts its first line on the band. */}
         {!hero.film && <div aria-hidden="true" className="absolute inset-x-0 -top-28 bottom-0 -z-10 lg:hidden" style={{ backgroundImage: `linear-gradient(to bottom, transparent, color-mix(in srgb, ${bg} 85%, transparent) 64px, ${bg} 112px)` }} />}
+        {/* The film, below lg, at the owner's request: a Night gradient that rises with the copy, clear 160 px above it and
+            deepening behind it toward the foot, so the words read over the film while it still shows through. */}
+        {hero.film && <div aria-hidden="true" className="absolute inset-x-0 -top-40 bottom-0 -z-10 lg:hidden" style={{ backgroundImage: "linear-gradient(to bottom, rgba(23, 22, 20, 0) 0, rgba(23, 22, 20, 0.6) 160px, rgba(23, 22, 20, 0.85) 100%)" }} />}
         {/* Over the film the copy ends 32 px short of Divina's bottle, at 43.7% of the screen. */}
         <div className={`max-w-[820px] ${hero.film ? "lg:max-w-[min(520px,32vw,calc(43.7vw_-_32px_-_max(80px,50vw_-_640px)))]" : "lg:max-w-[min(540px,40vw)]"}`}>
           {scent && (
