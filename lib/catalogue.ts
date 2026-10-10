@@ -10,6 +10,7 @@ import { fetchAllProducts } from "./shopify/queries";
 import type { CatalogueSnapshot, Money, ShopifyImage, ShopifyProduct } from "./shopify/types";
 import { numericId } from "./format";
 import { siteImage } from "./site-images";
+import { isNotesFrame } from "./product-frames";
 
 export type Variant = {
   id: string;
@@ -50,7 +51,7 @@ export type Scent = {
   images: ShopifyImage[];
   image: ShopifyImage | null;
   hoverImage: string | null;
-  /** The notes sculpture (products/<handle>-3): what a card shows first on a touch screen, which cannot hover to it. */
+  /** The notes sculpture (the store's "among its notes" frame, or products/<handle>-3): what a card shows first on a touch screen, which cannot hover to it. */
   notesImage: string | null;
   price: Money;
   variants: Variant[];
@@ -262,9 +263,11 @@ function enrich(p: ShopifyProduct): Scent {
   const sample = variants.find((v) => v.kind === "sample") ?? null;
 
   /*
-   * Gallery frames, Shopify first. Any frame Shopify does not have is filled
-   * from public/images/products/<handle>{,-2,-3,-4}, so imagery can be added
-   * to the repository before it is uploaded to the store.
+   * Gallery frames. Shopify's images are the record once a product has any, in
+   * the store's order (the notes still first, at the owner's request, then the
+   * bottle and the scene). A product with no image in Shopify yet takes
+   * public/images/products/<handle>{,-2,-3,-4}, so imagery can be added to the
+   * repository before it is uploaded to the store.
    */
   const localFrames = [
     siteImage(`products/${p.handle}`),
@@ -272,18 +275,18 @@ function enrich(p: ShopifyProduct): Scent {
     siteImage(`products/${p.handle}-3`),
     siteImage(`products/${p.handle}-4`),
   ];
-  const images: ShopifyImage[] = [];
-  for (let i = 0; i < 4; i++) {
-    const fromShopify = p.images[i];
-    if (fromShopify) {
-      images.push(fromShopify);
-      continue;
-    }
-    const local = localFrames[i];
-    if (local) images.push({ url: local, altText: `${p.title} ${FRAME_ALT[i]}`, width: null, height: null });
-  }
-  // Cards cross-fade to the notes still on hover; never to the frame they already show.
-  const hover = siteImage(`products/${p.handle}-hover`) ?? siteImage(`products/${p.handle}-3`) ?? images[1]?.url ?? null;
+  const images: ShopifyImage[] = p.images.length
+    ? p.images.slice(0, 4)
+    : localFrames.flatMap((url, i) => (url ? [{ url, altText: `${p.title} ${FRAME_ALT[i]}`, width: null, height: null }] : []));
+  const first = images[0]?.url ?? null;
+  const notesImage = images.find((img) => isNotesFrame(p.handle, img.url, img.altText))?.url ?? localFrames[2];
+  // Cards cross-fade on hover between the notes still and the bottle: to the notes when the bottle leads, to the
+  // first frame that is not the notes when the notes lead; never to the frame they already show.
+  const hover =
+    siteImage(`products/${p.handle}-hover`) ??
+    (notesImage && notesImage !== first ? notesImage : images.find((img) => img.url !== first && !isNotesFrame(p.handle, img.url, img.altText))?.url) ??
+    images[1]?.url ??
+    null;
 
   const notesShort = metaList(p, "notes_short") ?? ed.notesShort ?? notesFromDescription(p.description);
 
@@ -314,8 +317,8 @@ function enrich(p: ShopifyProduct): Scent {
     availableForSale: p.availableForSale && variants.some((v) => v.availableForSale),
     images,
     image: images[0] ?? null,
-    hoverImage: hover && hover !== images[0]?.url ? hover : null,
-    notesImage: localFrames[2],
+    hoverImage: hover && hover !== first ? hover : null,
+    notesImage,
     price: bottle?.price ?? p.priceRange.minVariantPrice,
     variants,
     bottle,

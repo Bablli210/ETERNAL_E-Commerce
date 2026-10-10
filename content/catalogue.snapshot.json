@@ -1,6 +1,6 @@
 {
-  "source": "Shopify Admin API, store eternal-10199.myshopify.com",
-  "capturedAt": "2026-10-04T12:00:00Z",
+  "source": "Shopify Admin API, store checkout.myeternal.net (5zbbma-jm.myshopify.com)",
+  "capturedAt": "2026-10-10T12:00:00Z",
   "products": [
     {
       "id": "gid://shopify/Product/9554999738627",
@@ -11,8 +11,8 @@
         "55ml",
         "aquatic",
         "citrus",
-        "eterno",
-        "for him"
+        "eternal",
+        "unisex"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",
@@ -20,8 +20,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/aqua-marine-3.jpg?v=1791638096",
+          "altText": "Aqua Marine among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/aqua-marine.png?v=1784480662",
-          "altText": "Aqua Marine eau de parfum",
+          "altText": "Aqua Marine eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -51,7 +57,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Louis Vuitton Afternoon Swim",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554989154563",
@@ -71,8 +83,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/atlantis-3.jpg?v=1791638096",
+          "altText": "Atlantis among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/atlantis.png?v=1784480223",
-          "altText": "Atlantis eau de parfum",
+          "altText": "Atlantis eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -102,7 +120,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Issey Miyake Le Sel d'Issey",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554990072067",
@@ -122,8 +146,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/atomic-3.jpg?v=1791638097",
+          "altText": "Atomic among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/atomic.png?v=1784480315",
-          "altText": "Atomic eau de parfum",
+          "altText": "Atomic eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -153,14 +183,21 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Paco Rabanne Invictus Rouge",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9600900825347",
       "handle": "aurora",
       "title": "Aurora",
-      "description": "",
+      "description": "Pear and bergamot open onto orange blossom, tuberose and jasmine, resting on vanilla and vetiver.",
       "tags": [
+        "55ml",
         "eterna",
         "floral",
         "for her",
@@ -170,7 +207,20 @@
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:46Z",
       "availableForSale": true,
-      "images": [],
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/aurora-3.jpg?v=1791638097",
+          "altText": "Aurora among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/aurora.jpg?v=1791638097",
+          "altText": "Aurora eau de parfum 55 ml",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
       "priceRange": {
         "minVariantPrice": {
           "amount": "950.00",
@@ -181,7 +231,7 @@
         {
           "id": "gid://shopify/ProductVariant/49484102926595",
           "title": "55 ml",
-          "sku": null,
+          "sku": "ETRN-AURO-55",
           "availableForSale": true,
           "quantityAvailable": null,
           "price": {
@@ -196,14 +246,21 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Givenchy L'Interdit EDP",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9600900759811",
       "handle": "bloom",
       "title": "Bloom",
-      "description": "",
+      "description": "Passion fruit, pineapple, grapefruit and strawberry with peony, orchid and lily of the valley, base of sandalwood, musk and oakmoss.",
       "tags": [
+        "55ml",
         "eterna",
         "floral",
         "for her",
@@ -213,7 +270,20 @@
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:44Z",
       "availableForSale": true,
-      "images": [],
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/bloom-3.jpg?v=1791638097",
+          "altText": "Bloom among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/bloom.jpg?v=1791638097",
+          "altText": "Bloom eau de parfum 55 ml",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
       "priceRange": {
         "minVariantPrice": {
           "amount": "950.00",
@@ -224,7 +294,7 @@
         {
           "id": "gid://shopify/ProductVariant/49484102861059",
           "title": "55 ml",
-          "sku": null,
+          "sku": "ETRN-BLOO-55",
           "availableForSale": true,
           "quantityAvailable": null,
           "price": {
@@ -239,7 +309,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Victoria's Secret Bombshell",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554990858499",
@@ -259,8 +335,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/carbon-3.jpg?v=1791638097",
+          "altText": "Carbon among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/carbon.png?v=1784480382",
-          "altText": "Carbon eau de parfum",
+          "altText": "Carbon eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -290,7 +372,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Dior Sauvage",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554997707011",
@@ -310,8 +398,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/caribbean-punch-3.jpg?v=1791638098",
+          "altText": "Caribbean Punch among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/caribbean-punch.png?v=1784480595",
-          "altText": "Caribbean Punch eau de parfum",
+          "altText": "Caribbean Punch eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -341,14 +435,21 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Lorenzo Pazzaglia Summer Hammer",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9600900989187",
       "handle": "ciel",
       "title": "Ciel",
-      "description": "",
+      "description": "Grapefruit with lavender and clary sage, resting on driftwood, sea salt and musk.",
       "tags": [
+        "55ml",
         "citrus",
         "eterno",
         "for him",
@@ -359,7 +460,20 @@
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:49Z",
       "availableForSale": true,
-      "images": [],
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/ciel-3.jpg?v=1791638098",
+          "altText": "Ciel among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/ciel.jpg?v=1791638098",
+          "altText": "Ciel eau de parfum 55 ml",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
       "priceRange": {
         "minVariantPrice": {
           "amount": "1199.00",
@@ -370,7 +484,7 @@
         {
           "id": "gid://shopify/ProductVariant/49484103090435",
           "title": "55 ml",
-          "sku": null,
+          "sku": "ETRN-CIEL-55",
           "availableForSale": true,
           "quantityAvailable": null,
           "price": {
@@ -385,7 +499,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Roja Elysium",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554990956803",
@@ -405,8 +525,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/cipher-3.jpg?v=1791638099",
+          "altText": "Cipher among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/cipher.png?v=1784480399",
-          "altText": "Cipher eau de parfum",
+          "altText": "Cipher eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -436,7 +562,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Nishane Hacivat",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554997149955",
@@ -446,8 +578,8 @@
       "tags": [
         "55ml",
         "citrus",
-        "eterno",
-        "for him"
+        "eternal",
+        "unisex"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",
@@ -455,8 +587,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/citron-3.jpg?v=1791638099",
+          "altText": "Citron among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/citron.png?v=1784480578",
-          "altText": "Citron eau de parfum",
+          "altText": "Citron eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -486,7 +624,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Byredo Bal d'Afrique Absolu",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554987811075",
@@ -505,8 +649,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/destiny-3.jpg?v=1791638099",
+          "altText": "Destiny among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/destiny.png?v=1784480070",
-          "altText": "Destiny eau de parfum",
+          "altText": "Destiny eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -536,7 +686,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Armani My Way",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9599803818243",
@@ -555,10 +711,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/divina-3.jpg?v=1791638103",
+          "altText": "Divina among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/divina.png?v=1787084866",
-          "altText": "Divina eau de parfum",
+          "altText": "Divina eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/divina-2.jpg?v=1791638104",
+          "altText": "Divina, the bottle in a scene",
+          "width": 1088,
+          "height": 1360
         }
       ],
       "priceRange": {
@@ -586,7 +754,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Burberry Goddess",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554995380483",
@@ -606,8 +780,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/eden-3.jpg?v=1791638104",
+          "altText": "Eden among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/eden.png?v=1784480515",
-          "altText": "Eden eau de parfum",
+          "altText": "Eden eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -637,7 +817,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Jean Paul Gaultier Le Beau Paradise Garden",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554996691203",
@@ -656,8 +842,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/element-3.jpg?v=1791638104",
+          "altText": "Element among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/element.png?v=1784480561",
-          "altText": "Element eau de parfum",
+          "altText": "Element eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -687,7 +879,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Maison Francis Kurkdjian Baccarat Rouge 540",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554990235907",
@@ -707,10 +905,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/enzo-1898-3.jpg?v=1791638105",
+          "altText": "Enzo 1898 among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/enzo-1898.png?v=1784480331",
-          "altText": "Enzo 1898 eau de parfum",
+          "altText": "Enzo 1898 eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/enzo-1898-2.jpg?v=1791638105",
+          "altText": "Enzo 1898, the bottle in a scene",
+          "width": 1200,
+          "height": 1500
         }
       ],
       "priceRange": {
@@ -738,7 +948,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Chanel Allure Superleggera",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9555000721667",
@@ -758,8 +974,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/fiji-3.jpg?v=1791638105",
+          "altText": "Fiji among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/fiji.png?v=1784480695",
-          "altText": "Fiji eau de parfum",
+          "altText": "Fiji eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -809,8 +1031,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/forbidden-apple-3.jpg?v=1791638105",
+          "altText": "Forbidden Apple among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/forbidden-apple.png?v=1784480091",
-          "altText": "Forbidden Apple eau de parfum",
+          "altText": "Forbidden Apple eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -840,7 +1068,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Clive Christian Crab Apple Blossom",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554989875459",
@@ -860,8 +1094,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/golden-hour-3.jpg?v=1791638105",
+          "altText": "Golden Hour among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/golden-hour.png?v=1784480297",
-          "altText": "Golden Hour eau de parfum",
+          "altText": "Golden Hour eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -891,7 +1131,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Creed Millésime Impérial",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554998558979",
@@ -911,8 +1157,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/harmony-3.jpg?v=1791638106",
+          "altText": "Harmony among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/harmony.png?v=1784480628",
-          "altText": "Harmony eau de parfum",
+          "altText": "Harmony eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -942,7 +1194,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Louis Vuitton Symphony",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554987647235",
@@ -962,8 +1220,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/hera-3.jpg?v=1791638106",
+          "altText": "Hera among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/hera.png?v=1784480047",
-          "altText": "Hera eau de parfum",
+          "altText": "Hera eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -993,7 +1257,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Burberry Her",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554986893571",
@@ -1013,10 +1283,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/hundred-whispers-3.jpg?v=1791638106",
+          "altText": "Hundred Whispers among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/hundred-whispers.png?v=1784479951",
-          "altText": "Hundred Whispers eau de parfum",
+          "altText": "Hundred Whispers fragrance",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/hundred-whispers-2.jpg?v=1791638106",
+          "altText": "Hundred Whispers, the bottle in a scene",
+          "width": 1200,
+          "height": 1500
         }
       ],
       "priceRange": {
@@ -1064,8 +1346,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/icon-3.jpg?v=1791638106",
+          "altText": "Icon among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/icon.png?v=1784480142",
-          "altText": "Icon eau de parfum",
+          "altText": "Icon eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -1095,7 +1383,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Creed Aventus",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554989515011",
@@ -1115,10 +1409,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/linen-3.jpg?v=1791638118",
+          "altText": "Linen among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/linen.png?v=1784480264",
-          "altText": "Linen eau de parfum",
+          "altText": "Linen eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/linen-2.jpg?v=1791638118",
+          "altText": "Linen, the bottle in a scene",
+          "width": 1088,
+          "height": 1360
         }
       ],
       "priceRange": {
@@ -1146,14 +1452,21 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Prada L'Homme EDT",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9600901185795",
       "handle": "mango-eclipse",
       "title": "Mango Eclipse",
-      "description": "",
+      "description": "Mango and bergamot with rose, jasmine and honey, base of vanilla, amber and moss.",
       "tags": [
+        "55ml",
         "eternal",
         "fruity",
         "sweet",
@@ -1164,7 +1477,26 @@
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:54Z",
       "availableForSale": true,
-      "images": [],
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mango-eclipse-3.jpg?v=1791638118",
+          "altText": "Mango Eclipse among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mango-eclipse.jpg?v=1791638118",
+          "altText": "Mango Eclipse eau de parfum 55 ml",
+          "width": 1024,
+          "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mango-eclipse-2.jpg?v=1791638118",
+          "altText": "Mango Eclipse, the bottle in a scene",
+          "width": 1088,
+          "height": 1360
+        }
+      ],
       "priceRange": {
         "minVariantPrice": {
           "amount": "1099.00",
@@ -1175,7 +1507,7 @@
         {
           "id": "gid://shopify/ProductVariant/49484103287043",
           "title": "55 ml",
-          "sku": null,
+          "sku": "ETRN-MECL-55",
           "availableForSale": true,
           "quantityAvailable": null,
           "price": {
@@ -1190,7 +1522,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Unique'e Luxury Mangonificent",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554988728579",
@@ -1210,8 +1548,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mercury-3.jpg?v=1791638118",
+          "altText": "Mercury among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mercury.png?v=1784480164",
-          "altText": "Mercury eau de parfum",
+          "altText": "Mercury eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -1241,7 +1585,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Bvlgari Tygar",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9600901251331",
@@ -1253,7 +1603,14 @@
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:56Z",
       "availableForSale": true,
-      "images": [],
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mystery-box.jpg?v=1791638118",
+          "altText": "Mystery Box, three 5 ml samples",
+          "width": 1229,
+          "height": 1536
+        }
+      ],
       "priceRange": {
         "minVariantPrice": {
           "amount": "250.00",
@@ -1264,7 +1621,7 @@
         {
           "id": "gid://shopify/ProductVariant/49484103385347",
           "title": "3 x 5 ml",
-          "sku": null,
+          "sku": "ETRN-MBOX-3X5",
           "availableForSale": true,
           "quantityAvailable": null,
           "price": {
@@ -1299,10 +1656,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mystique-3.jpg?v=1791638119",
+          "altText": "Mystique among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mystique.png?v=1784479994",
-          "altText": "Mystique eau de parfum",
+          "altText": "Mystique eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/mystique-2.jpg?v=1791638119",
+          "altText": "Mystique, the bottle in a scene",
+          "width": 1200,
+          "height": 1500
         }
       ],
       "priceRange": {
@@ -1350,10 +1719,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/neroli-code-3.jpg?v=1791638119",
+          "altText": "Neroli Code among its notes",
+          "width": 905,
+          "height": 1131
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/neroli-code.png?v=1784480711",
-          "altText": "Neroli Code eau de parfum",
+          "altText": "Neroli Code eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/neroli-code-2.jpg?v=1791638119",
+          "altText": "Neroli Code, the bottle in a scene",
+          "width": 926,
+          "height": 1157
         }
       ],
       "priceRange": {
@@ -1381,7 +1762,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Guerlain Néroli Outrenoir",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554998165763",
@@ -1391,8 +1778,8 @@
       "tags": [
         "55ml",
         "citrus",
-        "eterno",
-        "for him"
+        "eternal",
+        "unisex"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",
@@ -1400,8 +1787,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/oasis-3.jpg?v=1791638119",
+          "altText": "Oasis among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/oasis.png?v=1784480612",
-          "altText": "Oasis eau de parfum",
+          "altText": "Oasis eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -1431,14 +1824,21 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Louis Vuitton Imagination",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9600900923651",
       "handle": "paradox",
       "title": "Paradox",
-      "description": "",
+      "description": "Pear, bergamot and mandarin with neroli and orange blossom, base of vanilla, amber and musk.",
       "tags": [
+        "55ml",
         "amber",
         "eterna",
         "floral",
@@ -1449,7 +1849,20 @@
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:48Z",
       "availableForSale": true,
-      "images": [],
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/paradox-3.jpg?v=1791638119",
+          "altText": "Paradox among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/paradox.jpg?v=1791638119",
+          "altText": "Paradox eau de parfum 55 ml",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
       "priceRange": {
         "minVariantPrice": {
           "amount": "950.00",
@@ -1460,7 +1873,7 @@
         {
           "id": "gid://shopify/ProductVariant/49484103024899",
           "title": "55 ml",
-          "sku": null,
+          "sku": "ETRN-PARA-55",
           "availableForSale": true,
           "quantityAvailable": null,
           "price": {
@@ -1475,7 +1888,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Prada Paradoxe",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554988859651",
@@ -1494,8 +1913,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/poseidon-3.jpg?v=1791638120",
+          "altText": "Poseidon among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/poseidon.png?v=1784480186",
-          "altText": "Poseidon eau de parfum",
+          "altText": "Poseidon eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -1525,7 +1950,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Spirit of Dubai Bahar",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554989613315",
@@ -1545,10 +1976,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/raw-seduction-3.jpg?v=1791638120",
+          "altText": "Raw Seduction among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/raw-seduction.png?v=1784480281",
-          "altText": "Raw Seduction eau de parfum",
+          "altText": "Raw Seduction eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/raw-seduction-2.jpg?v=1791638120",
+          "altText": "Raw Seduction, the bottle in a scene",
+          "width": 925,
+          "height": 1156
         }
       ],
       "priceRange": {
@@ -1595,8 +2038,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/sapphire-3.jpg?v=1791638120",
+          "altText": "Sapphire among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/sapphire.png?v=1784480127",
-          "altText": "Sapphire eau de parfum",
+          "altText": "Sapphire eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -1626,7 +2075,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Ex Nihilo Blue Talisman",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554987057411",
@@ -1646,8 +2101,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/secret-no-7-3.jpg?v=1791638132",
+          "altText": "Secret No. 7 among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/secret-no-7.png?v=1784479972",
-          "altText": "Secret No. 7 eau de parfum",
+          "altText": "Secret No. 7 eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -1677,7 +2138,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Jean Paul Gaultier La Belle",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554988237059",
@@ -1697,10 +2164,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/shadow-of-the-sea-3.jpg?v=1791638132",
+          "altText": "Shadow of the Sea among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/shadow-of-the-sea.png?v=1784480109",
-          "altText": "Shadow of the Sea eau de parfum",
+          "altText": "Shadow of the Sea eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/shadow-of-the-sea-2.jpg?v=1791638132",
+          "altText": "Shadow of the Sea, the bottle in a scene",
+          "width": 1200,
+          "height": 1500
         }
       ],
       "priceRange": {
@@ -1728,7 +2207,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Armani Acqua di Giò Elixir",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554999116035",
@@ -1738,9 +2223,9 @@
       "tags": [
         "55ml",
         "citrus",
-        "eterno",
-        "for him",
-        "fresh"
+        "eternal",
+        "fresh",
+        "unisex"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",
@@ -1748,8 +2233,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/shore-club-3.jpg?v=1791638133",
+          "altText": "Shore Club among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/shore-club.png?v=1784480645",
-          "altText": "Shore Club eau de parfum",
+          "altText": "Shore Club eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -1779,14 +2270,21 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Louis Vuitton Pacific Chill",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9600901054723",
       "handle": "smoked-aura",
       "title": "Smoked Aura",
-      "description": "",
+      "description": "Bergamot and black pepper with juniper and incense, base of smoked oak, labdanum and vetiver.",
       "tags": [
+        "55ml",
         "eterno",
         "for him",
         "fruity",
@@ -1797,7 +2295,20 @@
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:51Z",
       "availableForSale": true,
-      "images": [],
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/smoked-aura-3.jpg?v=1791638133",
+          "altText": "Smoked Aura among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/smoked-aura.jpg?v=1791638133",
+          "altText": "Smoked Aura eau de parfum 55 ml",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
       "priceRange": {
         "minVariantPrice": {
           "amount": "1199.00",
@@ -1808,7 +2319,7 @@
         {
           "id": "gid://shopify/ProductVariant/49484103155971",
           "title": "55 ml",
-          "sku": null,
+          "sku": "ETRN-SAUR-55",
           "availableForSale": true,
           "quantityAvailable": null,
           "price": {
@@ -1823,7 +2334,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Creed Aventus (Smokey Edition)",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554989318403",
@@ -1843,10 +2360,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/tonic-club-3.jpg?v=1791638133",
+          "altText": "Tonic Club among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/tonic-club.png?v=1784480247",
-          "altText": "Tonic Club eau de parfum",
+          "altText": "Tonic Club eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/tonic-club-2.jpg?v=1791638133",
+          "altText": "Tonic Club, the bottle in a scene",
+          "width": 1200,
+          "height": 1500
         }
       ],
       "priceRange": {
@@ -1874,22 +2403,45 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Maison Francis Kurkdjian Gentle Fluidity Silver",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9600901120259",
       "handle": "ultra-smoke",
       "title": "Ultra Smoke",
-      "description": "",
+      "description": "Cardamom and saffron with tobacco leaf and smoked woods, base of tonka and amber.",
       "tags": [
+        "55ml",
+        "amber",
         "eterno",
-        "for him"
+        "for him",
+        "smoky",
+        "spicy"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",
       "createdAt": "2026-08-19T13:30:53Z",
       "availableForSale": true,
-      "images": [],
+      "images": [
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/ultra-smoke-3.jpg?v=1791638134",
+          "altText": "Ultra Smoke among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/ultra-smoke.jpg?v=1791638134",
+          "altText": "Ultra Smoke eau de parfum 55 ml",
+          "width": 1024,
+          "height": 1024
+        }
+      ],
       "priceRange": {
         "minVariantPrice": {
           "amount": "1380.00",
@@ -1900,7 +2452,7 @@
         {
           "id": "gid://shopify/ProductVariant/49484103221507",
           "title": "55 ml",
-          "sku": null,
+          "sku": "ETRN-USMO-55",
           "availableForSale": true,
           "quantityAvailable": null,
           "price": {
@@ -1935,8 +2487,14 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/vanilla-blanche-3.jpg?v=1791638134",
+          "altText": "Vanilla Blanche among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/vanilla-blanche.png?v=1784480029",
-          "altText": "Vanilla Blanche eau de parfum",
+          "altText": "Vanilla Blanche eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -1966,7 +2524,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Kayali Vanilla 28",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554987450627",
@@ -1986,10 +2550,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/vintage-vanilla-3.jpg?v=1791638134",
+          "altText": "Vintage Vanilla among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/vintage-vanilla.png?v=1784480011",
-          "altText": "Vintage Vanilla eau de parfum",
+          "altText": "Vintage Vanilla eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/vintage-vanilla-2.jpg?v=1791638134",
+          "altText": "Vintage Vanilla, the bottle in a scene",
+          "width": 926,
+          "height": 1158
         }
       ],
       "priceRange": {
@@ -2017,7 +2593,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Matière Première Vanilla Powder",
+          "type": "single_line_text_field"
+        }
+      ]
     },
     {
       "id": "gid://shopify/Product/9554986270979",
@@ -2037,10 +2619,22 @@
       "availableForSale": true,
       "images": [
         {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/wayne-3.jpg?v=1791638134",
+          "altText": "Wayne among its notes",
+          "width": 1088,
+          "height": 1360
+        },
+        {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/wayne.png?v=1784479899",
-          "altText": "Wayne eau de parfum",
+          "altText": "Wayne fragrance",
           "width": 1024,
           "height": 1024
+        },
+        {
+          "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/wayne-2.jpg?v=1791638134",
+          "altText": "Wayne, the bottle in a scene",
+          "width": 1200,
+          "height": 1500
         }
       ],
       "priceRange": {
@@ -2089,7 +2683,7 @@
       "images": [
         {
           "url": "https://cdn.shopify.com/s/files/1/0830/9217/7155/files/zesty-ginger.png?v=1784480205",
-          "altText": "Zesty Ginger eau de parfum",
+          "altText": "Zesty Ginger eau de parfum 55 ml",
           "width": 1024,
           "height": 1024
         }
@@ -2119,7 +2713,13 @@
           ]
         }
       ],
-      "metafields": []
+      "metafields": [
+        {
+          "key": "inspired_by",
+          "value": "Louis Vuitton L'Immensité",
+          "type": "single_line_text_field"
+        }
+      ]
     }
   ]
 }

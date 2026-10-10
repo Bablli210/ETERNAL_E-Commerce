@@ -2,6 +2,7 @@ import Image from "next/image";
 import { Mark } from "@/components/ui/Wordmark";
 import { SnapRow } from "@/components/motion/SnapRow";
 import type { Scent } from "@/lib/catalogue";
+import { isNotesFrame } from "@/lib/product-frames";
 
 /** Alt text by what the frame shows: local stills follow public/images/README.md (-2 lifestyle, -3 notes). */
 function frameAlt(scent: Scent, url: string, altText: string | null): string {
@@ -13,15 +14,8 @@ function frameAlt(scent: Scent, url: string, altText: string | null): string {
 }
 
 /**
- * The frame that shows the notes: the local notes still (products/<handle>-3,
- * public/images/README.md), or a Shopify image whose alt text or file name
- * says "notes".
- */
-const isNotesFrame = (scent: Scent, url: string, altText: string | null) =>
-  new RegExp(`/images/products/${scent.handle}-3\\.\\w+(\\?|$)`).test(url) || /\bnotes?\b/i.test(altText ?? "") || /[-_]notes?[-_.]/i.test(url.split("?")[0]);
-
-/**
- * Real frames only, the notes frame first, at the owner's request, then the rest in their order (packshot, lifestyle). On a phone
+ * Real frames only, the notes frame first, at the owner's request (the store lists it first; an older order is put right
+ * here), then the rest in their order (packshot, lifestyle). On a phone
  * they swipe with a "1 / 3" counter, sized by .pdp-frame so Add to bag stays
  * on the first screen; from lg they stack. Rendered once for both, so the
  * first frame is the single preloaded image. A scent with no imagery yet
@@ -29,7 +23,7 @@ const isNotesFrame = (scent: Scent, url: string, altText: string | null) =>
  */
 export function Gallery({ scent }: { scent: Scent }) {
   const all = scent.images.slice(0, 4);
-  const notes = all.findIndex((img) => isNotesFrame(scent, img.url, img.altText));
+  const notes = all.findIndex((img) => isNotesFrame(scent.handle, img.url, img.altText));
   const imgs = notes > 0 ? [all[notes], ...all.filter((_, i) => i !== notes)] : all;
   const solo = imgs.length < 2;
   const frameClass = `pdp-frame ${solo ? "pdp-frame-solo" : ""} relative overflow-hidden lg:aspect-[4/5] lg:h-auto lg:w-full`;

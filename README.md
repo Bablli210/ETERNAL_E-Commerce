@@ -169,11 +169,16 @@ products into `content/catalogue.snapshot.json`.
 - **5 ml sample variants** on every scent (a `Size` option with `55 ml` and `5 ml`). The
   cards, the buy box, the "add a sample too" box, the cart upsell and the finder's trio
   action all switch on automatically when a sample variant exists.
-- **Line tags** on the seven products created on 19 August (Aurora, Bloom, Ciel, Mango
-  Eclipse, Paradox, Smoked Aura, Ultra Smoke), plus family tags, descriptions and packshots.
-- **Metafields** listed above, starting with `inspired_by`, `color_world` and `signature_line`.
-- **`inspired_by`** for every scent: only 3 of 42 have it, and it is the strongest hook for
-  ad visitors, search and the cards. **`custom.units_sold_30d`** from a daily job, the only
-  source of the Bestseller badge (playbook 5.6).
+- The seven products created on 19 August (Aurora, Bloom, Ciel, Mango Eclipse, Paradox,
+  Smoked Aura, Ultra Smoke) now carry line and family tags, SKUs, packshots and a one-line
+  description read from their notes stills: **the owner should confirm those seven
+  descriptions** against the perfumer's formulas.
+- **Metafields** listed above, starting with `color_world` and `signature_line`. `inspired_by`
+  is set on every scent from the owner's sheet (the five Eternal Originals carry none).
+  **`custom.units_sold_30d`** from a daily job, the only source of the Bestseller badge
+  (playbook 5.6).
+- One **`Size` option (`55 ml`)** on the 35 older products, which still sell through a
+  `Default Title` variant; the site labels it 55 ml either way, but the 5 ml sample variants
+  above need the option. Divina's SKU (`DIVINA-55`) does not follow the `ETRN-XXXX-55` pattern.
 - A **discovery set** product, if one is wanted; the mystery box already exists.
 - Reviews (Judge.me), Arabic (Translate & Adapt), Shop Pay button, WhatsApp number.

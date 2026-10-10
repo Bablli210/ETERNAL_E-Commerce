@@ -17,8 +17,12 @@ Prompts and sizes for every one of these: see the image brief document.
 
 ## Product images — `public/images/products/`
 
-Only needed for products whose images are not in Shopify. A Shopify product
-image always wins over a local file of the same frame.
+Only needed for products that have no image in Shopify yet. Once a product has
+any image in the store, the store's images are shown in the store's order (the
+notes still first, then the bottle, then the scene) and the local frames are
+not used for its gallery. Every scent's packshot, notes still and scene still
+below is in Shopify (October 2026), so these files now serve as the archive
+and the card's hover override.
 
 | File | Used for |
 | --- | --- |
