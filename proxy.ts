@@ -14,8 +14,8 @@ import { FBCLID, consentFromCookieHeader, cookieRootFor, fbcFrom } from "@/lib/c
  * 7-day cap on script-set cookies and travel to checkout when it shares the
  * root domain (COOKIE_DOMAIN, e.g. ".myeternal.net", applied on hosts under it).
  *
- * - _fbc: Meta's click id, in Meta's own format (fb.1.<ms>.<fbclid>), once the visitor has said yes
- *   to marketing (lib/consent.ts); before that the click waits in the browser, and a yes sets it (app/api/consent).
+ * - _fbc: Meta's click id, in Meta's own format (fb.1.<ms>.<fbclid>), while marketing is on (lib/consent.ts:
+ *   for everyone who has not turned it off); otherwise the click waits in the browser, and a yes sets it (app/api/consent).
  * - eternal_utm: the landing campaign, kept 30 days. /api/checkout falls back
  *   to it when the browser's own copy of the campaign is gone.
  */
@@ -51,7 +51,7 @@ export function proxy(request: NextRequest) {
   }
   // COOKIE_DOMAIN (".myeternal.net") only where the host sits under it; eternal-storefront.vercel.app and previews get host-only cookies.
   const base = { path: "/", sameSite: "lax" as const, secure: url.protocol === "https:", domain: cookieRootFor(url.hostname, process.env.COOKIE_DOMAIN) };
-  // Meta's click cookie only after a yes to marketing; otherwise the click waits in the browser and the banner sets it on a yes.
+  // Meta's click cookie only while marketing is on (the default, unless turned off); otherwise the click waits in the browser and a yes sets it.
   if (fbclid && FBCLID.test(fbclid) && consentFromCookieHeader(request.headers.get("cookie"))?.marketing) {
     // Keep the original timestamp when the same click lands again.
     const current = request.cookies.get("_fbc")?.value;

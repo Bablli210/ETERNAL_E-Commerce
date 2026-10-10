@@ -6,14 +6,15 @@ import { cookiePurposes } from "@/content/cookies";
 import { checkoutFollows, configureConsent, onConsentOpen, readConsent, saveConsent, syncCheckoutOnce, useConsent, type ConsentSettings } from "@/lib/client/consent";
 
 /**
- * The cookie choice, asked once and kept 180 days (lib/consent.ts). It shows
- * after the page has loaded, fixed to the bottom, so it never moves the page
- * or delays its first paint; it sits first in the page's order after the skip
- * link, so keyboard and screen-reader users meet it first, and it publishes its
- * height (--consent-h) so a focused field is never scrolled under it. Saying no
- * is as easy as saying yes: both buttons sit side by side at the same size.
- * "Choose for myself" opens one switch per purpose. The footer's Cookie
- * settings opens it again with the switches set to the current choice.
+ * The cookie settings. Every purpose is on for every visitor without asking
+ * (lib/consent.ts DEFAULT_CONSENT), so it opens only from Cookie settings (the
+ * footer, the help page), with one switch per purpose set to the current
+ * choice; a choice is kept 180 days. It is fixed to the bottom, so it never
+ * moves the page; it sits first in the page's order after the skip link, so
+ * keyboard and screen-reader users meet it first, and it publishes its height
+ * (--consent-h) so a focused field is never scrolled under it. Should the
+ * default ever ask first again, it opens on its own after the page has loaded,
+ * with "Only necessary" and "Accept all" side by side at the same size.
  */
 export function ConsentBanner(props: ConsentSettings) {
   useState(() => configureConsent(props));
@@ -99,11 +100,21 @@ export function ConsentBanner(props: ConsentSettings) {
     >
       <p className="eyebrow text-ash">Cookies</p>
       <h2 id={`${id}-title`} ref={title} tabIndex={-1} className="mt-1 font-serif text-[22px] font-semibold leading-tight outline-none lg:text-[24px]">
-        A few cookies, if you agree
+        {consent ? "Cookie settings" : "A few cookies, if you agree"}
       </h2>
       <p className="mt-2 text-[14px] leading-snug text-ash">
-        We use cookies and similar technologies. Strictly necessary cookies keep the site working. With your consent, we and our partners also use them for analytics
-        and personalised advertising. No personal data is shared for these purposes unless you accept, and you can withdraw your consent at any time.{" "}
+        {/* Opened from Cookie settings, the visitor changes what already applies; asked first (no choice and no default), they agree to it. */}
+        {consent ? (
+          <>
+            We use cookies and similar technologies. Strictly necessary cookies keep the site working; we and our partners also use them for analytics and personalised
+            advertising. Turn off anything you would rather we did not use; you can change this at any time.{" "}
+          </>
+        ) : (
+          <>
+            We use cookies and similar technologies. Strictly necessary cookies keep the site working. With your consent, we and our partners also use them for
+            analytics and personalised advertising. No personal data is shared for these purposes unless you accept, and you can withdraw your consent at any time.{" "}
+          </>
+        )}
         <Link href="/help#privacy" className="lnk whitespace-nowrap text-night">
           Cookie and privacy information
         </Link>

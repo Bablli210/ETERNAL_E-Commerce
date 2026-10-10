@@ -180,9 +180,9 @@ export default async function HelpPage() {
           <p>How we collect and use your details is set out in our privacy policy.</p>
           <Way href={policy("privacy-policy")}>Read the privacy policy</Way>
           <p className="mt-4">
-            <strong className="font-semibold">Cookies.</strong> We use cookies and similar technologies. Strictly necessary cookies are set without consent because the
-            site cannot work without them; all others are used only with your consent, which you can withdraw at any time. We do not share personal data with third
-            parties for analytics or advertising unless you accept.{" "}
+            <strong className="font-semibold">Cookies.</strong> We use cookies and similar technologies. Strictly necessary cookies keep the site working. Analytics and
+            marketing cookies are also on when you visit, and share data with our analytics providers and advertising partners as described below; you can turn them
+            off at any time in Cookie settings.{" "}
             <CheckoutCookieNote cookieDomain={process.env.COOKIE_DOMAIN?.trim() || null} checkoutDomain={checkoutDomain} storefrontToken={process.env.SHOPIFY_STOREFRONT_ACCESS_TOKEN?.trim() || null} />
           </p>
           {/* The same three choices, in the same words, as the cookie banner (content/cookies.ts). */}
@@ -194,8 +194,8 @@ export default async function HelpPage() {
             ))}
           </ul>
           <p className="mt-2">
-            Your cookie preferences are kept for six months, after which we ask again. Withdrawing consent does not affect processing that took place before you
-            withdrew it.
+            If you turn them off, we keep that choice for six months, after which they are on again. Turning them off does not affect processing that took place
+            before you did.
           </p>
           <CookieSettings className="btn btn-secondary mt-3 w-full sm:w-auto sm:self-start">Change cookie settings</CookieSettings>
         </>

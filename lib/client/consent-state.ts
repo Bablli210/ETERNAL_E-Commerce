@@ -1,6 +1,6 @@
 "use client";
 
-import { CONSENT_COOKIE, cookieValues, latestConsent, type Consent } from "@/lib/consent";
+import { CONSENT_COOKIE, consentOrDefault, cookieValues, latestConsent, type Consent } from "@/lib/consent";
 
 /**
  * Reading the visitor's cookie choice in the browser. Kept apart from
@@ -9,8 +9,8 @@ import { CONSENT_COOKIE, cookieValues, latestConsent, type Consent } from "@/lib
  */
 export const readCookie = (name: string) => (typeof document === "undefined" ? null : (cookieValues(document.cookie, name)[0] ?? null));
 
-/** The current choice, or null while the visitor has not chosen. Of two copies (host and root domain), the newer. */
-export const readConsent = (): Consent | null => (typeof document === "undefined" ? null : latestConsent(cookieValues(document.cookie, CONSENT_COOKIE)));
+/** The visitor's choice (of two copies, host and root domain, the newer), else the default (lib/consent.ts DEFAULT_CONSENT). */
+export const readConsent = (): Consent | null => (typeof document === "undefined" ? null : consentOrDefault(latestConsent(cookieValues(document.cookie, CONSENT_COOKIE))));
 
 /** True only when the visitor said yes to this purpose. */
 export const allowed = (purpose: "analytics" | "marketing") => Boolean(readConsent()?.[purpose]);

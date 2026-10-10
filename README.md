@@ -68,7 +68,7 @@ phone, inside Instagram's browser, so every landing page sells on its first scre
 
 Add `utm_source`, `utm_medium`, `utm_campaign` and `utm_content` to every ad link, and
 `discount=CODE` when the ad carries a code. The campaign, Meta's click id (`_fbc`, set as a
-first-party cookie by `proxy.ts` or `app/api/consent` once the visitor says yes to marketing),
+first-party cookie by `proxy.ts`, or by `app/api/consent` when marketing is switched back on),
 the in-app flag and the finder's answers travel to Shopify checkout as order attributes, and
 the code is applied at checkout.
 
@@ -83,12 +83,14 @@ by Shopify on checkout) join the same funnel. `META_CAPI_TOKEN` with `NEXT_PUBLI
 adds server copies of ViewContent and AddToCart (`app/api/meta`), deduplicated by event id.
 The checkout link carries the campaign, so Shopify's own reports see it too. See `.env.example`.
 
-**Consent.** Nothing that identifies a visitor goes to Meta or Google from the site before they say yes
-(`components/analytics/ConsentBanner.tsx`, `lib/consent.ts`): analytics loads GA4 and Vercel
-Web Analytics, marketing loads the pixel, its Conversions API copy, Google's ad signals and
-the ad click ids on the order. Events from before the answer wait in the page and go out on a
-yes. The choice is kept 180 days in `eternal_consent`, set again by `app/api/consent` so Safari
-keeps it. Shopify's checkout follows the same choice through its Customer Privacy API once
+**Consent.** Analytics and marketing are on for every visitor from the first page, without a
+banner, at the owner's request (`DEFAULT_CONSENT` in `lib/consent.ts`): analytics loads GA4 and
+Vercel Web Analytics, marketing loads the pixel, its Conversions API copy, Google's ad signals
+and the ad click ids on the order. Cookie settings (the footer, the help page) opens
+`components/analytics/ConsentBanner.tsx` to turn either off; that choice is kept 180 days in
+`eternal_consent`, set again by `app/api/consent` so Safari keeps it. Setting `DEFAULT_CONSENT`
+to off brings back the banner that asks first, with events held in the page until the answer.
+Shopify's checkout follows the same choice through its Customer Privacy API once
 `SHOPIFY_STOREFRONT_ACCESS_TOKEN`, `SHOPIFY_CHECKOUT_DOMAIN` and `COOKIE_DOMAIN` are set and
 checkout runs on a subdomain of the site's root domain (the launch checklist shows it).
 
