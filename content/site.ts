@@ -33,8 +33,13 @@ export const site = {
    * bottle in it).
    */
   freeSamples: "A free 5 ml with every bottle",
-  /** How the 5 ml sample price comes back. Shown once 5 ml variants and credit codes exist. */
-  sampleCredit: "[Its price comes off your 55 ml within 60 days]",
+  /**
+   * Samples are not sold: only the 55 ml bottle is, with a free 5 ml in the box, and the
+   * mystery box (three 5 ml) is the way to try before a bottle. Empty, so nothing about a
+   * credit shows and nothing waits on the launch checklist; it would only read once a
+   * 5 ml variant existed to buy.
+   */
+  sampleCredit: "",
 
   /**
    * Delivery on bottles: true = included on every bottle, false = charged at

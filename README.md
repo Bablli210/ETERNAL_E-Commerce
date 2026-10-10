@@ -100,7 +100,7 @@ checkout runs on a subdomain of the site's root domain (the launch checklist sho
 | `/shop`, `/shop/[collection]` | Collection — one-row head (line banners on her/him/unisex), line and family chips, filter sheet, search by the original, 24 then all, mystery box tile, state in the URL (`?q=`, `?h=`, filters, sort). Collections: `her`, `him`, `unisex`, `bestsellers` ("Where to start"), `new`, `originals` (the Eternal Originals), six families, and five occasions (`date`, `everyday`, `event`, `outdoors`, `beach-side`) once `occasionsLive` is set in `content/occasions.ts` |
 | `/products/[handle]` | Product page — first screen with gallery, name and price, inspired-by, notes and Add to bag; sticky bar; promise list; how it differs, how it smells, wear it, FAQ, pairing, tale, you may also like, recently viewed |
 | `/bag?items=<variant>:<qty>,…` | Rebuilds the bag from a link (retargeting, "send my bag") |
-| `/finder` | Scent finder — five questions with the state in the URL, three matches with Add, the mystery box when 5 ml samples do not exist yet |
+| `/finder` | Scent finder — five questions with the state in the URL, three matches with Add, and the mystery box as the way to try them |
 | `/tales`, `/tales/[slug]` | Tales — published (complete) tales only, each ending with its scent |
 | `/house` | The house — manifesto, film, how we compose, founder note once confirmed |
 | `/help` | Delivery, cash on delivery, payments, returns, tracking, WhatsApp, policies |
@@ -166,9 +166,10 @@ products into `content/catalogue.snapshot.json`.
 
 ## What the boards need from Shopify next
 
-- **5 ml sample variants** on every scent (a `Size` option with `55 ml` and `5 ml`). The
-  cards, the buy box, the "add a sample too" box, the cart upsell and the finder's trio
-  action all switch on automatically when a sample variant exists.
+- Nothing on sizes. The house sells the 55 ml bottle only: a free 5 ml ships with every
+  bottle (`site.freeSamples`), and the mystery box (three 5 ml, EGP 250) is the way to try
+  before buying. No 5 ml variant is planned; the sample paths in the code (the buy box's
+  size control, "add a sample too", the cart upsell, the finder's trio) stay dormant.
 - The seven products created on 19 August (Aurora, Bloom, Ciel, Mango Eclipse, Paradox,
   Smoked Aura, Ultra Smoke) now carry line and family tags, SKUs, packshots and a one-line
   description read from their notes stills: **the owner should confirm those seven
@@ -177,8 +178,8 @@ products into `content/catalogue.snapshot.json`.
   is set on every scent from the owner's sheet (the five Eternal Originals carry none).
   **`custom.units_sold_30d`** from a daily job, the only source of the Bestseller badge
   (playbook 5.6).
-- One **`Size` option (`55 ml`)** on the 35 older products, which still sell through a
-  `Default Title` variant; the site labels it 55 ml either way, but the 5 ml sample variants
-  above need the option. Divina's SKU (`DIVINA-55`) does not follow the `ETRN-XXXX-55` pattern.
+- Optional tidying: the 35 older products sell through a `Default Title` variant and the
+  eight newer ones through `Size: 55 ml`; the site labels both 55 ml, so nothing depends on
+  it. Divina's SKU (`DIVINA-55`) does not follow the `ETRN-XXXX-55` pattern.
 - A **discovery set** product, if one is wanted; the mystery box already exists.
 - Reviews (Judge.me), Arabic (Translate & Adapt), Shop Pay button, WhatsApp number.
