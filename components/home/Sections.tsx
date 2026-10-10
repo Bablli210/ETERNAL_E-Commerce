@@ -269,7 +269,7 @@ export function WhereToStart({ entries, total }: { entries: ScentIndexEntry[]; t
         <SelectList list="home_where_to_start" items={entries.map(listItem)} className="mt-6 grid grid-cols-2 gap-x-3 gap-y-10 lg:mt-12 lg:grid-cols-4 lg:gap-x-6 lg:gap-y-14">
           {entries.map((e) => {
             // The scent among its notes leads; the bottle comes in on hover.
-            const notes = siteImage(`products/${e.handle}-3`);
+            const notes = e.notesImage;
             const card = notes && notes !== e.image ? { ...e, image: notes, hoverImage: e.image } : e;
             return <ProductCard key={e.handle} entry={card} badge={e.isOriginal ? "Eternal Original" : e.isNew ? "New" : false} />;
           })}
@@ -327,7 +327,7 @@ export function EternalOriginals({ entries }: { entries: ScentIndexEntry[] }) {
         <SelectList list="home_originals" items={entries.map(listItem)} className="mt-8 grid grid-cols-2 gap-3 lg:mt-12 lg:grid-cols-5 lg:gap-5">
           {entries.map((e, i) => {
             // As in Where to start: the scent among its notes leads; the bottle comes in on hover.
-            const notes = siteImage(`products/${e.handle}-3`);
+            const notes = e.notesImage;
             const card = notes && notes !== e.image ? { ...e, image: notes, hoverImage: e.image } : e;
             return (
               // The picture runs to the panel's edges, so a card's focus ring falls outside it, on the dark band: Linen there.

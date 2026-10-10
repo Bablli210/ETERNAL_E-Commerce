@@ -50,7 +50,7 @@ export type Scent = {
   images: ShopifyImage[];
   image: ShopifyImage | null;
   hoverImage: string | null;
-  /** The notes sculpture (products/<handle>-3): what a card shows first on a touch screen, which cannot hover to it. */
+  /** The notes sculpture (Shopify's, else products/<handle>-3): what a card shows first on a touch screen, which cannot hover to it. */
   notesImage: string | null;
   price: Money;
   variants: Variant[];
@@ -199,6 +199,22 @@ const BESTSELLER_MIN_UNITS = 10;
 /** What each local frame shows (public/images/products/<handle>, -2, -3, -4), for its alt text. */
 const FRAME_ALT = ["bottle", "bottle in a scene", "among its notes", "in its box"];
 
+/**
+ * Which of those four frames a Shopify image is, or null when nothing says.
+ * Its file name says first (<handle>, -2, -3 or -4, as the local files are
+ * named, with or without the _suffix Shopify adds to a name it already has):
+ * that is the same picture as the local file. Its alt text says next ("among
+ * its notes", "in a scene", "in its box").
+ */
+function frameOf(handle: string, img: ShopifyImage): { frame: number; byName: boolean } | null {
+  const file = img.url.split("?")[0].split("/").pop() ?? "";
+  const named = file.match(new RegExp(`^${handle}(?:-([2-4]))?(?:_[\\w-]+)?\\.\\w+$`, "i"));
+  if (named) return { frame: named[1] ? Number(named[1]) - 1 : 0, byName: true };
+  const alt = img.altText ?? "";
+  const frame = /\bnotes?\b/i.test(alt) ? 2 : /\bin a scene\b/i.test(alt) ? 1 : /\b(in its box|packaging)\b/i.test(alt) ? 3 : null;
+  return frame === null ? null : { frame, byName: false };
+}
+
 function enrich(p: ShopifyProduct): Scent {
   const ed = editorial[p.handle] ?? {};
   const tags = p.tags.map((t) => t.toLowerCase());
@@ -262,9 +278,14 @@ function enrich(p: ShopifyProduct): Scent {
   const sample = variants.find((v) => v.kind === "sample") ?? null;
 
   /*
-   * Gallery frames, Shopify first. Any frame Shopify does not have is filled
-   * from public/images/products/<handle>{,-2,-3,-4}, so imagery can be added
-   * to the repository before it is uploaded to the store.
+   * Gallery frames, Shopify first, in frame order (bottle, scene, notes, box).
+   * A Shopify image takes the frame it names (frameOf), wherever it sits in
+   * the store's order, so the bottle stays the packshot when the notes still
+   * is the store's first image; one that names none takes the first frame
+   * still free. Any frame Shopify does not have is filled from
+   * public/images/products/<handle>{,-2,-3,-4}, so imagery can be added to
+   * the repository before it is uploaded to the store, and a picture that is
+   * in both shows once.
    */
   const localFrames = [
     siteImage(`products/${p.handle}`),
@@ -272,18 +293,31 @@ function enrich(p: ShopifyProduct): Scent {
     siteImage(`products/${p.handle}-3`),
     siteImage(`products/${p.handle}-4`),
   ];
-  const images: ShopifyImage[] = [];
-  for (let i = 0; i < 4; i++) {
-    const fromShopify = p.images[i];
-    if (fromShopify) {
-      images.push(fromShopify);
-      continue;
+  const frames: (ShopifyImage | null)[] = [null, null, null, null];
+  const byName = [false, false, false, false];
+  const unnamed: ShopifyImage[] = [];
+  for (const img of p.images) {
+    const f = frameOf(p.handle, img);
+    if (f && !frames[f.frame]) {
+      frames[f.frame] = img;
+      byName[f.frame] = f.byName;
     }
-    const local = localFrames[i];
-    if (local) images.push({ url: local, altText: `${p.title} ${FRAME_ALT[i]}`, width: null, height: null });
+    // The same file uploaded again shows once; any other second picture of a frame still shows.
+    else if (!(f?.byName && byName[f.frame])) unnamed.push(img);
   }
+  const notesFrame = frames[2]?.url ?? localFrames[2];
+  for (const img of unnamed) {
+    const free = frames.indexOf(null);
+    if (free < 0) break;
+    frames[free] = img;
+  }
+  const images: ShopifyImage[] = frames.flatMap((img, i) => {
+    if (img) return [img];
+    const local = localFrames[i];
+    return local ? [{ url: local, altText: `${p.title} ${FRAME_ALT[i]}`, width: null, height: null }] : [];
+  });
   // Cards cross-fade to the notes still on hover; never to the frame they already show.
-  const hover = siteImage(`products/${p.handle}-hover`) ?? siteImage(`products/${p.handle}-3`) ?? images[1]?.url ?? null;
+  const hover = siteImage(`products/${p.handle}-hover`) ?? notesFrame ?? images[1]?.url ?? null;
 
   const notesShort = metaList(p, "notes_short") ?? ed.notesShort ?? notesFromDescription(p.description);
 
@@ -315,7 +349,7 @@ function enrich(p: ShopifyProduct): Scent {
     images,
     image: images[0] ?? null,
     hoverImage: hover && hover !== images[0]?.url ? hover : null,
-    notesImage: localFrames[2],
+    notesImage: notesFrame ?? null,
     price: bottle?.price ?? p.priceRange.minVariantPrice,
     variants,
     bottle,
