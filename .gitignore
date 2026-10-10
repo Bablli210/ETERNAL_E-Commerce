@@ -62,3 +62,4 @@ docs/analytics/dashboard/eternal-performance.html
 /reel/showcase/out/stems/
 /reel/showcase/out/score*.png
 /reel/showcase/review/
+/reel/showcase/music/__pycache__/
