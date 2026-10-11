@@ -14,7 +14,7 @@ import { BuyBox } from "@/components/product/BuyBox";
 import { BoxContents, Differs, FaqSection, notesAnswer, Pairing, sectionReady, TaleExcerpt, WearIt } from "@/components/product/Sections";
 import { ProductCard } from "@/components/product/ProductCard";
 import { RecentlyViewed } from "@/components/product/RecentlyViewed";
-import { lineWithAudience } from "@/components/product/line";
+import { audienceOf, lineWithAudience } from "@/components/product/line";
 import { LineLabel } from "@/components/product/LineLabel";
 import { EternalOriginal, InspiredBy } from "@/components/product/InspiredBy";
 import { TrackView } from "@/components/analytics/TrackView";
@@ -50,6 +50,8 @@ const describe = (s: Scent) => {
   return [what, s.inspiredBy && `Inspired by ${s.inspiredBy}.`, s.isOriginal && "An Eternal Original: our own composition, not inspired by another fragrance.", s.notesShort.length && `Notes of ${joinNotes(s.notesShort.slice(0, 3)).toLowerCase()}.`, s.signature].filter(Boolean).join(" ");
 };
 const absolute = (url: string) => new URL(url, site.url).href;
+/** At most n characters, cut at a word and marked, so a search result never ends mid-word. */
+const clip = (text: string, n: number) => (text.length <= n ? text : `${text.slice(0, n - 1).replace(/[\s,.;:—-]+\S*$/, "")}…`);
 
 /** A mis-cased link from a bio or an ad (/products/WAYNE) lands on the product, not a 404. */
 async function findScent(handle: string): Promise<Scent | null> {
@@ -64,12 +66,16 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
   const { handle } = await params;
   const scent = await findScent(handle);
   if (!scent) return {};
-  const description = describe(scent).replace(/\s+/g, " ").slice(0, 160);
-  // The unisex line is called eternal, like the house, so its products leave the house's name off the end rather than say it twice.
-  const named = scent.kind === "scent" && scent.line ? `${scent.title} — ${lineWithAudience(scent.line, ", ")}` : scent.title;
+  // What people search for leads the result: the original a scent is inspired by, or that it is the house's own.
+  const kicker = scent.kind === "set" ? null : scent.inspiredBy ? `Inspired by ${scent.inspiredBy}` : scent.isOriginal ? "Eternal Original" : null;
+  const own = describe(scent).replace(/\s+/g, " ");
+  const lead = kicker && !own.includes(kicker) ? `${scent.isOriginal ? "An " : ""}${kicker}.` : null;
+  const description = clip(lead ? `${lead} ${own}` : own, 160);
+  // Then what it is and who it is for, in plain words rather than the line's name; the layout's template adds the house's name.
+  const what = scent.kind === "scent" && scent.line ? (scent.line === "eternal" ? "Unisex eau de parfum" : `Eau de parfum ${audienceOf(scent.line)}`) : null;
+  const named = what ? `${scent.title} — ${kicker ? `${kicker} · ${what}` : what}` : scent.title;
   return pageMeta({
     title: named,
-    absolute: scent.line === "eternal",
     description,
     path: `/products/${scent.handle}`,
     // The packshot previews the product in DMs and WhatsApp.

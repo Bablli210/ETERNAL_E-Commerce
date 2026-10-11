@@ -12,7 +12,7 @@ import { pageMeta } from "@/lib/metadata";
  * link previews. The title is absolute: "/" is served from /home/<still>, a
  * child of the layout, whose template would add the house's name twice.
  */
-export const homeMetadata: Metadata = pageMeta({ title: `${site.name} — ${site.tagline}`, absolute: true, description: site.description, path: "/" });
+export const homeMetadata: Metadata = pageMeta({ title: `${site.name} — ${site.searchTitle}`, absolute: true, description: site.description, path: "/" });
 
 const home = site.url.replace(/\/$/, "");
 /** Who the shop is and how to search it, for search engines: the house, its WhatsApp line, and the shop's search. */
@@ -23,9 +23,13 @@ const houseLd = {
       "@type": "Organization",
       "@id": `${home}/#house`,
       name: site.name,
+      // The names the house also goes by (the domain, the Instagram handle), so a search for either finds this one house.
+      alternateName: ["My Eternal", "myeternal"],
       url: `${home}/`,
       logo: `${home}/apple-icon.png`,
       description: site.description,
+      address: { "@type": "PostalAddress", addressLocality: "Cairo", addressCountry: "EG" },
+      areaServed: { "@type": "Country", name: "Egypt" },
       // Only a real profile; the bare instagram.com placeholder is not one.
       ...(/instagram\.com\/[^/?#]+/.test(site.instagram) ? { sameAs: [site.instagram] } : {}),
       ...(site.whatsapp ? { contactPoint: { "@type": "ContactPoint", contactType: "customer service", telephone: `+${site.whatsapp}`, availableLanguage: ["English", "Arabic"] } } : {}),

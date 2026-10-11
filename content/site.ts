@@ -11,8 +11,13 @@ export const site = {
   name: "eternal",
   tagline: taglineLines.join(" "),
   taglineLines,
-  /** The meta and link-preview description on every page, so it states nothing still waiting for the owner. */
-  description: "eau de parfum in three lines: eterna for her, eterno for him, eternal unisex. A perfume house from Cairo.",
+  /**
+   * The meta and link-preview description on every page, so it states nothing still waiting for the owner.
+   * It says what people search for ("Egyptian perfume", "Cairo", "inspired by") in the house's own words.
+   */
+  description: "eternal is an Egyptian perfume house from Cairo: eau de parfum for her, for him and unisex, inspired by the fragrances you love. Cash on delivery across Egypt.",
+  /** The home page's search title after the name: what the house is, in the words people search with. */
+  searchTitle: "Egyptian perfume brand · Eau de parfum from Cairo",
   /**
    * The address in canonical links, the sitemap and link previews. Set
    * NEXT_PUBLIC_SITE_URL once the custom domain is live; until then each
@@ -76,7 +81,7 @@ export const site = {
   contactEmail: "[Contact email]",
   /** International format without +, e.g. "201001234567". null hides WhatsApp buttons. */
   whatsapp: "201116766614" as string | null,
-  instagram: "https://instagram.com/",
+  instagram: "https://www.instagram.com/myeternal.eg/",
   tiktok: "https://tiktok.com/",
 
   /**
