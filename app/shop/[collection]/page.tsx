@@ -15,6 +15,9 @@ import { getCollection } from "@/lib/catalogue";
  */
 export const dynamicParams = false;
 
+/** After each collection's own line in search results: what the house sells and how Egypt pays for it. */
+const searchLine = "Eau de parfum from Cairo, with cash on delivery across Egypt.";
+
 export function generateStaticParams() {
   return collections.filter((c) => c.slug !== "all").map((c) => ({ collection: c.slug }));
 }
@@ -23,8 +26,9 @@ export async function generateMetadata({ params }: { params: Promise<{ collectio
   const { collection } = await params;
   const def = collections.find((c) => c.slug === collection);
   if (!def) return {};
-  // The line names differ by one letter, so the tab and the in-app title bar say who each is for.
-  const title = def.kind === "line" ? `${def.key === "eternal" ? "Unisex" : `For ${lines[def.key as LineKey].audience.toLowerCase()}`} · ${def.title}` : def.title;
+  // The line names differ by one letter, so the tab and the in-app title bar say who each is for, in the words people search with.
+  // The unisex line is called eternal, like the house, whose name the layout's template already adds.
+  const title = def.kind === "line" ? (def.key === "eternal" ? "Unisex perfumes" : `Perfumes for ${lines[def.key as LineKey].audience.toLowerCase()} · ${def.title}`) : def.title;
   // A line and the Eternal Originals preview with their own picture, a mood with its mood still; the rest with the house's.
   const image =
     def.kind === "line"
@@ -34,7 +38,7 @@ export async function generateMetadata({ params }: { params: Promise<{ collectio
         : def.kind === "mood"
           ? siteImage(`mood-${def.key}`)
           : null;
-  return pageMeta({ title, description: def.descriptor, path: `/shop/${def.slug}`, image });
+  return pageMeta({ title, description: `${def.descriptor} ${searchLine}`, path: `/shop/${def.slug}`, image });
 }
 
 export default async function CollectionRoute({ params, searchParams }: { params: Promise<{ collection: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {

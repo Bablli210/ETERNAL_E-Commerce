@@ -13,10 +13,10 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
  */
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
   const s = parseGridState(await searchParams);
-  const description = "Every scent in the house, across the three lines: eterna for her, eterno for him and eternal unisex.";
+  const description = "Every eau de parfum in the house, across the three lines: eterna for her, eterno for him and eternal unisex. Cash on delivery across Egypt.";
   if (s.q) return pageMeta({ title: `Results for “${s.q}”`, description, path: "/shop", noindex: true });
   if (s.h.length) return pageMeta({ title: "Selected scents", description, path: "/shop", noindex: true });
-  return pageMeta({ title: "Shop all scents", description, path: "/shop" });
+  return pageMeta({ title: "Shop all perfumes", description, path: "/shop" });
 }
 
 export default async function ShopPage({ searchParams }: { searchParams: SearchParams }) {

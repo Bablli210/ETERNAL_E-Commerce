@@ -21,6 +21,9 @@ const nextConfig = (phase: string): NextConfig => ({
   },
   async redirects() {
     return [
+      // The project's own Vercel address served a second copy of the shop: its visitors got their own cookies, so Meta and GA4
+      // counted them as other people, and the bag could not follow them to checkout. Every page there forwards, query included.
+      { source: "/:path*", has: [{ type: "host", value: "eternal-storefront.vercel.app" }], destination: "https://www.myeternal.net/:path*", permanent: true },
       // The house page was taken down by the owner; old links and ads land on the home page instead of a 404.
       { source: "/house", destination: "/", permanent: false },
       // Shop by mood became shop by scent: each mood page forwards to its nearest scent family.
