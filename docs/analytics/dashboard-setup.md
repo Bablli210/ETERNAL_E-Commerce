@@ -95,7 +95,10 @@ As an admin of the Eternal Fragrance business portfolio:
 4. Generate token → app "eternal dashboard reader" → expiry **Never** (if only 60 days is offered,
    take it and set a reminder) → permission **ads_read** only. Adding business_management also
    shows event match quality, but it is a read-and-write permission; leave it off unless you want
-   that figure. Never tick ads_management or catalog_management.
+   that figure. Never tick ads_management or catalog_management. With this read-only key Meta
+   refuses the event counts by site ("Website events" in Owner details reads "Not allowed with this
+   key"); the dashboard then shows when the pixel last fired instead, and Google Analytics (step 6)
+   covers the website's own visits and steps.
 5. Copy the key once into Vercel as `META_ACCESS_TOKEN` (Production, Sensitive) and redeploy.
 6. To revoke: Settings → System users → eternal-dashboard-read → Revoke tokens. After any change
    to its assets, make a new key and replace it.
