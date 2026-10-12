@@ -147,7 +147,7 @@ function tierGap(state: string, failure: { message: string } | null, what: strin
   return failure?.message ?? `${what} could not be read just now.`;
 }
 
-function attentionFor(s: ShopifySnapshot, m: MetaSnapshot, data: Pick<DashData, "periods" | "daily">, zonesDiffer: string | null, emqPurchase: Num): AttentionItem[] {
+function attentionFor(s: ShopifySnapshot, m: MetaSnapshot, data: Pick<DashData, "periods" | "daily">, zonesDiffer: string | null, emqPurchase: Num, domainLive: boolean | null): AttentionItem[] {
   const out: AttentionItem[] = [];
   const acct = m.ads.account;
   if (m.ads.state === "key_invalid")
@@ -183,14 +183,26 @@ function attentionFor(s: ShopifySnapshot, m: MetaSnapshot, data: Pick<DashData, 
       title: "Shopify figures are from earlier",
       detail: `The latest read of Shopify failed, so the shop's figures are from ${cairoTime(s.fetchedAt)} Cairo time. The dashboard tries again within a few minutes.`,
     });
-  if (isNum(s.oldSiteOrders7) && s.oldSiteOrders7 > 0)
-    out.push({
-      level: "warning",
-      title: "Sales still run through the old site",
-      detail: `${s.oldSiteOrders7} ${s.oldSiteOrders7 === 1 ? "order" : "orders"} in the last 7 days came through the old Lovable site. myeternal.net still points there, so the new website's tracking only counts once the domain is switched.`,
-      owner: "Seif + web team",
-      next: { title: "Switch myeternal.net to the new website", body: "Point myeternal.net's DNS at Vercel (the records are under Vercel > eternal-storefront > Settings > Domains), so every visit and order goes through the new site and its tracking." },
-    });
+  if (isNum(s.oldSiteOrders7) && s.oldSiteOrders7 > 0) {
+    const came = `${s.oldSiteOrders7} ${s.oldSiteOrders7 === 1 ? "order" : "orders"} in the last 7 days came through the old Lovable site.`;
+    out.push(
+      domainLive === false
+        ? {
+            level: "warning",
+            title: "Sales still run through the old site",
+            detail: `${came} myeternal.net still points there, so the new website's tracking only counts once the domain is switched.`,
+            owner: "Seif + web team",
+            next: { title: "Switch myeternal.net to the new website", body: "Point myeternal.net's DNS at Vercel (the records are under Vercel > eternal-storefront > Settings > Domains), so every visit and order goes through the new site and its tracking." },
+          }
+        : {
+            level: "warning",
+            title: "The old site still takes orders",
+            detail: `${came} ${domainLive ? "myeternal.net already shows the new website, so" : "Unless myeternal.net still points there,"} these buyers reached the old site by another address: an old link, a bookmark or its own web address. Visits there never reach the new website's tracking.`,
+            owner: "Seif + web team",
+            next: { title: "Take the old Lovable site offline", body: "Unpublish the old site in Lovable, or send its address on to www.myeternal.net, so every visit and order goes through the new website and its tracking." },
+          },
+    );
+  }
   if (s.metaChannelSync === false)
     out.push({
       level: "warning",
@@ -459,7 +471,7 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
   const emq = m.slow.emq;
   const tracking = trackingFor(s, m, probes, domainLive);
   const partial: Pick<DashData, "periods" | "daily"> = { periods, daily: { days, today } };
-  const attention = attentionFor(s, m, partial, zonesDiffer, emq?.Purchase ?? null);
+  const attention = attentionFor(s, m, partial, zonesDiffer, emq?.Purchase ?? null, domainLive);
   const stamps = [shopOk ? s.fetchedAt : null, adsOk ? m.ads.fetchedAt : null].filter((t): t is string => Boolean(t)).sort();
 
   const { ops, ga4, bosta } = extras;
