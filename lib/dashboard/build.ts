@@ -45,6 +45,12 @@ const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFin
 const egp = (v: number) => `EGP ${new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(Math.round(v))}`;
 const ratio2 = (v: number) => new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
 const cairoTime = (iso: string) => new Intl.DateTimeFormat("en-GB", { timeZone: SHOP_TZ, hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+/** "12 minutes ago", "3 hours ago", "2 days ago". */
+function ago(iso: string) {
+  const min = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
+  const [n, unit] = min < 60 ? [Math.max(min, 1), "minute"] : min < 48 * 60 ? [Math.round(min / 60), "hour"] : [Math.round(min / 1440), "day"];
+  return `${n} ${unit}${n === 1 ? "" : "s"} ago`;
+}
 const dayText = (ymd: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${ymd}T00:00:00Z`));
 
 const EVENT_LABELS: Record<string, string> = {
@@ -277,7 +283,14 @@ function trackingFor(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes | n
     : !k.pixelSet || !k.pixelIsDataset
       ? { label: pixelLabel, status: "missing", detail: k.pixelSet ? "The website uses a different pixel from the 'My Eternal' dataset." : "The new website has no Meta pixel.", action: "Set NEXT_PUBLIC_META_PIXEL_ID to 28723169773968178 in Vercel (Production) and redeploy", owner: "Web team" }
       : m.pixel.state !== "ok" && !m.pixel.hosts.length
-        ? { label: pixelLabel, status: "partial", detail: "The pixel is in the website; whether Meta receives its events couldn't be checked just now." }
+        ? {
+            label: pixelLabel,
+            status: "partial",
+            detail:
+              m.pixel.state === "no_permission"
+                ? `The pixel is in the website${m.pixel.lastBrowser ? `, and Meta last received a browser event ${ago(m.pixel.lastBrowser)}` : ""}. Meta doesn't let the dashboard's read-only key count events by site, so it can't confirm they come from the new website rather than Shopify's checkout.`
+                : "The pixel is in the website; whether Meta receives its events couldn't be checked just now.",
+          }
         : newHosts.length
           ? { label: pixelLabel, status: "ok", detail: `Meta received events from ${newHosts.join(" and ")} in the last 7 days.` }
           : { label: pixelLabel, status: "partial", detail: domainLive ? "The pixel is in the website, but Meta has received no events from it in 7 days." : "The pixel is in the website; its events grow once myeternal.net moves to it." };
@@ -383,8 +396,10 @@ function sourcesFor(s: ShopifySnapshot, m: MetaSnapshot, tracking: TrackItem[], 
           ? { label: "New website", ok: true, note: "live, tracking on" }
           : pixel.status === "missing"
             ? { label: "New website", ok: false, note: "live, tracking off" }
-            : // The pixel is in the site but whether Meta receives it can't be confirmed (no Meta key yet, or Meta busy): unknown, not off.
-              { label: "New website", ok: null, note: m.configured ? "live; tracking not confirmed just now" : "live; tracking checked once Meta is connected" };
+            : // The pixel is in the site but whether Meta receives it can't be confirmed (no Meta key yet, Meta busy, or the key may not count events by site): unknown, not off.
+              m.pixel.state === "no_permission"
+              ? { label: "New website", ok: null, note: m.pixel.lastBrowser ? `live; Meta last got a pixel event ${ago(m.pixel.lastBrowser)}` : "live; the Meta key can't confirm tracking" }
+              : { label: "New website", ok: null, note: m.configured ? "live; tracking not confirmed just now" : "live; tracking checked once Meta is connected" };
   const ga: SourceChip =
     ga4 && ga4.state !== "off"
       ? { label: "Google Analytics", ok: ga4.state === "error" ? false : ga4.state === "ok" ? true : null, note: ga4.state === "error" ? "couldn't read" : ga4.state === "ok" ? "visits and funnel" : "partly read" }
