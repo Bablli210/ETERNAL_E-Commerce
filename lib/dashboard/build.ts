@@ -367,7 +367,12 @@ function sourcesFor(s: ShopifySnapshot, m: MetaSnapshot, tracking: TrackItem[], 
       ? { label: "New website", ok: null, note: "couldn't check" }
       : domain.status === "missing"
         ? { label: "New website", ok: null, note: "not live yet: myeternal.net shows the old site" }
-        : { label: "New website", ok: pixel.status === "ok", note: pixel.status === "ok" ? "live, tracking on" : "live, tracking off" };
+        : pixel.status === "ok"
+          ? { label: "New website", ok: true, note: "live, tracking on" }
+          : pixel.status === "missing"
+            ? { label: "New website", ok: false, note: "live, tracking off" }
+            : // The pixel is in the site but whether Meta receives it can't be confirmed (no Meta key yet, or Meta busy): unknown, not off.
+              { label: "New website", ok: null, note: m.configured ? "live; tracking not confirmed just now" : "live; tracking checked once Meta is connected" };
   const ga: SourceChip =
     ga4 && ga4.state !== "off"
       ? { label: "Google Analytics", ok: ga4.state === "error" ? false : ga4.state === "ok" ? true : null, note: ga4.state === "error" ? "couldn't read" : ga4.state === "ok" ? "visits and funnel" : "partly read" }
