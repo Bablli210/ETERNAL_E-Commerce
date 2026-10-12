@@ -41,6 +41,9 @@ export const facts = {
   address: confirmed(site.address),
   origin: confirmed(site.origin),
   contactEmail: confirmed(site.contactEmail),
+  founded: confirmed(site.founded),
+  founderNote: confirmed(site.founderNote),
+  founderName: confirmed(site.founderName),
 } as const;
 
 export type PendingFact = { key: string; value: string; note: string };
@@ -61,6 +64,9 @@ const NOTES: Record<string, string> = {
   legalName: "Shown in the footer with the registration number, tax id and address.",
   origin: "Where the bottles are filled, only if literally true (playbook 4.7), e.g. \"Bottled in Cairo\".",
   contactEmail: "The address customers can write to; /help offers it under Talk to us.",
+  founded: "The year the house began, e.g. \"2025\"; /about says \"since …\".",
+  founderNote: "Two or three sentences in the founder's own voice for /about, shown beside public/images/house-founder.",
+  founderName: "The name the founder's note on /about is signed with.",
 };
 
 /** Every site fact still in brackets, for /launch-checklist and the build check. */

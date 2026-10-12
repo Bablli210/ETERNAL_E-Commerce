@@ -77,6 +77,12 @@ export const site = {
   taxId: "[Tax id]",
   address: "[Registered address, Cairo]",
 
+  /** The year the house began, e.g. "2025". /about says "since …" and Google's brand data gets foundingDate once confirmed. */
+  founded: "[Year the house was founded]",
+  /** /about's founder section: two or three sentences in the founder's own voice, signed with their name, beside public/images/house-founder (which must be the founder). Shown only once both are real. */
+  founderNote: "[Two or three sentences in the founder’s voice]",
+  founderName: "[Founder’s name]",
+
   /** The address that answers shoppers' questions, e.g. "hello@eternal.example". /help offers it under "Talk to us" once confirmed. */
   contactEmail: "[Contact email]",
   /** International format without +, e.g. "201001234567". null hides WhatsApp buttons. */
@@ -130,6 +136,7 @@ export const footerColumns = [
   {
     title: "The house",
     links: [
+      { label: "About eternal", href: "/about" },
       { label: "Tales", href: "/tales" },
     ],
   },
