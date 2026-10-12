@@ -24,8 +24,8 @@ const nextConfig = (phase: string): NextConfig => ({
       // The project's own Vercel address served a second copy of the shop: its visitors got their own cookies, so Meta and GA4
       // counted them as other people, and the bag could not follow them to checkout. Every page there forwards, query included.
       { source: "/:path*", has: [{ type: "host", value: "eternal-storefront.vercel.app" }], destination: "https://www.myeternal.net/:path*", permanent: true },
-      // The house page was taken down by the owner; old links and ads land on the home page instead of a 404.
-      { source: "/house", destination: "/", permanent: false },
+      // The house page was taken down by the owner; /about tells who the house is now, so its old links land there.
+      { source: "/house", destination: "/about", permanent: true },
       // Shop by mood became shop by scent: each mood page forwards to its nearest scent family.
       ...Object.entries(moodToFamily).map(([mood, family]) => ({ source: `/shop/${mood}`, destination: `/shop/${family}`, permanent: true })),
       // The old Lovable site on myeternal.net (until October 2026). Its three signature scents have no product page here, so each goes to its line.
