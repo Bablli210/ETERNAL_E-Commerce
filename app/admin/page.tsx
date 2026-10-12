@@ -16,9 +16,9 @@ import { Toolbar } from "./_components/Toolbar";
 export default async function DashboardPage({ searchParams }: { searchParams: Promise<{ days?: string | string[] }> }) {
   const access = await accessState();
   if (access.state === "no-store" || access.state === "unreachable") return <StoreProblem state={access.state} />;
-  if (access.state === "setup") redirect(setupOpen() ? "/dashboard/setup" : "/dashboard/sign-in");
+  if (access.state === "setup") redirect(setupOpen() ? "/admin/setup" : "/admin/sign-in");
   const viewer = await currentViewer();
-  if (!viewer) redirect("/dashboard/sign-in");
+  if (!viewer) redirect("/admin/sign-in");
 
   const raw = (await searchParams).days;
   const days: PeriodKey = PERIOD_KEYS.find((k) => k === (Array.isArray(raw) ? raw[0] : raw)) ?? "30";

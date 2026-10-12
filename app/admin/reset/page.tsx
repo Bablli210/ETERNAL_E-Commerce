@@ -5,7 +5,7 @@ import { StoreProblem } from "../_components/StoreProblem";
 
 export const metadata = { title: { absolute: "New password · eternal Performance" } };
 
-/** Opened from a reset link an owner made (/dashboard/reset#<token>). Setting the password signs out every other device. */
+/** Opened from a reset link an owner made (/admin/reset#<token>). Setting the password signs out every other device. */
 export default async function ResetPage() {
   const access = await accessState();
   if (access.state === "no-store" || access.state === "unreachable") return <StoreProblem state={access.state} />;

@@ -91,8 +91,8 @@ export const currentViewer = cache(async (): Promise<(Viewer & { iat: number; sv
 /** For pages: the signed-in person with one of these roles, or off to sign in. */
 export async function requireViewer(roles: readonly Role[] = ROLES) {
   const v = await currentViewer();
-  if (!v) redirect("/dashboard/sign-in");
-  if (!roles.includes(v.role)) redirect("/dashboard");
+  if (!v) redirect("/admin/sign-in");
+  if (!roles.includes(v.role)) redirect("/admin");
   return v;
 }
 

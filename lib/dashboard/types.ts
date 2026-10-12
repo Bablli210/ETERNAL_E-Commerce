@@ -1,5 +1,5 @@
 /**
- * The shapes the dashboard passes around (/dashboard, lib/dashboard/*,
+ * The shapes the dashboard passes around (/admin, lib/dashboard/*,
  * components/dashboard/*). Every value is plain JSON: the source snapshots
  * are kept in Next's data cache, which stores JSON only. Money is EGP as a
  * plain number, ratios are plain numbers (0.231 = 23.1%), dates are
@@ -70,6 +70,129 @@ export type ShopifySnapshot = {
   checks: { id: string; level: "ok" | "warn" | "fail"; detail: string }[];
   /** When a newer read failed for a moment and these figures are from the read before it: when that read failed. */
   heldSince?: string | null;
+};
+
+/* ------------------------------------------------- Shopify: orders on the road */
+
+/**
+ * Where an order stands between checkout and the customer's door, from its
+ * fulfillments as the courier's app reports them back to Shopify:
+ * waiting (not shipped yet), in_transit (handed over, moving), out (out for
+ * delivery), attempted (a try that failed, still moving), delivered, failed
+ * (the courier gave up or it came back), cancelled (the order itself).
+ */
+export type ShipState = "waiting" | "in_transit" | "out" | "attempted" | "delivered" | "failed" | "cancelled";
+
+/** One order, as the operations sections need it: amounts, dates, the courier's milestones, and no customer detail but the city. */
+export type OrderRow = {
+  name: string;
+  placedAt: string;
+  /** Current total after edits and refunds, EGP. */
+  total: number;
+  /** The products after discounts, before delivery: what the free-delivery threshold is measured on. */
+  subtotal: number;
+  /** The sales channel: "Eternal Headless" (this website), "Lovable" (the old one), "Online Store"… */
+  channel: string | null;
+  /** How it is paid: cash on delivery, InstaPay, or anything else. */
+  payment: "cod" | "instapay" | "other" | null;
+  financial: string | null;
+  state: ShipState;
+  shippedAt: string | null;
+  inTransitAt: string | null;
+  deliveredAt: string | null;
+  /** The last courier milestone and when, for an order still moving. */
+  lastEvent: { status: string; at: string } | null;
+  /** Failed delivery attempts the courier reported. */
+  attempts: number;
+  courier: string | null;
+  /** Shipping city; null when the app may not read addresses (protected customer data). */
+  city: string | null;
+  returned: boolean;
+  items: { title: string; qty: number }[];
+  /** From the cart attributes the website adds at checkout (app/api/checkout). */
+  inApp: boolean | null;
+  source: string | null;
+};
+
+/** One abandoned checkout: someone gave their contact details at checkout and did not pay. */
+export type CheckoutRow = {
+  createdAt: string;
+  updatedAt: string;
+  /** Set when the checkout was finished later (recovered). */
+  completedAt: string | null;
+  subtotal: number;
+  total: number;
+  /** total − subtotal − tax: the delivery fee shown, when a shipping rate was chosen; 0 when none was. */
+  shipping: number;
+  discount: number;
+  discountCodes: string[];
+  /** Whether an address was entered; null when addresses can't be read. */
+  hasAddress: boolean | null;
+  city: string | null;
+  items: { title: string; qty: number }[];
+  inApp: boolean | null;
+  source: string | null;
+};
+
+/** Orders and abandoned checkouts read through the Admin API (lib/dashboard/ops.ts). */
+export type OpsSnapshot = {
+  state: "ok" | "partial" | "off" | "error";
+  failure: Failure | null;
+  fetchedAt: string;
+  today: string;
+  /** The first day read (Shopify lets the app read 60 days of orders). */
+  since: string;
+  orders: OrderRow[];
+  checkouts: CheckoutRow[] | null;
+  hidden: { panel: string; reason: string }[];
+};
+
+/* --------------------------------------------------------------- Bosta */
+
+/** One shipment as Bosta reports it (lib/dashboard/bosta.ts). Only fields Bosta actually sent are filled. */
+export type BostaRow = {
+  tracking: string;
+  /** Bosta's business reference: the Shopify order name when the Shopify app made the shipment. */
+  reference: string | null;
+  state: ShipState | "returned" | "unknown";
+  stateLabel: string;
+  cod: number | null;
+  createdAt: string | null;
+  updatedAt: string | null;
+  attempts: number | null;
+  exception: string | null;
+};
+export type BostaSnapshot = {
+  state: "ok" | "off" | "error";
+  failure: Failure | null;
+  fetchedAt: string;
+  rows: BostaRow[];
+  /** Field names Bosta sent on its deliveries, for the owner's check (names only, never values). */
+  fields: string[];
+};
+
+/* ---------------------------------------------------------------- GA4 */
+
+export type Ga4Totals = { sessions: Num; users: Num; newUsers: Num; engaged: Num; engagementRate: Num; avgSeconds: Num; views: Num };
+/** Google Analytics 4 through the Data API (lib/dashboard/ga4.ts), whole Cairo days ending yesterday. */
+export type Ga4Snapshot = {
+  state: "ok" | "partial" | "off" | "error";
+  failure: Failure | null;
+  fetchedAt: string;
+  periods: Partial<Record<PeriodKey, { totals: Ga4Totals; prev: Ga4Totals | null; events: Record<string, number> }>>;
+  daily: { d: string; sessions: number; purchases: number }[];
+  /** Last 30 days. */
+  channels: { channel: string; sessions: number; engaged: number; purchases: number; revenue: number }[];
+  sources: { source: string; sessions: number; purchases: number }[];
+  landings: { page: string; sessions: number; engagementRate: number; addToCarts: number; purchases: number }[];
+  devices: { device: string; sessions: number; engagementRate: number; checkouts: number; purchases: number }[];
+  /** Funnel steps by device, last 30 days: event name → device → count. */
+  stepsByDevice: Record<string, Record<string, number>>;
+  items: { name: string; views: number; adds: number; checkouts: number; purchases: number; revenue: number }[];
+  /** Custom dimensions the site sends, when registered in GA4: the in-app browser split and page speed ratings. */
+  inApp: { inApp: string; sessions: number; checkouts: number; purchases: number }[] | null;
+  vitals: { metric: string; good: number; needsWork: number; poor: number }[] | null;
+  hidden: { panel: string; reason: string }[];
 };
 
 /* --------------------------------------------------------------------- Meta */
@@ -156,6 +279,95 @@ export type Note = { kind: "risk" | "win" | "next"; title: string; body: string 
 /** Why a section has no figures, in plain words for the page; null when it has them. */
 export type Gap = string | null;
 
+/** A finding the rules worked out, with the figures behind it and what to do about it. */
+export type Finding = { level: "critical" | "warning" | "info" | "good"; title: string; evidence: string; fix?: string };
+
+/** Orders between checkout and the door, and how the courier is doing (Shopify fulfillments, plus Bosta when connected). */
+export type DeliveriesView = {
+  /** The days the figures cover, e.g. orders placed in the last 60 days. */
+  basis: Range;
+  now: { waiting: number; waitingValue: number; onTheRoad: number; onTheRoadValue: number; attempted: number; oldestWaitingHours: Num };
+  /** Per period, by delivery date (delivered) or order date (the rest). */
+  periods: Partial<Record<PeriodKey, { placed: number; placedValue: number; delivered: number; deliveredValue: number; failed: number; failedValue: number; cancelled: number }>>;
+  speed: {
+    delivered: number;
+    /** Order placed → handed to the courier, median hours. */
+    toShipHours: Num;
+    /** Handed to the courier → delivered, median days. */
+    transitDays: Num;
+    /** Order placed → delivered, median and slowest tenth, days. */
+    toDoorDays: Num;
+    toDoorP90: Num;
+    /** Share delivered within the promise (working days, Sunday to Thursday). */
+    withinPromise: Num;
+    promiseDays: number;
+    /** Share of finished deliveries that failed or came back. */
+    failRate: Num;
+  };
+  byCity: { city: string; delivered: number; days: Num; failed: number }[] | null;
+  /** Orders still moving well past the promise, oldest first. */
+  late: { name: string; placedAt: string; days: number; state: ShipState; city: string | null; last: string | null }[];
+  /** Orders not handed to the courier yet, oldest first. */
+  waiting: { name: string; placedAt: string; hours: number; total: number }[];
+  bosta: { state: BostaSnapshot["state"]; note: string | null; codCollected: Num; codOnTheRoad: Num; returned: number; exceptions: { reason: string; count: number }[]; attempts: Num } | null;
+  says: Finding[];
+};
+
+/** Why people reach checkout and leave (abandoned checkouts, and GA4's checkout steps when connected). */
+export type CheckoutView = {
+  basis: Range;
+  /** Storefront "Checkout" taps → Shopify checkout started → shipping → payment → purchase, from GA4; null without GA4. */
+  steps: { key: string; label: string; count: number }[] | null;
+  abandoned: number;
+  abandonedValue: number;
+  recovered: number;
+  recoveredValue: number;
+  /** Orders placed in the same days, for the completion rate. */
+  orders: number;
+  /** Orders ÷ (orders + abandoned): of the people who gave contact details, how many paid. */
+  completion: Num;
+  /** How far the abandoned checkouts got. */
+  reached: { contact: number; address: number; delivery: number } | null;
+  /** Abandoned checkouts that had a delivery fee on screen, and its average. */
+  fee: { count: number; average: Num };
+  threshold: number | null;
+  /** Share of abandoned checkouts and of orders under the free-delivery threshold. */
+  under: { abandoned: Num; orders: Num };
+  avgValue: { abandoned: Num; orders: Num };
+  codes: { count: number; codes: string[] };
+  inApp: { abandoned: Num; orders: Num } | null;
+  byDevice: { device: string; started: number; purchased: number }[] | null;
+  topItems: { title: string; count: number }[];
+  says: Finding[];
+};
+
+/** How the website itself is doing, from GA4. */
+export type WebsiteView = {
+  periods: Partial<Record<PeriodKey, { totals: Ga4Totals; prev: Ga4Totals | null; funnel: { key: string; label: string; count: number }[] }>>;
+  daily: { d: string; sessions: number; purchases: number }[];
+  channels: Ga4Snapshot["channels"];
+  landings: Ga4Snapshot["landings"];
+  devices: Ga4Snapshot["devices"];
+  inApp: Ga4Snapshot["inApp"];
+  vitals: Ga4Snapshot["vitals"];
+  says: Finding[];
+};
+
+/** Each scent from first look to the customer's door: GA4 views and adds, Shopify sales, abandoned checkouts, failed deliveries. */
+export type ProductHealthRow = {
+  title: string;
+  line: Line | null;
+  views: Num;
+  adds: Num;
+  addRate: Num;
+  checkouts: Num;
+  units: Num;
+  net: Num;
+  abandoned: number;
+  failed: number;
+  verdict: { kind: "star" | "page" | "checkout" | "delivery" | "quiet"; text: string } | null;
+};
+
 export type DashData = {
   status: {
     /** The older of the two sources' read times, so "Updated" never overstates freshness. */
@@ -191,8 +403,20 @@ export type DashData = {
     pixel: { windowDays: number; lastBrowser: string | null; lastServer: string | null; hosts: string[]; events: { name: string; label: string; browser: number; server: number; emq: Num }[] } | null;
   };
   notes: { headline: string; basis: Range | null; items: Note[] };
+  deliveries: DeliveriesView | null;
+  checkout: CheckoutView | null;
+  website: WebsiteView | null;
+  productHealth: ProductHealthRow[] | null;
+  /** Everything the rules found, most urgent first: the "what to work on" list. */
+  workOn: Finding[];
   /** Per section, why it is empty (key missing, Meta busy, unpaid account…); the page shows this instead of zeros. */
-  gaps: { shopify: Gap; ads: Gap; adsDaily: Gap; pixel: Gap; audiences: Gap; campaigns: Gap };
+  gaps: { shopify: Gap; ads: Gap; adsDaily: Gap; pixel: Gap; audiences: Gap; campaigns: Gap; ops: Gap; checkout: Gap; website: Gap; bosta: Gap };
   /** Owner-only details: source self-checks and Meta's rate-limit reading. Removed for team and client views. */
-  admin?: { shopifyChecks: ShopifySnapshot["checks"]; shopifyHidden: ShopifySnapshot["hidden"]; meta: MetaSnapshot["rate"] & { states: Record<string, TierState> } };
+  admin?: {
+    shopifyChecks: ShopifySnapshot["checks"];
+    shopifyHidden: ShopifySnapshot["hidden"];
+    meta: MetaSnapshot["rate"] & { states: Record<string, TierState> };
+    /** The newer readers: what each could not read and why, and the field names Bosta sends (names only). */
+    sources?: { name: string; state: string; detail: string }[];
+  };
 };

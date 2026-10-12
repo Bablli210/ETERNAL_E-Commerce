@@ -169,12 +169,12 @@ export async function signIn(_prev: FormState, fd: FormData): Promise<FormState>
   clearFailures(pair);
   if (!knownDevice) refundIpSlot(ipKey, user.id);
   await startSession(user, doc.secret);
-  redirect("/dashboard");
+  redirect("/admin");
 }
 
 export async function signOut() {
   await endSession();
-  redirect("/dashboard/sign-in");
+  redirect("/admin/sign-in");
 }
 
 /* ------------------------------------------------------------- First owner */
@@ -246,7 +246,7 @@ export async function completeSetup(_prev: FormState, fd: FormData): Promise<For
   if (result === "nouser") return { error: NO_SUCH_OWNER };
   if (typeof result === "string" || !out.who) return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   await startSession(out.who, result.secret);
-  redirect("/dashboard");
+  redirect("/admin");
 }
 
 /* ------------------------------------------------- Invite and reset links */
@@ -288,7 +288,7 @@ export async function createInvite(_prev: LinkState, fd: FormData): Promise<Link
   if (result === "signedout") return { error: SIGNED_OUT };
   if (typeof result === "string") return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   // The token goes after #, which browsers never send to a server, so it stays out of logs and link previews.
-  return { link: { url: `${await dashboardOrigin()}/dashboard/join#${token}`, name, role, expires: expiresText(expiresAt) } };
+  return { link: { url: `${await dashboardOrigin()}/admin/join#${token}`, name, role, expires: expiresText(expiresAt) } };
 }
 
 export async function createResetLink(_prev: LinkState, fd: FormData): Promise<LinkState> {
@@ -316,7 +316,7 @@ export async function createResetLink(_prev: LinkState, fd: FormData): Promise<L
   if (result === "nouser") return { error: "That person no longer has an account." };
   if (result === "signedout") return { error: SIGNED_OUT };
   if (typeof result === "string") return { error: result === "unreachable" ? UNREACHABLE : BUSY };
-  return { link: { id: linkId, url: `${await dashboardOrigin()}/dashboard/reset#${token}`, name, expires: expiresText(expiresAt) } };
+  return { link: { id: linkId, url: `${await dashboardOrigin()}/admin/reset#${token}`, name, expires: expiresText(expiresAt) } };
 }
 
 /** Looks a link up in the cached copy first, so a wrong or old link costs no store read. */
@@ -370,7 +370,7 @@ export async function acceptInvite(_prev: FormState, fd: FormData): Promise<Form
   if (result === "taken") return { error: TAKEN };
   if (typeof result === "string" || !out.who) return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   await startSession(out.who, result.secret);
-  redirect("/dashboard");
+  redirect("/admin");
 }
 
 export async function applyResetLink(_prev: FormState, fd: FormData): Promise<FormState> {
@@ -413,7 +413,7 @@ export async function applyResetLink(_prev: FormState, fd: FormData): Promise<Fo
   if (result === "link") return { error: "This reset link has expired or was already used. Ask an owner for a new one." };
   if (typeof result === "string" || !out.who) return { error: result === "unreachable" ? UNREACHABLE : BUSY };
   await startSession(out.who, result.secret);
-  redirect("/dashboard");
+  redirect("/admin");
 }
 
 /* ----------------------------------------------------------- Managing people */
@@ -566,12 +566,12 @@ export async function signOutEverywhere(): Promise<FormState> {
     return { error: result === "unreachable" ? UNREACHABLE : result === "gone" ? SIGNED_OUT : result === "limit" ? SELF_LIMIT : BUSY };
   }
   await endSession();
-  redirect("/dashboard/sign-in");
+  redirect("/admin/sign-in");
 }
 
 /* ------------------------------------------------------------- The figures */
 
-/** Fresh figures from Shopify and Meta's ad numbers, for owners and team, at most every 5 minutes. */
+/** Fresh figures from Shopify, orders and checkouts, GA4, Bosta and Meta's ad numbers, for owners and team, at most every 5 minutes. */
 export async function refreshFigures(): Promise<FormState> {
   if (!(await sameOriginPost())) return { error: "Open the dashboard again and retry." };
   const viewer = await guarded(() => currentViewer(), "unreachable" as const);
@@ -582,5 +582,8 @@ export async function refreshFigures(): Promise<FormState> {
   updateTag("dash-shopify");
   updateTag("dash-meta-ads");
   updateTag("dash-site");
+  updateTag("dash-ops");
+  updateTag("dash-ga4");
+  updateTag("dash-bosta");
   return { ok: "Refreshing. The figures update in a few seconds." };
 }

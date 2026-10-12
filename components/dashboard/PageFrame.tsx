@@ -26,7 +26,7 @@ export function PageFrame({
       <TopBar toolbar={toolbar} />
       <main className="dash-main dash-page" id="dash-main">
         {back ? (
-          <Link className="dash-back" href="/dashboard" prefetch={false}>
+          <Link className="dash-back" href="/admin" prefetch={false}>
             <span aria-hidden="true">←</span> Back to the figures
           </Link>
         ) : null}

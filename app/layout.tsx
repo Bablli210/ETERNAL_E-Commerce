@@ -60,7 +60,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en" data-scroll-behavior="smooth" className={fontVariables} suppressHydrationWarning>
       <body>
         <BrandSprite />
-        {/* /dashboard renders on its own; every other page sits in the shop. */}
+        {/* /admin renders on its own; every other page sits in the shop. */}
         <ShopChrome
           shop={
             <>

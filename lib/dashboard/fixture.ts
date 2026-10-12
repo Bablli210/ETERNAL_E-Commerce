@@ -1,7 +1,8 @@
 import "server-only";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { DashData } from "./types";
+import { checkoutView, deliveriesView, productHealth, websiteView, workOn } from "./insights";
+import type { BostaSnapshot, DashData, Ga4Snapshot, OpsSnapshot } from "./types";
 
 /**
  * Development only: the dashboard's figures from a folder of JSON files (one
@@ -33,12 +34,21 @@ export function loadFixture(dir: string): DashData {
   const tracking = (read(dir, "tracking") ?? { items: [] }) as any;
   const notes = (read(dir, "notes") ?? { items: [] }) as any;
   const days = (daily.days ?? []) as DashData["daily"]["days"];
+  // The newer sections run through the same rules as live figures (lib/dashboard/insights.ts), so the fixture tests them.
+  const ops = read(dir, "ops") as unknown as OpsSnapshot | null;
+  const ga4 = read(dir, "ga4") as unknown as Ga4Snapshot | null;
+  const bosta = read(dir, "bosta") as unknown as BostaSnapshot | null;
+  const products = (read(dir, "products") ?? {}) as DashData["products"];
+  const deliveries = ops ? deliveriesView(ops, bosta, 2) : null;
+  const checkout = ops ? checkoutView(ops, ga4, 2190) : null;
+  const website = ga4 ? websiteView(ga4) : null;
+  const health = productHealth(products["30"], ga4, ops);
   for (const k of Object.keys(periods)) Object.assign(periods[k], { approximate: false, adsRange: periods[k].adsRange ?? null });
   return {
     status: { updatedAt: status.updatedAt ?? null, sources: status.sources ?? [], attention: status.attention ?? [], dayLabel: "Cairo days" },
     periods,
     daily: { days, today: days.at(-1)?.d ?? "" },
-    products: (read(dir, "products") ?? {}) as DashData["products"],
+    products,
     sources: (read(dir, "sources") ?? {}) as DashData["sources"],
     campaigns: { period: campaigns.period ?? "Last 30 days", rows: (campaigns.rows ?? []).map((r: any) => ({ ...r, active: /active/i.test(r.status ?? "") })) },
     audience: {
@@ -53,7 +63,23 @@ export function loadFixture(dir: string): DashData {
     },
     tracking: { items: tracking.items ?? [], pixel: tracking.pixel ?? null },
     notes: { headline: notes.headline ?? "This week's read", basis: periods["7"]?.range ?? null, items: notes.items ?? [] },
-    gaps: { shopify: null, ads: null, adsDaily: null, pixel: null, audiences: null, campaigns: null },
+    deliveries,
+    checkout,
+    website,
+    productHealth: health,
+    workOn: workOn([deliveries?.says ?? [], checkout?.says ?? [], website?.says ?? []], health),
+    gaps: {
+      shopify: null,
+      ads: null,
+      adsDaily: null,
+      pixel: null,
+      audiences: null,
+      campaigns: null,
+      ops: ops ? null : "No ops.json in the fixture folder.",
+      checkout: ops?.checkouts ? null : "No abandoned checkouts in the fixture.",
+      website: ga4 ? null : "No ga4.json in the fixture folder.",
+      bosta: bosta ? null : "No bosta.json in the fixture folder.",
+    },
     admin: {
       shopifyChecks: [{ id: "fixture", level: "warn", detail: `Figures from the fixture folder ${dir}, not from Shopify or Meta.` }],
       shopifyHidden: [],

@@ -108,6 +108,24 @@ function adSetMix(rows: DashData["campaigns"]["rows"]): Candidate | null {
   };
 }
 
+/** Cash on delivery means a sale is money only once it reaches the customer: what arrived this week, and what is still on the road. */
+function cashIn(d: DashData): Candidate | null {
+  const v = d.deliveries;
+  const w = v?.periods["7"];
+  if (!v || !w || (w.delivered === 0 && v.now.onTheRoad === 0)) return null;
+  const road = v.now.onTheRoad ? ` ${egp(v.now.onTheRoadValue)} is still on the road in ${plural(v.now.onTheRoad, "order")}.` : "";
+  const lost = w.failed ? ` ${plural(w.failed, "delivery", "deliveries")} failed (${egp(w.failedValue)}).` : "";
+  return w.delivered
+    ? { kind: "win", score: 55, title: `${egp(w.deliveredValue)} delivered to customers this week`, body: `${plural(w.delivered, "order")} reached customers in the last 7 full days.${road}${lost}` }
+    : { kind: "risk", score: 60, title: "No delivery reached a customer this week", body: `Nothing was delivered in the last 7 full days.${road}${lost}` };
+}
+
+/** The strongest reason people leave at checkout, when the figures show one. */
+function checkoutLeak(d: DashData): Candidate | null {
+  const f = d.checkout?.says.find((x) => x.level === "warning" || x.level === "critical");
+  return f ? { kind: "risk", score: 85, title: f.title, body: f.evidence } : null;
+}
+
 function nextStep(d: DashData): Candidate | null {
   const order = { critical: 0, warning: 1, info: 2 } as const;
   const top = [...d.status.attention].sort((a, b) => order[a.level] - order[b.level]).find((a) => a.next);
@@ -130,7 +148,7 @@ export function buildRead(d: DashData): { headline: string; basis: Range | null;
   const p30 = d.periods["30"];
   const t = d.daily.days.find((x) => x.d === d.daily.today);
   const today = t ? { orders: n0(t.orders), net: n0(t.net) } : null;
-  const all = [salesWeek(p7, today), adsReturn(p30, p7), topSource(p30, d.sources["30"]), topScent(d.products["30"]), adSetMix(d.campaigns.rows), nextStep(d)].filter(
+  const all = [salesWeek(p7, today), adsReturn(p30, p7), cashIn(d), checkoutLeak(d), topSource(p30, d.sources["30"]), topScent(d.products["30"]), adSetMix(d.campaigns.rows), nextStep(d)].filter(
     (c): c is Candidate => !!c && wordCount(c.body) <= MAX_WORDS,
   );
   const nexts = all.filter((c) => c.kind === "next").sort((a, b) => b.score - a.score);

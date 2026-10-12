@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PERIOD_KEYS, type DashData, type PeriodKey, type Viewer } from "@/lib/dashboard/types";
 import { cairoTime, egp, isNum, plural } from "./format";
 import { Funnel } from "./Funnel";
+import { Checkout, Deliveries, ProductHealth, SectionNav, WorkOn, Website } from "./Operations";
 import { Kpis } from "./Kpis";
 import { Attention, Foot, Notes, OwnerDetails, SourceChips, Tracking } from "./Status";
 import { Audience, Campaigns, Products, Sources } from "./Tables";
@@ -87,17 +88,23 @@ export function Dashboard({
         {notice ? <div className="dash-notice">{notice}</div> : null}
         <div className="intro">
           <p className="label">eternal · eau de parfum · Cairo</p>
-          <h1>How the house is selling</h1>
+          <h1>How the house is doing</h1>
           <p className="lede">
-            Sales and customers from Shopify, advertising from Meta, and the state of the tracking that feeds both. Figures are read live and refreshed every
-            few minutes.
+            Sales, deliveries and checkouts from Shopify, the courier from Bosta, visitors from Google Analytics, advertising from Meta, and what the figures say
+            together. Figures are read live and refreshed every few minutes.
           </p>
           <SourceChips sources={data.status.sources} />
+          <SectionNav />
         </div>
         <Attention items={data.status.attention} />
+        <WorkOn items={data.workOn} any={Boolean(data.deliveries || data.checkout || data.website)} />
         <Kpis p={p} full={full} days={days} gaps={data.gaps} />
         <TrendChart rows={full} days={days} gaps={data.gaps} />
+        <Deliveries view={data.deliveries} days={days} gap={data.gaps.ops} bostaGap={data.gaps.bosta} />
+        <Checkout view={data.checkout} gap={data.gaps.checkout} />
         <Funnel ads={p?.ads} pixel={data.tracking.pixel} days={days} gaps={data.gaps} />
+        <Website view={data.website} days={days} gap={data.gaps.website} />
+        <ProductHealth rows={data.productHealth} gaps={data.gaps} />
         <Products rows={data.products[days]} days={days} approximate={Boolean(p?.approximate)} gap={data.gaps.shopify} />
         <Sources sources={data.sources} days={days} gap={data.gaps.shopify} />
         <Campaigns campaigns={data.campaigns} gap={data.gaps.campaigns} />

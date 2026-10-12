@@ -9,9 +9,9 @@ export const metadata = { title: { absolute: "Sign in · eternal Performance" } 
 
 export default async function SignInPage() {
   const access = await accessState();
-  if (access.state === "setup" && setupOpen()) redirect("/dashboard/setup");
+  if (access.state === "setup" && setupOpen()) redirect("/admin/setup");
   if (access.state !== "ready" && access.state !== "setup") return <StoreProblem state={access.state} />;
-  if (access.state === "ready" && (await currentViewer().catch(() => null))) redirect("/dashboard");
+  if (access.state === "ready" && (await currentViewer().catch(() => null))) redirect("/admin");
   return (
     <AuthFrame title="Sign in" lede="The eternal team's figures: sales, advertising and the tracking behind them.">
       {access.state === "setup" ? (
