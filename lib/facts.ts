@@ -33,6 +33,7 @@ export const facts = {
   deliveryIncluded: site.deliveryIncluded,
   whatsapp: site.whatsapp,
   paymentMethods: site.paymentMethods.filter(isConfirmed),
+  instapayAddress: confirmed(site.instapayAddress),
   deliveryCutoff: confirmed(site.deliveryCutoff),
   whatsappHours: confirmed(site.whatsappHours),
   legalName: confirmed(site.legalName),

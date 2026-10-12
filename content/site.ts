@@ -96,6 +96,8 @@ export const site = {
    * the transfer details on the order confirmation.
    */
   paymentMethods: ["Cash on delivery", "InstaPay"],
+  /** The InstaPay address buyers transfer to. They then send the screenshot on WhatsApp, and the order ships once it is checked. */
+  instapayAddress: "my.eternal@instapay",
 
   scentCount: 43,
   sampleSizeMl: 5,

@@ -64,6 +64,7 @@ export default async function HelpPage() {
   const cod = facts.paymentMethods.some((m) => /cash/i.test(m));
   const methods = facts.paymentMethods.map((m) => (/cash/i.test(m) ? m.toLowerCase() : m));
   const instapay = facts.paymentMethods.some((m) => /instapay/i.test(m));
+  const ipa = facts.instapayAddress;
   const returns = facts.returnsPolicy ? sentence(facts.returnsWindow ? `${facts.returnsPolicy}, within ${facts.returnsWindow}` : facts.returnsPolicy) : null;
   const wa = facts.whatsapp;
   const email = confirmed(site.contactEmail);
@@ -106,11 +107,26 @@ export default async function HelpPage() {
       id: "payments",
       nav: "Payments",
       title: "Payments",
-      ar: cod && instapay ? "يمكنك الدفع نقدًا عند الاستلام أو عبر إنستاباي." : "تظهر وسائل الدفع المتاحة عند إتمام الطلب.",
+      ar:
+        cod && instapay
+          ? `يمكنك الدفع نقدًا عند الاستلام أو عبر إنستاباي.${ipa && wa ? ` للدفع عبر إنستاباي، حوّل إجمالي الطلب إلى ${ipa} ثم أرسل لنا صورة التحويل على واتساب.` : ""}`
+          : "تظهر وسائل الدفع المتاحة عند إتمام الطلب.",
       body: (
         <>
           <p>{methods.length ? `You can pay by ${orList(methods)}, on our secure checkout.` : "The ways to pay are shown on our secure checkout, before you place the order."}</p>
-          {instapay && <p>To pay by InstaPay, choose it at checkout. The transfer details are shown when you place the order and in your confirmation email.</p>}
+          {instapay &&
+            (ipa && wa ? (
+              <>
+                <p>
+                  To pay by InstaPay, choose it at checkout and place your order. Then send the order total to <strong className="font-semibold text-night">{ipa}</strong> and send us the screenshot on WhatsApp with your order number. We ship as soon as the payment is confirmed. The steps are also in your confirmation email.
+                </p>
+                <WhatsAppLink number={wa} text="Hello eternal, here is my InstaPay screenshot for order #" from="help_instapay" className="btn btn-secondary mt-1 w-full sm:w-auto sm:self-start">
+                  <Icon name="whatsapp" size={18} /> Send your InstaPay screenshot
+                </WhatsAppLink>
+              </>
+            ) : (
+              <p>To pay by InstaPay, choose it at checkout. The transfer details are shown when you place the order and in your confirmation email.</p>
+            ))}
         </>
       ),
     },
