@@ -977,6 +977,24 @@ const cachedRead = unstable_cache(keepLastGood, ["dash-shopify-v2", process.env.
   tags: ["dash-data", "dash-shopify"],
 });
 
+/* ------------------------------------------------ Shared with lib/dashboard/ops.ts */
+
+/** The same key, token, request and error words for the operations reader (orders on the road, abandoned checkouts). */
+export { ShopifyError, isDenied, isFatal, messageFor };
+export type { Gql, GqlError };
+export const adminReady = () => readEnv().config !== null;
+export const adminMissing = () => readEnv().missing;
+export function adminGql<T>(query: string, variables: Record<string, unknown> = {}): Promise<Gql<T>> {
+  const c = readEnv().config;
+  if (!c) return Promise.reject(new ShopifyError("not_configured", 0));
+  const waitUntil = throttledUntil.get(c.shop) ?? 0;
+  if (Date.now() < waitUntil) return Promise.reject(new ShopifyError("throttled", 429, null, waitUntil));
+  return gql<T>(c, query, variables).catch((e: unknown) => {
+    if (e instanceof ShopifyError && e.kind === "throttled") throttledUntil.set(c.shop, e.retryAt ?? Date.now() + 60_000);
+    throw e;
+  });
+}
+
 export async function getShopifySnapshot(): Promise<ShopifySnapshot> {
   try {
     const snap = await cachedRead();

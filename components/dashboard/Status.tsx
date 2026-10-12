@@ -121,8 +121,14 @@ export function Foot({ dayLabel }: { dayLabel: string }) {
         <dd>Meta&rsquo;s 0–10 score for how well an event can be matched to a person. Higher means better targeting and reporting.</dd>
         <dt>Orders</dt>
         <dd>Every order, including cash on delivery orders that were later cancelled; Shopify counts a cancellation as a return.</dd>
+        <dt>Delivered</dt>
+        <dd>Orders the courier reported delivered, counted on the day they arrived: with cash on delivery, the money actually in hand.</dd>
+        <dt>On time</dt>
+        <dd>Delivered within the promise on the site, counting working days (Sunday to Thursday) after the day of the order.</dd>
+        <dt>Finish checkout</dt>
+        <dd>Orders divided by orders plus abandoned checkouts. Shopify only records a checkout as abandoned once contact details are given.</dd>
       </dl>
-      <p>Sources: Shopify Analytics and Admin, Meta Ads Manager and Events Manager. Figures are in Egyptian pounds. {dayLabel}</p>
+      <p>Sources: Shopify Analytics and Admin, Bosta, Google Analytics 4, Meta Ads Manager and Events Manager. Figures are in Egyptian pounds. {dayLabel}</p>
     </footer>
   );
 }
@@ -202,6 +208,24 @@ export function OwnerDetails({ admin }: { admin: NonNullable<DashData["admin"]> 
             <p className="small card-sub">None: every panel was read.</p>
           )}
         </div>
+        {admin.sources?.length ? (
+          <div className="card">
+            <h3>Orders, Google Analytics and Bosta</h3>
+            <ul className="checks">
+              {admin.sources.map((x) => (
+                <li key={x.name} className="check">
+                  <Pill tone={x.state === "ok" ? "ok" : x.state === "partial" ? "partial" : x.state === "off" ? "unknown" : "blocked"}>
+                    {x.state === "ok" ? "Read" : x.state === "partial" ? "Partly" : x.state === "off" ? "No key set" : "Failed"}
+                  </Pill>
+                  <div>
+                    <strong>{x.name}</strong>
+                    <p>{x.detail}</p>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
         <div className="card">
           <h3>Meta</h3>
           {states.length ? (

@@ -571,7 +571,7 @@ export async function signOutEverywhere(): Promise<FormState> {
 
 /* ------------------------------------------------------------- The figures */
 
-/** Fresh figures from Shopify and Meta's ad numbers, for owners and team, at most every 5 minutes. */
+/** Fresh figures from Shopify, orders and checkouts, GA4, Bosta and Meta's ad numbers, for owners and team, at most every 5 minutes. */
 export async function refreshFigures(): Promise<FormState> {
   if (!(await sameOriginPost())) return { error: "Open the dashboard again and retry." };
   const viewer = await guarded(() => currentViewer(), "unreachable" as const);
@@ -582,5 +582,8 @@ export async function refreshFigures(): Promise<FormState> {
   updateTag("dash-shopify");
   updateTag("dash-meta-ads");
   updateTag("dash-site");
+  updateTag("dash-ops");
+  updateTag("dash-ga4");
+  updateTag("dash-bosta");
   return { ok: "Refreshing. The figures update in a few seconds." };
 }

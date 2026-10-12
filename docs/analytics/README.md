@@ -2,14 +2,15 @@
 
 ## eternal Performance (team and client dashboard)
 
-On the website at **/dashboard** (https://eternal-storefront.vercel.app/dashboard until
-myeternal.net points at Vercel, then https://www.myeternal.net/dashboard). People sign in with
+On the website at **/admin** (https://www.myeternal.net/admin; /dashboard forwards there). People sign in with
 their own username and password; owners invite the team and clients from the People page.
-It shows sales and customers from Shopify, advertising and pixel health from Meta, and the state of
-the tracking that feeds both, read live with two read-only keys. Setup for the owner:
+It shows sales, customers, orders on the road, delivery times and abandoned checkouts from Shopify,
+the courier from Bosta, visitors and the checkout steps from Google Analytics 4, advertising and pixel
+health from Meta, and what the figures say together (fixed rules, lib/dashboard/insights.ts), each
+read live with its own read-only key. Setup for the owner:
 `dashboard-setup.md`.
 
-- `app/dashboard/` holds the pages and the Server Actions (sign-in, setup, invites, people);
+- `app/admin/` holds the pages and the Server Actions (sign-in, setup, invites, people);
   `components/dashboard/` the figures' layout; `lib/dashboard/` the sources and sign-in:
   `shopify.ts` and `meta.ts` read the two APIs (each cached on its own schedule),
   `build.ts` turns them into the page's sections, attention items and tracking checks,

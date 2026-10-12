@@ -630,3 +630,19 @@ html:has(body > .dash) > body {
 .dash .dash-copy > .dash-btn,
 .dash .dash-copy > form { flex: none; }
 .dash .dash-log { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 14px; }
+
+/* ------------------------------------------------------------ Operations, checkout, website */
+
+/* The section links under the intro: the page is long, and each part answers its own question. */
+.dash .sect-nav { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 18px; font-size: 13px; }
+.dash .sect-nav a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--rule-strong); text-underline-offset: 3px; min-height: 32px; display: inline-flex; align-items: center; }
+.dash .sect-nav a:hover { text-decoration-color: var(--ink); }
+/* Findings share the attention list's layout; the "what to do" line reads as the action it is. */
+.dash .findings { margin-bottom: 16px; }
+.dash .findings .fix { color: var(--ink); font-size: 13px; margin-top: 4px; }
+.dash .sect .card + .two,
+.dash .sect .two + .card,
+.dash .sect .card + .card { margin-top: 16px; }
+.dash .sect > .card + .two { margin-top: 16px; }
+.dash .card .stats + .small { margin-top: 12px; }
+.dash td .dash-pill { white-space: normal; text-align: left; }

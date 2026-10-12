@@ -3,9 +3,36 @@ import { getShopifySnapshot } from "./shopify";
 import { getMetaSnapshot, owesPayment } from "./meta";
 import { getSiteProbes, liveKeys, VERCEL_ANALYTICS_URL, type SiteProbes } from "./site";
 import { buildRead } from "./read";
+import { getOpsSnapshot } from "./ops";
+import { getGa4Snapshot } from "./ga4";
+import { getBostaSnapshot } from "./bosta";
+import { checkoutView, deliveriesView, productHealth, websiteView, workOn } from "./insights";
+import { site } from "@/content/site";
 import { fixtureDir, loadFixture } from "./fixture";
 import { addDays, SHOP_TZ, ymdIn } from "./dates";
-import { PERIOD_KEYS, type AttentionItem, type DashData, type MetaSnapshot, type Num, type Role, type ShopifySnapshot, type SourceChip, type TrackItem } from "./types";
+import { PERIOD_KEYS, type AttentionItem, type BostaSnapshot, type DashData, type Ga4Snapshot, type MetaSnapshot, type Num, type OpsSnapshot, type Role, type ShopifySnapshot, type SourceChip, type TrackItem } from "./types";
+
+/** The newer readers, each optional: a page built without them (the fixture) shows their sections as not connected. */
+export type Extras = { ops: OpsSnapshot | null; ga4: Ga4Snapshot | null; bosta: BostaSnapshot | null };
+
+/** "within 2 working days, Sunday to Thursday" gives 2: the promise the delivery figures are held to. */
+const promiseDays = () => Number(/(\d+)\s*working day/i.exec(site.deliveryTime ?? "")?.[1] ?? 2);
+
+const readable = <T extends { state: string }>(x: T | null): x is T => !!x && (x.state === "ok" || x.state === "partial");
+
+function opsGap(o: OpsSnapshot | null): string | null {
+  if (!o) return "Orders could not be read just now.";
+  if (o.state === "off") return "Shopify isn't connected to the dashboard yet. The owner adds the read-only Shopify key in Vercel.";
+  if (o.state === "error") return o.failure?.message ?? "Orders could not be read just now.";
+  return null;
+}
+
+function ga4Gap(g: Ga4Snapshot | null): string | null {
+  if (!g) return "Google Analytics could not be read just now.";
+  if (g.state === "off") return "Google Analytics isn't connected to the dashboard yet. The owner adds GA4_PROPERTY_ID and GA4_SERVICE_ACCOUNT in Vercel (docs/analytics/dashboard-setup.md).";
+  if (g.state === "error") return g.failure?.message ?? "Google Analytics could not be read just now.";
+  return null;
+}
 
 /**
  * The dashboard's figures: the Shopify and Meta readings (each cached on its
@@ -308,7 +335,7 @@ function trackingFor(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes | n
   return [account, domain, pixel, capi, checkout, catalog, ga4, visits, utm];
 }
 
-function sourcesFor(s: ShopifySnapshot, m: MetaSnapshot, tracking: TrackItem[]): SourceChip[] {
+function sourcesFor(s: ShopifySnapshot, m: MetaSnapshot, tracking: TrackItem[], ga4: Ga4Snapshot | null): SourceChip[] {
   const k = liveKeys();
   const shop: SourceChip =
     s.state === "off"
@@ -341,11 +368,22 @@ function sourcesFor(s: ShopifySnapshot, m: MetaSnapshot, tracking: TrackItem[]):
       : domain.status === "missing"
         ? { label: "New website", ok: null, note: "not live yet: myeternal.net shows the old site" }
         : { label: "New website", ok: pixel.status === "ok", note: pixel.status === "ok" ? "live, tracking on" : "live, tracking off" };
-  const ga: SourceChip = { label: "Google Analytics", ok: k.production && k.ga4Set ? true : null, note: !k.production ? "checked on the live site only" : k.ga4Set ? "tag on the website" : "not connected" };
+  const ga: SourceChip =
+    ga4 && ga4.state !== "off"
+      ? { label: "Google Analytics", ok: ga4.state === "error" ? false : ga4.state === "ok" ? true : null, note: ga4.state === "error" ? "couldn't read" : ga4.state === "ok" ? "visits and funnel" : "partly read" }
+      : { label: "Google Analytics", ok: null, note: !k.production ? "checked on the live site only" : k.ga4Set ? "tag on the website; reports not connected" : "not connected" };
   return [shop, meta, site, ga];
 }
 
-export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes | null, requestHost: string): DashData {
+/** Orders on the road and Bosta as source chips; Bosta only once it is connected or failing. */
+function extraChips(ops: OpsSnapshot | null, bosta: BostaSnapshot | null): SourceChip[] {
+  const out: SourceChip[] = [];
+  if (ops && ops.state !== "off") out.push({ label: "Orders & delivery", ok: ops.state === "error" ? false : ops.state === "ok" ? true : null, note: ops.state === "error" ? "couldn't read" : ops.state === "ok" ? "orders, courier, checkouts" : "partly read" });
+  if (bosta && bosta.state !== "off") out.push({ label: "Bosta", ok: bosta.state === "ok", note: bosta.state === "ok" ? "shipments and cash" : "couldn't read" });
+  return out;
+}
+
+export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes | null, requestHost: string, extras: Extras = { ops: null, ga4: null, bosta: null }): DashData {
   const today = s.today || ymdIn(new Date(), SHOP_TZ);
   // The days are keyed in Shopify's zone, or Cairo's when Shopify's couldn't be read; Meta's rows are compared against that either way.
   const shopTz = s.timezone;
@@ -419,10 +457,21 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
   const attention = attentionFor(s, m, partial, zonesDiffer, emq?.Purchase ?? null);
   const stamps = [shopOk ? s.fetchedAt : null, adsOk ? m.ads.fetchedAt : null].filter((t): t is string => Boolean(t)).sort();
 
+  const { ops, ga4, bosta } = extras;
+  const opsOk = readable(ops);
+  const ga4Ok = readable(ga4);
+  const deliveries = opsOk ? deliveriesView(ops, bosta, promiseDays()) : null;
+  const checkout = opsOk ? checkoutView(ops, ga4Ok ? ga4 : null, site.freeShippingThreshold) : null;
+  const website = ga4Ok ? websiteView(ga4) : null;
+  const health = productHealth(shopOk ? s.products["30"] : undefined, ga4Ok ? ga4 : null, opsOk ? ops : null);
+  // Urgent operational findings (orders waiting two days to ship, a delivery failure rate of one in five) join the top of the page.
+  for (const f of [...(deliveries?.says ?? []), ...(checkout?.says ?? [])].filter((x) => x.level === "critical"))
+    attention.push({ level: "critical", title: f.title, detail: `${f.evidence}${f.fix ? ` ${f.fix}` : ""}`, next: f.fix ? { title: f.title, body: f.fix } : undefined });
+
   const data: DashData = {
     status: {
       updatedAt: stamps[0] ?? null,
-      sources: sourcesFor(s, m, tracking),
+      sources: [...sourcesFor(s, m, tracking, ga4), ...extraChips(ops, bosta)],
       attention,
       dayLabel: zonesDiffer ? `Shopify days are ${shopZone} days; Meta days are ${metaTz} days.` : `Days are ${shopZone === SHOP_TZ ? "Cairo" : shopZone} days.`,
     },
@@ -455,6 +504,11 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
             },
     },
     notes: { headline: "This week's read", basis: null, items: [] },
+    deliveries,
+    checkout,
+    website,
+    productHealth: health,
+    workOn: workOn([deliveries?.says ?? [], checkout?.says ?? [], website?.says ?? []], health),
     gaps: {
       shopify: shopifyGap(s),
       ads: adsGap(m),
@@ -467,11 +521,27 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
       audiences: m.slow.audiences ? null : tierGap(m.slow.audiencesState, m.slow.audiencesFailure ?? null, "Meta's audiences"),
       // The periods can be read while a later part of the ads read failed: then that part says so rather than vanishing.
       campaigns: m.ads.campaigns.length ? null : (adsGap(m) ?? (m.ads.state !== "ok" ? (m.ads.failure?.message ?? "Meta's campaign figures could not be read just now.") : null)),
+      ops: opsGap(ops),
+      checkout: opsGap(ops) ?? (ops?.checkouts ? null : (ops?.hidden.find((h) => h.panel === "Abandoned checkouts")?.reason ?? "Abandoned checkouts could not be read just now.")),
+      website: ga4Gap(ga4),
+      bosta:
+        !bosta || bosta.state === "off"
+          ? "Bosta isn't connected yet. The owner adds BOSTA_API_KEY in Vercel for cash collected, delivery attempts and exception reasons."
+          : bosta.state === "error"
+            ? (bosta.failure?.message ?? "Bosta could not be read just now.")
+            : null,
     },
     admin: {
       shopifyChecks: s.checks,
       shopifyHidden: s.hidden,
       meta: { ...m.rate, states: { ads: m.ads.state, pixel: m.pixel.state, audiences: m.slow.audiencesState, matchQuality: m.slow.emqState } },
+      sources: [
+        ...(ops
+          ? [{ name: "Shopify orders and checkouts", state: ops.state, detail: [ops.failure?.message, ...ops.hidden.map((h) => `${h.panel}: ${h.reason}`)].filter(Boolean).join(" ") || `${ops.orders.length} orders and ${ops.checkouts?.length ?? 0} abandoned checkouts since ${ops.since}.` }]
+          : []),
+        ...(ga4 ? [{ name: "Google Analytics 4", state: ga4.state, detail: [ga4.failure?.message, ...ga4.hidden.map((h) => `${h.panel}: ${h.reason}`)].filter(Boolean).join(" ") || "All reports answered." }] : []),
+        ...(bosta ? [{ name: "Bosta", state: bosta.state, detail: bosta.failure?.message ?? `${bosta.rows.length} shipments read. Fields Bosta sends: ${bosta.fields.join(", ") || "none"}.` }] : []),
+      ],
     },
   };
   data.notes = buildRead(data);
@@ -483,8 +553,15 @@ export async function getDashData(requestHost: string): Promise<DashData> {
   const dir = fixtureDir();
   if (dir) return loadFixture(dir);
   const k = liveKeys();
-  const [s, m, probes] = await Promise.all([settled(getShopifySnapshot()), settled(getMetaSnapshot()), settled(getSiteProbes(k.deploymentId, k.vaBase))]);
-  return assemble(s ?? emptyShopify(ymdIn(new Date(), SHOP_TZ)), m ?? emptyMeta(), probes, requestHost);
+  const [s, m, probes, ops, ga4, bosta] = await Promise.all([
+    settled(getShopifySnapshot()),
+    settled(getMetaSnapshot()),
+    settled(getSiteProbes(k.deploymentId, k.vaBase)),
+    settled(getOpsSnapshot()),
+    settled(getGa4Snapshot()),
+    settled(getBostaSnapshot()),
+  ]);
+  return assemble(s ?? emptyShopify(ymdIn(new Date(), SHOP_TZ)), m ?? emptyMeta(), probes, requestHost, { ops, ga4, bosta });
 }
 
 /** What each role may see. Owners also get the source self-checks and Meta's rate reading; nobody else receives them at all. */
