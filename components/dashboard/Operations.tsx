@@ -1,5 +1,5 @@
 import type { CheckoutView, DashData, DeliveriesView, Finding, PeriodKey, ProductHealthRow, ShipState, WebsiteView } from "@/lib/dashboard/types";
-import { cairoTime, egp, int, isNum, one, pct, plural, rangeText } from "./format";
+import { cairoTime, day, egp, int, isNum, one, pct, plural, rangeText } from "./format";
 import { Gap, Pill, Section, TableBox } from "./ui";
 
 /**
@@ -305,7 +305,11 @@ export function Website({ view, days, gap }: { view: WebsiteView | null; days: P
   const orders = p?.funnel.find((s) => s.key === "purchase")?.count ?? null;
   const lcp = view.vitals?.find((v) => v.metric === "LCP");
   return (
-    <Section id="h-web" title="How the website is doing" sub={`Every visitor, ad or not, from Google Analytics. Last ${days} full days.`}>
+    <Section
+      id="h-web"
+      title="How the website is doing"
+      sub={`Every visitor, ad or not, from Google Analytics. Last ${days} full days${p?.since ? `, though Google Analytics only has figures from ${day(p.since)}, when its tag went on the new website` : ""}.`}
+    >
       <Findings items={view.says} />
       {t ? (
         <div className="card">
