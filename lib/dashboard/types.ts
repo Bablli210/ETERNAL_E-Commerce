@@ -343,7 +343,10 @@ export type CheckoutView = {
 
 /** How the website itself is doing, from GA4. */
 export type WebsiteView = {
-  periods: Partial<Record<PeriodKey, { totals: Ga4Totals; prev: Ga4Totals | null; funnel: { key: string; label: string; count: number }[] }>>;
+  /** since: GA4's first day with a visit when it falls inside the period, so its figures cover fewer days than the period's name says. */
+  periods: Partial<Record<PeriodKey, { totals: Ga4Totals; prev: Ga4Totals | null; funnel: { key: string; label: string; count: number }[]; since: string | null }>>;
+  /** GA4's first day with a visit in the 90 days read, or null when visits go back further. */
+  since: string | null;
   daily: { d: string; sessions: number; purchases: number }[];
   channels: Ga4Snapshot["channels"];
   landings: Ga4Snapshot["landings"];

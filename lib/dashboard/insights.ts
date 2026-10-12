@@ -1,4 +1,4 @@
-import { addDays, fullDays, SHOP_TZ, ymdIn } from "./dates";
+import { addDays, fullDays, prevDays, SHOP_TZ, ymdIn } from "./dates";
 import { itemKey } from "./item-key";
 import {
   PERIOD_KEYS,
@@ -29,6 +29,8 @@ const fmt1 = new Intl.NumberFormat("en-US", { maximumFractionDigits: 1 });
 const egp = (v: number) => `EGP ${fmt.format(Math.round(v))}`;
 /** Whole percents, but one decimal under 10% so a 0.4% conversion never reads as 0%. */
 const pct = (v: number) => (v > 0 && v < 0.1 ? `${fmt1.format(v * 100)}%` : `${fmt.format(Math.round(v * 100))}%`);
+/** "10 Oct". */
+const dayLabel = (ymd: string) => new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(new Date(`${ymd}T12:00:00Z`));
 const days1 = (v: number) => `${fmt1.format(v)} ${v === 1 ? "day" : "days"}`;
 const plural = (n: number, one: string, many = `${one}s`) => `${fmt.format(n)} ${n === 1 ? one : many}`;
 const isNum = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
@@ -418,13 +420,22 @@ const FUNNEL: [string, string][] = [
 ];
 
 export function websiteView(ga4: Ga4Snapshot): WebsiteView {
+  // The GA4 tag can be younger than a period (it went on the new website on 10 Oct 2026), and GA4 sends no rows for days without visits.
+  const today = ymdIn(new Date(), SHOP_TZ);
+  const first = ga4.daily.find((r) => r.sessions > 0)?.d ?? null;
+  const startsIn = (n: number) => (first && first > fullDays(n, today).from ? first : null);
   const periods: WebsiteView["periods"] = {};
   for (const k of PERIOD_KEYS) {
     const p = ga4.periods[k];
     if (!p) continue;
-    periods[k] = { totals: p.totals, prev: p.prev, funnel: FUNNEL.map(([key, label]) => ({ key, label, count: key === "page_view" ? (p.totals.sessions ?? 0) : (p.events[key] ?? 0) })).map((s, i) => (i === 0 ? { ...s, label: "Visits" } : s)) };
+    periods[k] = {
+      totals: p.totals,
+      prev: p.prev,
+      funnel: FUNNEL.map(([key, label]) => ({ key, label, count: key === "page_view" ? (p.totals.sessions ?? 0) : (p.events[key] ?? 0) })).map((s, i) => (i === 0 ? { ...s, label: "Visits" } : s)),
+      since: startsIn(Number(k)),
+    };
   }
-  const view: WebsiteView = { periods, daily: ga4.daily, channels: ga4.channels, landings: ga4.landings, devices: ga4.devices, inApp: ga4.inApp, vitals: ga4.vitals, says: [] };
+  const view: WebsiteView = { periods, since: startsIn(90), daily: ga4.daily, channels: ga4.channels, landings: ga4.landings, devices: ga4.devices, inApp: ga4.inApp, vitals: ga4.vitals, says: [] };
   view.says = websiteFindings(view);
   return view;
 }
@@ -436,7 +447,10 @@ function websiteFindings(v: WebsiteView): Finding[] {
   const t = p.totals;
   const sessions = t.sessions ?? 0;
   const ev = Object.fromEntries(p.funnel.map((s) => [s.key, s.count]));
-  if (sessions >= 50 && isNum(p.prev?.sessions) && p.prev.sessions > 0) {
+  // "in 30 days" only when GA4 covers all 30; a comparison only when it also covers the 30 days before.
+  const span = p.since ? `since ${dayLabel(p.since)}` : "in 30 days";
+  const prevCovered = !v.since || v.since <= prevDays(30, ymdIn(new Date(), SHOP_TZ)).from;
+  if (sessions >= 50 && prevCovered && isNum(p.prev?.sessions) && p.prev.sessions > 0) {
     const ch = (sessions - p.prev.sessions) / p.prev.sessions;
     if (Math.abs(ch) >= 0.15)
       out.push({
@@ -453,7 +467,7 @@ function websiteFindings(v: WebsiteView): Finding[] {
     out.push({
       level: "info",
       title: `${pct(conv)} of visits end in an order`,
-      evidence: `${fmt.format(sessions)} visits, ${fmt.format(views)} scent pages viewed, ${fmt.format(adds)} adds to bag and ${fmt.format(orders)} orders in 30 days.`,
+      evidence: `${fmt.format(sessions)} visits, ${fmt.format(views)} scent pages viewed, ${fmt.format(adds)} ${adds === 1 ? "add" : "adds"} to bag and ${fmt.format(orders)} ${orders === 1 ? "order" : "orders"} ${span}.`,
     });
     if (views >= 100 && adds / views < 0.04)
       out.push({
@@ -468,7 +482,7 @@ function websiteFindings(v: WebsiteView): Finding[] {
     out.push({
       level: "warning",
       title: `${weak.page === "/" ? "The home page" : weak.page} loses most visitors on arrival`,
-      evidence: `${fmt.format(weak.sessions)} visits landed there in 30 days and only ${pct(weak.engagementRate)} stayed to look around.`,
+      evidence: `${fmt.format(weak.sessions)} visits landed there ${span} and only ${pct(weak.engagementRate)} stayed to look around.`,
       fix: "Match the page to the ad that sends people there: same scent, same picture, price in view.",
     });
   const paid = v.channels.find((c) => /paid social/i.test(c.channel));
@@ -491,7 +505,7 @@ function websiteFindings(v: WebsiteView): Finding[] {
       out.push({
         level: "warning",
         title: `Pages load slowly for ${pct(slow)} of visitors`,
-        evidence: `The main picture took longer than 2.5 seconds to show on ${pct(slow)} of page loads (real visitors, 30 days). On Instagram's in-app browser every second loses people.`,
+        evidence: `The main picture took longer than 2.5 seconds to show on ${pct(slow)} of page loads (real visitors, ${p.since ? span : "30 days"}). On Instagram's in-app browser every second loses people.`,
         fix: "Make the first picture on ad landing pages smaller, and keep the hero video off phones on mobile data.",
       });
   }
