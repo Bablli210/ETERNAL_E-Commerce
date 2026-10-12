@@ -5,7 +5,7 @@ import { StoreProblem } from "../_components/StoreProblem";
 
 export const metadata = { title: { absolute: "Join · eternal Performance" } };
 
-/** Opened from an invite link (/dashboard/join#<token>). Nothing happens until the form is sent, so link previews cannot use the invite up. */
+/** Opened from an invite link (/admin/join#<token>). Nothing happens until the form is sent, so link previews cannot use the invite up. */
 export default async function JoinPage() {
   const access = await accessState();
   if (access.state === "no-store" || access.state === "unreachable") return <StoreProblem state={access.state} />;

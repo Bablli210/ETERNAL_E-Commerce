@@ -34,7 +34,7 @@ export async function verifyPassword(password: string, stored: string): Promise<
  * Passwords: at least 15 characters, no composition rules (NIST SP 800-63B),
  * and none of the obvious ones. Returns the reason, or null when acceptable.
  */
-const OBVIOUS = ["eternal", "myeternal", "password", "passw0rd", "123456789", "qwertyuiop", "dashboard", "performance"];
+const OBVIOUS = ["eternal", "myeternal", "password", "passw0rd", "123456789", "qwertyuiop", "dashboard", "admin", "performance"];
 export function passwordProblem(password: string, username: string): string | null {
   if (password.length < 15) return "Use at least 15 characters. A short sentence works well.";
   if (password.length > 128) return "Use at most 128 characters.";

@@ -49,7 +49,7 @@ function storeSetup(live: boolean) {
     {
       key: "Dashboard: SHOPIFY_ADMIN_CLIENT_ID and SHOPIFY_ADMIN_CLIENT_SECRET",
       ok: Boolean(process.env.SHOPIFY_ADMIN_CLIENT_ID?.trim() && process.env.SHOPIFY_ADMIN_CLIENT_SECRET?.trim()),
-      cost: "The team dashboard (/dashboard) shows no sales, products or customers. docs/analytics/dashboard-setup.md, step 4.",
+      cost: "The team dashboard (/admin) shows no sales, products or customers. docs/analytics/dashboard-setup.md, step 4.",
     },
     { key: "Dashboard: META_ACCESS_TOKEN", ok: Boolean(process.env.META_ACCESS_TOKEN?.trim()), cost: "The team dashboard shows no ad figures, campaigns or pixel health. docs/analytics/dashboard-setup.md, step 5." },
     { key: "The Seasons web licence", ok: !SEASONS_IS_DEMO, cost: "The titles use Fontspring’s demo files: evaluation only, and missing curly quotes, dashes and accents. Buy the web licence and swap the files (app/fonts.ts)." },

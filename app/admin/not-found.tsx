@@ -4,7 +4,7 @@ import { AuthFrame } from "@/components/dashboard/AuthFrame";
 export default function DashboardNotFound() {
   return (
     <AuthFrame title="Nothing here" lede="This dashboard page doesn't exist.">
-      <Link className="dash-btn" href="/dashboard">
+      <Link className="dash-btn" href="/admin">
         Back to the figures
       </Link>
     </AuthFrame>

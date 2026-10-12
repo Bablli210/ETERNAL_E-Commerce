@@ -69,11 +69,11 @@ export const config = {
   matcher: [
     // The home page, every request (prefetches too, so a client navigation home also gets a still).
     "/",
-    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "fbclid" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
-    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_source" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
-    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_medium" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
-    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_campaign" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
-    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_content" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
-    { source: "/((?!_next/|api/|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_term" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|admin|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "fbclid" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|admin|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_source" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|admin|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_medium" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|admin|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_campaign" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|admin|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_content" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
+    { source: "/((?!_next/|api/|admin|dashboard|images/|videos/|icon|favicon|robots|sitemap).*)", has: [{ type: "query", key: "utm_term" }], missing: [{ type: "header", key: "next-router-prefetch" }, { type: "header", key: "purpose", value: "prefetch" }] },
   ],
 };

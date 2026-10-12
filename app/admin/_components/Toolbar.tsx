@@ -9,11 +9,11 @@ export function Toolbar({ viewer, refresh = false }: { viewer: Viewer; refresh?:
     <div className="dash-toolbar">
       {refresh && viewer.role !== "client" && <RefreshButton />}
       {viewer.role === "owner" && (
-        <Link className="dash-link" href="/dashboard/people">
+        <Link className="dash-link" href="/admin/people">
           People
         </Link>
       )}
-      <Link className="dash-link" href="/dashboard/account">
+      <Link className="dash-link" href="/admin/account">
         {viewer.name}
       </Link>
       <form action={signOut}>

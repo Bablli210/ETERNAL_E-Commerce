@@ -36,6 +36,9 @@ const nextConfig = (phase: string): NextConfig => ({
       { source: "/fragrance/:handle", destination: "/products/:handle", permanent: true },
       // The old site's checkout page was its bag.
       { source: "/checkout", destination: "/bag", permanent: true },
+      // The team dashboard moved to /admin; invite and reset links made before keep their #token (the browser carries it over).
+      { source: "/dashboard", destination: "/admin", permanent: true },
+      { source: "/dashboard/:path*", destination: "/admin/:path*", permanent: true },
     ];
   },
   async headers() {
@@ -44,7 +47,7 @@ const nextConfig = (phase: string): NextConfig => ({
       { source: "/launch-checklist", headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }] },
       // The team dashboard: never indexed, never framed (its forms change accounts), and its links never tell another site the address they came from.
       {
-        source: "/dashboard/:path*",
+        source: "/admin/:path*",
         headers: [
           { key: "X-Robots-Tag", value: "noindex, nofollow" },
           { key: "X-Frame-Options", value: "DENY" },

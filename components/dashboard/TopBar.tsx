@@ -25,7 +25,7 @@ export function DashBrand({ link = true }: { link?: boolean }) {
     </>
   );
   return link ? (
-    <Link href="/dashboard" prefetch={false} className="dash-brand">
+    <Link href="/admin" prefetch={false} className="dash-brand">
       {inner}
     </Link>
   ) : (

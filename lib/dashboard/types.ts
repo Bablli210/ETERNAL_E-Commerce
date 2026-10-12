@@ -1,5 +1,5 @@
 /**
- * The shapes the dashboard passes around (/dashboard, lib/dashboard/*,
+ * The shapes the dashboard passes around (/admin, lib/dashboard/*,
  * components/dashboard/*). Every value is plain JSON: the source snapshots
  * are kept in Next's data cache, which stores JSON only. Money is EGP as a
  * plain number, ratios are plain numbers (0.231 = 23.1%), dates are

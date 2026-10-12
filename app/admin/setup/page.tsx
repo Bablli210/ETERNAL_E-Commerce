@@ -28,7 +28,7 @@ export default async function SetupPage() {
       <SetupForm recovery={access.state === "ready"} />
       {access.state === "ready" && (
         <p className="dash-hint">
-          Already have an account? <Link href="/dashboard/sign-in">Sign in</Link>.
+          Already have an account? <Link href="/admin/sign-in">Sign in</Link>.
         </p>
       )}
     </AuthFrame>

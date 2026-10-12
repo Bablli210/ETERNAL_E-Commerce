@@ -1,5 +1,5 @@
 /*
- * The team dashboard (/dashboard): the old claude.ai page's house ledger
+ * The team dashboard (/admin): the old claude.ai page's house ledger
  * (docs/analytics/dashboard/template.html) in the site's own faces. This file
  * is global in Next, so every rule sits under .dash, the frame
  * app/dashboard/layout.tsx puts around each dashboard page, and the shop's
