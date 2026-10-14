@@ -213,7 +213,7 @@ function PromiseList({ entry, kind }: { entry: ScentIndexEntry; kind: "bottle" |
   const otherMethods = facts.paymentMethods.filter((m) => !/cash/i.test(m));
   const rows: PromiseRow[] = [];
   if (included || facts.freeDeliveryOver || facts.deliveryTime || facts.deliveryCutoff) {
-    const text = included ? "Delivery included" : facts.freeDeliveryOver ? `Free delivery over ${facts.freeDeliveryOver}` : "Delivery";
+    const text = included ? "Delivery included" : (facts.deliveryCost ?? "Delivery");
     rows.push({ key: "delivery", icon: "truck", text, detail: [facts.deliveryTime, facts.deliveryCutoff].filter(Boolean).join(". "), href: "/help#delivery" });
   }
   rows.push({ key: "cod", icon: "shield", text: "Cash on delivery", detail: [facts.codFee, otherMethods.length ? `or ${otherMethods.join(", ")}` : null].filter(Boolean).join(" · "), href: "/help#cod" });

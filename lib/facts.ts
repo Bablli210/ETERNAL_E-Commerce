@@ -31,6 +31,17 @@ export const facts = {
   /** "EGP 2,200", for "Free delivery over EGP 2,200". */
   freeDeliveryOver: site.freeShippingThreshold !== null ? formatMoney({ amount: site.freeShippingThreshold, currencyCode: site.currency }) : null,
   deliveryIncluded: site.deliveryIncluded,
+  /** The flat delivery charge, e.g. 100, or null when it differs by place (or is included). */
+  deliveryFee: site.deliveryIncluded !== true ? site.deliveryFee : null,
+  /** "Delivery EGP 100, free over EGP 2,190": what delivery costs, in one phrase, wherever it is mentioned. */
+  deliveryCost:
+    site.deliveryIncluded === true
+      ? "Delivery included"
+      : site.deliveryFee !== null
+        ? `Delivery ${formatMoney({ amount: site.deliveryFee, currencyCode: site.currency })}${site.freeShippingThreshold !== null ? `, free over ${formatMoney({ amount: site.freeShippingThreshold, currencyCode: site.currency })}` : ""}`
+        : site.freeShippingThreshold !== null
+          ? `Free delivery over ${formatMoney({ amount: site.freeShippingThreshold, currencyCode: site.currency })}`
+          : null,
   whatsapp: site.whatsapp,
   paymentMethods: site.paymentMethods.filter(isConfirmed),
   instapayAddress: confirmed(site.instapayAddress),

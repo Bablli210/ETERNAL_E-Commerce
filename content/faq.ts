@@ -45,7 +45,7 @@ export function faqEntries({ samples }: { samples: boolean }): FaqEntry[] {
       a: [
         codLive ? "Choose cash on delivery at checkout and pay the courier in cash when your order arrives." : "The ways to pay for your order are shown at checkout.",
         codLive && facts.codLine ? sentence(facts.codLine) : "Everything you pay, including delivery, is shown at checkout before you place the order.",
-        facts.deliveryIncluded !== true && facts.freeDeliveryOver && `Delivery is free on orders over ${facts.freeDeliveryOver}.`,
+        facts.deliveryIncluded !== true && facts.deliveryCost && sentence(facts.deliveryCost),
         facts.deliveryTime && sentence(`Delivery: ${facts.deliveryTime}`),
       ]
         .filter(Boolean)

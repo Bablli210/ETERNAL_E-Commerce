@@ -7,6 +7,7 @@ import Link from "next/link";
 import { faqEntries } from "@/content/faq";
 import { confirmed, facts } from "@/lib/facts";
 import { site } from "@/content/site";
+import { formatMoney } from "@/lib/format";
 import { getCatalogue } from "@/lib/catalogue";
 import { checkoutDomain } from "@/lib/shopify/client";
 import { Accordion, Eyebrow } from "@/components/ui/Primitives";
@@ -77,16 +78,23 @@ export default async function HelpPage() {
       ar:
         facts.deliveryIncluded === true
           ? "التوصيل مشمول مع كل زجاجة."
-          : site.freeShippingThreshold !== null
+          : facts.deliveryFee !== null
+            ? `التوصيل بـ${facts.deliveryFee.toLocaleString("en-US")} جنيه لأي مكان في مصر${site.freeShippingThreshold !== null ? `، ومجاني للطلبات فوق ${site.freeShippingThreshold.toLocaleString("en-US")} جنيه` : ""}.`
+            : site.freeShippingThreshold !== null
             ? `التوصيل مجاني للطلبات فوق ${site.freeShippingThreshold.toLocaleString("en-US")} جنيه، وتظهر أي تكلفة توصيل عند إتمام الطلب، قبل تأكيده.`
             : "تظهر تكلفة التوصيل عند إتمام الطلب، قبل تأكيده.",
       body: (
         <>
           {facts.deliveryIncluded === true && <p>Delivery is included on every bottle.</p>}
-          {facts.deliveryIncluded !== true && facts.freeDeliveryOver && <p>Delivery is free on orders over {facts.freeDeliveryOver}.</p>}
+          {facts.deliveryFee !== null && (
+            <p>
+              Delivery is {formatMoney({ amount: facts.deliveryFee, currencyCode: site.currency })} anywhere in Egypt{facts.freeDeliveryOver ? `, and free on orders over ${facts.freeDeliveryOver}` : ""}.
+            </p>
+          )}
+          {facts.deliveryIncluded !== true && facts.deliveryFee === null && facts.freeDeliveryOver && <p>Delivery is free on orders over {facts.freeDeliveryOver}.</p>}
           {facts.deliveryTime && <p>{sentence(`Delivery time: ${facts.deliveryTime}`)}</p>}
           {facts.deliveryCutoff && <p>{sentence(facts.deliveryCutoff)}</p>}
-          <p>Any delivery cost for your address is shown at checkout, before you place the order.</p>
+          {facts.deliveryFee === null && <p>Any delivery cost for your address is shown at checkout, before you place the order.</p>}
         </>
       ),
     },
