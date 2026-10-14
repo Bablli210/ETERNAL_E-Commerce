@@ -105,7 +105,15 @@ export function Deliveries({ view, days, gap, bostaGap }: { view: DeliveriesView
           <Stat label="On the road" value={int(view.now.onTheRoad)} note={view.now.onTheRoad ? `${egp(view.now.onTheRoadValue)} not yet collected` : "none"} />
           <Stat label="Delivered" value={int(p?.delivered)} note={p ? `${egp(p.deliveredValue)} reached customers` : null} />
           <Stat label="Failed or returned" value={int(p?.failed)} note={p?.failed ? egp(p.failedValue) : null} />
-          <Stat label="On time" value={pct(s.withinPromise)} note={`within ${s.promiseDays} working days (Sun–Thu)`} />
+          <Stat
+            label="On time"
+            value={pct(s.withinPromise)}
+            note={
+              s.promise.fastDays === s.promise.otherDays
+                ? `within ${s.promise.fastDays} working days (Sun–Thu)`
+                : `within ${s.promise.fastDays} or ${s.promise.otherDays} working days by governorate (Sun–Thu)`
+            }
+          />
           <Stat label="Order to door" value={isNum(s.toDoorDays) ? `${one(s.toDoorDays)} d` : "–"} note={isNum(s.toDoorP90) ? `slowest tenth ${one(s.toDoorP90)} d` : null} />
           <Stat label="Order to courier" value={isNum(s.toShipHours) ? `${Math.round(s.toShipHours)} h` : "–"} note="median" />
           <Stat label="With the courier" value={isNum(s.transitDays) ? `${one(s.transitDays)} d` : "–"} note={`median, ${plural(s.delivered, "delivery", "deliveries")}`} />

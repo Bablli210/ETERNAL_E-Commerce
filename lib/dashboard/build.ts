@@ -15,8 +15,6 @@ import { PERIOD_KEYS, type AttentionItem, type BostaSnapshot, type DashData, typ
 /** The newer readers, each optional: a page built without them (the fixture) shows their sections as not connected. */
 export type Extras = { ops: OpsSnapshot | null; ga4: Ga4Snapshot | null; bosta: BostaSnapshot | null };
 
-/** "within 2 working days, Sunday to Thursday" gives 2: the promise the delivery figures are held to. */
-const promiseDays = () => Number(/(\d+)\s*working day/i.exec(site.deliveryTime ?? "")?.[1] ?? 2);
 
 const readable = <T extends { state: string }>(x: T | null): x is T => !!x && (x.state === "ok" || x.state === "partial");
 
@@ -497,7 +495,7 @@ export function assemble(s: ShopifySnapshot, m: MetaSnapshot, probes: SiteProbes
   const { ops, ga4, bosta } = extras;
   const opsOk = readable(ops);
   const ga4Ok = readable(ga4);
-  const deliveries = opsOk ? deliveriesView(ops, bosta, promiseDays()) : null;
+  const deliveries = opsOk ? deliveriesView(ops, bosta, site.deliveryPromise) : null;
   const checkout = opsOk ? checkoutView(ops, ga4Ok ? ga4 : null, site.freeShippingThreshold) : null;
   const website = ga4Ok ? websiteView(ga4) : null;
   const health = productHealth(shopOk ? s.products["30"] : undefined, ga4Ok ? ga4 : null, opsOk ? ops : null);

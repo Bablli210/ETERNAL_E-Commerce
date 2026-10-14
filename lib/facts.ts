@@ -16,7 +16,7 @@ export const confirmed = (v: string | null | undefined): string | null => (isCon
 /** Confirmed facts, or null. */
 export const facts = {
   announcement: confirmed(site.announcement),
-  /** e.g. "1–2 days in Cairo & Giza, 2–4 days elsewhere". */
+  /** e.g. "1–2 working days in Cairo, Giza, Alexandria & Beheira, 3–5 elsewhere, Sunday to Thursday". */
   deliveryTime: confirmed(site.deliveryTime),
   returnsPolicy: confirmed(site.returnsPolicy),
   returnsWindow: confirmed(site.returnsWindow),
