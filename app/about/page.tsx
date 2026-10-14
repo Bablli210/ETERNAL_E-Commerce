@@ -117,7 +117,7 @@ export default async function AboutPage() {
           {
             term: "Delivery",
             detail: [
-              facts.deliveryTime && sentence(`Across Egypt, ${facts.deliveryTime}`),
+              facts.deliveryTime && sentence(facts.deliveryTime),
               facts.deliveryFee !== null
                 ? `${formatMoney({ amount: facts.deliveryFee, currencyCode: site.currency })}${facts.freeDeliveryOver ? `, free on orders over ${facts.freeDeliveryOver}` : ""}.`
                 : facts.deliveryIncluded !== true && facts.freeDeliveryOver && `Free on orders over ${facts.freeDeliveryOver}.`,

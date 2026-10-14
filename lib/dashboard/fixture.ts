@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { checkoutView, deliveriesView, productHealth, websiteView, workOn } from "./insights";
 import type { BostaSnapshot, DashData, Ga4Snapshot, OpsSnapshot } from "./types";
+import { site } from "@/content/site";
 
 /**
  * Development only: the dashboard's figures from a folder of JSON files (one
@@ -39,7 +40,7 @@ export function loadFixture(dir: string): DashData {
   const ga4 = read(dir, "ga4") as unknown as Ga4Snapshot | null;
   const bosta = read(dir, "bosta") as unknown as BostaSnapshot | null;
   const products = (read(dir, "products") ?? {}) as DashData["products"];
-  const deliveries = ops ? deliveriesView(ops, bosta, 2) : null;
+  const deliveries = ops ? deliveriesView(ops, bosta, site.deliveryPromise) : null;
   const checkout = ops ? checkoutView(ops, ga4, 2190) : null;
   const website = ga4 ? websiteView(ga4) : null;
   const health = productHealth(products["30"], ga4, ops);

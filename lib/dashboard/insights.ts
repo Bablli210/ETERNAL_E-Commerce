@@ -5,6 +5,7 @@ import {
   type BostaSnapshot,
   type CheckoutView,
   type DeliveriesView,
+  type DeliveryPromise,
   type Finding,
   type Ga4Snapshot,
   type OpsSnapshot,
@@ -78,7 +79,14 @@ const EVENT_WORDS: Record<string, string> = {
 
 /* ------------------------------------------------------------- Deliveries */
 
-export function deliveriesView(ops: OpsSnapshot, bosta: BostaSnapshot | null, promiseDays: number): DeliveriesView {
+/** The working days an order was promised: its governorate's zone, or the fast figure when the governorate isn't known. */
+const promisedDays = (p: DeliveryPromise, province: string | null | undefined) =>
+  !province || p.fastGovernorates.some((g) => g.toLowerCase() === province.toLowerCase()) ? p.fastDays : p.otherDays;
+
+/** "the 2 working days promise", or "the delivery promise" when it differs by governorate. */
+const promiseName = (p: DeliveryPromise) => (p.fastDays === p.otherDays ? `the ${p.fastDays} working ${p.fastDays === 1 ? "day" : "days"} promise` : "the delivery promise");
+
+export function deliveriesView(ops: OpsSnapshot, bosta: BostaSnapshot | null, promise: DeliveryPromise): DeliveriesView {
   const today = ops.today;
   const now = new Date().toISOString();
   const live = ops.orders.filter((o) => o.state !== "cancelled");
@@ -110,7 +118,7 @@ export function deliveriesView(ops: OpsSnapshot, bosta: BostaSnapshot | null, pr
   const toShip = live.filter((o) => o.shippedAt).map((o) => hoursBetween(o.placedAt, o.shippedAt!));
   const transit = delivered.filter((o) => o.shippedAt).map((o) => hoursBetween(o.shippedAt!, o.deliveredAt!) / 24);
   const toDoor = delivered.map((o) => hoursBetween(o.placedAt, o.deliveredAt!) / 24);
-  const onTime = delivered.filter((o) => workingDays(o.placedAt, o.deliveredAt!) <= promiseDays).length;
+  const onTime = delivered.filter((o) => workingDays(o.placedAt, o.deliveredAt!) <= promisedDays(promise, o.province)).length;
   const finished = delivered.length + failed.length;
 
   const known = live.filter((o) => o.city);
@@ -133,7 +141,7 @@ export function deliveriesView(ops: OpsSnapshot, bosta: BostaSnapshot | null, pr
   }
 
   const late = moving
-    .filter((o) => workingDays(o.placedAt, now) > promiseDays)
+    .filter((o) => workingDays(o.placedAt, now) > promisedDays(promise, o.province))
     .sort((a, b) => a.placedAt.localeCompare(b.placedAt))
     .map((o) => ({
       name: o.name,
@@ -183,7 +191,7 @@ export function deliveriesView(ops: OpsSnapshot, bosta: BostaSnapshot | null, pr
       toDoorDays: median(toDoor),
       toDoorP90: quantile(toDoor, 0.9),
       withinPromise: share(onTime, delivered.length),
-      promiseDays,
+      promise,
       failRate: share(failed.length, finished),
     },
     byCity,
@@ -199,7 +207,7 @@ export function deliveriesView(ops: OpsSnapshot, bosta: BostaSnapshot | null, pr
 function deliveryFindings(v: DeliveriesView, finished: number): Finding[] {
   const out: Finding[] = [];
   const s = v.speed;
-  const promise = `${s.promiseDays} working ${s.promiseDays === 1 ? "day" : "days"}`;
+  const promise = promiseName(s.promise);
   const stale = v.waiting.filter((w) => w.hours >= 24);
   if (stale.length)
     out.push({
@@ -211,7 +219,7 @@ function deliveryFindings(v: DeliveriesView, finished: number): Finding[] {
   if (v.late.length)
     out.push({
       level: "warning",
-      title: `${plural(v.late.length, "order")} past the ${promise} promise and still moving`,
+      title: `${plural(v.late.length, "order")} past ${promise} and still moving`,
       evidence: v.late
         .slice(0, 4)
         .map((l) => `${l.name}, ${plural(l.days, "day")}${l.last ? ` (${l.last})` : ""}`)
@@ -222,12 +230,12 @@ function deliveryFindings(v: DeliveriesView, finished: number): Finding[] {
     if (s.withinPromise < 0.8)
       out.push({
         level: "warning",
-        title: `Only ${pct(s.withinPromise)} of deliveries keep the ${promise} promise`,
+        title: `Only ${pct(s.withinPromise)} of deliveries keep ${promise}`,
         evidence: `Order to door takes ${days1(s.toDoorDays ?? 0)} in the middle case and ${days1(s.toDoorP90 ?? 0)} for the slowest tenth (${plural(s.delivered, "delivery", "deliveries")}). Of that, the wait before Bosta collects is ${fmt.format(Math.round(s.toShipHours ?? 0))} h.`,
         fix: (s.toShipHours ?? 0) >= 24 ? "Most of the delay is before Bosta collects: book pickups daily." : "Raise the delays with Bosta, or promise what is real on the site so reviews stay kind.",
       });
     else
-      out.push({ level: "good", title: `${pct(s.withinPromise)} of deliveries arrive within the ${promise} promise`, evidence: `Order to door takes ${days1(s.toDoorDays ?? 0)} in the middle case, across ${plural(s.delivered, "delivery", "deliveries")}.` });
+      out.push({ level: "good", title: `${pct(s.withinPromise)} of deliveries arrive within ${promise}`, evidence: `Order to door takes ${days1(s.toDoorDays ?? 0)} in the middle case, across ${plural(s.delivered, "delivery", "deliveries")}.` });
   }
   if (finished >= MIN_CASES && isNum(s.failRate) && s.failRate >= 0.1) {
     const worst = (v.byCity ?? []).filter((c) => c.failed >= 2).sort((a, b) => b.failed - a.failed)[0];

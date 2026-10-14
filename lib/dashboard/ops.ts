@@ -191,7 +191,7 @@ function shipState(o: OrderNode): { state: ShipState; returned: boolean } {
   return { state: "in_transit", returned };
 }
 
-function toOrder(o: OrderNode, cities: Map<string, string | null> | null): OrderRow {
+function toOrder(o: OrderNode, cities: Map<string, { city: string | null; province: string | null }> | null): OrderRow {
   const fs = [...(o.fulfillments ?? [])].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   const first = fs[0];
   const delivered = fs.map((f) => f.deliveredAt).filter((d): d is string => Boolean(d)).sort()[0] ?? null;
@@ -212,7 +212,8 @@ function toOrder(o: OrderNode, cities: Map<string, string | null> | null): Order
     lastEvent: events[0] ? { status: events[0].status, at: events[0].happenedAt } : null,
     attempts: events.filter((e) => e.status === "ATTEMPTED_DELIVERY").length,
     courier: first?.trackingInfo?.[0]?.company ?? null,
-    city: cities?.get(o.name) ?? null,
+    city: cities?.get(o.name)?.city ?? null,
+    province: cities?.get(o.name)?.province ?? null,
     returned,
     items: (o.lineItems?.nodes ?? []).map((l) => ({ title: l.title, qty: l.currentQuantity ?? l.quantity })).filter((l) => l.qty > 0),
     inApp: inAppOf(o.customAttributes),
@@ -278,9 +279,9 @@ async function read(): Promise<OpsSnapshot> {
     snap.failure = { kind: "orders", message: why };
     return snap;
   }
-  let cities: Map<string, string | null> | null = null;
+  let cities: Map<string, { city: string | null; province: string | null }> | null = null;
   if (orderCities.status === "fulfilled" && orderCities.value.read && !orderCities.value.errors.some(isDenied)) {
-    cities = new Map(orderCities.value.nodes.map((n) => [n.name, cityName(n.shippingAddress)]));
+    cities = new Map(orderCities.value.nodes.map((n) => [n.name, { city: cityName(n.shippingAddress), province: n.shippingAddress?.province?.trim() || null }]));
   } else {
     snap.hidden.push({ panel: "Deliveries by city", reason: orderCities.status === "rejected" ? reasonOf(orderCities.reason) : deniedReason(orderCities.value.errors, "delivery addresses") });
   }

@@ -107,6 +107,8 @@ export type OrderRow = {
   courier: string | null;
   /** Shipping city; null when the app may not read addresses (protected customer data). */
   city: string | null;
+  /** Shipping governorate as Shopify names it ("Cairo", "Giza"); null when addresses can't be read. */
+  province?: string | null;
   returned: boolean;
   items: { title: string; qty: number }[];
   /** From the cart attributes the website adds at checkout (app/api/checkout). */
@@ -283,6 +285,9 @@ export type Gap = string | null;
 export type Finding = { level: "critical" | "warning" | "info" | "good"; title: string; evidence: string; fix?: string };
 
 /** Orders between checkout and the door, and how the courier is doing (Shopify fulfillments, plus Bosta when connected). */
+/** Working days promised after the order day: fastDays in fastGovernorates (Shopify's names), otherDays elsewhere. */
+export type DeliveryPromise = { fastDays: number; otherDays: number; fastGovernorates: readonly string[] };
+
 export type DeliveriesView = {
   /** The days the figures cover, e.g. orders placed in the last 60 days. */
   basis: Range;
@@ -298,9 +303,9 @@ export type DeliveriesView = {
     /** Order placed → delivered, median and slowest tenth, days. */
     toDoorDays: Num;
     toDoorP90: Num;
-    /** Share delivered within the promise (working days, Sunday to Thursday). */
+    /** Share delivered within the promise (working days, Sunday to Thursday), each order held to its governorate's. */
     withinPromise: Num;
-    promiseDays: number;
+    promise: DeliveryPromise;
     /** Share of finished deliveries that failed or came back. */
     failRate: Num;
   };

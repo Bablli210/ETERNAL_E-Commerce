@@ -64,8 +64,17 @@ export const site = {
    * null when rates differ by place: then no figure is named and checkout shows the cost.
    */
   deliveryFee: 100 as number | null,
-  /** Couriers deliver Sunday to Thursday; Friday and Saturday are off. */
-  deliveryTime: "within 2 working days, Sunday to Thursday",
+  /**
+   * Couriers deliver Sunday to Thursday; Friday and Saturday are off. Said as the Shopify zones say it
+   * (Settings > Shipping and delivery): "Cairo & Alex" (Cairo, Giza, 6th of October, Helwan, Alexandria)
+   * and "Beheira" 1–2 business days, every other zone 3–5, which checkout shows under "Delivery".
+   */
+  deliveryTime: "1–2 working days in Cairo, Giza, Alexandria & Beheira, 3–5 elsewhere, Sunday to Thursday",
+  /**
+   * The same promise in figures, for the dashboard's on-time measure (working days after the order day).
+   * The fast governorates are Shopify's names in the 1–2 day zones: change them with the zones and deliveryTime.
+   */
+  deliveryPromise: { fastDays: 2, otherDays: 5, fastGovernorates: ["Cairo", "Giza", "6th of October", "Helwan", "Alexandria", "Beheira"] },
   /** Unopened bottles only, so a return can be resold. */
   returnsPolicy: "Returns on sealed bottles",
   /** Egypt's consumer protection law gives 14 days from delivery. Reads after "within". */

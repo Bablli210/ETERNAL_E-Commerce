@@ -124,7 +124,7 @@ export function Foot({ dayLabel }: { dayLabel: string }) {
         <dt>Delivered</dt>
         <dd>Orders the courier reported delivered, counted on the day they arrived: with cash on delivery, the money actually in hand.</dd>
         <dt>On time</dt>
-        <dd>Delivered within the promise on the site, counting working days (Sunday to Thursday) after the day of the order.</dd>
+        <dd>Delivered within the promise on the site for the order&rsquo;s governorate, counting working days (Sunday to Thursday) after the day of the order.</dd>
         <dt>Finish checkout</dt>
         <dd>Orders divided by orders plus abandoned checkouts. Shopify only records a checkout as abandoned once contact details are given.</dd>
       </dl>
