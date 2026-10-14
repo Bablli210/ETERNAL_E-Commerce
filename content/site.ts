@@ -30,8 +30,11 @@ export const site = {
   currency: "EGP",
   locale: "en-EG",
 
-  /** One confirmed offer for the bar above the header, matched to the running ads. */
-  announcement: "Free delivery on orders over EGP 2,190",
+  /**
+   * One confirmed offer for the bar above the header, matched to the running ads.
+   * It names the delivery charge too, so checkout never shows a cost the site kept quiet about.
+   */
+  announcement: "Delivery EGP 100 · free over EGP 2,190",
   /**
    * The free 5 ml that ships with each bottle, so the customer tries another
    * scent. Shown in the hero, on a bottle's buy box and in the bag (one per
@@ -54,6 +57,13 @@ export const site = {
    * meter and every free-delivery line.
    */
   freeShippingThreshold: 2190 as number | null,
+  /**
+   * Delivery below the free-delivery threshold, in EGP, the same to every governorate. It must match
+   * every rate in Shopify (Settings > Shipping and delivery > General profile, one per zone). The bag
+   * adds it to the total and the Checkout button shows that total, so it must be what checkout charges.
+   * null when rates differ by place: then no figure is named and checkout shows the cost.
+   */
+  deliveryFee: 100 as number | null,
   /** Couriers deliver Sunday to Thursday; Friday and Saturday are off. */
   deliveryTime: "within 2 working days, Sunday to Thursday",
   /** Unopened bottles only, so a return can be resold. */

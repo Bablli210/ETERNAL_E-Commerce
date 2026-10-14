@@ -269,10 +269,13 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
 
   if (!cart.open) return null;
 
-  const total = formatMoney({ amount: cart.subtotal, currencyCode: cart.currency });
+  // A known flat charge is added here, so the Checkout button shows what checkout will: no new cost appears on the next screen.
+  const fee = deliveryIncluded ? 0 : facts.deliveryFee;
+  const grand = cart.subtotal + (fee ?? 0);
+  const total = formatMoney({ amount: grand, currencyCode: cart.currency });
   // The ad's ?discount=CODE travels to checkout; the bag says so, since Shopify applies it there and the total here is before it.
   const code = discountCode();
-  const before = [!deliveryIncluded && "delivery", code && "your code"].filter(Boolean).join(" and ");
+  const before = [fee === null && "delivery", code && "your code"].filter(Boolean).join(" and ");
   const freeNames = facts.freeSamples ? sampleNames(cart.samples, bottles, (h) => byHandle.get(h)?.title ?? null) : [];
   const waHref = facts.whatsapp && payable.length ? `https://wa.me/${facts.whatsapp}?text=${encodeURIComponent(bagMessage(payable, cart.subtotal, freeNames))}` : null;
   const onWhatsApp = () => track({ name: "ui", action: "whatsapp_click", label: "bag" });
@@ -428,13 +431,19 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
             </div>
 
             <footer className="shrink-0 border-t border-dune px-5 pb-[max(14px,env(safe-area-inset-bottom))] pt-3">
-              {/* One total row: the bag has no line that changes it before checkout, so a separate subtotal would only repeat it. */}
+              {/* Delivery on its own line when it costs something; the total below already includes it. */}
+              {fee !== null && fee > 0 && (
+                <div className="flex items-baseline justify-between gap-3 text-[13px] text-ash">
+                  <span>Delivery, anywhere in Egypt</span>
+                  <span className="tnum shrink-0 whitespace-nowrap">{formatMoney({ amount: fee, currencyCode: cart.currency })}</span>
+                </div>
+              )}
               <div className="flex items-baseline justify-between gap-3">
                 <span className="min-w-0 text-[14px] font-semibold">
                   Estimated total
                   {before && <span className="font-normal text-ash">, before {before}</span>}
                 </span>
-                <Price key={cart.subtotal} money={{ amount: String(cart.subtotal), currencyCode: cart.currency }} className="tick-in inline-block shrink-0 whitespace-nowrap text-[17px] font-semibold" />
+                <Price key={grand} money={{ amount: String(grand), currencyCode: cart.currency }} className="tick-in inline-block shrink-0 whitespace-nowrap text-[17px] font-semibold" />
               </div>
               {deliveryLine && <p className="mt-0.5 text-[13px] leading-snug text-ash">{deliveryLine}</p>}
               {code && (
@@ -468,7 +477,8 @@ export function CartSheet({ index, checkoutOrigin, boxImage }: { index: ScentInd
                     </span>
                   </>
                 ) : (
-                  <span className="tnum">Checkout · {total}</span>
+                  // A figure on the button only when it includes delivery; without a known charge it would promise less than checkout asks.
+                  <span className="tnum">{fee === null ? "Checkout" : `Checkout · ${total}`}</span>
                 )}
               </button>
               {methods.length > 0 && (

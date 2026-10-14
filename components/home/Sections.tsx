@@ -193,7 +193,7 @@ export function ProofStrip() {
   const items = [
     `Eau de parfum, ${ml(site.bottleSizeMl)}`,
     facts.paymentMethods.includes("Cash on delivery") && "Cash on delivery",
-    facts.deliveryIncluded === true ? "Delivery included" : facts.freeDeliveryOver && `Free delivery over ${facts.freeDeliveryOver}`,
+    facts.deliveryCost,
     facts.deliveryTime && `Delivery ${facts.deliveryTime}`,
     facts.returnsPolicy,
     facts.longevityClaim,
