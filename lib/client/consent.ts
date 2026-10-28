@@ -161,16 +161,20 @@ export const onConsentOpen = (fn: () => void) => {
 /**
  * What a choice changes in this page beyond its own scripts (lib/client/analytics.ts reads the choice on every event):
  * - A yes to marketing keeps the ad click (_fbc) that brought the visitor, as Meta's pixel would have on landing.
- * - A no clears the cookies the pixel, GA4 or Google's ad signals had set, and tells them to stop.
+ * - A no clears the cookies the pixels, GA4 or Google's ad signals had set, and tells them to stop.
  */
 function applyInPage(c: Consent, before: Consent | null) {
   const click = c.marketing ? latestClick() : null;
   if (click && FBCLID.test(click.fbclid) && !readCookie("_fbc")?.endsWith(`.${click.fbclid}`)) setCookie("_fbc", fbcFrom(click.fbclid, click.at), 90 * 86_400);
   if (!c.marketing && before?.marketing !== false) {
     window.fbq?.("consent", "revoke");
-    for (const name of cookieNames().filter((n) => n === "_fbp" || n === "_fbc" || n.startsWith("_gcl_") || n.startsWith("_gac_"))) dropCookie(name);
+    window.ttq?.revokeConsent();
+    for (const name of cookieNames().filter((n) => n === "_fbp" || n === "_fbc" || n === "_ttp" || n === "_tt_enable_cookie" || n === "ttclid" || n.startsWith("ttcsid") || n.startsWith("_gcl_") || n.startsWith("_gac_"))) dropCookie(name);
   }
-  if (c.marketing) window.fbq?.("consent", "grant");
+  if (c.marketing) {
+    window.fbq?.("consent", "grant");
+    window.ttq?.grantConsent();
+  }
   const gaState = (on: boolean) => (on ? "granted" : "denied");
   window.gtag?.("consent", "update", { analytics_storage: gaState(c.analytics), ad_storage: gaState(c.marketing), ad_user_data: gaState(c.marketing), ad_personalization: gaState(c.marketing) });
   setGaDisabled(!c.analytics);

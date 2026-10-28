@@ -1,17 +1,18 @@
 "use client";
 
 import { allowed, readConsent } from "./consent-state";
+import { lastTouch } from "./attribution";
 
 /**
  * One call site for every funnel event. Each event goes to the data layer
- * (for Tag Manager), to the Meta Pixel and to GA4 when those are installed
- * (components/analytics/Analytics.tsx loads them from env IDs) and the visitor
- * has said yes to them (lib/client/consent.ts: GA4 needs analytics, the pixel
- * and its server copy need marketing), and is a no-op otherwise. An event that
+ * (for Tag Manager), to the Meta Pixel, the TikTok pixel and GA4 when those are
+ * installed (components/analytics/Analytics.tsx loads them from env IDs) and the
+ * visitor has said yes to them (lib/client/consent.ts: GA4 needs analytics, the
+ * pixels and their server copies need marketing), and is a no-op otherwise. An event that
  * fires before the visitor has chosen (the product page's view_item, on
  * landing) waits in this page for the answer: a yes sends it, a no drops it.
  * Purchase is not sent from here: it happens on Shopify's checkout, where the
- * Facebook & Instagram channel and Google channel fire it with the same IDs.
+ * Facebook & Instagram, TikTok and Google channels fire it with the same IDs.
  */
 export type AnalyticsItem = {
   /** Shopify product id (numeric), for the Meta catalogue's content id. */
@@ -51,12 +52,29 @@ declare global {
     dataLayer?: unknown[];
     fbq?: (...args: unknown[]) => void;
     gtag?: (...args: unknown[]) => void;
+    ttq?: Ttq;
   }
 }
+
+/** The TikTok pixel's command object, as its own snippet builds it. */
+type Ttq = unknown[] & {
+  methods: string[];
+  setAndDefer: (target: Record<string, unknown>, method: string) => void;
+  instance: (id: string) => unknown;
+  load: (id: string, options?: Record<string, unknown>) => void;
+  page: () => void;
+  track: (event: string, params?: Record<string, unknown>, options?: { event_id?: string }) => void;
+  grantConsent: () => void;
+  revokeConsent: () => void;
+  _i?: Record<string, unknown[] & { _u?: string }>;
+  _t?: Record<string, number>;
+  _o?: Record<string, unknown>;
+};
 
 export const CURRENCY = "EGP";
 
 const PIXEL = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+const TIKTOK = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID;
 const GA4 = process.env.NEXT_PUBLIC_GA4_ID;
 
 /**
@@ -68,14 +86,48 @@ export function setGaDisabled(off: boolean) {
 }
 
 /**
- * The pixel's and gtag's command queues, created on first use. A product page
- * fires view_item as soon as it hydrates, usually before fbevents.js and
- * gtag.js have loaded; with the queues in place those calls wait instead of
- * being dropped, and each library replays them when it arrives
- * (components/analytics/Analytics.tsx only loads the two scripts).
+ * The TikTok pixel's queue and loader: TikTok's own snippet, typed. Calls made
+ * before events.js arrives wait in the queue; load() adds the script tag itself.
  */
-export function ensureQueues(): { pixel: boolean; ga: boolean } {
-  const fresh = { pixel: false, ga: false };
+function createTtq(): Ttq {
+  const ttq = [] as unknown as Ttq;
+  ttq.methods = ["page", "track", "identify", "instances", "debug", "on", "off", "once", "ready", "alias", "group", "enableCookie", "disableCookie", "holdConsent", "revokeConsent", "grantConsent"];
+  ttq.setAndDefer = (target, method) => {
+    target[method] = (...args: unknown[]) => (target as unknown as unknown[]).push([method, ...args]);
+  };
+  for (const m of ttq.methods) ttq.setAndDefer(ttq as unknown as Record<string, unknown>, m);
+  ttq.instance = (id) => {
+    const e = ttq._i?.[id] ?? [];
+    for (const m of ttq.methods) ttq.setAndDefer(e as unknown as Record<string, unknown>, m);
+    return e;
+  };
+  ttq.load = (id, options) => {
+    const src = "https://analytics.tiktok.com/i18n/pixel/events.js";
+    ttq._i = ttq._i ?? {};
+    ttq._i[id] = [];
+    ttq._i[id]._u = src;
+    ttq._t = ttq._t ?? {};
+    ttq._t[id] = Date.now();
+    ttq._o = ttq._o ?? {};
+    ttq._o[id] = options ?? {};
+    const script = document.createElement("script");
+    script.async = true;
+    script.src = `${src}?sdkid=${id}&lib=ttq`;
+    document.head.appendChild(script);
+  };
+  return ttq;
+}
+
+/**
+ * The pixels' and gtag's command queues, created on first use. A product page
+ * fires view_item as soon as it hydrates, usually before fbevents.js, TikTok's
+ * events.js and gtag.js have loaded; with the queues in place those calls wait
+ * instead of being dropped, and each library replays them when it arrives
+ * (components/analytics/Analytics.tsx loads fbevents.js and gtag.js; the TikTok
+ * queue loads its own script).
+ */
+export function ensureQueues(): { pixel: boolean; tiktok: boolean; ga: boolean } {
+  const fresh = { pixel: false, tiktok: false, ga: false };
   if (typeof window === "undefined") return fresh;
   if (PIXEL && !window.fbq && allowed("marketing")) {
     fresh.pixel = true;
@@ -98,6 +150,16 @@ export function ensureQueues(): { pixel: boolean; ga: boolean } {
     fbq("track", "PageView");
     initPageView = window.location.pathname;
   }
+  if (TIKTOK && !window.ttq && allowed("marketing")) {
+    fresh.tiktok = true;
+    const ttq = createTtq();
+    window.ttq = ttq;
+    (window as unknown as { TiktokAnalyticsObject: string }).TiktokAnalyticsObject = "ttq";
+    ttq.load(TIKTOK);
+    ttq.page();
+    // Both pixels are created together (the same yes), so one marker covers the first page view of each.
+    initPageView = window.location.pathname;
+  }
   if (GA4 && !window.gtag && allowed("analytics")) {
     fresh.ga = true;
     setGaDisabled(false);
@@ -116,7 +178,7 @@ export function ensureQueues(): { pixel: boolean; ga: boolean } {
   return fresh;
 }
 
-/** The page the pixel's first PageView (sent with its init) counted, until Analytics claims it. */
+/** The page the pixels' first page view (sent with their init) counted, until Analytics claims it. */
 let initPageView: string | null = null;
 /**
  * One-shot: the page ensureQueues already sent the pixel's PageView for. The
@@ -132,6 +194,7 @@ export function takeInitPageView() {
 /** GA4 and the pixel, each only while the visitor's choice allows it (a later "no" stops a library already loaded). */
 const ga = (): Window["gtag"] => (allowed("analytics") ? window.gtag : undefined);
 const meta = (): Window["fbq"] => (allowed("marketing") ? window.fbq : undefined);
+const tiktok = (): Window["ttq"] => (allowed("marketing") ? window.ttq : undefined);
 
 /** The content id the Shopify Facebook & Instagram channel gives catalogue items, so dynamic ads match. */
 const contentId = (i: AnalyticsItem) => (i.productId ? `shopify_EG_${i.productId}_${i.variantId}` : i.variantId);
@@ -150,12 +213,23 @@ const metaPayload = (items: AnalyticsItem[]) => ({
   currency: CURRENCY,
 });
 
+/**
+ * TikTok's product fields. content_id is the Shopify variant id, which is what
+ * Shopify's TikTok channel puts in the catalogue it syncs.
+ */
+const tiktokPayload = (items: AnalyticsItem[]) => ({
+  contents: items.map((i) => ({ content_id: i.variantId, content_type: "product", content_name: i.name, quantity: i.quantity ?? 1, price: i.price })),
+  content_type: "product",
+  value: value(items),
+  currency: CURRENCY,
+});
+
 /** Where an event happened, for slicing every report by page template. */
 export const pageType = (path: string) =>
   path === "/" ? "home" : path.startsWith("/products/") ? "product" : path.startsWith("/shop") ? "collection" : path.startsWith("/finder") ? "finder" : path.startsWith("/tales") ? "tale" : path.startsWith("/bag") ? "bag" : "other";
 
-/** Instagram's and Facebook's in-app browsers, where most ad visitors arrive. */
-export const inApp = () => typeof navigator !== "undefined" && /Instagram|FBAN|FBAV/i.test(navigator.userAgent);
+/** Instagram's, Facebook's and TikTok's in-app browsers, where most ad visitors arrive. */
+export const inApp = () => typeof navigator !== "undefined" && /Instagram|FBAN|FBAV|musical_ly|BytedanceWebview|TikTok/i.test(navigator.userAgent);
 
 /**
  * The server half of the pixel (app/api/meta): the same event, with the same
@@ -166,6 +240,19 @@ function capi(eventName: string, eventId: string, customData: Record<string, unk
   if (process.env.NEXT_PUBLIC_META_CAPI !== "1" || typeof navigator === "undefined" || !navigator.sendBeacon || !allowed("marketing")) return;
   const body = JSON.stringify({ event_name: eventName, event_id: eventId, event_source_url: sourceUrl, custom_data: customData });
   navigator.sendBeacon("/api/meta", new Blob([body], { type: "application/json" }));
+}
+
+/**
+ * The server half of the TikTok pixel (app/api/tiktok, the Events API): the
+ * same event and id, so TikTok keeps one of the pair. It carries the ad click
+ * id the visitor landed with, which the pixel misses when it loads only after
+ * the cookie banner is answered. On only when NEXT_PUBLIC_TIKTOK_EVENTS=1.
+ */
+function tiktokServer(eventName: string, eventId: string, properties: Record<string, unknown>, sourceUrl: string) {
+  if (process.env.NEXT_PUBLIC_TIKTOK_EVENTS !== "1" || typeof navigator === "undefined" || !navigator.sendBeacon || !allowed("marketing")) return;
+  const ttclid = lastTouch()?.ttclid;
+  const body = JSON.stringify({ event: eventName, event_id: eventId, url: sourceUrl, ttclid, properties });
+  navigator.sendBeacon("/api/tiktok", new Blob([body], { type: "application/json" }));
 }
 
 /** Core Web Vitals from real visitors, tagged with the page template and the in-app flag. */
@@ -195,7 +282,7 @@ export function track(e: Event) {
     const id = eventId();
     window.dataLayer = window.dataLayer ?? [];
     send(e, id, window.location.href, false);
-    if ((PIXEL || GA4) && readConsent() === null && held.length < MAX_HELD) held.push({ e, id, url: window.location.href });
+    if ((PIXEL || TIKTOK || GA4) && readConsent() === null && held.length < MAX_HELD) held.push({ e, id, url: window.location.href });
   } catch {
     /* analytics must never break the page */
   }
@@ -220,9 +307,10 @@ export function replayPending() {
   }
 }
 
-/** One event to the data layer (unless replayed), GA4 and the pixel; ga() and meta() check the choice. */
+/** One event to the data layer (unless replayed), GA4 and the pixels; ga(), meta() and tiktok() check the choice. */
 function send(e: Event, id: string, url: string, replay: boolean) {
   const fbq = meta();
+  const ttq = tiktok();
   const g = ga();
   // A replayed event keeps the page it happened on in GA4 (the pixel stamps the current page), and is already in the data layer.
   const gtag = g ? (cmd: string, name: string, params?: Record<string, unknown>) => (replay ? g(cmd, name, { ...params, page_location: url }) : params ? g(cmd, name, params) : g(cmd, name)) : undefined;
@@ -254,7 +342,14 @@ function send(e: Event, id: string, url: string, replay: boolean) {
         const payload = source ? { ...metaPayload(e.items), source } : metaPayload(e.items);
         fbq?.("track", name, payload, { eventID: id });
         capi(name, id, payload, url);
-      } else fbq?.("trackCustom", custom[e.name as keyof typeof custom], metaPayload(e.items), { eventID: id });
+        // The same names on TikTok. Its InitiateCheckout and CompletePayment come from Shopify's TikTok channel on checkout.
+        const tt = tiktokPayload(e.items);
+        ttq?.track(name, tt, { event_id: id });
+        if (ttq) tiktokServer(name, id, tt, url);
+      } else {
+        fbq?.("trackCustom", custom[e.name as keyof typeof custom], metaPayload(e.items), { eventID: id });
+        if (e.name === "begin_checkout") ttq?.track("CheckoutClick", tiktokPayload(e.items), { event_id: id });
+      }
       break;
     }
     case "view_item_list": {
@@ -283,6 +378,7 @@ function send(e: Event, id: string, url: string, replay: boolean) {
       dataLayer.push({ event: "search", event_id: id, search_term: e.term, results: e.results });
       gtag?.("event", "search", { search_term: e.term, results: e.results });
       fbq?.("track", "Search", { search_string: e.term }, { eventID: id });
+      ttq?.track("Search", { search_string: e.term }, { event_id: id });
       break;
     case "finder_start":
       dataLayer.push({ event: "finder_start", event_id: id });
@@ -298,6 +394,7 @@ function send(e: Event, id: string, url: string, replay: boolean) {
       dataLayer.push({ event: "generate_lead", event_id: id, method: e.method });
       gtag?.("event", "generate_lead", { method: e.method });
       fbq?.("track", "Lead", { content_name: e.method }, { eventID: id });
+      ttq?.track("SubmitForm", { content_name: e.method }, { event_id: id });
       break;
   }
 }

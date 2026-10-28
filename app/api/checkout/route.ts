@@ -85,17 +85,19 @@ export async function POST(req: Request) {
   const samples = (Array.isArray(body.attributes) ? body.attributes : []).find((a) => a?.key === "free_samples" && typeof a.value === "string" && SAMPLES.test(a.value))?.value;
   if (samples) attributes.push({ key: "Free 5 ml samples", value: samples });
 
-  // The Meta and Google first-party cookies tie the order to the browser that clicked the ad. Shopify hides _-prefixed attributes from the buyer.
+  // The Meta, TikTok and Google first-party cookies tie the order to the browser that clicked the ad. Shopify hides _-prefixed attributes from the buyer.
   // Each only with the visitor's yes to its purpose (lib/consent.ts): the ad identifiers with marketing, GA's id with analytics.
   const jar = await cookies();
   // The raw header: with a copy on the host and one on the root domain, the newer choice wins.
   const consent = consentFromCookieHeader(req.headers.get("cookie"));
   const fbp = consent?.marketing ? jar.get("_fbp")?.value : undefined;
   const fbc = consent?.marketing ? jar.get("_fbc")?.value : undefined;
+  const ttp = consent?.marketing ? jar.get("_ttp")?.value : undefined;
   const ga = consent?.analytics ? jar.get("_ga")?.value : undefined;
   if (!consent?.marketing) for (let i = attributes.length - 1; i >= 0; i--) if (CLICK_IDS.has(attributes[i].key)) attributes.splice(i, 1);
   if (fbp) attributes.push({ key: "_fbp", value: fbp.slice(0, 200) });
   if (fbc) attributes.push({ key: "_fbc", value: fbc.slice(0, 200) });
+  if (ttp) attributes.push({ key: "_ttp", value: ttp.slice(0, 200) });
   if (ga) attributes.push({ key: "ga_cid", value: ga.split(".").slice(-2).join(".") });
   // No campaign from the browser: fall back to the server cookie, so the order still carries its ad (and its ref below).
   if (!attributes.some((a) => a.key.startsWith("utm_"))) {
