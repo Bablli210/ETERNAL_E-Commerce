@@ -233,11 +233,12 @@ function quizProfile(): string | null {
 /** Cart attributes for Shopify: shown under "Additional details" on the order. */
 export function checkoutAttributes(): { key: string; value: string }[] {
   const out: { key: string; value: string }[] = [];
-  // Meta's _fbp/_fbc and GA's client id are read from cookies by the checkout route itself.
+  // Meta's _fbp/_fbc, TikTok's _ttp and GA's client id are read from cookies by the checkout route itself.
   // The finder's answers, so orders can be read by taste profile.
   const quiz = quizProfile();
   if (quiz) out.push({ key: "quiz_profile", value: quiz.slice(0, 200) });
-  if (/Instagram|FBAN|FBAV/i.test(navigator.userAgent)) out.push({ key: "in_app", value: /Instagram/i.test(navigator.userAgent) ? "instagram" : "facebook" });
+  const ua = navigator.userAgent;
+  if (/Instagram|FBAN|FBAV|musical_ly|BytedanceWebview|TikTok/i.test(ua)) out.push({ key: "in_app", value: /Instagram/i.test(ua) ? "instagram" : /FBAN|FBAV/i.test(ua) ? "facebook" : "tiktok" });
   const last = lastTouch();
   const first = read(FIRST, 30 * DAY);
   // Ad click ids identify the visitor to the ad network, so they go with the order only after a yes to marketing.

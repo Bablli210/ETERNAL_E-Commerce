@@ -30,6 +30,7 @@ function storeSetup(live: boolean) {
   const onMyshopify = checkoutDomain.endsWith(".myshopify.com");
   return [
     { key: "NEXT_PUBLIC_META_PIXEL_ID", ok: Boolean(process.env.NEXT_PUBLIC_META_PIXEL_ID), cost: "No Meta pixel: the ads can’t optimise on, or attribute, a view, an add or a checkout." },
+    { key: "NEXT_PUBLIC_TIKTOK_PIXEL_ID", ok: Boolean(process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID), cost: "No TikTok pixel: TikTok ads can’t optimise on, or attribute, a view, an add or a checkout." },
     { key: "NEXT_PUBLIC_GA4_ID", ok: Boolean(process.env.NEXT_PUBLIC_GA4_ID), cost: "No GA4: no funnel from ad landing to checkout." },
     {
       key: "META_CAPI_TOKEN and NEXT_PUBLIC_META_CAPI=1",

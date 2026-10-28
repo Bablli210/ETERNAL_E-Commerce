@@ -19,9 +19,10 @@ const gaPageView = (pathname: string) =>
 
 /**
  * Loads the Meta Pixel and GA4 libraries when their IDs are set and the
- * visitor has said yes to them (marketing for the pixel, analytics for GA4 and
+ * visitor has said yes to them (marketing for the pixels, analytics for GA4 and
  * Vercel Web Analytics; components/analytics/ConsentBanner.tsx asks). Their
- * command queues, with init and the first PageView, come from ensureQueues.
+ * command queues, with init and the first PageView, come from ensureQueues,
+ * which also loads the TikTok pixel (NEXT_PUBLIC_TIKTOK_PIXEL_ID) itself.
  * Also stores the landing campaign for checkout, and sends a page view on
  * every client navigation, and once more at the moment a purpose is allowed,
  * so the page the visitor said yes on is counted, with the events that
@@ -31,7 +32,7 @@ const gaPageView = (pathname: string) =>
 export function Analytics() {
   const pathname = usePathname();
   const consent = useConsent();
-  const counted = useRef({ ga: "", meta: "" });
+  const counted = useRef({ ga: "", meta: "", tiktok: "" });
   useReportWebVitals(trackVital);
 
   const pageView = (path: string) => {
@@ -50,6 +51,12 @@ export function Analytics() {
         counted.current.meta = path;
         if (initPath !== path) window.fbq?.("track", "PageView");
       } else counted.current.meta = "";
+    }
+    if (counted.current.tiktok !== path) {
+      if (allowed("marketing")) {
+        counted.current.tiktok = path;
+        if (initPath !== path) window.ttq?.page();
+      } else counted.current.tiktok = "";
     }
   };
 
