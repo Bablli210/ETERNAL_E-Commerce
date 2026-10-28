@@ -44,6 +44,13 @@ function dropCookie(name: string) {
 
 const cookieNames = () => document.cookie.split(/;\s*/).map((p) => p.split("=")[0]);
 
+/** The cookies the ad pixels (Meta, TikTok) and Google's ad signals set, which only a yes to marketing allows. */
+const isAdCookie = (n: string) =>
+  n === "_fbp" || n === "_fbc" || n === "_ttp" || n === "_tt_enable_cookie" || n === "ttclid" || n.startsWith("ttcsid") || n.startsWith("_gcl_") || n.startsWith("_gac_");
+const dropAdCookies = () => {
+  for (const name of cookieNames().filter(isAdCookie)) dropCookie(name);
+};
+
 // useSyncExternalStore needs the same object back while nothing changed.
 let lastKey: string | null | undefined;
 let lastValue: Consent | null = null;
@@ -83,7 +90,12 @@ function followOtherTabs() {
 }
 
 const subscribe = (onChange: () => void) => {
-  if (applied === undefined) applied = keyOf(readConsent());
+  if (applied === undefined) {
+    const c = readConsent();
+    applied = keyOf(c);
+    // With a no, any ad cookie still here (one a pixel wrote as it was told to stop) goes on the next page.
+    if (c && !c.marketing) dropAdCookies();
+  }
   // Every subscriber re-reads (React skips the render when nothing changed); the page acts on a change once.
   const recheck = () => {
     followOtherTabs();
@@ -169,7 +181,9 @@ function applyInPage(c: Consent, before: Consent | null) {
   if (!c.marketing && before?.marketing !== false) {
     window.fbq?.("consent", "revoke");
     window.ttq?.revokeConsent();
-    for (const name of cookieNames().filter((n) => n === "_fbp" || n === "_fbc" || n === "_ttp" || n === "_tt_enable_cookie" || n === "ttclid" || n.startsWith("ttcsid") || n.startsWith("_gcl_") || n.startsWith("_gac_"))) dropCookie(name);
+    dropAdCookies();
+    // TikTok's script writes its session cookie (ttcsid) once more as it stops, so sweep again a moment later.
+    window.setTimeout(dropAdCookies, 2000);
   }
   if (c.marketing) {
     window.fbq?.("consent", "grant");
