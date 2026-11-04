@@ -1629,6 +1629,51 @@
       "metafields": []
     },
     {
+      "id": "gid://shopify/Product/9780316864771",
+      "handle": "secret-no-1",
+      "title": "Secret No. 1",
+      "description": "Calabrian bergamot opens into Tunisian orange blossom, base of Ambrofix and patchouli.",
+      "tags": [
+        "55ml",
+        "citrus",
+        "eterno",
+        "floral",
+        "for him",
+        "woody"
+      ],
+      "vendor": "eternal",
+      "productType": "Fragrance",
+      "createdAt": "2026-11-04T18:00:00Z",
+      "availableForSale": true,
+      "images": [],
+      "priceRange": {
+        "minVariantPrice": {
+          "amount": "950.00",
+          "currencyCode": "EGP"
+        }
+      },
+      "variants": [
+        {
+          "id": "gid://shopify/ProductVariant/50139232665859",
+          "title": "55 ml",
+          "sku": "ETRN-SEC1-55",
+          "availableForSale": true,
+          "quantityAvailable": null,
+          "price": {
+            "amount": "950.00",
+            "currencyCode": "EGP"
+          },
+          "selectedOptions": [
+            {
+              "name": "Size",
+              "value": "55 ml"
+            }
+          ]
+        }
+      ],
+      "metafields": []
+    },
+    {
       "id": "gid://shopify/Product/9554987057411",
       "handle": "secret-no-7",
       "title": "Secret No. 7",
@@ -1880,10 +1925,14 @@
       "id": "gid://shopify/Product/9600901120259",
       "handle": "ultra-smoke",
       "title": "Ultra Smoke",
-      "description": "",
+      "description": "Cardamom, bergamot and pink pepper open into frankincense, myrrh and juniper berries, base of vanilla, cedarwood and patchouli.",
       "tags": [
+        "55ml",
+        "amber",
         "eterno",
-        "for him"
+        "for him",
+        "smoky",
+        "spicy"
       ],
       "vendor": "eternal",
       "productType": "Fragrance",
@@ -1892,7 +1941,7 @@
       "images": [],
       "priceRange": {
         "minVariantPrice": {
-          "amount": "1380.00",
+          "amount": "1150.00",
           "currencyCode": "EGP"
         }
       },
@@ -1900,11 +1949,11 @@
         {
           "id": "gid://shopify/ProductVariant/49484103221507",
           "title": "55 ml",
-          "sku": null,
+          "sku": "ETRN-USMO-55",
           "availableForSale": true,
           "quantityAvailable": null,
           "price": {
-            "amount": "1380.00",
+            "amount": "1150.00",
             "currencyCode": "EGP"
           },
           "selectedOptions": [
