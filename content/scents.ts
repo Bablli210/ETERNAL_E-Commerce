@@ -152,8 +152,8 @@ export const scents: Record<string, ScentContent> = {
   paradox: { line: "eterna", inspiredBy: "Prada Paradoxe" },
   ciel: { line: "eterno", inspiredBy: "Roja Elysium" },
   "smoked-aura": { line: "eterno", inspiredBy: "Creed Aventus (Smokey Edition)" },
-  /** Inactive on the owner's sheet: off the site (no page, card or search) while Shopify still lists it. */
-  "ultra-smoke": { line: "eterno", inactive: true },
+  "ultra-smoke": { line: "eterno", inspiredBy: "Amouage Decision", notesShort: ["Cardamom", "frankincense", "vanilla"] },
+  "secret-no-1": { line: "eterno", inspiredBy: "Yves Saint Laurent MYSLF EDP", notesShort: ["Bergamot", "orange blossom", "patchouli"] },
   "mango-eclipse": { line: "eternal", inspiredBy: "Unique'e Luxury Mangonificent" },
   hera: { line: "eterna", inspiredBy: "Burberry Her" },
   "secret-no-7": { line: "eterna", inspiredBy: "Jean Paul Gaultier La Belle" },
