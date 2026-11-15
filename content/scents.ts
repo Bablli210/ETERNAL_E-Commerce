@@ -174,5 +174,13 @@ export const scents: Record<string, ScentContent> = {
   oasis: { line: "eternal", inspiredBy: "Louis Vuitton Imagination" },
   "shore-club": { line: "eternal", inspiredBy: "Louis Vuitton Pacific Chill" },
   mystique: { line: "eterna", original: true },
+  // The winter collection (content/winter.ts), November 2026. Notes from each inspiration's Fragrantica page.
+  "silent-charisma": { line: "eterno", inspiredBy: "Dior Homme Intense", notesShort: ["Lavender", "iris", "cedar"] },
+  unspoken: { line: "eterno", inspiredBy: "Jimmy Choo Man", notesShort: ["Melon", "lavender", "suede"] },
+  "perfect-stranger": { line: "eterno", inspiredBy: "Yves Saint Laurent Tuxedo Extrait de Parfum", notesShort: ["Saffron", "leather", "vanilla"] },
+  "caramel-cloud": { line: "eterna", inspiredBy: "Giardini di Toscana Bianco Latte", notesShort: ["Caramel", "honey", "vanilla"] },
+  "after-dark": { line: "eterno", inspiredBy: "Yves Saint Laurent Babycat", notesShort: ["Pink pepper", "frankincense", "vanilla"] },
+  "royal-woods": { line: "eterno", inspiredBy: "Essential Parfums Bois Impérial", notesShort: ["Basil", "akigalawood", "vetiver"] },
+  "silent-authority": { line: "eterno", inspiredBy: "Chanel Bleu de Chanel", notesShort: ["Grapefruit", "ginger", "incense"] },
   "raw-seduction": { line: "eterno", original: true },
 };

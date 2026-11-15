@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import { familyOrder, families, lines, type LineKey } from "@/content/taxonomy";
 import { occasionOrder, occasions, occasionsLive } from "@/content/occasions";
+import { winter, winterLive } from "@/content/winter";
 import { site } from "@/content/site";
 import { facts } from "@/lib/facts";
 import { formatMoney } from "@/lib/format";
@@ -139,6 +140,9 @@ export function MobileMenu({ onClose, counts, box, originals, thumbs }: { onClos
             ))}
           </Group>
           <ul className="divide-y divide-dune border-b border-dune">
+            {winterLive && (
+              <Row href={`/shop/${winter.slug}`} follow={follow} thumb={thumb("winter")} title={winter.title} sub={`${winter.handles.length} new scents for the cold months`} />
+            )}
             <Row
               href="/finder"
               follow={follow}
