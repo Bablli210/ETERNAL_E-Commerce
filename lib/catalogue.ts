@@ -5,6 +5,7 @@ import { scents as editorial, type NoteStage } from "@/content/scents";
 import { families, familyOrder, moods, moodOrder, lines, collectionBySlug, type CollectionDef, type FamilyKey, type LineKey, type MoodKey } from "@/content/taxonomy";
 import { taleForHandle } from "@/content/tales";
 import { occasionOrder, occasions, type OccasionKey } from "@/content/occasions";
+import { winter } from "@/content/winter";
 import { shopifyConfigured } from "./shopify/client";
 import { fetchAllProducts } from "./shopify/queries";
 import type { CatalogueSnapshot, Money, ShopifyImage, ShopifyProduct } from "./shopify/types";
@@ -459,6 +460,10 @@ export async function getCollection(slug: string): Promise<{ def: CollectionDef;
       break;
     case "occasion":
       picked = scents.filter((s) => s.occasions.includes(def.key as OccasionKey));
+      break;
+    case "winter":
+      // In the owner's order, not the shop's.
+      picked = winter.handles.map((h) => scents.find((s) => s.handle === h)).filter((s): s is Scent => Boolean(s));
       break;
   }
   // Products with imagery first, so the first rows always show a bottle.

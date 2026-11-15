@@ -6,6 +6,7 @@ import { Eyebrow, Price } from "@/components/ui/Primitives";
 import { site } from "@/content/site";
 import { familyOrder, families, lines } from "@/content/taxonomy";
 import { occasionOrder, occasions, occasionsLive } from "@/content/occasions";
+import { winter, winterLive } from "@/content/winter";
 import type { ScentIndexEntry } from "@/lib/catalogue";
 import { InspiredBy } from "@/components/product/InspiredBy";
 import { LineLabel } from "@/components/product/LineLabel";
@@ -24,6 +25,7 @@ const byLine: MenuLink[] = [
 ];
 
 const startHere: MenuLink[] = [
+  ...(winterLive ? [{ label: winter.title, href: `/shop/${winter.slug}` }] : []),
   { label: "Find your scent", href: "/finder" },
   { label: `Mystery box · 3 × ${site.sampleSizeMl} ml`, href: "/products/mystery-box" },
   { label: "Where to start", href: "/shop/bestsellers" },
